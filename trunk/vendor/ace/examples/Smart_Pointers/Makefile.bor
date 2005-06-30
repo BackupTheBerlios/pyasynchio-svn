@@ -1,0 +1,9 @@
+#
+# Makefile.bor,v 1.2 2003/12/21 10:12:20 jwillemsen Exp
+#
+# Makefile for building the Smart_Pointers examples
+#
+
+MAKEFILES = widget_test.bor gadget_test.bor
+
+!include <$(ACE_ROOT)\include\makeinclude\recurse.bor>

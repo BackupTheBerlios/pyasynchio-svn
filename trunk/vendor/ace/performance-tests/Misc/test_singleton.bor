@@ -1,0 +1,19 @@
+#
+# test_singleton.bor,v 4.3 2003/12/03 15:49:57 jwillemsen Exp
+#
+# Makefile for building the test_singleton Misc performance-test
+#
+
+NAME = test_singleton
+
+OBJFILES = \
+	$(OBJDIR)\test_singleton.obj
+
+CPPDIR = .
+
+LIBFILES = \
+        $(ACE_LIB)
+
+CFLAGS = $(ACE_CFLAGS)
+
+!include <$(ACE_ROOT)\include\makeinclude\build_exe.bor>

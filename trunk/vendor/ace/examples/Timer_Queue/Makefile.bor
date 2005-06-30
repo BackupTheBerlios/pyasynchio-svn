@@ -1,0 +1,9 @@
+#
+# Makefile.bor,v 4.2 2003/12/21 10:12:20 jwillemsen Exp
+#
+# Makefile for building the Timer_Queue examples
+#
+
+MAKEFILES = Async_Timer_Queue_Test.bor Reactor_Timer_Queue_Test.bor Thread_Timer_Queue_Test.bor
+
+!include <$(ACE_ROOT)\include\makeinclude\recurse.bor>

@@ -1,0 +1,14 @@
+// -*- MPC -*-
+// Server_Concurrency_Queue_Based_Workers.mpc,v 1.2 2003/12/23 20:23:21 dhinton Exp
+
+project : aceexe {
+  source_files {
+    workers.cpp
+  }
+}
+
+project(*RTCorba) : aceexe {
+  source_files {
+    RT_CORBA_Workers.cpp
+  }
+}
