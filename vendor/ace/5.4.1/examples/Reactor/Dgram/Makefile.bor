@@ -1,0 +1,20 @@
+#
+# Makefile.bor,v 1.2 2003/12/21 10:12:20 jwillemsen Exp
+#
+# Makefile for building the ACE Dgram reactor example
+#
+
+NAMES = \
+        CODgram \
+        Dgram
+
+OBJFILES = $(OBJDIR)\$(NAME).obj
+
+CFLAGS = $(ACE_CFLAGS)
+
+CPPDIR = .
+
+LIBFILES = $(ACE_LIB)
+
+!include <$(ACE_ROOT)\include\makeinclude\recurse.bor>
+!include <$(ACE_ROOT)\include\makeinclude\build_exe.bor>

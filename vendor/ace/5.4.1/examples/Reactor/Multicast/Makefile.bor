@@ -1,0 +1,10 @@
+#
+# Makefile.bor,v 1.2 2003/12/21 10:12:20 jwillemsen Exp
+#
+# Makefile for building the Multicast example
+#
+
+MAKEFILES = client.bor server.bor
+
+!include <$(ACE_ROOT)\include\makeinclude\recurse.bor>
+

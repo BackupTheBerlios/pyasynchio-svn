@@ -1,0 +1,14 @@
+// -*- MPC -*-
+// Server_Concurrency_Leader_Follower.mpc,v 1.2 2003/12/23 20:23:21 dhinton Exp
+
+project : aceexe {
+  source_files {
+    leader_follower.cpp
+  }
+}
+
+project(*RT_CORBA) : aceexe {
+  source_files {
+    RT_CORBA_Leader_Follower.cpp
+  }
+}
