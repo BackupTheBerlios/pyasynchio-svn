@@ -1,0 +1,10 @@
+#
+# Makefile.bor,v 4.50 2003/05/19 11:11:50 jwillemsen Exp
+# Makefile for building the ACE tests
+#
+
+MAKEFILES = \
+	Test_Output.bor \
+   Tests.bor
+
+!include <$(ACE_ROOT)\include\makeinclude\recurse.bor>
