@@ -1,0 +1,56 @@
+Include("ACE/Time_Value.h")
+declaration_code("""
+struct ACE_Time_Value_to_python_tuple
+{
+    static PyObject* convert(ACE_Time_Value const &tv)
+    {
+        return incref(make_tuple(tv.sec(), tv.usec()).ptr());
+            
+    }
+};
+
+struct ACE_Time_Value_from_python_tuple
+{
+    ACE_Time_Value_from_python_tuple()
+    {
+        converter::registry::push_back(
+            &convertible,
+            &construct,
+            type_id<ACE_Time_Value>());
+    }
+
+    static void* convertible(PyObject *obj_ptr)
+    {
+        if (!PySequence_Check(obj_ptr)) return 0;
+        if (PySequence_Size(obj_ptr) < 2) return 0;
+        handle<> obj_handle(borrowed(obj_ptr));
+        object obj(obj_handle);
+        if ( !extract<int>(obj[0]).check() ) return 0;
+        if ( !extract<int>(obj[1]).check() ) return 0;
+        return obj_ptr;
+    }
+    
+    static void construct(PyObject *obj_ptr
+        , boost::python::converter::rvalue_from_python_stage1_data* data)
+    {
+        handle<> obj_handle(borrowed(obj_ptr));
+        object obj(obj_handle);
+        void* storage = (
+            (converter::rvalue_from_python_storage<ACE_Time_Value>*)
+            data)->storage.bytes;
+        new (storage) ACE_Time_Value(extract<long>(obj[0])()
+            , extract<long>(obj[1])() );
+        data->convertible = storage;
+    }
+      
+};
+""")
+
+module_code("""
+       boost::python::to_python_converter<
+            ACE_Time_Value,
+            ACE_Time_Value_to_python_tuple>();
+            
+       ACE_Time_Value_from_python_tuple();
+       
+""")
