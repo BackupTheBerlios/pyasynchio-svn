@@ -1,0 +1,24 @@
+PCHInclude("space-pyste/pch.hpp")
+r = Class("space::transport::Result", "space/transport/Result.hpp")
+exclude(r.FromFunctor)
+
+Class("space::transport::AcceptResult", "space/transport/AcceptResult.hpp")
+Class("space::transport::ConnectResult", "space/transport/ConnectResult.hpp")
+ReadStreamResult = Class("space::transport::ReadStreamResult", "space/transport/StreamResults.hpp")
+exclude(ReadStreamResult.data_)
+class_code(ReadStreamResult, 
+""".add_property("data_"
+        , make_getter(&space::transport::ReadStreamResult::data_
+            , return_value_policy<return_by_value>())
+        , make_setter(&space::transport::ReadStreamResult::data_
+            , return_value_policy<return_by_value>()))
+""")
+WriteStreamResult = Class("space::transport::WriteStreamResult", "space/transport/StreamResults.hpp")
+exclude(WriteStreamResult.data_)
+class_code(WriteStreamResult, 
+""".add_property("data_"
+        , make_getter(&space::transport::WriteStreamResult::data_
+            , return_value_policy<return_by_value>())
+        , make_setter(&space::transport::WriteStreamResult::data_
+            , return_value_policy<return_by_value>()))
+""")

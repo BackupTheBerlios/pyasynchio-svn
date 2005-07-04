@@ -1,0 +1,45 @@
+PCHInclude("space-pyste/pch.hpp")
+Include("space/transport/AcceptContext.hpp")
+Include("space/transport/ConnectContext.hpp")
+Include("space/transport/StreamContext.hpp")
+
+module_code("""
+    scope* space_transport_AcceptContext_scope = new scope(
+    class_< space::transport::AcceptContext, boost::noncopyable >("AcceptContext", no_init)
+        .def_readonly("sigValidate_", &space::transport::AcceptContext::sigValidate_)
+        .def_readonly("sigStream_", &space::transport::AcceptContext::sigStream_)
+        .def_readonly("sigComplete_", &space::transport::AcceptContext::sigComplete_)
+        .def("Create", &space::transport::AcceptContext::Create)
+        .staticmethod("Create")
+    );
+    register_ptr_to_python< boost::shared_ptr< space::transport::AcceptContext > >();
+    delete space_transport_AcceptContext_scope;
+""")
+
+module_code("""
+    scope* space_transport_ConnectContext_scope = new scope(
+    class_< space::transport::ConnectContext, boost::noncopyable >("ConnectContext", no_init)
+        .def_readonly("sigValidate_", &space::transport::ConnectContext::sigValidate_)
+        .def_readonly("sigStream_", &space::transport::ConnectContext::sigStream_)
+        .def_readonly("sigComplete_", &space::transport::ConnectContext::sigComplete_)
+        .def("Create", &space::transport::ConnectContext::Create)
+        .staticmethod("Create")
+    );
+    register_ptr_to_python< boost::shared_ptr< space::transport::ConnectContext > >();
+    delete space_transport_ConnectContext_scope;
+""")
+
+module_code("""
+    scope* space_transport_StreamContext_scope = new scope(
+    class_< space::transport::StreamContext, boost::noncopyable >("StreamContext", no_init)
+        .def_readonly("sigAct_", &space::transport::StreamContext::sigAct_)
+        .def_readonly("sigAddresses_", &space::transport::StreamContext::sigAddresses_)
+        .def_readonly("sigOpen_", &space::transport::StreamContext::sigOpen_)
+        .def_readonly("sigRead_", &space::transport::StreamContext::sigRead_)
+        .def_readonly("sigWrite_", &space::transport::StreamContext::sigWrite_)
+        .def("Create", &space::transport::StreamContext::Create)
+        .staticmethod("Create")
+    );
+    register_ptr_to_python< boost::shared_ptr< space::transport::StreamContext > >();
+    delete space_transport_StreamContext_scope;
+""")

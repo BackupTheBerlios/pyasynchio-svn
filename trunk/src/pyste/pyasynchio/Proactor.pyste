@@ -1,0 +1,8 @@
+PCHInclude("space-pyste/pch.hpp")
+Import("../../boost/noncopyable.pyste")
+
+Include("ace/Time_Value.h")
+Include("ace/Inet_Addr.h")
+
+Proactor = Class("space::transport::Proactor", "space/transport/Proactor.hpp")
+exclude(Proactor.impl)
