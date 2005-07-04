@@ -27,6 +27,14 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pyasynchio", "pyasynchio\py
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "_std.pyd", "_std.pyd_\_std.pyd.vcproj", "{0497D858-EA52-40BA-9496-B70D8CC7D450}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "_pyasynchio.pyd", "_pyasynchio.pyd_\_pyasynchio.pyd.vcproj", "{1293B766-F2CA-43B6-BB46-EF6A311B8988}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -61,6 +69,14 @@ Global
 		{BC490357-B436-4999-9541-80703AF26BEB}.Debug.Build.0 = Debug|Win32
 		{BC490357-B436-4999-9541-80703AF26BEB}.Release.ActiveCfg = Release|Win32
 		{BC490357-B436-4999-9541-80703AF26BEB}.Release.Build.0 = Release|Win32
+		{0497D858-EA52-40BA-9496-B70D8CC7D450}.Debug.ActiveCfg = Debug|Win32
+		{0497D858-EA52-40BA-9496-B70D8CC7D450}.Debug.Build.0 = Debug|Win32
+		{0497D858-EA52-40BA-9496-B70D8CC7D450}.Release.ActiveCfg = Release|Win32
+		{0497D858-EA52-40BA-9496-B70D8CC7D450}.Release.Build.0 = Release|Win32
+		{1293B766-F2CA-43B6-BB46-EF6A311B8988}.Debug.ActiveCfg = Debug|Win32
+		{1293B766-F2CA-43B6-BB46-EF6A311B8988}.Debug.Build.0 = Debug|Win32
+		{1293B766-F2CA-43B6-BB46-EF6A311B8988}.Release.ActiveCfg = Release|Win32
+		{1293B766-F2CA-43B6-BB46-EF6A311B8988}.Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

@@ -1,24 +1,24 @@
-PCHInclude("space-pyste/pch.hpp")
-r = Class("space::transport::Result", "space/transport/Result.hpp")
+PCHInclude("pyste/common_includes.hpp")
+r = Class("pyasynchio::Result", "pyasynchio/Result.hpp")
 exclude(r.FromFunctor)
 
-Class("space::transport::AcceptResult", "space/transport/AcceptResult.hpp")
-Class("space::transport::ConnectResult", "space/transport/ConnectResult.hpp")
-ReadStreamResult = Class("space::transport::ReadStreamResult", "space/transport/StreamResults.hpp")
+Class("pyasynchio::AcceptResult", "pyasynchio/AcceptResult.hpp")
+Class("pyasynchio::ConnectResult", "pyasynchio/ConnectResult.hpp")
+ReadStreamResult = Class("pyasynchio::ReadStreamResult", "pyasynchio/StreamResults.hpp")
 exclude(ReadStreamResult.data_)
 class_code(ReadStreamResult, 
 """.add_property("data_"
-        , make_getter(&space::transport::ReadStreamResult::data_
+        , make_getter(&pyasynchio::ReadStreamResult::data_
             , return_value_policy<return_by_value>())
-        , make_setter(&space::transport::ReadStreamResult::data_
+        , make_setter(&pyasynchio::ReadStreamResult::data_
             , return_value_policy<return_by_value>()))
 """)
-WriteStreamResult = Class("space::transport::WriteStreamResult", "space/transport/StreamResults.hpp")
+WriteStreamResult = Class("pyasynchio::WriteStreamResult", "pyasynchio/StreamResults.hpp")
 exclude(WriteStreamResult.data_)
 class_code(WriteStreamResult, 
 """.add_property("data_"
-        , make_getter(&space::transport::WriteStreamResult::data_
+        , make_getter(&pyasynchio::WriteStreamResult::data_
             , return_value_policy<return_by_value>())
-        , make_setter(&space::transport::WriteStreamResult::data_
+        , make_setter(&pyasynchio::WriteStreamResult::data_
             , return_value_policy<return_by_value>()))
 """)

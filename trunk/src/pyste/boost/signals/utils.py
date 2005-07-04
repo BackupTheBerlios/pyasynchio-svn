@@ -1,6 +1,6 @@
 def export_signal(signal_type, header, override_call = True):
-    Include("space-pyste/signal_connect_override.hpp")
-    Include("space-pyste/signal_call_override.hpp")
+    Include("pyste/signal_connect_override.hpp")
+    Include("pyste/signal_call_override.hpp")
 
     signal = Class(signal_type, header)
     set_policy(signal.combiner, return_internal_reference(1))

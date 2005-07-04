@@ -1,27 +1,27 @@
-PCHInclude("space-pyste/pch.hpp")
-Import("../../boost/noncopyable.pyste")
+PCHInclude("pyste/common_includes.hpp")
+Import("../boost/noncopyable.pyste")
 Include("ace/Time_Value.h")
 Include("ace/Inet_Addr.h")
 
-execfile("src/pyste-files/boost/signals/utils.py")
+execfile("src/pyste/boost/signals/utils.py")
 
 def export_proactor_signal(signal_type, override_call):
-    return export_signal(signal_type, "space/transport/Proactor.hpp", override_call)
+    return export_signal(signal_type, "pyasynchio/Proactor.hpp", override_call)
 
-sigs = [("space::transport::AcceptCompleteSignal", True)
-, ("space::transport::ValidateAcceptSignal", False)
-, ("space::transport::AcceptStreamSignal", True)
-, ("space::transport::ConnectCompleteSignal", True)
-, ("space::transport::ValidateConnectSignal", False)
-, ("space::transport::ConnectStreamSignal", True)
-, ("space::transport::AddressesSignal", True)
-, ("space::transport::ActSignal", True)
-, ("space::transport::OpenSignal", True)
-, ("space::transport::ReadStreamSignal", True)
-, ("space::transport::WriteStreamSignal", True) 
-, ("space::transport::TimerSignalBase", True)]
+sigs = [("pyasynchio::AcceptCompleteSignal", True)
+, ("pyasynchio::ValidateAcceptSignal", False)
+, ("pyasynchio::AcceptStreamSignal", True)
+, ("pyasynchio::ConnectCompleteSignal", True)
+, ("pyasynchio::ValidateConnectSignal", False)
+, ("pyasynchio::ConnectStreamSignal", True)
+, ("pyasynchio::AddressesSignal", True)
+, ("pyasynchio::ActSignal", True)
+, ("pyasynchio::OpenSignal", True)
+, ("pyasynchio::ReadStreamSignal", True)
+, ("pyasynchio::WriteStreamSignal", True) 
+, ("pyasynchio::TimerSignalBase", True)]
 
 for s in sigs:
     export_proactor_signal(s[0], s[1])
 
-use_shared_ptr(export_proactor_signal("space::transport::TimerSignal", True))
+use_shared_ptr(export_proactor_signal("pyasynchio::TimerSignal", True))
