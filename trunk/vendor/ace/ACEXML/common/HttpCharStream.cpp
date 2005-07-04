@@ -1,4 +1,4 @@
-// HttpCharStream.cpp,v 1.19 2004/01/09 00:50:35 kitty Exp
+// HttpCharStream.cpp,v 1.20 2004/11/29 16:04:43 jwillemsen Exp
 
 #include "ace/ACE.h"
 #include "ace/ace_wchar.h"
@@ -8,7 +8,7 @@
 #include "ACEXML/common/HttpCharStream.h"
 #include "ACEXML/common/Encoding.h"
 
-ACE_RCSID (common, HttpCharStream, "HttpCharStream.cpp,v 1.19 2004/01/09 00:50:35 kitty Exp")
+ACE_RCSID (common, HttpCharStream, "HttpCharStream.cpp,v 1.20 2004/11/29 16:04:43 jwillemsen Exp")
 
 /* Header FSM states. */
 static const int HDST_LINE1_PROTOCOL = 0;
@@ -322,7 +322,7 @@ ACEXML_HttpCharStream::determine_encoding (void)
 
   char input[4] = {0, 0, 0, 0};
   int i = 0;
-  for (; i < 4 && input[i] != -1; ++i)
+  for (; i < 4 && input[i] != (char)-1; ++i)
     input[i] = this->stream_->peek_char(i);
   if (i < 4)
     return -1;

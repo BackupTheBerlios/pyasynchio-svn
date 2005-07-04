@@ -7,7 +7,7 @@
  * This file declares functions to convert char string among different
  * unicode encoding (utf8, utf16, utf32)
  *
- *  Transcode.h,v 1.9 2003/12/18 19:17:13 kitty Exp
+ *  Transcode.h,v 1.10 2004/10/25 14:08:40 totten_s Exp
  *
  *  @author Nanbor Wang <nanbor@cs.wustl.edu>
  */
@@ -47,7 +47,7 @@ public:
     ACEXML_INVALID_ARGS = -3,
     ACEXML_IS_SURROGATE = -4,
     ACEXML_NON_UNICODE = -5
-  } STATUS;
+  } ACEXML_STATUS;
 
 
   // The following functions translate a unicode characters

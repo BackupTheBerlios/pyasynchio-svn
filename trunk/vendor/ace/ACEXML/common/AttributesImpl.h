@@ -4,7 +4,7 @@
 /**
  *  @file    AttributesImpl.h
  *
- *  AttributesImpl.h,v 1.6 2003/07/19 19:04:10 dhinton Exp
+ *  AttributesImpl.h,v 1.8 2004/10/21 17:33:56 elliott_c Exp
  *
  *  @author Nanbor Wang <nanbor@cs.wustl.edu>
  */
@@ -99,13 +99,12 @@ public:
   ACEXML_Attribute &operator= (const ACEXML_Attribute &rhs);
 
   /// Comparison operator.
-  int operator!= (const ACEXML_Attribute&rhs) const;
+  bool operator!= (const ACEXML_Attribute&rhs) const;
 
 private:
-  /// @var uri_ Namespace URI of an attribute
+  /// Namespace URI of an attribute
   ACEXML_Char *uri_;
 
-  /// @var localName_
   ACEXML_Char *localName_;
   ACEXML_Char *qName_;
   ACEXML_Char *type_;

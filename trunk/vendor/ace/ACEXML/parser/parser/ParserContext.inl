@@ -1,4 +1,6 @@
-// ParserContext.inl,v 1.4 2004/01/09 00:50:35 kitty Exp
+// -*- C++ -*-
+//
+// ParserContext.inl,v 1.5 2004/04/23 03:45:34 ossama Exp
 
 
 ACEXML_INLINE
@@ -26,7 +28,7 @@ ACEXML_Parser_Context::ACEXML_Parser_Context (const ACEXML_Parser_Context& src)
 
 }
 
-ACEXML_INLINE int
+ACEXML_INLINE bool
 ACEXML_Parser_Context::operator!= (const ACEXML_Parser_Context& src)
 {
   return (this->instream_ != src.instream_ && this->locator_ != src.locator_);

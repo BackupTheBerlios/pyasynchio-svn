@@ -4,7 +4,7 @@
 /**
  *  @file    ParserContext.h
  *
- *  ParserContext.h,v 1.4 2004/01/09 00:50:35 kitty Exp
+ *  ParserContext.h,v 1.5 2004/04/23 03:45:34 ossama Exp
  *
  *  @author Krishnakumar B <kitty@cs.wustl.edu>
  */
@@ -39,7 +39,7 @@ public:
                          ACEXML_LocatorImpl* locator);
 
   /// Comparison operator
-  int operator!= (const ACEXML_Parser_Context& src);
+  bool operator!= (const ACEXML_Parser_Context& src);
 
   /// Destructor
   virtual ~ACEXML_Parser_Context();

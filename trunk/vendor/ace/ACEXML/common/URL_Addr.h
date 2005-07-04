@@ -2,7 +2,7 @@
 
 /** @file   URL_Addr.h
  *
- *  URL_Addr.h,v 1.9 2003/11/07 20:27:29 shuston Exp
+ *  URL_Addr.h,v 1.10 2004/04/23 03:45:34 ossama Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  *  @author Krishnakumar B <kitty@cs.wustl.edu>
@@ -96,10 +96,10 @@ public:
    *  Compare two addresses for equality.  The addresses are considered
    *  equal if they contain the same IP address, port number, and path name.
    */
-  int operator == (const ACEXML_URL_Addr &SAP) const;
+  bool operator == (const ACEXML_URL_Addr &SAP) const;
 
   /// Compare two addresses for inequality.
-  int operator != (const ACEXML_URL_Addr &SAP) const;
+  bool operator != (const ACEXML_URL_Addr &SAP) const;
 
   /// Computes and returns hash value.
   virtual u_long hash (void) const;

@@ -7,7 +7,7 @@
  * This file collects the type definitions for data types
  * used in ACE XML parser.
  *
- *  XML_Types.h,v 1.7 2003/11/01 11:15:06 dhinton Exp
+ *  XML_Types.h,v 1.10 2004/08/26 15:40:54 shuston Exp
  *
  *  @author Nanbor Wang <nanbor@cs.wustl.edu>
  */
@@ -23,7 +23,9 @@
 #pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
+#include "ace/Basic_Types.h"
 #include "ace/SString.h"
+#include "ace/Functor_String.h"
 
 # if defined (ACE_HAS_WCHAR) && (ACE_SIZEOF_WCHAR == 2)
 typedef wchar_t ACEXML_UTF16;
@@ -52,11 +54,12 @@ typedef char ACEXML_UTF8;
  * using the built-in conversion functions as they only perform simple
  * copy without any encoding conversion.
  */
+typedef ACE_TCHAR ACEXML_Char;
 # if defined (ACE_USES_WCHAR)
-typedef ACEXML_UTF16 ACEXML_Char;
+//typedef ACEXML_UTF16 ACEXML_Char;
 typedef ACE_WString ACEXML_String;
 # else
-typedef ACEXML_UTF8 ACEXML_Char;
+//typedef ACEXML_UTF8 ACEXML_Char;
 typedef ACE_CString ACEXML_String;
 # endif /* ACE_USES_WCHAR */
 

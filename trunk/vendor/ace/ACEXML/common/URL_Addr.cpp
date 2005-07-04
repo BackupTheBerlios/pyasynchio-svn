@@ -1,8 +1,8 @@
-// URL_Addr.cpp,v 1.11 2003/11/07 20:27:29 shuston Exp
+// URL_Addr.cpp,v 1.12 2004/06/16 19:04:49 shuston Exp
 
 #include "ACEXML/common/URL_Addr.h"
 
-ACE_RCSID(common, ACEXML_URL_Addr, "URL_Addr.cpp,v 1.11 2003/11/07 20:27:29 shuston Exp")
+ACE_RCSID(common, ACEXML_URL_Addr, "URL_Addr.cpp,v 1.12 2004/06/16 19:04:49 shuston Exp")
 
 #if !defined (__ACEXML_INLINE__)
 #include "ACEXML/common/URL_Addr.inl"
@@ -10,7 +10,9 @@ ACE_RCSID(common, ACEXML_URL_Addr, "URL_Addr.cpp,v 1.11 2003/11/07 20:27:29 shus
 
 #include "ace/Log_Msg.h"
 #include "ace/Auto_Ptr.h"
+#include "ace/OS_Memory.h"
 #include "ace/OS_NS_stdio.h"
+#include "ace/OS_NS_stdlib.h"
 #include "ace/OS_NS_string.h"
 
 ACEXML_URL_Addr::ACEXML_URL_Addr (void)

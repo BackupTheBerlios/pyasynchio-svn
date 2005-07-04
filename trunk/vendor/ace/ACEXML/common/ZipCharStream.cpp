@@ -1,6 +1,6 @@
-// ZipCharStream.cpp,v 1.4 2004/01/09 00:50:35 kitty Exp
+// ZipCharStream.cpp,v 1.5 2004/10/26 18:59:25 elliott_c Exp
 
-#ifdef ACEXML_HAS_ZZIPLIB
+#ifdef USE_ZZIP
 
 #include "ACEXML/common/ZipCharStream.h"
 #include "ace/ACE.h"
@@ -252,4 +252,4 @@ ACEXML_ZipCharStream::peek_i (void)
 static int shut_up_aCC = 0;
 #endif /* __HP_aCC */
 
-#endif /* ACEXML_HAS_ZZIPLIB */
+#endif /* USE_ZZIP */

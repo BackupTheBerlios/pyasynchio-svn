@@ -1,4 +1,6 @@
-// URL_Addr.inl,v 1.4 2003/11/07 20:27:29 shuston Exp
+// -*- C++ -*-
+//
+// URL_Addr.inl,v 1.5 2004/04/23 03:45:34 ossama Exp
 
 #include "ace/ACE.h"
 #include "ace/INET_Addr.h"
@@ -34,7 +36,7 @@ ACEXML_URL_Addr::hash (void) const
   return result;
 }
 
-ACE_INLINE int
+ACE_INLINE bool
 ACEXML_URL_Addr::operator== (const ACEXML_URL_Addr &addr) const
 {
   return ACE_OS::strcmp (addr.get_path_name (), this->get_path_name ()) == 0
@@ -42,7 +44,7 @@ ACEXML_URL_Addr::operator== (const ACEXML_URL_Addr &addr) const
     && addr.get_ip_address () == this->get_ip_address ();
 }
 
-ACE_INLINE int
+ACE_INLINE bool
 ACEXML_URL_Addr::operator!= (const ACEXML_URL_Addr &addr) const
 {
   return !(*this == addr);

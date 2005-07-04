@@ -4,7 +4,7 @@
 /**
  *  @file    ZipCharStream.h
  *
- *  ZipCharStream.h,v 1.4 2003/07/19 19:04:10 dhinton Exp
+ *  ZipCharStream.h,v 1.5 2004/10/26 18:59:25 elliott_c Exp
  *
  *  @author Krishnakumar B <kitty@cs.wustl.edu>
  */
@@ -13,7 +13,7 @@
 #ifndef _ACEXML_ZIPCHARSTREAM_H_
 #define _ACEXML_ZIPCHARSTREAM_H_
 
-#ifdef ACEXML_HAS_ZZIPLIB
+#ifdef USE_ZZIP
 
 #include /**/ "ace/pre.h"
 #include "ACEXML/common/ACEXML_Export.h"
@@ -139,6 +139,6 @@ private:
 
 #include /**/ "ace/post.h"
 
-#endif /* ACEXML_HAS_ZZIPLIB */
+#endif /* USE_ZZIP */
 
 #endif /* _ACEXML_ZIPCHARSTREAM_H_ */

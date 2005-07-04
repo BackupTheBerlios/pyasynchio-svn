@@ -1,9 +1,10 @@
-// Mem_Map_Stream.cpp,v 1.12 2004/01/09 00:50:35 kitty Exp
+// Mem_Map_Stream.cpp,v 1.13 2004/06/14 16:31:53 jwillemsen Exp
 
 #include "ace/FILE_Addr.h"
+#include "ace/OS_NS_unistd.h"
 #include "ACEXML/common/Mem_Map_Stream.h"
 
-ACE_RCSID(common, Mem_Map_Stream, "Mem_Map_Stream.cpp,v 1.12 2004/01/09 00:50:35 kitty Exp")
+ACE_RCSID(common, Mem_Map_Stream, "Mem_Map_Stream.cpp,v 1.13 2004/06/14 16:31:53 jwillemsen Exp")
 
 ACEXML_Mem_Map_Stream::ACEXML_Mem_Map_Stream (void)
   : svc_handler_ (0)

@@ -2,7 +2,7 @@
 /**
  *  @file    Parser.i
  *
- *  Parser.i,v 1.9 2003/12/19 13:30:28 jwillemsen Exp
+ *  Parser.i,v 1.10 2004/11/03 13:14:01 elliott_c Exp
  *
  *  @author Nanbor Wang <nanbor@cs.wustl.edu>
  */
@@ -248,8 +248,7 @@ ACEXML_Parser::parse_token (const ACEXML_Char* keyword)
   if (keyword == 0)
     return -1;
   const ACEXML_Char* ptr = keyword;
-  ACEXML_Char ch;
-  for (; *ptr != 0 && ((ch = this->get()) == *ptr); ++ptr)
+  for (; *ptr != 0 && (this->get() == *ptr); ++ptr)
     ;
   if (*ptr == 0)
   return 0;

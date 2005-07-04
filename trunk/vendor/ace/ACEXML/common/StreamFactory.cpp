@@ -1,4 +1,4 @@
-// StreamFactory.cpp,v 1.4 2003/11/07 20:27:29 shuston Exp
+// StreamFactory.cpp,v 1.5 2004/10/26 18:59:25 elliott_c Exp
 
 #include "ace/OS_NS_string.h"
 
@@ -6,11 +6,11 @@
 #include "ACEXML/common/FileCharStream.h"
 #include "ACEXML/common/HttpCharStream.h"
 
-#ifdef ACEXML_HAS_ZZIPLIB
+#ifdef USE_ZZIP
 #include "ACEXML/common/ZipCharStream.h"
-#endif /* ACEXML_HAS_ZZIPLIB */
+#endif /* USE_ZZIP */
 
-ACE_RCSID (common, StreamFactory, "StreamFactory.cpp,v 1.4 2003/11/07 20:27:29 shuston Exp")
+ACE_RCSID (common, StreamFactory, "StreamFactory.cpp,v 1.5 2004/10/26 18:59:25 elliott_c Exp")
 
 ACEXML_CharStream*
 ACEXML_StreamFactory::create_stream (const ACEXML_Char* uri)
@@ -37,7 +37,7 @@ ACEXML_StreamFactory::create_stream (const ACEXML_Char* uri)
       ACE_NEW_RETURN (fstream, ACEXML_FileCharStream, 0);
       if (fstream->open (uri) != -1)
         return fstream;
-#ifdef ACEXML_HAS_ZZIPLIB
+#ifdef USE_ZZIP
       else
         {
           ACEXML_ZipCharStream* zstream = 0;
@@ -45,7 +45,7 @@ ACEXML_StreamFactory::create_stream (const ACEXML_Char* uri)
           if (zstream->open (uri) != -1)
             return zstream;
         }
-#endif /* ACEXML_HAS_ZZIPLIB */
+#endif /* USE_ZZIP */
     }
   return 0;
 }
