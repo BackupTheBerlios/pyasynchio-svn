@@ -1,9 +1,8 @@
 // -*- MPC -*-
-// ftrtevent.mpb,v 1.4 2003/12/30 15:18:22 dhinton Exp
+// ftrtevent.mpb,v 1.8 2004/08/27 18:49:47 jtc Exp
 
-project : ftorbutils, rtevent, naming {
+project : ftorbutils, rtevent, naming, messaging, minimum_corba {
   after     += FtRtEvent
   libs      += TAO_FtRtEvent
-  comps     += FtRtEvent
   tagchecks += FtRtEvent
 }

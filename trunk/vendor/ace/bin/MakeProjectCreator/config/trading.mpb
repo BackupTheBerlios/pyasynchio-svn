@@ -1,9 +1,7 @@
 // -*- MPC -*-
-// trading.mpb,v 1.4 2003/12/30 15:18:22 dhinton Exp
+// trading.mpb,v 1.6 2004/09/07 23:42:00 jtc Exp
 
-project : dynamicany, portableserver {
+project : orbsvcslib {
   after     += CosTrading 
   libs      += TAO_CosTrading
-  comps     += Trader
-  tagchecks += Trader
 }

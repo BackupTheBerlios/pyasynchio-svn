@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# generate_compile_stats.sh,v 1.10 2003/06/04 19:44:31 dhinton Exp
+# generate_compile_stats.sh,v 1.11 2004/06/16 09:53:31 jwillemsen Exp
 #
 # This script generate metrics html pages for either compile times or
 # footprint.
@@ -670,7 +670,7 @@ create_images ()
   local DEST=$1
   local TYPE=$2
   local LOW=0
-  local HIGH=10000
+  local HIGH=5000
   local STEP=0
   local TMP=0
 

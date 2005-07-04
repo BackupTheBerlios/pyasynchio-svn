@@ -1,9 +1,12 @@
 // -*- MPC -*-
-// orbsvcslib.mpb,v 1.7 2004/01/08 13:51:26 elliott_c Exp
+// orbsvcslib.mpb,v 1.11 2004/09/28 00:50:02 jtc Exp
 
 project : taolib_with_idl, orbsvcs_output {
-  includes   += $(TAO_ROOT)/orbsvcs
-  idlflags   += -I$(TAO_ROOT)/orbsvcs
-  compname    = --orbsvcs
   tagname     = TAO_ORBSVCS
+  includes += $(TAO_ROOT)/orbsvcs
+  idlflags += -I$(TAO_ROOT)/orbsvcs
+
+  specific(automake) {
+    includes += $(TAO_BUILDDIR)/orbsvcs
+  }
 }

@@ -1,9 +1,7 @@
 // -*- MPC -*-
-// naming.mpb,v 1.5 2003/12/30 15:18:22 dhinton Exp
+// naming.mpb,v 1.7 2004/09/07 23:42:00 jtc Exp
 
-project : iortable, messaging, svc_utils {
+project : orbsvcslib {
   after     += CosNaming
   libs      += TAO_CosNaming
-  comps     += Naming
-  tagchecks += Naming
 }

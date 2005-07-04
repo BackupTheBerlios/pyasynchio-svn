@@ -1,4 +1,4 @@
-# ace_tests.lst,v 1.1 2003/03/25 00:17:03 bala Exp
+# ace_tests.lst,v 1.2 2004/04/22 14:00:02 jwillemsen Exp
 #
 # This is the list of run_test.pl's that need to be run by
 # auto_run_tests.pl.
@@ -10,4 +10,4 @@
 # NOTE: This file contains tests only for ACE. Please do not include
 # tests in TAO here..
 tests/run_test.pl
-examples/Reactor/WFMO_Reactor/run_test.pl
+examples/Reactor/WFMO_Reactor/run_test.pl: !Cygwin

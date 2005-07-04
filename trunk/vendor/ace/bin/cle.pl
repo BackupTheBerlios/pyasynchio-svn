@@ -5,14 +5,19 @@ eval '(exit $?0)' && eval 'exec perl -S $0 ${1+"$@"}'
 # ******************************************************************
 #      Author: Chad Elliott
 #        Date: 6/18/2002
-#         cle.pl,v 1.2 2003/04/22 12:16:01 elliott_c Exp
+#         cle.pl,v 1.4 2004/08/05 09:22:31 jwillemsen Exp
 # ******************************************************************
 
 use strict;
 use Cwd;
 use File::Basename;
 
-unshift(@INC, getExecutePath($0) . '/ChangeLogEditor');
+if ( $^O eq 'VMS' ) {
+  require VMS::Filespec;
+  import VMS::Filespec qw(unixpath);
+}
+
+unshift(@INC, getExecutePath($0) . 'ChangeLogEditor');
 
 require ChangeLogEdit;
 require EmailTranslator;
@@ -25,14 +30,27 @@ sub which {
   my($prog)   = shift;
   my($exec)   = $prog;
   my($part)   = '';
-  my($envSep) = ($^O eq 'MSWin32' ? ';' : ':');
-
-  if (defined $ENV{'PATH'}) {
-    foreach $part (split(/$envSep/, $ENV{'PATH'})) {
-      $part .= "/$prog";
-      if ( -x $part ) {
-        $exec = $part;
-        last;
+  if ( $^O eq 'VMS' ) {
+    my($envSep) = ';';
+    if (defined $ENV{'PATH'}) {
+      foreach $part (split(/$envSep/, $ENV{'PATH'})) {
+        $part .= "$prog";
+        if ( -x $part ) {
+          $exec = $part;
+          last;
+        }
+      }
+    }
+  }
+  else  {
+    my($envSep) = ($^O eq 'MSWin32' ? ';' : ':');
+    if (defined $ENV{'PATH'}) {
+      foreach $part (split(/$envSep/, $ENV{'PATH'})) {
+        $part .= "/$prog";
+        if ( -x $part ) {
+          $exec = $part;
+          last;
+        }
       }
     }
   }
@@ -45,26 +63,50 @@ sub getExecutePath {
   my($prog) = shift;
   my($loc)  = '';
 
-  if ($prog ne basename($prog)) {
-    if ($prog =~ /^[\/\\]/ ||
-        $prog =~ /^[A-Za-z]:[\/\\]?/) {
-      $loc = dirname($prog);
+  if ( $^O eq 'VMS' ) {
+    if ($prog ne basename($prog)) {
+      my($dir) = unixpath( dirname($prog) );
+      if ($prog =~ /^[\/\\]/) {
+        $loc = $dir;
+      }
+      else {
+        $loc = unixpath(getcwd()) . $dir;
+      }
     }
     else {
-      $loc = getcwd() . '/' . dirname($prog);
+      $loc = unixpath( dirname(which($prog)) );
     }
-  }
-  else {
-    $loc = dirname(which($prog));
-  }
 
-  if ($loc eq '.') {
-    $loc = getcwd();
+    if ($loc eq '.') {
+      $loc = unixpath( getcwd() );
+    }
+  } else {
+    if ($prog ne basename($prog)) {
+      if ($prog =~ /^[\/\\]/ ||
+          $prog =~ /^[A-Za-z]:[\/\\]?/) {
+        $loc = dirname($prog);
+      }
+      else {
+        $loc = getcwd() . '/' . dirname($prog);
+      }
+    }
+    else {
+      $loc = dirname(which($prog));
+    }
+
+    $loc =~ s/\/\.$//;
+
+    if ($loc eq '.') {
+      $loc = getcwd();
+    }
+
+    if ($loc ne '') {
+      $loc .= '/';
+    }
   }
 
   return $loc;
 }
-
 
 sub getDefaultDomain {
   my($domain) = undef;

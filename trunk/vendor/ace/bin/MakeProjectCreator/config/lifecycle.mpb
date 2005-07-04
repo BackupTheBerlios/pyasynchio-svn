@@ -1,9 +1,8 @@
 // -*- MPC -*-
-// lifecycle.mpb,v 1.4 2003/12/30 15:18:22 dhinton Exp
+// lifecycle.mpb,v 1.6 2004/09/07 23:42:00 jtc Exp
 
-project : naming {
+project : naming, portableserver {
   libs      += TAO_CosLifeCycle
   after     += CosLifeCycle
-  comps     += LifeCycle
   tagchecks += LifeCycle
 }

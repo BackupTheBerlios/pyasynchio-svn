@@ -2,7 +2,7 @@ eval '(exit $?0)' && eval 'exec perl -S $0 ${1+"$@"}'
     & eval 'exec perl -S $0 $argv:q'
     if 0;
 
-# fuzz.pl,v 1.52 2003/12/27 10:21:26 jwillemsen Exp
+# fuzz.pl,v 1.79 2004/11/22 18:02:38 elliott_c Exp
 #   Fuzz is a script whose purpose is to check through ACE/TAO files for
 #   easy to spot (by a perl script, at least) problems.
 
@@ -14,7 +14,6 @@ use Getopt::Std;
 #
 # Add tests for these:
 #
-# - Using TAO_TRY macros instead of ACE_TRY
 # - no relative path to tao_idl in the .dsp files
 # - Linking to wrong type of library in dsp's
 # - not setting up the release configs correctly in dsp files
@@ -36,6 +35,7 @@ use Getopt::Std;
 @files_h = ();
 @files_html = ();
 @files_dsp = ();
+@files_dsw = ();
 @files_gnu = ();
 @files_idl = ();
 @files_pl = ();
@@ -108,6 +108,9 @@ sub store_file ($)
     elsif ($name =~ /\.(dsp|vcp)$/i) {
         push @files_dsp, ($name);
     }
+    elsif ($name =~ /\.(dsw|vcp)$/i) {
+        push @files_dsw, ($name);
+    }
     elsif ($name =~ /\.(pidl|idl)$/i) {
         push @files_idl, ($name);
     }
@@ -117,13 +120,13 @@ sub store_file ($)
     elsif ($name =~ /ChangeLog/i && -f $name) {
         push @files_changelog, ($name);
     }
-    elsif ($name =~ /\/Makefile.*.[^~]$/) {
+    elsif ($name =~ /\/GNUmakefile.*.[^~]$/) {
         push @files_makefile, ($name);
     }
     elsif ($name =~ /\.(mpc|mwc|mpb|mpt)/i) {
         push @files_mpc, ($name);
     }
-    elsif ($name =~ /\.(ncb|opt)$/i) {
+    elsif ($name =~ /\.(icc|ncb|opt)$/i) {
         push @files_noncvs, ($name);
     }
 }
@@ -207,6 +210,36 @@ sub check_for_id_string ()
     }
 }
 
+# check for _MSC_VER >= 1200
+sub check_for_msc_ver_string ()
+{
+    print "Running _MSC_VER check\n";
+    foreach $file (@files_cpp, @files_inl, @files_h) {
+        my $found = 0;
+        if (open (FILE, $file)) {
+            my $disable = 0;
+            print "Looking at file $file\n" if $opt_d;
+            while (<FILE>) {
+                if (/FUZZ\: disable check_for_msc_ver/) {
+                    $disable = 1;
+                }
+                if (/FUZZ\: enable check_for_msc_ver/) {
+                    $disable = 0;
+                }
+                if ($disable == 0 and /\_MSC_VER \>= 1200/) {
+                    $found = 1;
+                }
+            }
+            close (FILE);
+            if ($found == 1) {
+               print_error ("Incorrect _MSC_VER >= 1200 found in $file");
+            }
+        }
+        else {
+            print STDERR "Error: Could not open $file\n";
+        }
+    }
+}
 
 # This test checks for the newline at the end of a file
 sub check_for_newline ()
@@ -236,7 +269,7 @@ sub check_for_newline ()
 sub check_for_noncvs_files ()
 {
     print "Running non cvs files check\n";
-    foreach $file (@files_noncvs) {
+    foreach $file (@files_noncvs, @files_dsp, @files_dsw, @files_makefile) {
         print_error ("File $file should not be in cvs!");
     }
 }
@@ -531,7 +564,7 @@ sub check_for_dependency_file ()
                 if (/^DEPENDENCY_FILE\s* =\s*(.*)/) {
                     my $depend = $1;
                     my $path = $file;
-                    $path =~ s/\/Makefile.*/\//;
+                    $path =~ s/\/GNUmakefile.*/\//;
                     $depend = $path . $depend;
                     unless (open (DFILE, $depend)) {
                         print_error ("DEPENDENCY_FILE \"$depend\" not found");
@@ -550,8 +583,8 @@ sub check_for_dependency_file ()
     }
 }
 
-# This checks to see if Makefiles define a MAKEFILE, and if it matches the
-# name of the Makefile
+# This checks to see if GNUmakefiles define a MAKEFILE, and if it matches the
+# name of the GNUmakefile
 sub check_for_makefile_variable ()
 {
     print "Running MAKEFILE variable test\n";
@@ -574,7 +607,7 @@ sub check_for_makefile_variable ()
                         }
                     }
                 }
-                if ($makevarfound == 0 and !($filename eq "Makefile")) {
+                if ($makevarfound == 0 and !($filename eq "GNUmakefile")) {
                     print_error ("MAKEFILE variable missing in $file");
                     print " Add MAKEFILE = $filename to the top of $file.\n\n";
                 }
@@ -615,10 +648,10 @@ sub check_for_pre_and_post ()
                         print_error ("post.h missing \"/**/\" in $file");
                         ++$post;
                     }
-                    if (/^\s*#\s*include\s*/**/\s*\"ace\/pre\.h\"/) {
+                    if (/^\s*#\s*include\s*\/\*\*\/\s*\"ace\/pre\.h\"/) {
                         ++$pre;
                     }
-                    if (/^\s*#\s*include\s*/**/\s*\"ace\/post\.h\"/) {
+                    if (/^\s*#\s*include\s*\/\*\*\/\s*\"ace\/post\.h\"/) {
                         ++$post;
                     }
                 }
@@ -665,7 +698,7 @@ sub check_for_push_and_pop ()
             close (FILE);
 
             if ($disable == 0 && $push_count != $pop_count) {
-	        print_error ("#pragma warning(push)/(pop) mismatch in $file");
+                print_error ("#pragma warning(push)/(pop) mismatch in $file");
             }
         }
         else {
@@ -683,7 +716,7 @@ sub check_for_mismatched_filename ()
             my $disable = 0;
             print "Looking at file $file\n" if $opt_d;
             while (<FILE>) {
-                if (m/\@file\s*([^\s]*)/){
+                if (m/\@file\s*([^\s]+)/){
                     # $file includes complete path, $1 is the name after
                     # @file. We must strip the complete path from $file.
                     # we do that using the basename function from
@@ -1039,7 +1072,7 @@ sub check_for_changelog_errors ()
                 next if m/^\s*\/\//;
                 next if m/^\s*$/;
 
-		# Check for backslashes in paths.
+                # Check for backslashes in paths.
                 if (m/\*.*\\[^ ]*:/) {
                     print_error ("Backslashes in file path - $file ($line)");
                 }
@@ -1074,12 +1107,12 @@ sub check_for_ptr_arith_t ()
                 next if m/^\s*$/;     # Skip lines only containing
                                       # whitespace.
 
-		# Check for ptr_arith_t usage.  This test should
-		# ignore typedefs, and should only catch variable
-		# declarations and parameter types.
+                # Check for ptr_arith_t usage.  This test should
+                # ignore typedefs, and should only catch variable
+                # declarations and parameter types.
                 if (m/ptr_arith_t / || m/ptr_arith_t,/) {
                     print_error ("ptr_arith_t in $file ($line)."
-				 . "  Use ptrdiff_t instead.");
+                                 . "  Use ptrdiff_t instead.");
                 }
             }
             close (FILE);
@@ -1090,19 +1123,175 @@ sub check_for_ptr_arith_t ()
     }
 }
 
+# This test checks for the #include <ace/...>
+# This check is suggested by Don Hinton to force user to use
+# " " instead of <> to avoid confict with Doxygen.
+sub check_for_include ()
+{
+    print "Running the include check\n";
+    foreach $file (@files_h, @files_cpp, @files_inl, @files_idl) {
+        my $bad_occurance = 0;
+        if (open (FILE, $file)) {
+            my $disable = 0;
+            print "Looking at file $file\n" if $opt_d;
+            while (<FILE>) {
+                if (/FUZZ\: disable check_for_include/) {
+                    $disable = 1;
+                }
+                if (/FUZZ\: enable check_for_include/) {
+                    $disable = 0;
+                }
+                if ($disable == 0) {
+                    if (/^\s*#\s*include\s*<[(ace)|(TAO)|(CIAO)]\/.*>/) {
+                        #print_error ("<ace\/..> is used in $file.\n");
+                        ++$bad_occurance;
+                    }
+                    if (/^\s*#\s*include\s*<tao\/.*>/) {
+                        #print_error ("<tao\/..> is used in $file.\n");
+                        ++$bad_occurance;
+                    }
+                    if (/^\s*#\s*include\s*<ciao\/.*>/) {
+                        #print_error ("<ciao\/..> is used in $file.\n");
+                        ++$bad_occurance;
+                    }
+                }
+            }
+            close (FILE);
+
+            if ($disable == 0 && $bad_occurance > 0 ) {
+                print_error ("found #include <> usage of ace\/tao\/ciao $file.");
+            }
+        }
+        else {
+            print STDERR "Error: Could not open $file\n";
+        }
+    }
+}
+
+# This test verifies that all equality, relational and logical
+# operators return bool, as is the norm for modern C++.
+#
+# NOTE:  This test isn't fool proof yet.
+sub check_for_non_bool_operators ()
+{
+    print "Running non-bool equality, relational and logical operator check\n";
+    foreach $file (@files_h, @files_inl, @files_cpp) {
+        my $line = 0;
+        if (open (FILE, $file)) {
+            print "Looking at file $file\n" if $opt_d;
+            my $found_bool = 0;
+            my $found_return_type = 0;
+            while (<FILE>) {
+                ++$line;
+
+                if ($found_bool == 0
+                    && (/[^\w]bool\s*$/
+                        || /^bool\s*$/
+                        || /\sbool\s+\w/
+                        || /^bool\s+\w/
+                        || /[^\w]return\s*$/))
+                  {
+                    $found_bool = 1;
+                    $found_return_type = 0;
+                    next;
+                  }
+
+                if ($found_bool == 0 && $found_return_type == 0
+                    && /^(?:\w+|\s+\w+)\s*$/
+                    && !/[^\w]return\s*$/)
+                  {
+                    $found_return_type = 1;
+                    $found_bool = 0;
+                    next;
+                  }
+
+                if ($found_bool == 0
+                    && /(?<![^\w]bool)(\s+|\w+::|>\s*::)operator\s*(?:!|<|<=|>|>=|==|!=|&&|\|\|)\s*\(/
+                    && !/\(.*operator\s*(?:!|<|<=|>|>=|==|!=|&&|\|\|)\s*\(/
+                    && !/^\s*return\s+/) {
+                    print_error ("non-bool return type for operator in $file on line $line");
+                }
+
+                $found_return_type = 0;
+                $found_bool = 0;
+            }
+            close (FILE);
+        }
+        else {
+            print STDERR "Error: Could not open $file\n";
+        }
+    }
+}
+
+# This test verifies that all filenames are short enough
+
+sub check_for_long_file_names ()
+{
+    my $max_filename = 50;
+    my $max_mpc_filename = $max_filename - 20;
+    print "Running file names check\n";
+
+    foreach $file (@files_cpp, @files_inl, @files_h, @files_html,
+                   @files_dsp, @files_dsw, @files_gnu, @files_idl,
+                   @files_pl, @files_changelog, @files_makefile,
+                   @files_bor ) {
+        if ( length( basename($file) ) >= $max_filename )
+        {
+            print_error ("File name $file exceeds $max_filename chars.");
+        }
+    }
+    foreach $file (@files_mpc) {
+        if ( length( basename($file) ) >= $max_mpc_filename )
+        {
+            print_warning ("File name $file exceeds $max_mpc_filename chars.");
+        }
+
+    }
+}
+
 ##############################################################################
 
-use vars qw/$opt_c $opt_d $opt_h $opt_l $opt_m $opt_v/;
+use vars qw/$opt_c $opt_d $opt_h $opt_l $opt_t $opt_m $opt_v/;
 
-if (!getopts ('cdhl:mv') || $opt_h) {
-    print "fuzz.pl [-cdhm] [-l level] [file1, file2, ...]\n";
+if (!getopts ('cdhl:t:mv') || $opt_h) {
+    print "fuzz.pl [-cdhm] [-l level] [-t test_name][file1, file2, ...]\n";
     print "\n";
-    print "    -c         only look at the files passed in\n";
-    print "    -d         turn on debugging\n";
-    print "    -h         display this help\n";
-    print "    -l level   set detection level (default = 5)\n";
-    print "    -m         only check locally modified files (uses cvs)\n";
-    print "    -v         verbose mode\n";
+    print "    -c             only look at the files passed in\n";
+    print "    -d             turn on debugging\n";
+    print "    -h             display this help\n";
+    print "    -l level       set detection level (default = 5)\n";
+    print "    -t test_name   specify any single test to run. This will disable the run level setting\n";
+    print "    -m             only check locally modified files (uses cvs)\n";
+    print "    -v             verbose mode\n";
+    print "======================================================\n";
+    print "list of the tests that could be run:\n";
+    print "\t   check_for_noncvs_files
+           check_for_synch_include
+           check_for_OS_h_include
+           check_for_streams_include
+           check_for_dependency_file
+           check_for_makefile_variable
+           check_for_inline_in_cpp
+           check_for_id_string
+           check_for_newline
+           check_for_inline
+           check_for_math_include
+           check_for_line_length
+           check_for_preprocessor_comments
+           check_for_tchar
+           check_for_pre_and_post
+           check_for_push_and_pop
+           check_for_mismatched_filename
+           check_for_bad_run_test
+           check_for_absolute_ace_wrappers
+           check_for_bad_ace_trace
+           check_for_missing_rir_env
+           check_for_ace_check
+           check_for_changelog_errors
+           check_for_ptr_arith_t
+           check_for_include
+           check_for_non_bool_operators
+           check_for_long_file_names\n";
     exit (1);
 }
 
@@ -1122,13 +1311,17 @@ else {
     find_files ();
 }
 
+if ($opt_t) {
+    &$opt_t();
+    exit (1);
+}
+
 print "--------------------Configuration: Fuzz - Level ",$opt_l,
       "--------------------\n";
 
+check_for_msc_ver_string () if ($opt_l >= 6);
 check_for_noncvs_files () if ($opt_l >= 1);
-check_for_synch_include () if ($opt_l >= 1);
-check_for_OS_h_include () if ($opt_l >= 1);
-check_for_streams_include () if ($opt_l >= 1);
+check_for_streams_include () if ($opt_l >= 6);
 check_for_dependency_file () if ($opt_l >= 1);
 check_for_makefile_variable () if ($opt_l >= 1);
 check_for_inline_in_cpp () if ($opt_l >= 2);
@@ -1136,6 +1329,8 @@ check_for_id_string () if ($opt_l >= 1);
 check_for_newline () if ($opt_l >= 1);
 check_for_inline () if ($opt_l >= 2);
 check_for_math_include () if ($opt_l >= 3);
+check_for_synch_include () if ($opt_l >= 6);
+check_for_OS_h_include () if ($opt_l >= 6);
 check_for_line_length () if ($opt_l >= 8);
 check_for_preprocessor_comments () if ($opt_l >= 7);
 check_for_tchar () if ($opt_l >= 4);
@@ -1149,6 +1344,9 @@ check_for_missing_rir_env () if ($opt_l >= 5);
 check_for_ace_check () if ($opt_l >= 3);
 check_for_changelog_errors () if ($opt_l >= 4);
 check_for_ptr_arith_t () if ($opt_l >= 4);
+check_for_include () if ($opt_l >= 5);
+check_for_non_bool_operators () if ($opt_l > 2);
+check_for_long_file_names () if ($opt_l > 1 );
 
 print "\nFuzz.pl - $errors error(s), $warnings warning(s)\n";
 

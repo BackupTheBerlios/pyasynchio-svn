@@ -1,9 +1,8 @@
 // -*- MPC -*-
-// ifrservice.mpb,v 1.4 2003/12/30 15:18:22 dhinton Exp
+// ifrservice.mpb,v 1.6 2004/04/14 15:05:59 elliott_c Exp
 
-project : iortable, svc_utils, typecodefactory {
+project : iortable, svc_utils, typecodefactory, minimum_corba {
   after     += IFRService
   libs      += TAO_IFRService
-  comps     += IFRService
   tagchecks += IFRService
 }

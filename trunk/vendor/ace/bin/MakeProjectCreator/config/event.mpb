@@ -1,9 +1,7 @@
 // -*- MPC -*-
-// event.mpb,v 1.4 2003/12/30 15:18:22 dhinton Exp
+// event.mpb,v 1.12 2004/09/07 23:42:00 jtc Exp
 
-project : naming, messaging {
+project : orbsvcslib, ec_use_typed_events, minimum_corba {
   after     += CosEvent
   libs      += TAO_CosEvent
-  comps     += CosEvent
-  tagchecks += CosEvent
 }

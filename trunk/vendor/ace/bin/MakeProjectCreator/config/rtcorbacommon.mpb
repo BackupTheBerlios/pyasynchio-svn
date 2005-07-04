@@ -1,7 +1,7 @@
 // -*- MPC -*-
-// rtcorbacommon.mpb,v 1.2 2003/12/30 15:18:22 dhinton Exp
+// rtcorbacommon.mpb,v 1.4 2004/08/11 19:00:22 jtc Exp
 
-project {
+project : portableserver, minimum_corba {
   after    += RTCORBA_Common
   libs     += RTCORBA_Common
   includes += ../Common

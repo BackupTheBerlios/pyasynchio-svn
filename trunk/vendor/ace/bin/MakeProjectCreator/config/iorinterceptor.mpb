@@ -1,7 +1,7 @@
 // -*- MPC -*-
-// iorinterceptor.mpb,v 1.5 2003/12/30 15:18:22 dhinton Exp
+// iorinterceptor.mpb,v 1.6 2004/08/27 08:06:14 jwillemsen Exp
 
-project : taolib, objreftemplate, valuetype {
+project : taolib, portableserver, objreftemplate, valuetype {
   after += IORInterceptor
   libs  += TAO_IORInterceptor
 }

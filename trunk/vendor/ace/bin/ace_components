@@ -1,9 +1,10 @@
 #! /bin/sh
-# ace_components,v 4.3 2002/07/18 13:41:50 elliott_c Exp
+# ace_components,v 4.5 2004/05/03 16:52:49 ossama Exp
 #
 # Encapsulates set/access of a components file, which records set of
 # components that were built in a library.  Intended to be used by
-# Makefiles and scripts.  See ACE_wrappers/ace/Makefile for an example.
+# GNUmakefiles and scripts.  See ACE_wrappers/ace/GNUmakefile for an
+# example.
 #
 usage="usage: $0 --ace | --orbsvcs | --tao | --pace \
  [--remove | --set \" <components list> \"]"

@@ -1,7 +1,7 @@
 // -*- MPC -*-
-// rtscheduling.mpb,v 1.3 2003/12/30 15:18:22 dhinton Exp
+// rtscheduling.mpb,v 1.4 2004/11/10 18:50:08 elliott_c Exp
 
-project : rtcorba {
+project : rtcorba, portableserver {
   after   += RTScheduler 
   libs    += TAO_RTScheduler
 }

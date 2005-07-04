@@ -2,10 +2,10 @@ eval '(exit $?0)' && eval 'exec perl -S $0 ${1+"$@"}'
     & eval 'exec perl -S $0 $argv:q'
     if 0;
 
-# make_release,v 4.89 2004/01/14 23:26:24 bala Exp
+# make_release,v 4.118 2004/12/28 19:48:41 bala Exp
 #
 # Creates an ACE or TAO kit.  Intended to be called from the
-# ACE or TAO top-level Makefiles.
+# ACE or TAO top-level GNUmakefiles.
 #
 # The first three lines above let this script run without specifying the
 # full path to perl, as long as it is in the user's PATH.
@@ -24,7 +24,7 @@ my $long_usage="   -? option prints this message\n" .
   "   -v <version>, where <version> is major, minor, or beta (default)\n" .
   "   -ta <ACE tag>, to specify ACE tag to be use for checkout (export)\n" .
   "   -tt <TAO tag>, to specify TAO tag to be use for checkout (export)\n" .
-  "   -tc <CIAO tag>, to specify TAO tag to be use for checkout (export)\n" .
+  "   -tc <CIAO tag>, to specify CIAO tag to be use for checkout (export)\n" .
   "   -u to update versions\n";
 
 ########
@@ -44,7 +44,7 @@ my $release_host = substr ($which_host, 0, 5);
 ## We are not going to use any Sun boxes for the release anymore..
 
 if (! ($release_host eq 'linux')){
-   die "$0: You are on the wrong OS, please move to linux box\n";
+   die "$0: You are on the wrong OS ($release_host). Please move to a linux box.\n";
 }
 
 my  $perl_path = '/usr/bin/perl';
@@ -81,7 +81,7 @@ my $gnu2 = '/usr/local/bin:/usr/bin';
 $ENV{'PATH'} = "$gnu2" . ':' . $ENV{'PATH'};
 
 my $export_dir = '/project/deuce/ftp/pub/ACE+TAO-distribution';
-my $old_versions_dir = '/project/deuce/ftp/pub/previous_versions';
+my $old_versions_dir = '/project/deuce/ftp/pub/previous_verions';
 my $diffs_dir = "$export_dir/diffs";
 my $exec_prefix = '';
 my $install = 0;
@@ -95,7 +95,6 @@ my $release_filter = '\\( -name CVS -o -name build \\) -prune -o ' .
                      '! -name \'*.MAK\' -print';
 my $update_versions = 0;
 my $create_zips = 1;
-
 
 ########
 ######## Process command line args.
@@ -180,7 +179,8 @@ my $egrep = 'egrep';
 my $find = 'find';
 my $gzip = 'gzip';
 my $bzip2 = 'bzip2';
-my $make = 'make -s';
+my $make = 'make -f Release -s';
+my $regmake = 'make -s';
 my $mv = 'mv -f';
 my $rm = 'rm -f';
 my $cp = 'cp -f';
@@ -209,6 +209,15 @@ unless ("$release_tag_files") {
 #####
 &ex ("$touch  $export_dir/DON")  &&
  die "$0: Write failures in $export_dir, access problems..\n";
+
+my $ace_root = $ENV{'ACE_ROOT'};
+
+&ex ("$touch  $ace_root/MPC/DON")  &&
+ die "$0: Read/Write failures in $ace_root/MPC/, access problems..\n";
+
+&ex ("$rm -r  $ace_root/MPC/DON")  &&
+ die "$0: Delete failures in $ace_root/MPC \n";
+
 &ex ("$rm -r $export_dir/DON $export_dir/*.gz $export_dir/*.zip $export_dir/*.bz2")  &&
  die "$0: failed to remove files in $export_dir\n";
 
@@ -269,18 +278,36 @@ if ($update_versions  &&  "$kit" ne 'ace+tao+ciao') {
       die "$0: failed make ACE-INSTALL in $stage_dir/ACE_wrappers\n";
   }
 
+  if ("$ace_tag") {
+    &ex ("$cvs -q export -r$ace_tag -kv ACE_MPC > /dev/null")  &&
+      die "$0: failed cvs export of ACE_MPC in $stage_dir\n";
+  }
+
   if ("$tao_tag") {
-    &ex ("$cvs -q export -r$tao_tag -kv ACE_wrappers/TAO > /dev/null")  &&
+    chdir "ACE_wrappers"  ||  die "$0: unable to chdir ACE_wrappers\n";
+    &ex ("$cvs -q export -r$tao_tag -kv TAO > /dev/null")  &&
       die "$0: failed cvs export of $tao_tag in $stage_dir\n";
-    &ex ("cd ACE_wrappers/TAO  &&  $make INSTALL")  &&
+    &ex ("cd TAO  &&  $make TAO-INSTALL")  &&
       die "$0: failed make INSTALL in " .
           "$stage_dir/ACE_wrappers/TAO\n";
   }
+
   if ("$ciao_tag") {
-    &ex ("$cvs -q export -r$ciao_tag -kv ACE_wrappers/TAO/CIAO > /dev/null")  &&
+    chdir "TAO"  ||  die "$0: unable to chdir ACE_wrappers/TAO\n";
+    &ex ("$cvs -q export -r$ciao_tag -kv CIAO > /dev/null")  &&
       die "$0: failed cvs export of $ciao_tag in $stage_dir\n";
+    &ex ("cd CIAO  &&  $make CIAO-INSTALL")  &&
+      die "$0: failed make INSTALL in " .
+          "$stage_dir/ACE_wrappers/TAO\n";
   }
 
+  chdir "../../";
+
+  $status = &generate_makefiles ();
+
+  if ($status != 0) {
+      die "$0: failed to generate GNUmakefiles\n";
+  }
 
   $status = &create_kit ();
 
@@ -355,15 +382,15 @@ sub check_workspace () {
     chdir '..'  ||  die "$0: unable to chdir ..\n";
     $module = 'ACE_wrappers';
   } elsif ($kit =~ /tao/) {
-    chdir '../..'  ||  die "$0: unable to chdir ../..\n";
-    $module = 'ACE_wrappers/TAO';
+    chdir '../'  ||  die "$0: unable to chdir ../..\n";
+    $module = 'TAO';
   } elsif ($kit =~ /ciao/) {
-    chdir '../../..'  ||  die "$0: unable to chdir ../..\n";
-    $module = 'ACE_wrappers/TAO/CIAO';
+    chdir '../'  ||  die "$0: unable to chdir ../..\n";
+    $module = 'CIAO';
   }
 
   my @out_of_date = ();
-  open (CVS, "$cvs -nq checkout -P $module 2>&1 |")  ||
+  open (CVS, "$cvs -q checkout -P $module 2>&1 |")  ||
     die "$0: unable to open $cvs\n";
   while (<CVS>) {
     next if m%^U %;    #### Allow others to update the repository.
@@ -378,9 +405,9 @@ sub check_workspace () {
   if ($kit =~ /^ace/) {
     chdir 'ACE_wrappers'  ||  die "$0: unable to chdir ACE_wrappers\n";
   } elsif ($kit =~ /tao/) {
-    chdir 'ACE_wrappers/TAO' || die "$0: unable to chdir ACE_wrappers/TAO\n";
+    chdir 'TAO' || die "$0: unable to chdir ACE_wrappers/TAO\n";
   } elsif ($kit =~ /ciao/) {
-    chdir 'ACE_wrappers/TAO/CIAO' || die "$0: unable to chdir ACE_wrappers/TAO/CIAO\n";
+    chdir 'CIAO' || die "$0: unable to chdir ACE_wrappers/TAO/CIAO\n";
   }
 
   if (@out_of_date) {
@@ -666,17 +693,17 @@ sub update_changelog () {
   &ex ("cd ..; $cvs commit -m'$version' " .
       "TAO/VERSION TAO/PROBLEM-REPORT-FORM TAO/ChangeLog $version_h $version_mpb && " .
       "chmod 0644 VERSION PROBLEM-REPORT-FORM ChangeLog $version_h $version_mpb; " .
-      "chgrp doc VERSION PROBLEM-REPORT-FORM ChangeLog $version_h $version_mpb");
+      "chgrp 1213 VERSION PROBLEM-REPORT-FORM ChangeLog $version_h $version_mpb");
   } elsif ($KIT eq 'CIAO') {
   &ex ("cd ../../; $cvs commit -m'$version' " .
        "TAO/CIAO/VERSION TAO/CIAO/PROBLEM-REPORT-FORM TAO/CIAO/ChangeLog $version_h $version_mpb && " .
        "chmod 0644 VERSION PROBLEM-REPORT-FORM ChangeLog $version_h $version_mpb; " .
-       "chgrp doc VERSION PROBLEM-REPORT-FORM ChangeLog $version_h $version_mpb");
+       "chgrp 1213 VERSION PROBLEM-REPORT-FORM ChangeLog $version_h $version_mpb");
   } else {
   &ex ("$cvs commit -m'$version' " .
        "VERSION PROBLEM-REPORT-FORM ChangeLog $version_h $version_mpb &&" .
        "chmod 0644 VERSION PROBLEM-REPORT-FORM ChangeLog $version_h $version_mpb; " .
-       "chgrp doc VERSION PROBLEM-REPORT-FORM ChangeLog $version_h $version_mpb");
+       "chgrp 1213 VERSION PROBLEM-REPORT-FORM ChangeLog $version_h $version_mpb");
   }
 
   return 1 if $? >> 8;
@@ -738,10 +765,10 @@ sub diff () {
 
 
 ########
-######## Generate Makefiles and workspace/project files.
+######## Generate GNUmakefiles and workspace/project files.
 ########
 sub generate_makefiles () {
-  if ($kit =~ /^ace/) {
+
     # At this point, the only mwc/mpc files are in ace and tests. When more
     # are available, this needs to be updated, maybe by cycling through
     # all non-TAO directories looking for mwc (or mpc?) files.
@@ -753,22 +780,66 @@ sub generate_makefiles () {
     #
     # Need todo a common chmod on the file lists!
     my $here = Cwd::getcwd();
-    &ex ("cd ACE_wrappers/ace; \
-        ../bin/mwc.pl -type vc6 -relative ACE_ROOT=$here/ACE_wrappers ace.mwc;\
-        ../bin/mwc.pl -type vc71 -relative ACE_ROOT=$here/ACE_wrappers ace.mwc;\
-        ../bin/mwc.pl -type em3 -relative ACE_ROOT=$here/ACE_wrappers ace.mwc;\
-        chmod 0644 *.dsp *.dsw *.vcproj *.vcp *.sln *.vcw");
-    &ex ("cd ACE_wrappers/tests; \
-      ../bin/mwc.pl -type vc6 -relative ACE_ROOT=$here/ACE_wrappers tests.mwc;\
-      ../bin/mwc.pl -type vc71 -relative ACE_ROOT=$here/ACE_wrappers tests.mwc;\
-      ../bin/mwc.pl -type em3 -relative ACE_ROOT=$here/ACE_wrappers tests.mwc;\
-        chmod 0644 *.dsp *.dsw *.vcproj *.vcp *.sln *.vcw");
-  }
-  if ($kit =~ /^tao/) {
-    # A TAO-knowledgable person needs to decide what, if anything, is to be
-    # done here.
-    0;
-  }
+
+    print "My current wok in generate makefiles $here \n";
+    my $exclude_option = '-exclude ASNMP/asnmp.mwc,TAO/TAOACE.mwc,TAO/CIAO/CIAOTAO.mwc';
+    my $tmp_mpc_option =
+        '-recurse -hierarchy -relative ACE_ROOT=';
+
+    my $mpc_option = $tmp_mpc_option.$here.'/ACE_wrappers';
+
+    my $tmp_static_option =
+        '-static -name_modifier *_Static -apply_project -exclude ASNMP/asnmp.mwc,TAO/CIAO,TAO/TAOACE.mwc ';
+
+    my $static_option = $tmp_static_option.$mpc_option;
+
+    open (FEATURES, "> ACE_wrappers/bin/MakeProjectCreator/config/default.features")  ||
+        die "$0: unable to open default.features\n";
+
+    print FEATURES
+        "// \$Id\$\n" .
+        "// This is an automatically generated file.\n\n" .
+        "ssl=1\n" .
+        "fl_reactor=1\n" .
+        "xt_reactor=1\n" .
+        "cidl=1\n" .
+        "sctp=1\n";
+
+    &ex ("cd ACE_wrappers; \
+          bin/mwc.pl $exclude_option $mpc_option; \
+          find ./ -name 'GNUmake*' | /usr/bin/xargs chmod 0644");
+
+    open (FEATURES_1, "> ACE_wrappers/bin/MakeProjectCreator/config/default.features")  ||
+        die "$0: unable to open default.features\n";
+
+    print FEATURES_1
+        "// \$Id\$\n" .
+        "// This is an automatically generated file.\n\n" .
+        "ssl=0\n" .
+        "qos=1\n" .
+        "cidl=0\n" .
+        "rwho=0\n" .
+        "sctp=0\n";
+
+    &ex ("cd ACE_wrappers; \
+          bin/mwc.pl -type vc71 $mpc_option $exclude_option; \
+          bin/mwc.pl -type vc6  $mpc_option $exclude_option; \
+          bin/mwc.pl -type borland  $mpc_option $exclude_option; \
+          bin/mwc.pl -type vc6 $static_option; \
+          bin/mwc.pl -type vc71 $static_option; \
+          find ./ -name '*.ds[p,w]' | /usr/bin/xargs chmod 0644;\
+          find ./ -name '*.bor' | /usr/bin/xargs chmod 0644;\
+	  find ./ -name '*.vcproj' | /usr/bin/xargs chmod 0644;\
+	  find ./ -name '*.sln' | /usr/bin/xargs chmod 0644");
+}
+
+sub generate_em3 () {
+
+    my $here = Cwd::getcwd();
+
+  &ex ("cd ACE_wrappers; \
+        bin/mwc.pl -type em3 -exclude TAO -recurse -hierarchy -relative ACE_ROOT=$here/ACE_wrappers;\
+        find ./ -name '*.vc[p,w]' | /usr/bin/xargs chmod 0644");
 }
 
 ########
@@ -808,7 +879,7 @@ sub create_kit () {
   # These files don't get LF->CRLF conversions done when making the zip.
   my $bin_files =
     "\"\\.dsp|\\.dsw|\\.mak|\\.mdp|\\.ide|\\.exe\|\\.ico\|\\.gz\|\\.zip\|" .
-    "\\.gif|\\.vcp|\\.vcproj|\\.vcw|\\.sln\"";
+    "\\.gif|\\.vcp|\\.vcproj|\\.vcw|\\.sln\|\\.dfm\|\\.jpg\|\\.png\"";
 
   my $build_command;
   my $archives;
@@ -817,18 +888,18 @@ sub create_kit () {
 
   if ($kit eq 'ace+tao+ciao') {
       # Create a list of files that needs to be packed with CIAO
-      # including ACE+TAO.  
+      # including ACE+TAO.
       my $tmp_rel_file = '';
-      chomp ($tmp_rel_file = `$make -f ACE_wrappers/TAO/Makefile show_release_files`);
+      chomp ($tmp_rel_file = `$regmake -f ACE_wrappers/TAO/Release show_release_files`);
       $release_files .= ' ';
       $release_files .= $tmp_rel_file;
       $tmp_rel_file = '';
       $release_files .= ' ';
-      chomp ($tmp_rel_file = `$make -f ACE_wrappers/TAO/CIAO/Makefile show_release_files`);
+      chomp ($tmp_rel_file = `$regmake -f ACE_wrappers/TAO/CIAO/Release show_release_files`);
       $release_files .= $tmp_rel_file;
 
       print "RELEASE FILES from CIAO are $release_files \n";
-      
+
       $build_command =
           "$rm ACE+TAO+CIAO.zip; " .
           "$find $release_files $release_filter | $egrep $bin_files | " .
@@ -840,7 +911,7 @@ sub create_kit () {
         "$find $release_files $release_filter | $cpio -o -H ustar | " .
           "$bzip2 > ACE+TAO+CIAO.tar.bz2 && " .
         "$chmod 664 ACE+TAO+CIAO.tar.gz ACE+TAO+CIAO.zip ACE+TAO+CIAO.tar.bz2 && " .
-        "$chgrp doc ACE+TAO+CIAO.tar.gz ACE+TAO+CIAO.zip ACE+TAO+CIAO.tar.bz2 && " .
+        "$chgrp 1213 ACE+TAO+CIAO.tar.gz ACE+TAO+CIAO.zip ACE+TAO+CIAO.tar.bz2 && " .
         "$dispose ACE+TAO+CIAO.tar.gz ACE+TAO+CIAO.zip ACE+TAO+CIAO.tar.bz2 $dest &&" .
         "$cp $dest/ACE+TAO+CIAO.zip $old_versions_dir/$local_ace_tag+$local_tao_tag+$local_ciao_tag.zip &&".
         "$cp $dest/ACE+TAO+CIAO.tar.gz $old_versions_dir/$local_ace_tag+$local_tao_tag+$local_ciao_tag.tar.gz &&".
@@ -862,7 +933,13 @@ sub create_kit () {
   if ($kit eq 'ace+tao' || $kit eq 'ace+tao+ciao') {
       # Set the relese files once again
     my $tmp_rel_file = '';
-    chomp ($tmp_rel_file = `$make -f ACE_wrappers/TAO/Makefile show_release_files`);
+      $status = &bootstrap_autotools ();
+
+      if ($status != 0) {
+          die "$0: failed to bootstrap autotools\n";
+      }
+
+    chomp ($tmp_rel_file = `$regmake -f ACE_wrappers/TAO/Release show_release_files`);
     $release_files = $base_release_files;
     $release_files .= ' ';
     $release_files .= $tmp_rel_file;
@@ -880,7 +957,7 @@ sub create_kit () {
         "$find $release_files $release_filter | $cpio -o -H ustar | " .
           "$bzip2 > ACE+TAO.tar.bz2 && " .
         "$chmod 664 ACE+TAO.tar.gz ACE+TAO.zip ACE+TAO.tar.bz2 && " .
-        "$chgrp doc ACE+TAO.tar.gz ACE+TAO.zip ACE+TAO.tar.bz2 && " .
+        "$chgrp 1213 ACE+TAO.tar.gz ACE+TAO.zip ACE+TAO.tar.bz2 && " .
         "$dispose ACE+TAO.tar.gz ACE+TAO.zip ACE+TAO.tar.bz2 $dest &&" .
         "$cp $dest/ACE+TAO.zip $old_versions_dir/$local_ace_tag+$local_tao_tag.zip &&".
         "$cp $dest/ACE+TAO.tar.gz $old_versions_dir/$local_ace_tag+$local_tao_tag.tar.gz &&".
@@ -889,7 +966,7 @@ sub create_kit () {
   }
 
   # Dispose of ACE+TAO now
-  my $checksum_command =
+  $checksum_command =
     "$shell_cd $dest; " .
       "for p in $archives; do " .
       "$rm \${p}.${cksum_ext}; " .
@@ -901,20 +978,14 @@ sub create_kit () {
 
   if ($kit eq 'ace'  ||  $kit eq 'ace+tao' || $kit eq 'ace+tao+ciao') {
 
-      $status = &generate_makefiles ();
-      
-      if ($status != 0) {
-          die "$0: failed to generate makefiles\n";
-      }
-      
-      $status = &bootstrap_autotools ();
-      
-      if ($status != 0) {
-          die "$0: failed to bootstrap autotools\n";
-      }
+        $status = &generate_em3 ();
+
+        if ($status != 0) {
+            die "$0: failed to generate em3 files\n";
+        }
 
       # Reset it again with autoconf files
-      chomp ($release_files = `$make -f ACE_wrappers/Makefile show_autoconf_release_files`);
+      chomp ($release_files = `$regmake -f ACE_wrappers/Release show_release_files`);
 
       $build_command =
         "$rm ACE.zip ACE-lib.zip; " .
@@ -936,7 +1007,7 @@ sub create_kit () {
           "$bzip2 > ACE-lib.tar.bz2 && " .
         "$chmod 664 ACE.tar.gz ACE-lib.tar.gz ACE.tar.bz2 ACE-lib.tar.bz2 ".
 	  "ACE.zip ACE-lib.zip && " .
-        "$chgrp doc ACE.tar.gz ACE-lib.tar.gz ACE.tar.bz2 ACE-lib.tar.bz2 ".
+        "$chgrp 1213 ACE.tar.gz ACE-lib.tar.gz ACE.tar.bz2 ACE-lib.tar.bz2 ".
 	  "ACE.zip ACE-lib.zip && " .
         "$dispose ACE.zip ACE-lib.zip $dest && " .
         "$dispose ACE.tar.gz ACE-lib.tar.gz ACE.tar.bz2 ACE-lib.tar.bz2 $dest && " .
@@ -949,9 +1020,9 @@ sub create_kit () {
       $archives = " ACE.tar.gz ACE-lib.tar.gz ".
 	          "ACE.zip ACE-lib.zip ACE.tar.bz2 ACE-lib.tar.bz2 ";
   }
-  
+
   # Now dispose of ACE in all its glory
-  my $checksum_command =
+  $checksum_command =
     "$shell_cd $dest; " .
       "for p in $archives; do " .
       "$rm \${p}.${cksum_ext}; " .

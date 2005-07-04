@@ -1,9 +1,8 @@
 // -*- MPC -*-
-// time.mpb,v 1.4 2003/12/30 15:18:22 dhinton Exp
+// time.mpb,v 1.6 2004/09/07 23:42:00 jtc Exp
 
-project : naming {
+project : orbsvcslib, portableserver {
   after     += CosTime
   libs      += TAO_CosTime
-  comps     += Time
   tagchecks += Time
 }

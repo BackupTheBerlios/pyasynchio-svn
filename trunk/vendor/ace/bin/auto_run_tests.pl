@@ -2,12 +2,15 @@ eval '(exit $?0)' && eval 'exec perl -S $0 ${1+"$@"}'
     & eval 'exec perl -S $0 $argv:q'
     if 0;
 
-# auto_run_tests.pl,v 1.13 2003/12/08 02:27:26 bala Exp
+# auto_run_tests.pl,v 1.15 2004/11/12 22:28:16 shuston Exp
 # -*- perl -*-
 # This file is for running the run_test.pl scripts listed in
 # auto_run_tests.lst.
 
 use lib "$ENV{ACE_ROOT}/bin";
+if (defined $ENV{srcdir}) {
+  use lib "$ENV{srcdir}/bin";
+}
 use PerlACE::Run_Test;
 
 use English;
@@ -32,7 +35,15 @@ if (!getopts ('ados:t') || $opt_h) {
     print "    -t          TAO tests (other than ORB tests) only\n";
     print "    -Config cfg Run the tests for the <cfg> configuration\n";
     print "\n";
-    print "Configs: " . $config_list->list_configs () . "\n";
+    $ace_config_list = new PerlACE::ConfigList;
+    $ace_config_list->load ($ACE_ROOT."/bin/ace_tests.lst");
+    print "ACE Test Configs: " . $ace_config_list->list_configs () . "\n";
+    $orb_config_list = new PerlACE::ConfigList;
+    $orb_config_list->load ($ACE_ROOT."/bin/tao_orb_tests.lst");
+    print "ORB Test Configs: " . $orb_config_list->list_configs () . "\n";
+    $tao_config_list = new PerlACE::ConfigList;
+    $tao_config_list->load ($ACE_ROOT."/bin/tao_other_tests.lst");
+    print "TAO Test Configs: " . $tao_config_list->list_configs () . "\n";
     exit (1);
 }
 
@@ -52,79 +63,88 @@ push (@file_list, "/bin/tao_other_tests.lst");
 
 if (scalar(@file_list) == 0) {
 push (@file_list, "/bin/ace_tests.lst");
-push (@file_list, "/bin/tao_orb_tests.lst");
-push (@file_list, "/bin/tao_other_tests.lst");
+push (@file_list, "/bin/tao_orb_tests.lst") if -d "$ACE_ROOT/TAO";
+push (@file_list, "/bin/tao_other_tests.lst") if -d "$ACE_ROOT/TAO";
 }
 
 foreach my$test_lst (@file_list) {
 
-my $config_list = new PerlACE::ConfigList;
-$config_list->load ($ACE_ROOT.$test_lst);
+    my $config_list = new PerlACE::ConfigList;
+    $config_list->load ($ACE_ROOT.$test_lst);
 
-# Insures that we search for stuff in the current directory.
-$PATH .= $Config::Config{path_sep} . '.';
+    # Insures that we search for stuff in the current directory.
+    $PATH .= $Config::Config{path_sep} . '.';
 
-foreach $test ($config_list->valid_entries ()) {
-    my $directory = ".";
-    my $program = ".";
+    foreach $test ($config_list->valid_entries ()) {
+        my $directory = ".";
+        my $program = ".";
 
-    if ($test =~ /(.*)\/([^\/]*)$/) {
-        $directory = $1;
-        $program = $2;
-    }
-    else {
-        $program = $test;
-    }
+        if ($test =~ /(.*)\/([^\/]*)$/) {
+            $directory = $1;
+            $program = $2;
+        }
+        else {
+            $program = $test;
+        }
 
-    print "auto_run_tests: $test\n";
+        # this is to ensure that we dont print out the time for tests/run_test.pl
+        # that test prints out the times for each of the ace tests individually
+        my $is_ace_test = ($directory eq "tests");
 
-    chdir ($ACE_ROOT."/$directory")
-        || die "Error: Cannot chdir to $ACE_ROOT/$directory";
+        if (! $is_ace_test) {
+            print "auto_run_tests: $test\n";
+        }
 
-    if ($program =~ /(.*?) (.*)/)
-      {
-        if (! -e $1)
-          {
-            print STDERR "Error: $directory.$1 does not exist\n";
-            next;
+        chdir ($ACE_ROOT."/$directory")
+            || die "Error: Cannot chdir to $ACE_ROOT/$directory";
+
+        if ($program =~ /(.*?) (.*)/) {
+            if (! -e $1) {
+                print STDERR "Error: $directory.$1 does not exist\n";
+                next;
+              }
           }
-      }
-    else
-      {
-        if (! -e $program)
-          {
-            print STDERR "Error: $directory.$program does not exist\n";
-            next;
+        else {
+            if (! -e $program) {
+                print STDERR "Error: $directory.$program does not exist\n";
+                next;
+              }
           }
-      }
 
-    ### Genrate the -ExeSubDir and -Config options
-    my $inherited_options = " -ExeSubDir $PerlACE::Process::ExeSubDir ";
+        ### Genrate the -ExeSubDir and -Config options
+        my $inherited_options = " -ExeSubDir $PerlACE::Process::ExeSubDir ";
 
-    foreach my $config ($config_list->my_config_list ()) {
-         $inherited_options .= " -Config $config ";
+        foreach my $config ($config_list->my_config_list ()) {
+             $inherited_options .= " -Config $config ";
+        }
+
+        $cmd = '';
+        if ($opt_s) {
+            $cmd = "$opt_s \"perl $program $inherited_options\"";
+        }
+        else {
+            $cmd = $program.$inherited_options;
+        }
+
+
+        my $result = 0;
+
+        if (defined $opt_d) {
+            print "Running: $cmd\n";
+        }
+        else {
+            $start_time = time();
+            $result = system ($cmd);
+            $time = time() - $start_time;
+
+            # see note about tests/run_test.pl printing reports for ace tests individually
+            if (! $is_ace_test) {    
+                if ($result > 0) {
+                    print "Error: $test returned with status $result\n";
+                }
+
+                print "\nauto_run_tests_finished: $test Time:$time"."s Result:$result\n";
+            }
+        }
     }
-
-    $cmd = '';
-    if ($opt_s) {
-        $cmd = "$opt_s \"perl $program $inherited_options\"";
-    }
-    else {
-        $cmd = $program.$inherited_options;
-    }
-
-
-    my $result = 0;
-
-    if (defined $opt_d) {
-        print "Running: $cmd\n";
-    }
-    else {
-        $result = system ($cmd);
-    }
-
-    if ($result > 0) {
-        print "Error: $test returned with status $result\n";
-    }
-}
 }

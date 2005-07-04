@@ -15,7 +15,6 @@ use FileHandle;
 use File::Basename;
 
 use DependencyGenerator;
-use ObjectGeneratorFactory;
 
 # ************************************************************
 # Subroutine Section
@@ -35,6 +34,7 @@ sub process {
   my($macros)   = shift;
   my($ipaths)   = shift;
   my($replace)  = shift;
+  my($exclude)  = shift;
   my($files)    = shift;
 
   ## Back up the original file and receive the contents
@@ -59,16 +59,14 @@ sub process {
       }
     }
 
-    print $fh "# DO NOT DELETE THIS LINE -- " . basename($0) . " uses it.\n" .
+    print $fh "# DO NOT DELETE THIS LINE -- ", basename($0), " uses it.\n",
               "# DO NOT PUT ANYTHING AFTER THIS LINE, IT WILL GO AWAY.\n\n";
 
-    my($dep) = new DependencyGenerator($macros, $ipaths,
-                                       $replace, $type, $noinline);
-    my($objgen) = ObjectGeneratorFactory::create($type);
+    my($dep) = new DependencyGenerator($macros, $ipaths, $replace,
+                                       $type, $noinline, $exclude);
     ## Sort the files so the dependencies are reproducible
     foreach my $file (sort @$files) {
-      my(@objects) = $objgen->process($file);
-      print $fh $dep->process($file, \@objects) . "\n";
+      print $fh $dep->process($file), "\n";
     }
 
     print $fh "# IF YOU PUT ANYTHING HERE IT WILL GO AWAY\n";

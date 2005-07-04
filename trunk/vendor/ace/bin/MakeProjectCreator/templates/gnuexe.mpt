@@ -1,5 +1,4 @@
 // -*- MPC -*-
-// gnuexe.mpt,v 1.8 2003/12/30 15:18:22 dhinton Exp
+// gnuexe.mpt,v 1.10 2004/12/13 16:17:58 elliott_c Exp
 
-conditional_include "idl_compiler"
-conditional_include "common"
+conditional_include "gnudll"

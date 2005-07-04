@@ -1,9 +1,8 @@
 // -*- MPC -*-
-// rtcosscheduling.mpb,v 1.2 2003/12/30 15:18:22 dhinton Exp
+// rtcosscheduling.mpb,v 1.4 2004/08/18 00:45:18 jtc Exp
 
-project : rtportableserver {
+project : rtportableserver, orbsvcslib {
   after     += RTCosScheduling
   libs      += TAO_RTCosScheduling
-  comps     += RTCosScheduling
   tagchecks += RTCosScheduling
 }

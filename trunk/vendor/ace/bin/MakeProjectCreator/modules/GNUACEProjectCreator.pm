@@ -19,21 +19,18 @@ use vars qw(@ISA);
 @ISA = qw(ProjectCreator);
 
 # ************************************************************
-# Data Section
-# ************************************************************
-
-my(%compscript) = ('ACE_COMPONENTS'     => ['--ace',     '--set'],
-                   'TAO_COMPONENTS'     => ['--tao',     '--set'],
-                   'ORBSVCS_COMPONENTS' => ['--orbsvcs', '--append'],
-                  );
-
-# ************************************************************
 # Subroutine Section
 # ************************************************************
 
 sub dollar_special {
   #my($self) = shift;
   return 1;
+}
+
+
+sub expand_variables_from_template_values {
+  #my($self) = shift;
+  return 0;
 }
 
 
@@ -49,69 +46,58 @@ sub convert_slashes {
 }
 
 
+sub list_mpc_files {
+  my($self)  = shift;
+  my($hash)  = shift;
+  my(@files) = ();
+
+  foreach my $key (keys %$hash) {
+    push(@files, $self->reverse_relative($key), $self->list_mpc_files($$hash{$key}));
+  }
+
+  return @files;
+}
+
+
 sub fill_value {
   my($self)  = shift;
   my($name)  = shift;
   my($value) = undef;
   my($names) = $self->{'source_files'};
 
-  if ($name eq 'vpath') {
+  if ($name eq 'mpc_files') {
+    my(@mpc_files) = $self->list_mpc_files($self->get_inheritance_tree());
+    $value = \@mpc_files;
+  }
+  elsif ($name eq 'vpath') {
     my(%vpath) = ();
     foreach my $name (keys %$names) {
       my($comps) = $$names{$name};
       foreach my $key (keys %$comps) {
         foreach my $item (@{$$comps{$key}}) {
-          my($dname) = $self->relative(dirname($item));
+          my($dname) = $self->relative($self->mpc_dirname($item));
           if ($dname ne '.' && $dname !~ /^\.\.\//) {
             $vpath{$dname} = 1;
           }
         }
       }
     }
-    my($str) = join(':', sort keys %vpath);
+    my($str) = join(':', keys %vpath);
     if ($str ne '') {
       $value = 'VPATH = .:' . $str . $self->crlf();
-    }
-  }
-  elsif ($name eq 'comptarget') {
-    my($crlf)  = $self->crlf();
-    foreach my $name (keys %$names) {
-      if (defined $compscript{$name}) {
-        if (!defined $value) {
-          $value = '';
-        }
-        $value .= "$crlf.PHONY: $name$crlf" .
-                  "$name:$crlf" .
-                  "\t\@sh \$(ACE_ROOT)/bin/ace_components $compscript{$name}->[0] $compscript{$name}->[1] '\$($name)'$crlf$crlf" .
-                  "compclean:$crlf" .
-                  "\t\@sh \$(ACE_ROOT)/bin/ace_components $compscript{$name}->[0] --remove";
-      }
-    }
-  }
-  elsif ($name eq 'compclean') {
-    foreach my $name (keys %$names) {
-      if (defined $compscript{$name}) {
-        $value = 'compclean';
-        last;
-      }
-    }
-  }
-  elsif ($name eq 'libcheck') {
-    my($libs) = $self->get_assignment('libs');
-    if (defined $libs) {
-      my($libpaths) = $self->get_assignment('libpaths');
-      if (defined $libpaths) {
-        $value = "LIBCHECK = \$(shell for lib in $libs; do for libpath in $libpaths; do full=\"`echo \$\$libpath/lib\$\$lib.* | tr ' ' '\\012' | head -1`\"; if [ -r \$\$full ]; then break; else full=; fi; done; if [ -z \"\$\$full\" ]; then echo \$\$lib; exit; fi; done; echo 1)";
-      }
     }
   }
   elsif ($name eq 'tao') {
     my($incs) = $self->get_assignment('includes');
     my($libs) = $self->get_assignment('libpaths');
-    if ((defined $incs && $incs =~ /tao/i) ||
-        (defined $libs && $libs =~ /tao/i)) {
-      $value = 1;
-    }
+    $value = ((defined $incs && $incs =~ /tao/i) ||
+              (defined $libs && $libs =~ /tao/i));
+  }
+  elsif ($name eq 'ciao') {
+      my($incs) = $self->get_assignment('includes');
+      my($libs) = $self->get_assignment('libpaths');
+    $value = ((defined $incs && $incs =~ /ciao/i) ||
+              (defined $libs && $libs =~ /ciao/i));
   }
 
   return $value;
@@ -126,7 +112,7 @@ sub project_file_name {
     $name = $self->project_name();
   }
 
-  return $self->get_modified_project_file_name('Makefile' .
+  return $self->get_modified_project_file_name('GNUmakefile' .
                                                ($name eq '' ? '' : ".$name"),
                                                '');
 }

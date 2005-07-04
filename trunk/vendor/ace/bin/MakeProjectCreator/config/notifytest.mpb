@@ -1,8 +1,8 @@
 // -*- MPC -*-
-// notifytest.mpb,v 1.7 2003/12/30 15:18:22 dhinton Exp
+// notifytest.mpb,v 1.10 2004/09/07 23:42:00 jtc Exp
 
-project: orbsvcsexe, notify, naming {
+project: orbsvcsexe, notification, notification_skel, naming, svc_utils {
   after    += NotifyTests_Lib
-  libs     += NotifyTests
+  libs     += TAO_NotifyTests
   includes += $(TAO_ROOT)/orbsvcs/tests/Notify/lib
 }

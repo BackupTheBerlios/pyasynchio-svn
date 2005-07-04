@@ -1,6 +1,6 @@
 // -*- MPC -*-
-// aceversion.mpb,v 1.26 2004/01/15 00:46:07 bala Exp
+// aceversion.mpb,v 1.44 2004/12/30 18:16:22 cleeland Exp
 
 project {
-  version = 5.4
+  version = 5.4.3
 }

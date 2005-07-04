@@ -1,8 +1,8 @@
 // -*- MPC -*-
-// fault_tolerance.mpb,v 1.4 2003/12/30 15:18:22 dhinton Exp
+// fault_tolerance.mpb,v 1.5 2004/02/12 15:38:50 elliott_c Exp
 
-project : naming, notification, portablegroup, messaging {
-  after   += FaultTolerance
-  libs    += TAO_FaultTolerance
-  tagchecks   += FaultTolerance
+project : naming, notification, portablegroup, messaging, ftorb {
+  after     += FaultTolerance
+  libs      += TAO_FaultTolerance
+  tagchecks += FaultTolerance
 }

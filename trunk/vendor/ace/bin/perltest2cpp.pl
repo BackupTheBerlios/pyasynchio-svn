@@ -5,7 +5,7 @@ eval '(exit $?0)' && eval 'exec perl -S $0 ${1+"$@"}'
 # ******************************************************************
 #      Author: Chad Elliott (elliott_c@ociweb.com)
 #        Date: 4/4/2001
-#         perltest2cpp.pl,v 1.5 2002/03/12 17:55:26 elliott_c Exp
+#         perltest2cpp.pl,v 1.7 2004/05/03 16:52:49 ossama Exp
 # Description: Generate run_test.cpp from run_test.pl for VxWorks
 # ******************************************************************
 
@@ -218,7 +218,7 @@ my(@mainList) = ();
 sub getMainList {
   if (!defined $mainList[0]) {
     my($fh) = new FileHandle();
-    if (open($fh, "Makefile")) {
+    if (open($fh, "GNUmakefile")) {
       my($line) = "";
       while(<$fh>) {
         $line .= $_;

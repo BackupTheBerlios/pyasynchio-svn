@@ -1,7 +1,7 @@
 // -*- MPC -*-
-// objreftemplate.mpb,v 1.5 2003/12/30 15:18:22 dhinton Exp
+// objreftemplate.mpb,v 1.6 2004/08/27 08:06:14 jwillemsen Exp
 
-project : valuetype {
+project : portableserver, valuetype {
   after += ObjRefTemplate
   libs  += TAO_ObjRefTemplate
 }

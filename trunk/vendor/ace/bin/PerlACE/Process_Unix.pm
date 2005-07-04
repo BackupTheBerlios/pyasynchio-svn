@@ -1,4 +1,4 @@
-# Process_Unix.pm,v 1.18 2003/06/25 16:08:42 michel_j Exp
+# Process_Unix.pm,v 1.23 2004/11/19 00:05:33 gmaxey Exp
 
 package PerlACE::Process;
 
@@ -70,14 +70,18 @@ sub new
     $self->{PROCESS} = undef;
     $self->{EXECUTABLE} = shift;
     $self->{ARGUMENTS} = shift;
+    $self->{VALGRIND_CMD} = $ENV{"ACE_RUN_VALGRIND_CMD"};
 
     if (!defined $PerlACE::Process::WAIT_DELAY_FACTOR) {
-#         if (defined $self->{PURIFY_CMD}) {
-#             $self->{WAIT_DELAY_FACTOR} = 10;
-#         }
-#         else {
-            $PerlACE::Process::WAIT_DELAY_FACTOR = 1;
-#        }
+         if (defined $self->{PURIFY_CMD}) {
+           $PerlACE::Process::WAIT_DELAY_FACTOR = 10;
+         }
+         elsif (defined $self->{VALGRIND_CMD}) {
+           $PerlACE::Process::WAIT_DELAY_FACTOR = 5;
+         }
+         else {
+           $PerlACE::Process::WAIT_DELAY_FACTOR = 1;
+        }
     }
 
     bless ($self, $class);
@@ -210,6 +214,21 @@ sub Spawn ()
         }
     }
 
+    my $cmdline = "";
+    my $executable = "";
+
+    if (defined $self->{VALGRIND_CMD}) {
+        my $orig_cmdline = $self->CommandLine();
+        $executable = $self->{VALGRIND_CMD};
+        my $basename = basename ($self->{EXECUTABLE});
+
+        $cmdline = "$executable $orig_cmdline"; 
+    }
+    else {
+        $executable = $self->Executable();
+        $cmdline = $self->CommandLine();
+    }
+
     FORK:
     {
         if ($self->{PROCESS} = fork) {
@@ -218,8 +237,8 @@ sub Spawn ()
         }
         elsif (defined $self->{PROCESS}) {
             #child here
-            exec $self->CommandLine ();
-            die "ERROR: exec failed for <" . $self->CommandLine () . ">";
+            exec $cmdline;
+            die "ERROR: exec failed for <" . $cmdline . ">";
         }
         elsif ($! =~ /No more process/) {
             #EAGAIN, supposedly recoverable fork error
@@ -228,7 +247,7 @@ sub Spawn ()
         }
         else {
             # weird fork error
-            print STDERR "ERROR: Can't fork <" . $self->CommandLine () . ">: $!\n";
+            print STDERR "ERROR: Can't fork <" . $cmdline . ">: $!\n";
         }
     }
     $self->{RUNNING} = 1;
@@ -273,6 +292,7 @@ sub TerminateWaitKill ($)
     my $timeout = shift;
 
     if ($self->{RUNNING}) {
+        print STDERR "INFO: $self->{EXECUTABLE} being killed.\n";
         kill ('TERM', $self->{PROCESS});
     }
 
@@ -285,10 +305,15 @@ sub check_return_value ($)
     my $self = shift;
     my $rc = shift;
 
+    # NSK OSS has a 32-bit waitpid() status 
+    my $is_NSK = ($^O eq "nonstop_kernel");
+    my $CC_MASK = $is_NSK ? 0xffff00 : 0xff00;
+
+    # Exit code processing
     if ($rc == 0) {
         return 0;
     }
-    elsif ($rc == 0xff00) {
+    elsif ($rc == $CC_MASK) {
         print STDERR "ERROR: <", $self->{EXECUTABLE},
                      "> failed: $!\n";
         return ($rc >> 8);
@@ -298,6 +323,10 @@ sub check_return_value ($)
         return $rc;
     }
 
+    # Ignore NSK 16-bit completion code
+    $rc &= 0xff if $is_NSK;
+
+    # Remember Core dump flag
     my $dump = 0;
 
     if ($rc & 0x80) {

@@ -14,6 +14,7 @@ use strict;
 
 use Preprocessor;
 use DependencyWriterFactory;
+use ObjectGeneratorFactory;
 
 # ************************************************************
 # Subroutine Section
@@ -26,9 +27,12 @@ sub new {
   my($replace)  = shift;
   my($type)     = shift;
   my($noinline) = shift;
-  my($self)     = bless {'pre'      => new Preprocessor($macros, $ipaths),
+  my($exclude)  = shift;
+  my($self)     = bless {'pre'      => new Preprocessor($macros,
+                                                        $ipaths, $exclude),
                          'replace'  => $replace,
                          'dwrite'   => DependencyWriterFactory::create($type),
+                         'objgen'   => ObjectGeneratorFactory::create($type),
                          'noinline' => $noinline,
                         }, $class;
 
@@ -50,30 +54,20 @@ sub new {
 sub process {
   my($self)    = shift;
   my($file)    = shift;
-  my($objects) = shift;
   my($replace) = $self->{'replace'};
-  my($cwd)     = $self->{'cwd'};
-  my($files)   = $self->{'pre'}->process($file, $self->{'noinline'});
-
-  ## Go through each file
-  foreach my $finc (@$files) {
-    ## If we can remove the current working directory fromm the file
-    ## then we do not need to check the repkeys array and that cuts
-    ## the processing time for the ace directory almost in half.
-    if ($finc =~ s/^$cwd//o) {
-    }
-    else {
-      ## Modify those that have elements for replacement
-      foreach my $rep (@{$self->{'repkeys'}}) {
-        if ($finc =~ s/^$rep/$$replace{$rep}/) {
-          last;
-        }
-      }
-    }
-  }
 
   ## Generate the dependency string
-  return $self->{'dwrite'}->process($objects, $files);
+  my($depstr) = $self->{'dwrite'}->process(
+                   $self->{'objgen'}->process($file),
+                   $self->{'pre'}->process($file, $self->{'noinline'}));
+
+  ## Perform the replacements on the dependency string
+  $depstr =~ s/$self->{'cwd'}//go;
+  foreach my $rep (@{$self->{'repkeys'}}) {
+    $depstr =~ s/$rep/$$replace{$rep}/g;
+  }
+
+  return $depstr;
 }
 
 

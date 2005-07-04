@@ -1,5 +1,4 @@
-// -*- MPC -*-
-// notify.mpb,v 1.5 2003/12/30 15:18:22 dhinton Exp
+// notify.mpb,v 1.10 2004/11/22 18:18:30 john_c Exp
 
 project : notification {
 }

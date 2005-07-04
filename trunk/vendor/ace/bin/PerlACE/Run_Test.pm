@@ -1,4 +1,4 @@
-# Run_Test.pm,v 1.8 2003/06/10 16:12:47 elliott_c Exp
+# Run_Test.pm,v 1.10 2004/11/19 00:05:33 gmaxey Exp
 
 # This module contains a few miscellanous functions and some
 # startup ARGV processing that is used by all tests.
@@ -14,6 +14,9 @@ $svcconf_ext = $ENV{"ACE_RUNTEST_SVCCONF_EXT"};
 if (!defined $svcconf_ext) {
     $svcconf_ext = ".conf";
 }
+
+# Default timeout.  NSCORBA needs more time for process start up.
+$wait_interval_for_process_creation = ($^O eq "nonstop_kernel") ? 10 : 5;
 
 # Turn on autoflush
 $| = 1;
@@ -99,6 +102,31 @@ sub check_n_cleanup_files
     }
     unlink @flist;
   }
+}
+
+sub generate_test_file
+{
+  my $file = shift;
+  my $size = shift;
+
+  while ( -e $file ) {
+    $file = $file."X";
+  }
+
+  my $data = "abcdefghijklmnopqrstuvwxyz";
+  $data = $data.uc($data)."0123456789";
+
+  open( INPUT, "> $file" ) || die( "can't create input file: $file" );
+  for($i=62; $i < $size ; $i += 62 ) {
+    print INPUT $data;
+  }
+  $i -= 62;
+  if ($i < $size) {
+    print INPUT substr($data, 0, $size-$i);
+  }
+  close(INPUT);
+
+  return $file;
 }
 
 $sleeptime = 5;

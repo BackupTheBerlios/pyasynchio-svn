@@ -1,6 +1,7 @@
+// global.features,v 1.24 2004/10/10 06:13:41 ossama Exp
 // The global features file contains the default feature settings.
 // By default, if a feature isn't listed here then it is enabled.
-// If it is listed, then the value assigned to the feature is enterpreted
+// If it is listed, then the value assigned to the feature is interpreted
 // as a boolean value.  You really shouldn't have to edit this file except
 // to change the defaults.  If you want to override these values you can do
 // one of two things.
@@ -13,6 +14,9 @@
 // This file is somewhat akin to the platform_macros.GNU file in that build
 // settings can be set here.
 
+// Enable these by default.
+acexml        = 1
+
 // By default we disable these.
 ssl           = 0
 qos           = 0
@@ -22,7 +26,7 @@ repo          = 0
 minimum_corba = 0
 java          = 0
 qt            = 0
-wxwindows     = 0
+wxWindows     = 0
 zlib          = 0
 zzip          = 0
 mfc           = 0
@@ -30,3 +34,7 @@ rpc           = 0
 sctp 	      = 0
 xt_reactor    = 0
 dummy_label   = 0
+cidl          = 0
+boost         = 0
+wince         = 0
+uses_wchar    = 0

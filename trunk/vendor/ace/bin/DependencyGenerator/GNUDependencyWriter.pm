@@ -23,15 +23,10 @@ use vars qw(@ISA);
 sub process {
   my($objects) = $_[1];
   my($files)   = $_[2];
-  my($dep)     = "@$objects: \\\n";
 
   ## Sort the dependencies to make them reproducible
-  foreach my $file (sort @$files) {
-    $dep .= "  $file \\\n";
-  }
-  $dep =~ s/ \\$//;
-
-  return $dep;
+  return '$(sort '. join(' ', @{$objects}). "): \\\n  "
+    . join(" \\\n  ", sort @$files) . "\n";
 }
 
 

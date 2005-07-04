@@ -1,4 +1,4 @@
-# Process_Win32.pm,v 1.17 2003/11/07 16:47:12 shuston Exp
+# Process_Win32.pm,v 1.20 2004/12/21 18:18:42 elliott_c Exp
 
 package PerlACE::Process;
 
@@ -81,6 +81,11 @@ sub Normalize_Executable_Name
 
     $executable = $dirname.$PerlACE::Process::ExeSubDir.$basename.".EXE";
 
+    ## Installed executables do not conform to the ExeSubDir
+    if (! -x $executable && -x $dirname.$basename.'.EXE') {
+      $executable = $dirname.$basename.'.EXE';
+    }
+
     $executable =~ s/\//\\/g; # / <- # color coding issue in devenv
 
     return $executable;
@@ -97,16 +102,13 @@ sub Executable
 
     my $executable = $self->{EXECUTABLE};
 
-    if ($self->{IGNOREEXESUBDIR}) {
-        return $executable;
+    if ($self->{IGNOREEXESUBDIR} == 0) {
+      $executable = PerlACE::Process::Normalize_Executable_Name ($executable);
     }
-
-    my $basename = basename ($executable);
-    my $dirname = dirname ($executable). '/';
-
-    $executable = $dirname.$PerlACE::Process::ExeSubDir.$basename.".EXE";
-
-    $executable =~ s/\//\\/g; # / <- # color coding issue in devenv
+    else {
+      $executable = $executable.".EXE";
+      $executable =~ s/\//\\/g; # / <- # color coding issue in devenv
+    }
 
     return $executable;
 }
@@ -325,6 +327,7 @@ sub TerminateWaitKill ($)
     my $timeout = shift;
 
     if ($self->{RUNNING}) {
+        print STDERR "INFO: $self->{EXECUTABLE} being killed.\n";
         Win32::Process::Kill ($self->{PROCESS}, 0);
     }
 
@@ -342,7 +345,7 @@ sub Wait ($)
     if (!defined $timeout || $timeout < 0) {
       $timeout = INFINITE;
     } else {
-      $timeout = $timeout * 1000 * $PerlACE::Process::WAIT_DELAY_FACTOR; 
+      $timeout = $timeout * 1000 * $PerlACE::Process::WAIT_DELAY_FACTOR;
     }
 
     my $result = 0;
@@ -353,8 +356,8 @@ sub Wait ($)
         return -1;
       }
     }
-    Win32::Process::GetExitCode ($self->{PROCESS}, $result);    
-    return $result;    
+    Win32::Process::GetExitCode ($self->{PROCESS}, $result);
+    return $result;
 }
 
 
