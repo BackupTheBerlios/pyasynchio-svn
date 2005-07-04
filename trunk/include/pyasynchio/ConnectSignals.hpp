@@ -4,19 +4,17 @@
  *  \author Vladimir Sukhoy
  */
 
-#ifndef SPACE_TRANSPORT_CONNECTSIGNALS_HPP_INCLUDED_
-#define SPACE_TRANSPORT_CONNECTSIGNALS_HPP_INCLUDED_
+#ifndef PYASYNCHIO_CONNECTSIGNALS_HPP_INCLUDED_
+#define PYASYNCHIO_CONNECTSIGNALS_HPP_INCLUDED_
 
 #pragma once
 
-#include <space/transport/StreamContext.hpp>
-#include <space/transport/ConnectResult.hpp>
-#include <space/transport/conditional_and_combiner.hpp>
+#include <pyasynchio/StreamContext.hpp>
+#include <pyasynchio/ConnectResult.hpp>
+#include <pyasynchio/conditional_and_combiner.hpp>
 #include <boost/signals.hpp>
 
-namespace space {
-
-namespace transport {
+namespace pyasynchio {
 
 typedef boost::signal3<bool
     , const ConnectResult&
@@ -27,10 +25,6 @@ typedef boost::signal3<bool
 typedef boost::signal1<void, const ConnectResult&> ConnectCompleteSignal;
 typedef boost::signal1<void, StreamContextPtr> ConnectStreamSignal;
 
+} // namespace pyasynchio
 
-
-} // namespace transport
-
-} // namespace space
-
-#endif // SPACE_TRANSPORT_CONNECTSIGNALS_HPP_INCLUDED_
+#endif // PYASYNCHIO_CONNECTSIGNALS_HPP_INCLUDED_

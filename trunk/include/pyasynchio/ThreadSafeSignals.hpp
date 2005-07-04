@@ -7,8 +7,8 @@
  *  \author Vladimir Sukhoy
  */
 
-#ifndef SPACE_TRANSPORT_THREADSAFESIGNALS_HPP_INCLUDED_
-#define SPACE_TRANSPORT_THREADSAFESIGNALS_HPP_INCLUDED_
+#ifndef PYASYNCHIO_THREADSAFESIGNALS_HPP_INCLUDED_
+#define PYASYNCHIO_THREADSAFESIGNALS_HPP_INCLUDED_
 
 #pragma once
 
@@ -16,9 +16,7 @@
 #include <boost/thread/read_write_mutex.hpp>
 #include <boost/type_traits/function_traits.hpp>
 
-namespace space {
-
-namespace transport {
+namespace pyasynchio {
 
 class thread_safe_signal_base
 {
@@ -147,8 +145,6 @@ public:
 
 };
 
-} // namespace transport
+} // namespace pyasynchio
 
-} // namespace space
-
-#endif // SPACE_TRANSPORT_THREADSAFESIGNAL_HPP_INCLUDED_
+#endif // PYASYNCHIO_THREADSAFESIGNAL_HPP_INCLUDED_

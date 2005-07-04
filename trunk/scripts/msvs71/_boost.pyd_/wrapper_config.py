@@ -6,8 +6,8 @@ chdir(path.join('..', '..', '..'))
 
 includes = map(path.abspath, ['include', 'vendor/boost'])
 files = map(path.abspath, 
-['src/pyste-files/boost/noncopyable.pyste' 
-,'src/pyste-files/boost/function_base.pyste'
+['src/pyste/boost/noncopyable.pyste' 
+,'src/pyste/boost/function_base.pyste'
 ])
 module = '_boost'
 

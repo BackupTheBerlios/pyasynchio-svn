@@ -1,5 +1,5 @@
-#ifndef SPACE_TRANSPORT_TIMERSIGNAL_HPP_INCLUDED_
-#define SPACE_TRANSPORT_TIMERSIGNAL_HPP_INCLUDED_
+#ifndef PYASYNCHIO_TIMERSIGNAL_HPP_INCLUDED_
+#define PYASYNCHIO_TIMERSIGNAL_HPP_INCLUDED_
 
 #pragma once
 
@@ -8,9 +8,7 @@
 
 class ACE_Time_Value;
 
-namespace space {
-
-namespace transport {
+namespace pyasynchio {
 
 class TimerSignal;
 typedef boost::shared_ptr<TimerSignal> TimerSignalPtr;
@@ -19,18 +17,16 @@ typedef boost::signal1<void, ACE_Time_Value> TimerSignalBase;
 class TimerSignal : public TimerSignalBase
 {
 public:
-	static TimerSignalPtr Create()
-	{
-		return TimerSignalPtr(new TimerSignal());
-	}
+    static TimerSignalPtr Create()
+    {
+        return TimerSignalPtr(new TimerSignal());
+    }
 protected:
-	TimerSignal()
-	: TimerSignalBase()
-	{}
+    TimerSignal()
+    : TimerSignalBase()
+    {}
 };
 
-} // namespace transport
+} // namespace pyasynchio
 
-} // namespace space
-
-#endif // SPACE_TRANSPORT_TIMERSIGNAL_HPP_INCLUDED_
+#endif // PYASYNCHIO_TIMERSIGNAL_HPP_INCLUDED_

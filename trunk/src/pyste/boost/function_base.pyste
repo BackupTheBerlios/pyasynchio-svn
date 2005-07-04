@@ -1,4 +1,4 @@
-PCHInclude("space-pyste/pch.hpp")
+PCHInclude("pyste/common_includes.hpp")
 
 boost_function_base = Class("boost::function_base", "boost/function.hpp")
 exclude(boost_function_base.operator['=='])

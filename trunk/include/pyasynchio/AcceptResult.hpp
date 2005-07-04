@@ -4,19 +4,17 @@
  *  \author Vladimir Sukhoy
  */
 
-#ifndef SPACE_TRANSPORT_ACCEPTRESULT_HPP_INCLUDED_
-#define SPACE_TRANSPORT_ACCEPTRESULT_HPP_INCLUDED_
+#ifndef PYASYNCHIO_ACCEPTRESULT_HPP_INCLUDED_
+#define PYASYNCHIO_ACCEPTRESULT_HPP_INCLUDED_
 
 #pragma once
-#include <space/transport/Result.hpp>
-#include <space/primitive.hpp>
+#include <pyasynchio/Result.hpp>
+#include <pyasynchio/primitive.hpp>
 #include <boost/bind.hpp>
 
 class ACE_Asynch_Accept_Result;
 
-namespace space {
-
-namespace transport {
+namespace pyasynchio {
 
 struct AcceptResult : Result
 {
@@ -25,21 +23,19 @@ struct AcceptResult : Result
     void* accept_handle_;
 
     AcceptResult()
-	: Result()
-	, listen_handle_()
-	, accept_handle_()
-	{}
+    : Result()
+    , listen_handle_()
+    , accept_handle_()
+    {}
 
-	AcceptResult(const AcceptResult &rhs)
-	: Result(rhs)
-	, message_block_(rhs.message_block_)
-	, listen_handle_(rhs.listen_handle_)
-	, accept_handle_(rhs.accept_handle_)
-	{}
+    AcceptResult(const AcceptResult &rhs)
+    : Result(rhs)
+    , message_block_(rhs.message_block_)
+    , listen_handle_(rhs.listen_handle_)
+    , accept_handle_(rhs.accept_handle_)
+    {}
 };
 
-} // namespace transport
+} // namespace pyasynchio
 
-} // namespace space
-
-#endif // SPACE_TRANSPORT_ACCEPTRESULT_HPP_INCLUDED_
+#endif // PYASYNCHIO_ACCEPTRESULT_HPP_INCLUDED_

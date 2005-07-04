@@ -28,7 +28,7 @@
 // 'or' and 'and' macros, see http://tinyurl.com/3et69; 'defined(and)'
 // has to be checked in a separate condition, otherwise GCC complains 
 // about 'and' being an alternative token
-#if defined(_MSC_VER) 
+#if defined(_MSC_VER) && !defined(GCCXML)
 #if defined(and) 
 #   pragma push_macro("and")
 #   undef and
@@ -39,7 +39,7 @@
 #   define BOOST_MPL_PREPROCESSED_HEADER and.hpp
 #   include <boost/mpl/aux_/include_preprocessed.hpp>
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) && !defined(GCCXML)
 #if defined(and) 
 #   pragma pop_macro("and")
 #endif

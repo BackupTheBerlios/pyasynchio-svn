@@ -4,17 +4,15 @@
  *  \author Vladimir Sukhoy
  */
 
-#ifndef SPACE_TRANSPORT_ACCEPTCONTEXT_HPP_INCLUDED_
-#define SPACE_TRANSPORT_ACCEPTCONTEXT_HPP_INCLUDED_
+#ifndef PYASYNCHIO_ACCEPTCONTEXT_HPP_INCLUDED_
+#define PYASYNCHIO_ACCEPTCONTEXT_HPP_INCLUDED_
 
 #pragma once
 
 #include <boost/shared_ptr.hpp>
-#include <space/transport/AcceptSignals.hpp>
+#include <pyasynchio/AcceptSignals.hpp>
 
-namespace space {
-
-namespace transport {
+namespace pyasynchio {
 
 class AcceptContext;
 typedef boost::shared_ptr<AcceptContext> AcceptContextPtr;
@@ -34,8 +32,6 @@ protected:
     AcceptContext() {}
 };
 
-} // namespace transport
+} // namespace pyasynchio
 
-} // namespace space
-
-#endif // SPACE_TRANSPORT_ACCEPTCONTEXT_HPP_INCLUDED_
+#endif // PYASYNCHIO_ACCEPTCONTEXT_HPP_INCLUDED_

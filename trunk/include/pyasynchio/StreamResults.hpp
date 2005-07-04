@@ -5,20 +5,18 @@
  *  \author Vladimir Sukhoy
  */
 
-#ifndef SPACE_TRANSPORT_STREAMRESULTS_HPP_INCLUDED_
-#define SPACE_TRANSPORT_STREAMRESULTS_HPP_INCLUDED_
+#ifndef PYASYNCHIO_STREAMRESULTS_HPP_INCLUDED_
+#define PYASYNCHIO_STREAMRESULTS_HPP_INCLUDED_
 
 #pragma once
 
-#include <space/transport/Result.hpp>
+#include <pyasynchio/Result.hpp>
 #include <boost/bind.hpp>
 
 class ACE_Asynch_Read_Stream_Result;
 class ACE_Asynch_Write_Stream_Result;
 
-namespace space {
-
-namespace transport {
+namespace pyasynchio {
 
 struct ReadStreamResult : Result
 {
@@ -26,15 +24,15 @@ struct ReadStreamResult : Result
     void* handle_;
     
     ReadStreamResult()
-	: Result()
-	, handle_()
-	{}
+    : Result()
+    , handle_()
+    {}
 
-	ReadStreamResult(const ReadStreamResult &rhs)
-	: Result(rhs)
-	, handle_(rhs.handle_)
-	, data_(rhs.data_)
-	{}
+    ReadStreamResult(const ReadStreamResult &rhs)
+    : Result(rhs)
+    , handle_(rhs.handle_)
+    , data_(rhs.data_)
+    {}
 };
 
 struct WriteStreamResult : Result
@@ -43,19 +41,17 @@ struct WriteStreamResult : Result
     void* handle_;
     
     WriteStreamResult()
-	: handle_()
-	{}
+    : handle_()
+    {}
 
-	WriteStreamResult(const WriteStreamResult &rhs)
-	: Result(rhs)
-	, data_(rhs.data_)
-	, handle_(rhs.handle_)
-	{}
+    WriteStreamResult(const WriteStreamResult &rhs)
+    : Result(rhs)
+    , data_(rhs.data_)
+    , handle_(rhs.handle_)
+    {}
 };
 
-} // namespace transport
-
-} // namespace space
+} // namespace pyasynchio
 
 
-#endif // SPACE_TRANSPORT_STREAMRESULTS_HPP_INCLUDED_
+#endif // PYASYNCHIO_STREAMRESULTS_HPP_INCLUDED_

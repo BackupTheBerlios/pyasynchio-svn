@@ -61,6 +61,12 @@ class CppParser:
         if not filedir:
             filedir = '.'
         includes.insert(0, filedir)
+        try:
+            while True:
+                includes.remove("")
+        except ValueError:
+            pass
+        
         includes = ['-I "%s"' % self.Unixfy(x) for x in includes]
         return ' '.join(includes)
 
@@ -120,7 +126,8 @@ class CppParser:
             # call gccxml
             cmd = '%s %s %s "%s" -fxml=%s' 
             filename = self.Unixfy(filename)
-            xmlfile = self.Unixfy(xmlfile)
+            xmlfile = self.Unixfy(xmlfile) 
+            print cmd % (self.gccxml_path, includes, defines, filename, xmlfile)
             status = os.system(cmd % (self.gccxml_path, includes, defines, filename, xmlfile))
             if status != 0 or not os.path.isfile(xmlfile):
                 raise CppParserError, 'Error executing gccxml'

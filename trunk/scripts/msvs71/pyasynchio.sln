@@ -3,6 +3,30 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "boost_python", "boost_pytho
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "_boost.pyd", "_boost.pyd_\_boost.pyd.vcproj", "{14A861F1-1332-4CA1-9B34-2216FD73E203}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "_boost_signals.pyd", "_boost_signals.pyd_\_boost_signals.pyd.vcproj", "{534F749E-95A7-478A-967D-EFC857A612C5}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "boost_signals", "boost_signals\boost_signals.vcproj", "{3CC86C68-AA42-4BFE-984E-6740BF440607}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ACE", "..\..\vendor\ace\ace\ACE.vcproj", "{790470CD-FECA-1BAD-6757-8A635ED0DE0B}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "_ace.pyd", "_ace.pyd_\_ace.pyd.vcproj", "{667FB0BD-B1D4-494B-BE6F-C49D2E0A29BD}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pyasynchio", "pyasynchio\pyasynchio.vcproj", "{BC490357-B436-4999-9541-80703AF26BEB}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -13,6 +37,30 @@ Global
 		{10E212B5-7387-4CE2-A381-84D874281F10}.Debug.Build.0 = Debug|Win32
 		{10E212B5-7387-4CE2-A381-84D874281F10}.Release.ActiveCfg = Release|Win32
 		{10E212B5-7387-4CE2-A381-84D874281F10}.Release.Build.0 = Release|Win32
+		{14A861F1-1332-4CA1-9B34-2216FD73E203}.Debug.ActiveCfg = Debug|Win32
+		{14A861F1-1332-4CA1-9B34-2216FD73E203}.Debug.Build.0 = Debug|Win32
+		{14A861F1-1332-4CA1-9B34-2216FD73E203}.Release.ActiveCfg = Release|Win32
+		{14A861F1-1332-4CA1-9B34-2216FD73E203}.Release.Build.0 = Release|Win32
+		{534F749E-95A7-478A-967D-EFC857A612C5}.Debug.ActiveCfg = Debug|Win32
+		{534F749E-95A7-478A-967D-EFC857A612C5}.Debug.Build.0 = Debug|Win32
+		{534F749E-95A7-478A-967D-EFC857A612C5}.Release.ActiveCfg = Release|Win32
+		{534F749E-95A7-478A-967D-EFC857A612C5}.Release.Build.0 = Release|Win32
+		{3CC86C68-AA42-4BFE-984E-6740BF440607}.Debug.ActiveCfg = Debug|Win32
+		{3CC86C68-AA42-4BFE-984E-6740BF440607}.Debug.Build.0 = Debug|Win32
+		{3CC86C68-AA42-4BFE-984E-6740BF440607}.Release.ActiveCfg = Release|Win32
+		{3CC86C68-AA42-4BFE-984E-6740BF440607}.Release.Build.0 = Release|Win32
+		{790470CD-FECA-1BAD-6757-8A635ED0DE0B}.Debug.ActiveCfg = Debug|Win32
+		{790470CD-FECA-1BAD-6757-8A635ED0DE0B}.Debug.Build.0 = Debug|Win32
+		{790470CD-FECA-1BAD-6757-8A635ED0DE0B}.Release.ActiveCfg = Release|Win32
+		{790470CD-FECA-1BAD-6757-8A635ED0DE0B}.Release.Build.0 = Release|Win32
+		{667FB0BD-B1D4-494B-BE6F-C49D2E0A29BD}.Debug.ActiveCfg = Debug|Win32
+		{667FB0BD-B1D4-494B-BE6F-C49D2E0A29BD}.Debug.Build.0 = Debug|Win32
+		{667FB0BD-B1D4-494B-BE6F-C49D2E0A29BD}.Release.ActiveCfg = Release|Win32
+		{667FB0BD-B1D4-494B-BE6F-C49D2E0A29BD}.Release.Build.0 = Release|Win32
+		{BC490357-B436-4999-9541-80703AF26BEB}.Debug.ActiveCfg = Debug|Win32
+		{BC490357-B436-4999-9541-80703AF26BEB}.Debug.Build.0 = Debug|Win32
+		{BC490357-B436-4999-9541-80703AF26BEB}.Release.ActiveCfg = Release|Win32
+		{BC490357-B436-4999-9541-80703AF26BEB}.Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

@@ -4,19 +4,19 @@
  *	\author Vladimir Sukhoy
  */
 
-#ifndef SPACE_TRANSPORT_PROACTOR_IMPL_CONNECTOR_HPP_INCLUDED_
-#define SPACE_TRANSPORT_PROACTOR_IMPL_CONNECTOR_HPP_INCLUDED_
+#ifndef PYASYNCHIO_PROACTOR_IMPL_CONNECTOR_HPP_INCLUDED_
+#define PYASYNCHIO_PROACTOR_IMPL_CONNECTOR_HPP_INCLUDED_
 
 #pragma once
 
-#include <space/transport/Proactor_impl.hpp>
-#include <space/transport/Proactor_impl_StreamHandler.hpp>
+#include <pyasynchio/Proactor_impl.hpp>
+#include <pyasynchio/Proactor_impl_StreamHandler.hpp>
 #include <ace/Asynch_Connector.h>
 #include <boost/signals/trackable.hpp>
 
-namespace space {
+namespace pyasynchio {
 
-namespace transport {
+
 
 class Proactor::impl::Connector
 : public ACE_Asynch_Connector<StreamHandler>
@@ -55,8 +55,8 @@ private:
 	ConnectorWeakPtr thisPtr_;
 };
 
-} // namespace transport
 
-} // namespace space
 
-#endif // SPACE_TRANSPORT_PROACTOR_IMPL_CONNECTOR_HPP_INCLUDED_
+} // namespace pyasynchio
+
+#endif // PYASYNCHIO_PROACTOR_IMPL_CONNECTOR_HPP_INCLUDED_

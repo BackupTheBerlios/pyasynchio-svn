@@ -412,12 +412,13 @@ def UsePsyco():
     except: pass         
 
 
-def main():
+def main(actually_exit = True):
     start = time.clock()
     UsePsyco()
     status = Begin()
     print '%0.2f seconds' % (time.clock()-start)
-    sys.exit(status) 
+    if actually_exit:
+        sys.exit(status) 
 
     
 if __name__ == '__main__':

@@ -4,21 +4,23 @@
  *	\author Vladimir Sukhoy
  */
 
-#ifndef SPACE_TRANSPORT_PROACTOR_IMPL_HPP_INCLUDED_
-#define SPACE_TRANSPORT_PROACTOR_IMPL_HPP_INCLUDED_
+#ifndef PYASYNCHIO_PROACTOR_IMPL_HPP_INCLUDED_
+#define PYASYNCHIO_PROACTOR_IMPL_HPP_INCLUDED_
 
 #pragma once
 
-#include <space/transport/Proactor.hpp>
-#include <space/buf.hpp>
-#include <space/safe_map.hpp>
+#include <pyasynchio/Proactor.hpp>
+#include <pyasynchio/buf.hpp>
+#include <pyasynchio/safe_map.hpp>
 #include <ace/Task_T.h>
 #include <ace/Proactor.h>
+#include <ace/Manual_Event.h>
 #include <boost/function.hpp>
+#include <set>
 
-namespace space {
+namespace pyasynchio {
 
-namespace transport {
+
 
 /************************************************************************/
 /* Proactor implementation (PIMPL)                                      */
@@ -109,9 +111,9 @@ private:
 	PendingHandlers pending_;
 };
 
-} // namespace transport
-
-} // namespace space
 
 
-#endif // SPACE_TRANSPORT_PROACTOR_IMPL_HPP_INCLUDED_
+} // namespace pyasynchio
+
+
+#endif // PYASYNCHIO_PROACTOR_IMPL_HPP_INCLUDED_

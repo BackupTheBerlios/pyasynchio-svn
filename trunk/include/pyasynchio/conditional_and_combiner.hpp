@@ -1,11 +1,9 @@
-#ifndef SPACE_TRANSPORT_CONDITIONAL_AND_COMBINER_HPP_INCLUDED_
-#define SPACE_TRANSPORT_CONDITIONAL_AND_COMBINER_HPP_INCLUDED_
+#ifndef PYASYNCHIO_CONDITIONAL_AND_COMBINER_HPP_INCLUDED_
+#define PYASYNCHIO_CONDITIONAL_AND_COMBINER_HPP_INCLUDED_
 
 #pragma once
 
-namespace space {
-
-namespace transport {
+namespace pyasynchio {
 
 template<typename T>
 struct conditional_and_combiner
@@ -26,8 +24,6 @@ struct conditional_and_combiner
     }
 };
 
-} // namespace transport
+} // namespace pyasynchio
 
-} // namespace space
-
-#endif // SPACE_TRANSPORT_CONDITIONAL_AND_COMBINER_HPP_INCLUDED_
+#endif // PYASYNCHIO_CONDITIONAL_AND_COMBINER_HPP_INCLUDED_

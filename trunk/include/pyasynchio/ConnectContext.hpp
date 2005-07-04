@@ -4,17 +4,15 @@
  *  \author Vladimir Sukhoy
  */
 
-#ifndef SPACE_TRANSPORT_CONNECTCONTEXT_HPP_INCLUDED_
-#define SPACE_TRANSPORT_CONNECTCONTEXT_HPP_INCLUDED_
+#ifndef PYASYNCHIO_CONNECTCONTEXT_HPP_INCLUDED_
+#define PYASYNCHIO_CONNECTCONTEXT_HPP_INCLUDED_
 
 #pragma once
 
 #include <boost/shared_ptr.hpp>
-#include <space/transport/ConnectSignals.hpp>
+#include <pyasynchio/ConnectSignals.hpp>
 
-namespace space {
-
-namespace transport {
+namespace pyasynchio {
 
 class ConnectContext;
 typedef boost::shared_ptr<ConnectContext> ConnectContextPtr;
@@ -24,8 +22,8 @@ class ConnectContext
 {
 public:
     ValidateConnectSignal sigValidate_;
-	ConnectStreamSignal sigStream_;
-	ConnectCompleteSignal sigComplete_;
+    ConnectStreamSignal sigStream_;
+    ConnectCompleteSignal sigComplete_;
 
     static ConnectContextPtr Create() 
     {
@@ -35,8 +33,7 @@ protected:
     ConnectContext() {}
 };
 
-} // namespace transport
 
-} // namespace space
+} // namespace pyasynchio
 
-#endif // SPACE_TRANSPORT_CONNECTCONTEXT_HPP_INCLUDED_
+#endif // PYASYNCHIO_CONNECTCONTEXT_HPP_INCLUDED_

@@ -4,17 +4,17 @@
  *	\author Vladimir Sukhoy
  */
 
-#ifndef SPACE_TRANSPORT_PROACTOR_IMPL_STREAMHANDLER_HPP_INCLUDED_
-#define SPACE_TRANSPORT_PROACTOR_IMPL_STREAMHANDLER_HPP_INCLUDED_
+#ifndef PYASYNCHIO_PROACTOR_IMPL_STREAMHANDLER_HPP_INCLUDED_
+#define PYASYNCHIO_PROACTOR_IMPL_STREAMHANDLER_HPP_INCLUDED_
 
 #pragma once
 
-#include <space/transport/Proactor_impl.hpp>
+#include <pyasynchio/Proactor_impl.hpp>
 #include <ace/Asynch_IO.h>
 
-namespace space {
+namespace pyasynchio {
 
-namespace transport {
+
 
 class Proactor::impl::StreamHandler 
 : public ACE_Handler
@@ -55,8 +55,8 @@ private:
 	ACE_Asynch_Write_Stream writer_;
 };
 
-} // namespace transport
 
-} // namespace space
 
-#endif // SPACE_TRANSPORT_PROACTOR_IMPL_STREAMHANDLER_HPP_INCLUDED_
+} // namespace pyasynchio
+
+#endif // PYASYNCHIO_PROACTOR_IMPL_STREAMHANDLER_HPP_INCLUDED_

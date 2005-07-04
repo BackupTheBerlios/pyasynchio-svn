@@ -48,7 +48,7 @@ namespace detail {
 // is_class<> metafunction due to Paul Mensonides
 // (leavings@attbi.com). For more details:
 // http://groups.google.com/groups?hl=en&selm=000001c1cc83%24e154d5e0%247772e50c%40c161550a&rnum=1
-#if defined(__GNUC__)  && !defined(__EDG_VERSION__)
+#if defined(__GNUC__) || defined(GCCXML)  && !defined(__EDG_VERSION__) 
 
 template <class U> ::boost::type_traits::yes_type is_class_tester(void(U::*)(void));
 template <class U> ::boost::type_traits::no_type is_class_tester(...);

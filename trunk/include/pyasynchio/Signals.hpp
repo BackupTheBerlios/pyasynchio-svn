@@ -4,13 +4,13 @@
  *  \author Vladimir Sukhoy
  */
 
-#ifndef SPACE_TRANSPORT_SIGNALS_HPP_INCLUDED_
-#define SPACE_TRANSPORT_SIGNALS_HPP_INCLUDED_
+#ifndef PYASYNCHIO_SIGNALS_HPP_INCLUDED_
+#define PYASYNCHIO_SIGNALS_HPP_INCLUDED_
 
 #pragma once
 
-#include <space/transport/ConnectSignals.hpp>
-#include <space/transport/AcceptSignals.hpp>
-#include <space/transport/TimerSignal.hpp>
+#include <pyasynchio/ConnectSignals.hpp>
+#include <pyasynchio/AcceptSignals.hpp>
+#include <pyasynchio/TimerSignal.hpp>
 
-#endif // SPACE_TRANSPORT_SIGNALS_HPP_INCLUDED_
+#endif // PYASYNCHIO_SIGNALS_HPP_INCLUDED_

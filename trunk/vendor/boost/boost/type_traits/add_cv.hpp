@@ -29,6 +29,7 @@ namespace boost {
 // references with MSVC6.
 #   pragma warning(push)
 #   pragma warning(disable:4181) // warning C4181: qualifier applied to reference type ignored
+#   pragma warning(disable:4180) // warning C4180: qualifier applied to function type has no meaning; ignored
 #endif 
 
 BOOST_TT_AUX_TYPE_TRAIT_DEF1(add_cv,T,T const volatile)

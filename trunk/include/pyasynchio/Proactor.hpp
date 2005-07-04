@@ -7,24 +7,23 @@
  *  \author Vladimir Sukhoy
  */
 
-#ifndef SPACE_TRANSPORT_PROACTOR_HPP_INCLUDED_
-#define SPACE_TRANSPORT_PROACTOR_HPP_INCLUDED_
+#ifndef PYASYNCHIO_PROACTOR_HPP_INCLUDED_
+#define PYASYNCHIO_PROACTOR_HPP_INCLUDED_
 
 #pragma once
 
-#include <space/detail/config.hpp>
-#include <space/transport/ThreadSafeSignals.hpp>
-#include <space/transport/StreamContext.hpp>
-#include <space/transport/Signals.hpp>
-#include <space/transport/AcceptContext.hpp>
-#include <space/transport/ConnectContext.hpp>
+#include <pyasynchio/detail/config.hpp>
+#include <pyasynchio/StreamContext.hpp>
+#include <pyasynchio/Signals.hpp>
+#include <pyasynchio/AcceptContext.hpp>
+#include <pyasynchio/ConnectContext.hpp>
 
 class ACE_INET_Addr;
 class ACE_Time_Value;
 
-namespace space {
+namespace pyasynchio {
 
-namespace transport {
+
 
 /*!
  *  @brief Our proactor facade, which is based on ACE_Proactor framework. 
@@ -34,7 +33,7 @@ namespace transport {
  *  those problems with pending handlers, operations cancel and handlers
  *  lifetime.
  */
-class SPACE_DECL Proactor
+class PYASYNCHIO_LINK_DECL Proactor
 {
 public:
     static const ACE_INET_Addr ANY_INTERFACE;
@@ -143,8 +142,8 @@ private:
     boost::shared_ptr<impl> pimpl_;
 };
 
-} // namespace transport
 
-} // namespace space
 
-#endif // SPACE_TRANSPORT_PROACTOR_HPP_INCLUDED_
+} // namespace pyasynchio
+
+#endif // PYASYNCHIO_PROACTOR_HPP_INCLUDED_

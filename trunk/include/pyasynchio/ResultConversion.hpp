@@ -5,8 +5,8 @@
  *  \author Vladimir Sukhoy
  */
 
-#ifndef SPACE_TRANSPORT_RESULTCONVERSION_HPP_INCLUDED_
-#define SPACE_TRANSPORT_RESULTCONVERSION_HPP_INCLUDED_
+#ifndef PYASYNCHIO_RESULTCONVERSION_HPP_INCLUDED_
+#define PYASYNCHIO_RESULTCONVERSION_HPP_INCLUDED_
 
 #pragma once
 
@@ -14,15 +14,13 @@
 #error "This header doesnt support GCCXML!"
 #endif // GCCXML
 
-#include <space/transport/Result.hpp>
-#include <space/transport/AcceptResult.hpp>
-#include <space/transport/ConnectResult.hpp>
-#include <space/transport/StreamResults.hpp>
+#include <pyasynchio/Result.hpp>
+#include <pyasynchio/AcceptResult.hpp>
+#include <pyasynchio/ConnectResult.hpp>
+#include <pyasynchio/StreamResults.hpp>
 #include <ace/Asynch_IO.h>
 
-namespace space {
-
-namespace transport {
+namespace pyasynchio {
 
 extern Result& convert(Result &lhs
     , const ACE_Asynch_Result &rhs);
@@ -35,8 +33,6 @@ extern ReadStreamResult& convert(ReadStreamResult &lhs
 extern WriteStreamResult& convert(WriteStreamResult &lhs
     , const ACE_Asynch_Write_Stream::Result &rhs);
 
-} // namespace transport
+} // namespace pyasynchio
 
-} // namespace space
-
-#endif // SPACE_TRANSPORT_RESULTCONVERSION_HPP_INCLUDED_
+#endif // PYASYNCHIO_RESULTCONVERSION_HPP_INCLUDED_

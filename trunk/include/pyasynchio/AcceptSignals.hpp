@@ -4,19 +4,17 @@
  *  \author Vladimir Sukhoy
  */
 
-#ifndef SPACE_TRANSPORT_ACCEPTSIGNALS_HPP_INCLUDED_
-#define SPACE_TRANSPORT_ACCEPTSIGNALS_HPP_INCLUDED_
+#ifndef PYASYNCHIO_ACCEPTSIGNALS_HPP_INCLUDED_
+#define PYASYNCHIO_ACCEPTSIGNALS_HPP_INCLUDED_
 
 #pragma once
 
-#include <space/transport/StreamContext.hpp>
-#include <space/transport/AcceptResult.hpp>
+#include <pyasynchio/StreamContext.hpp>
+#include <pyasynchio/AcceptResult.hpp>
 #include <boost/signals.hpp>
-#include <space/transport/conditional_and_combiner.hpp>
+#include <pyasynchio/conditional_and_combiner.hpp>
 
-namespace space {
-
-namespace transport {
+namespace pyasynchio {
 
 typedef boost::signal3<bool
     , const AcceptResult&
@@ -27,9 +25,6 @@ typedef boost::signal3<bool
 typedef boost::signal1<void, const AcceptResult&> AcceptCompleteSignal;
 typedef boost::signal1<void, StreamContextPtr> AcceptStreamSignal;
 
+} // namespace pyasynchio
 
-} // namespace transport
-
-} // namespace space
-
-#endif // SPACE_TRANSPORT_ACCEPTSIGNALS_HPP_INCLUDED_
+#endif // PYASYNCHIO_ACCEPTSIGNALS_HPP_INCLUDED_
