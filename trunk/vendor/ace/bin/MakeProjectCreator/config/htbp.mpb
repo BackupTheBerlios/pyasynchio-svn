@@ -1,0 +1,8 @@
+// -*- MPC -*-
+// htbp.mpb,v 1.3 2004/11/05 13:34:25 elliott_c Exp
+
+project : acelib {
+  after    += HTBP
+  libs     += ACE_HTBP
+  includes += $(ACE_ROOT)/protocols
+}

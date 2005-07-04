@@ -1,0 +1,7 @@
+// -*- MPC -*-
+// dslogadmin_serv.mpb,v 1.2 2004/09/13 13:52:12 jtc Exp
+
+project : orbsvcslib, dslogadmin_skel, dynamicany, etcl, svc_utils {
+  after      += DsLogAdmin_Serv
+  libs       += TAO_DsLogAdmin_Serv
+}

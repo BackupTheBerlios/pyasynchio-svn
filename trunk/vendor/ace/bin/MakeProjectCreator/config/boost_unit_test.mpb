@@ -1,0 +1,11 @@
+// -*- MPC -*-
+// boost_unit_test.mpb,v 1.2 2004/09/24 16:40:19 coryan Exp
+
+project {
+  requires += boost
+  verbatim(gnuace,local) {
+    CPPFLAGS += $(PLATFORM_BOOST_CPPFLAGS)
+    LDFLAGS  += $(PLATFORM_BOOST_LDFLAGS)
+    LDLIBS   += $(PLATFORM_BOOST_UTF_LIBS)
+  }
+}
