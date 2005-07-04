@@ -1,4 +1,4 @@
-// Vector_T.cpp,v 4.8 2003/12/03 17:19:20 shuston Exp
+// Vector_T.cpp,v 4.10 2004/06/16 07:57:21 jwillemsen Exp
 
 #ifndef ACE_VECTOR_T_C
 #define ACE_VECTOR_T_C
@@ -10,10 +10,10 @@
 #include "ace/Vector_T.h"
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Vector_T.i"
+#include "ace/Vector_T.inl"
 #endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, Vector_T, "Vector_T.cpp,v 4.8 2003/12/03 17:19:20 shuston Exp")
+ACE_RCSID(ace, Vector_T, "Vector_T.cpp,v 4.10 2004/06/16 07:57:21 jwillemsen Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_Vector)
 
@@ -56,19 +56,20 @@ void ACE_Vector<T, DEFAULT_SIZE>::dump (void) const
 }
 
 // Compare this vector with <s> for equality.
-template <class T, size_t DEFAULT_SIZE> int
+template <class T, size_t DEFAULT_SIZE> bool
 ACE_Vector<T, DEFAULT_SIZE>::operator== (const ACE_Vector<T, DEFAULT_SIZE> &s) const
 {
   if (this == &s)
-    return 1;
+    return true;
   else if (this->size () != s.size ())
-    return 0;
+    return false;
 
-  for (size_t slot = 0; slot < s.size (); slot++)
+  const size_t len = s.size ();
+  for (size_t slot = 0; slot < len; ++slot)
     if ((*this)[slot] != s[slot])
-      return 0;
+      return false;
 
-  return 1;
+  return true;
 }
 
 #if 0

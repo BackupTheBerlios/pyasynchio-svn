@@ -1,14 +1,15 @@
 // FIFO_Recv.cpp
-// FIFO_Recv.cpp,v 4.13 2003/07/27 20:48:24 dhinton Exp
+// FIFO_Recv.cpp,v 4.15 2004/06/16 07:57:20 jwillemsen Exp
 
 #include "ace/FIFO_Recv.h"
 #include "ace/Log_Msg.h"
+#include "ace/OS_NS_fcntl.h"
 
-#if defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/FIFO_Recv.i"
-#endif
+#if !defined (__ACE_INLINE__)
+#include "ace/FIFO_Recv.inl"
+#endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, FIFO_Recv, "FIFO_Recv.cpp,v 4.13 2003/07/27 20:48:24 dhinton Exp")
+ACE_RCSID(ace, FIFO_Recv, "FIFO_Recv.cpp,v 4.15 2004/06/16 07:57:20 jwillemsen Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_FIFO_Recv)
 
@@ -24,7 +25,7 @@ ACE_FIFO_Recv::dump (void) const
 #endif /* ACE_HAS_DUMP */
 }
 
-int 
+int
 ACE_FIFO_Recv::close (void)
 {
   ACE_TRACE ("ACE_FIFO_Recv::close");
@@ -53,7 +54,7 @@ ACE_FIFO_Recv::open (const ACE_TCHAR *fifo_name,
     return -1;
   else if (this->disable (ACE_NONBLOCK) == -1)
     return -1;
-  else if (persistent 
+  else if (persistent
 	   && (this->aux_handle_ = ACE_OS::open (fifo_name, O_WRONLY, 0, sa)) == ACE_INVALID_HANDLE)
     return -1;
   else

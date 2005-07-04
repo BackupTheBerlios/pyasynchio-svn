@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// ACE_export.h,v 4.6 2003/11/29 15:24:20 dhinton Exp
+// ACE_export.h,v 4.8 2004/11/12 00:03:08 gmaxey Exp
 // Definition for Win32 Export directives.
 // This file is generated automatically by
 // generate_export_file.pl
@@ -44,9 +44,13 @@
 #endif     /* ACE_HAS_DLL */
 
 // Added by hand to help with ACE_OS namespace
+#if defined (__TANDEM) && defined(USE_EXPLICIT_EXPORT)
+#define ACE_NAMESPACE_STORAGE_CLASS ACE_EXPORT_MACRO extern
+#else
 #define ACE_NAMESPACE_STORAGE_CLASS extern ACE_EXPORT_MACRO
+#endif
 
-#if defined (_MSC_VER) && defined (__ACE_INLINE__)
+#if (defined (_MSC_VER) || defined (__MINGW32__) || defined (CYGWIN32)) && defined (__ACE_INLINE__)
 #  define ACE_NAMESPACE_INLINE_FUNCTION inline
 #else
 #  define ACE_NAMESPACE_INLINE_FUNCTION ACE_NAMESPACE_STORAGE_CLASS

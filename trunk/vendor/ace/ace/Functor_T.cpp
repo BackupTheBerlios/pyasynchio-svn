@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// Functor_T.cpp,v 4.5 2000/04/19 02:49:34 brunsch Exp
+// Functor_T.cpp,v 4.6 2004/06/16 07:57:20 jwillemsen Exp
 
 #ifndef ACE_FUNCTOR_T_C
 #define ACE_FUNCTOR_T_C
@@ -11,10 +11,10 @@
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Functor_T.i"
+#include "ace/Functor_T.inl"
 #endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, Functor_T, "Functor_T.cpp,v 4.5 2000/04/19 02:49:34 brunsch Exp")
+ACE_RCSID(ace, Functor_T, "Functor_T.cpp,v 4.6 2004/06/16 07:57:20 jwillemsen Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_Command_Callback)
 

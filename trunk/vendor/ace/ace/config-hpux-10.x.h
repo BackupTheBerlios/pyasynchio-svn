@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// config-hpux-10.x.h,v 4.56 2003/07/19 19:04:14 dhinton Exp
+// config-hpux-10.x.h,v 4.59 2004/08/08 14:21:35 jtc Exp
 
 // The following configuration file is designed to work for HP
 // platforms running HP/UX 10.x.  It includes all of the ACE information
@@ -67,7 +67,7 @@ extern int h_errno;     /* This isn't declared in a header file on HP-UX */
 #define ACE_DEFAULT_BASE_ADDR ((char *) 0x80000000)
 
 // Compiler/platform contains the <sys/syscall.h> file.
-#define ACE_HAS_SYSCALL_H
+#define ACE_HAS_SYS_SYSCALL_H
 // But doesn't have a prototype for syscall()
 #define ACE_LACKS_SYSCALL
 
@@ -121,8 +121,8 @@ extern int h_errno;     /* This isn't declared in a header file on HP-UX */
 // Compiler/platform supports strerror ().
 #define ACE_HAS_STRERROR
 
-// SunOS 4 style prototype for gettimeofday
-#define ACE_HAS_SUNOS4_GETTIMEOFDAY
+// Platform/compiler supports void * as second parameter to gettimeofday().
+#define ACE_HAS_VOIDPTR_GETTIMEOFDAY
 
 // HP/UX has an undefined syscall for GETRUSAGE...
 #define ACE_HAS_SYSCALL_GETRUSAGE
@@ -247,9 +247,4 @@ extern int h_errno;     /* This isn't declared in a header file on HP-UX */
 #define ACE_CONTROL_BLOCK_ALIGN_LONGS 0
 #define ACE_PI_CONTROL_BLOCK_ALIGN_LONGS 2
 
-// Turns off the tracing feature.
-// To build with tracing enabled, make sure ACE_NTRACE is not defined
-#if !defined (ACE_NTRACE)
-#define ACE_NTRACE 1
 #include /**/ "ace/post.h"
-#endif /* ACE_NTRACE */

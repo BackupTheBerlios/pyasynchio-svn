@@ -4,7 +4,7 @@
 /**
  *  @file    Service_Manager.h
  *
- *  Service_Manager.h,v 4.17 2003/07/19 19:04:13 dhinton Exp
+ *  Service_Manager.h,v 4.19 2004/09/23 19:54:32 jwillemsen Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -33,13 +33,13 @@
  * This implementation is simple and just handles each client
  * request one at a time.  There are currently 3 types of requests:
  * + List services: If the string "help" is sent, return a list of all
- *   the services supported by the Service Configurator.  
+ *   the services supported by the Service Configurator.
  * + Reconfigure: If the string "reconfigure" is sent trigger a
- *   reconfiguration, which will re-read the local <svc.conf> file. 
+ *   reconfiguration, which will re-read the local <svc.conf> file.
  * + Process directive: If neither "help" nor "reconfigure" is sent,
  *   simply treat the incoming string as a process directive and pass
  *   it along to <ACE_Service_Config::process_directive>.  This allows
- *   remote configuration via command-line instructions like 
+ *   remote configuration via command-line instructions like
  *   % echo suspend My_Remote_Service | telnet hostname 3911
  *
  * Each request is associated with a new connection, which is closed
@@ -61,7 +61,7 @@ protected:
   // = Perform the various meta-services.
 
   /// Trigger a reconfiguration of the Service Configurator by
-  //re-reading its local <svc.conf> file.
+  /// re-reading its local <svc.conf> file.
   virtual int reconfigure_services (void);
 
   /// Determine all the services offered by this daemon and return the
@@ -113,7 +113,7 @@ protected:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Service_Manager.i"
+#include "ace/Service_Manager.inl"
 #endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"

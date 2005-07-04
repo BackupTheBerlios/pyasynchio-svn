@@ -1,13 +1,14 @@
 // SPIPE_Stream.cpp
-// SPIPE_Stream.cpp,v 4.11 2003/07/27 20:48:27 dhinton Exp
+// SPIPE_Stream.cpp,v 4.14 2004/06/16 07:57:21 jwillemsen Exp
 
 #include "ace/SPIPE_Stream.h"
+#include "ace/OS_Memory.h"
 
-#if defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/SPIPE_Stream.i"
-#endif
+#if !defined (__ACE_INLINE__)
+#include "ace/SPIPE_Stream.inl"
+#endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, SPIPE_Stream, "SPIPE_Stream.cpp,v 4.11 2003/07/27 20:48:27 dhinton Exp")
+ACE_RCSID(ace, SPIPE_Stream, "SPIPE_Stream.cpp,v 4.14 2004/06/16 07:57:21 jwillemsen Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_SPIPE_Stream)
 
@@ -35,8 +36,8 @@ ssize_t
 ACE_SPIPE_Stream::send (size_t n, ...) const
 {
   // ACE_TRACE ("ACE_SPIPE_Stream::send");
-  va_list argp;  
-  int total_tuples = ACE_static_cast (int, (n / 2));
+  va_list argp;
+  int total_tuples = static_cast<int> (n / 2);
   iovec *iovp;
 #if defined (ACE_HAS_ALLOCA)
   iovp = (iovec *) alloca (total_tuples * sizeof (iovec));
@@ -72,8 +73,8 @@ ssize_t
 ACE_SPIPE_Stream::recv (size_t n, ...) const
 {
   ACE_TRACE ("ACE_SPIPE_Stream::recv");
-  va_list argp;  
-  int total_tuples = ACE_static_cast (int, (n / 2));
+  va_list argp;
+  int total_tuples = static_cast<int> (n / 2);
   iovec *iovp;
 #if defined (ACE_HAS_ALLOCA)
   iovp = (iovec *) alloca (total_tuples * sizeof (iovec));

@@ -4,7 +4,7 @@
 /**
  *  @file    Local_Tokens.h
  *
- *  Local_Tokens.h,v 4.45 2003/07/19 19:04:11 dhinton Exp
+ *  Local_Tokens.h,v 4.50 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Karl-Heinz Dorn <kdorn@erlh.siemens.de>
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
@@ -53,11 +53,15 @@
 
 #if defined (ACE_HAS_TOKENS_LIBRARY)
 
-#include "ace/Synch_T.h"
+#include "ace/Synch_Traits.h"
+#include "ace/Condition_Thread_Mutex.h"
+#include "ace/TSS_T.h"
 #include "ace/Containers.h"
 #include "ace/Synch_Options.h"
 #include "ace/Map_Manager.h"
 #include "ace/Log_Msg.h"
+#include "ace/OS_NS_string.h"
+#include "ace/os_include/os_netdb.h"
 
 #if !(defined (ACE_HAS_THREADS) && defined (ACE_HAS_THREAD_SPECIFIC_STORAGE))
 # define ACE_NO_TSS_TOKENS 1
@@ -494,7 +498,7 @@ class ACE_Export ACE_Mutex_Token : public ACE_Tokens
 {
 public:
   /// Constructor
-  ACE_EXPLICIT ACE_Mutex_Token (const ACE_TCHAR* name);
+  explicit ACE_Mutex_Token (const ACE_TCHAR* name);
 
   /// Destructor
   virtual ~ACE_Mutex_Token (void);
@@ -589,7 +593,7 @@ class ACE_Export ACE_RW_Token : public ACE_Tokens
 {
 public:
   /// Constructor.
-  ACE_EXPLICIT ACE_RW_Token (const ACE_TCHAR* name);
+  explicit ACE_RW_Token (const ACE_TCHAR* name);
 
   /// Destructor.
   virtual ~ACE_RW_Token (void);
@@ -701,7 +705,7 @@ public:
   void operator= (const ACE_Token_Name &rhs);
 
   /// Comparison.
-  int operator== (const ACE_Token_Name &rhs) const;
+  bool operator== (const ACE_Token_Name &rhs) const;
 
   /// Get the token name.
   const ACE_TCHAR *name (void) const;
@@ -1108,7 +1112,7 @@ protected:
 #endif /* ACE_HAS_TOKENS_LIBRARY */
 
 #if defined (__ACE_INLINE__)
-#include "ace/Local_Tokens.i"
+#include "ace/Local_Tokens.inl"
 #endif /* __ACE_INLINE__ */
 #include /**/ "ace/post.h"
 #endif /* ACE_LOCAL_MUTEX_H */

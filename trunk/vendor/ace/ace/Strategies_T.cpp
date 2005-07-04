@@ -12,15 +12,18 @@
 #include "ace/Thread_Manager.h"
 #include "ace/WFMO_Reactor.h"
 #include "ace/ACE.h"
+#include "ace/OS_NS_dlfcn.h"
+#include "ace/OS_NS_string.h"
+#include "ace/OS_Errno.h"
 
-#if defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/Strategies_T.i"
-#endif /* ACE_LACKS_INLINE_FUNCTIONS */
+#if !defined (__ACE_INLINE__)
+#include "ace/Strategies_T.inl"
+#endif /* __ACE_INLINE__ */
 
 
 ACE_RCSID (ace,
            Strategies_T,
-           "Strategies_T.cpp,v 4.103 2003/08/04 13:59:10 dhinton Exp")
+           "Strategies_T.cpp,v 4.110 2004/12/10 09:51:04 jwillemsen Exp")
 
 
 template <class SVC_HANDLER> int
@@ -51,9 +54,9 @@ ACE_Singleton_Strategy<SVC_HANDLER>::open (SVC_HANDLER *sh,
 }
 
 template <class SVC_HANDLER> int
-ACE_DLL_Strategy<SVC_HANDLER>::open (const char dll_name[],
-                                     const char factory_function[],
-                                     const char svc_name[],
+ACE_DLL_Strategy<SVC_HANDLER>::open (const ACE_TCHAR dll_name[],
+                                     const ACE_TCHAR factory_function[],
+                                     const ACE_TCHAR svc_name[],
                                      ACE_Service_Repository *svc_rep,
                                      ACE_Thread_Manager *thr_mgr)
 {
@@ -92,7 +95,7 @@ ACE_DLL_Strategy<SVC_HANDLER>::make_svc_handler (SVC_HANDLER *&sh)
       // Create an ACE_Service_Type containing the SVC_Handler and
       // insert into this->svc_rep_;
 
-      ACE_Service_Type_Impl *stp;
+      ACE_Service_Type_Impl *stp = 0;
       ACE_NEW_RETURN (stp,
                       ACE_Service_Object_Type (svc_handler,
                                                this->svc_name_),
@@ -381,7 +384,10 @@ ACE_Process_Strategy<SVC_HANDLER>::activate_svc_handler (SVC_HANDLER *svc_handle
   switch (ACE::fork (ACE_LIB_TEXT ("child"), this->flags_))
     {
     case -1:
-      svc_handler->destroy ();
+      {
+        ACE_Errno_Guard error (errno);
+        svc_handler->destroy ();
+      }
       ACE_ERROR_RETURN ((LM_ERROR,
                          ACE_LIB_TEXT ("%p\n"),
                          ACE_LIB_TEXT ("fork")),
@@ -469,7 +475,7 @@ ACE_Cached_Connect_Strategy<SVC_HANDLER, ACE_PEER_CONNECTOR_2, MUTEX>::~ACE_Cach
   this->recycling_strategy_ = 0;
 
   // Close down all cached service handlers.
-  CONNECTION_MAP_ENTRY *entry;
+  CONNECTION_MAP_ENTRY *entry = 0;
   for (CONNECTION_MAP_ITERATOR iterator (connection_map_);
        iterator.next (entry);
        iterator.advance ())
@@ -985,7 +991,7 @@ template<class SVC_HANDLER, ACE_PEER_CONNECTOR_1, class MUTEX> ACE_Recyclable_St
 ACE_Cached_Connect_Strategy<SVC_HANDLER, ACE_PEER_CONNECTOR_2, MUTEX>::recycle_state (const void *recycling_act) const
 {
   // Const cast.
-  SELF *fake_this = ACE_const_cast (SELF *, this);
+  SELF *fake_this = const_cast<SELF *> (this);
 
   // Synchronization is required here.
   ACE_GUARD_RETURN (MUTEX, ace_mon, *fake_this->lock_, ACE_RECYCLABLE_UNKNOWN);

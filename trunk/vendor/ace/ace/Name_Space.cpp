@@ -1,11 +1,11 @@
 // Name_Space.cpp
-// Name_Space.cpp,v 4.7 2003/11/07 20:27:28 shuston Exp
+// Name_Space.cpp,v 4.8 2004/04/23 03:06:18 ossama Exp
 
 #include "ace/Name_Space.h"
 #include "ace/OS_NS_string.h"
 #include "ace/OS_NS_stdlib.h"
 
-ACE_RCSID(ace, Name_Space, "Name_Space.cpp,v 4.7 2003/11/07 20:27:28 shuston Exp")
+ACE_RCSID(ace, Name_Space, "Name_Space.cpp,v 4.8 2004/04/23 03:06:18 ossama Exp")
 
 ACE_Name_Binding::ACE_Name_Binding (void)
   : type_ (ACE_OS::strdup (""))
@@ -52,7 +52,7 @@ ACE_Name_Binding::operator = (const ACE_Name_Binding &s)
     }
 }
 
-int
+bool
 ACE_Name_Binding::operator == (const ACE_Name_Binding &s) const
 {
   ACE_TRACE ("ACE_Name_Binding::operator ==");

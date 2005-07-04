@@ -4,7 +4,7 @@
 /**
  *  @file   OS_Memory.h
  *
- *  OS_Memory.h,v 4.21 2003/11/06 18:19:39 dhinton Exp
+ *  OS_Memory.h,v 4.23 2004/09/29 21:51:38 shuston Exp
  *
  *  @author Doug Schmidt <schmidt@cs.wustl.edu>
  *  @author Jesper S. M|ller<stophph@diku.dk>
@@ -69,6 +69,13 @@ typedef void *ACE_MALLOC_T;
 // being used).
 // ============================================================================
 
+// If new(std::nothrow) is defined then, by definition, new throws exceptions.
+#if defined (ACE_HAS_NEW_NOTHROW)
+#  if !defined (ACE_NEW_THROWS_EXCEPTIONS)
+#    define ACE_NEW_THROWS_EXCEPTIONS
+#  endif
+#endif
+
 #if defined (ACE_NEW_THROWS_EXCEPTIONS)
 
 // Since new() throws exceptions, we need a way to avoid passing
@@ -124,10 +131,14 @@ typedef void *ACE_MALLOC_T;
 #  elif defined (__BORLANDC__) || defined (ACE_USES_STD_NAMESPACE_FOR_STDCPP_LIB)
 #    include /**/ <new>
 #    define ACE_bad_alloc std::bad_alloc
+#    define ACE_nothrow   std::nothrow
+#    define ACE_nothrow_t std::nothrow_t
 #    define ACE_throw_bad_alloc throw ACE_bad_alloc ()
 #  else
 #    include /**/ <new>
 #    define ACE_bad_alloc bad_alloc
+#    define ACE_nothrow   nothrow
+#    define ACE_nothrow_t nothrow_t
 #    define ACE_throw_bad_alloc throw ACE_bad_alloc ()
 #  endif /* __HP_aCC */
 

@@ -1,4 +1,4 @@
-// Dirent_Selector.cpp,v 4.4 2003/11/01 11:15:12 dhinton Exp
+// Dirent_Selector.cpp,v 4.8 2004/06/14 14:27:57 pbennett Exp
 
 #include "ace/Dirent_Selector.h"
 
@@ -11,7 +11,7 @@
 
 ACE_RCSID (ace,
            Dirent_Selector,
-           "Dirent_Selector.cpp,v 4.4 2003/11/01 11:15:12 dhinton Exp")
+           "Dirent_Selector.cpp,v 4.8 2004/06/14 14:27:57 pbennett Exp")
 
 // Construction/Destruction
 
@@ -23,6 +23,8 @@ ACE_Dirent_Selector::ACE_Dirent_Selector (void)
 
 ACE_Dirent_Selector::~ACE_Dirent_Selector (void)
 {
+  // Free up any allocated resources.
+  this->close();
 }
 
 int
@@ -38,9 +40,17 @@ ACE_Dirent_Selector::open (const ACE_TCHAR *dir,
 int
 ACE_Dirent_Selector::close (void)
 {
-  for (--n_; n_>=0; --n_)
-    ACE_OS::free (this->namelist_[n_]);
+  for (--n_; n_ >= 0; --n_)
+    {
+#if defined (ACE_LACKS_STRUCT_DIR)
+      // Only the lacking-struct-dir emulation allocates this. Native
+      // scandir includes d_name in the dirent struct itself.
+      ACE_OS::free (this->namelist_[n_]->d_name);
+#endif
+      ACE_OS::free (this->namelist_[n_]);
+    }
 
   ACE_OS::free (this->namelist_);
+  this->namelist_ = 0;
   return 0;
 }

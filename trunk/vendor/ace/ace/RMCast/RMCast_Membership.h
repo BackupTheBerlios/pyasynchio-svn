@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// RMCast_Membership.h,v 1.5 2003/11/01 11:15:19 dhinton Exp
+// RMCast_Membership.h,v 1.6 2004/10/22 14:47:40 elliott_c Exp
 
 // ============================================================================
 //
@@ -86,10 +86,10 @@ protected:
   /// The collection of proxies
   Proxy_Collection proxies_;
 
-  /// The smallest value of \param next_expected for all the proxies
+  /// The smallest value of next_expected for all the proxies
   ACE_UINT32 next_expected_;
 
-  /// The highest value of \param highest_received for all the proxies
+  /// The highest value of highest_received for all the proxies
   ACE_UINT32 highest_received_;
 
   /// Synchronization

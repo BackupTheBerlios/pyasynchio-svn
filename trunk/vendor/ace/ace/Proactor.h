@@ -4,7 +4,7 @@
 /**
  *  @file    Proactor.h
  *
- *  Proactor.h,v 4.86 2003/11/05 13:15:06 jwillemsen Exp
+ *  Proactor.h,v 4.88 2004/06/16 07:57:22 jwillemsen Exp
  *
  *  @author Irfan Pyarali <irfan@cs.wustl.edu>
  *  @author Tim Harrison <harrison@cs.wustl.edu>
@@ -219,7 +219,7 @@ public:
   /**
    * Run the event loop until the <ACE_Proactor::handle_events> method
    * returns -1, the <end_event_loop> method is invoked, or the
-   * <ACE_Time_Value> expires.
+   * <ACE_Time_Value> expires, in which case 0 is returned.
    */
   static int run_event_loop (ACE_Time_Value &tv);
 
@@ -276,7 +276,7 @@ public:
    * method returns -1, the
    * <end_proactor_event_loop> method is invoked,
    * or the <ACE_Time_Value>
-   * expires.
+   * expires, in which case a 0 is returned.
    */
   virtual int proactor_run_event_loop (ACE_Time_Value &tv,
                                        PROACTOR_EVENT_HOOK = 0);
@@ -633,7 +633,7 @@ private:
 };
 
 #  if defined (__ACE_INLINE__)
-#    include "ace/Proactor.i"
+#    include "ace/Proactor.inl"
 #  endif /* __ACE_INLINE__ */
 
 #else /* NOT WIN32 or POSIX with AIO features. */

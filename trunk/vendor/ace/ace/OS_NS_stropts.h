@@ -4,7 +4,7 @@
 /**
  *  @file   OS_NS_stropts.h
  *
- *  OS_NS_stropts.h,v 1.4 2003/11/05 21:22:27 dhinton Exp
+ *  OS_NS_stropts.h,v 1.6 2004/09/14 01:23:13 jtc Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  *  @author Jesper S. M|ller<stophph@diku.dk>
@@ -24,6 +24,10 @@
 # if !defined (ACE_LACKS_PRAGMA_ONCE)
 #  pragma once
 # endif /* ACE_LACKS_PRAGMA_ONCE */
+
+# ifndef ACE_IOCTL_TYPE_ARG2
+# define ACE_IOCTL_TYPE_ARG2 int
+# endif
 
 #include "ace/os_include/os_stropts.h"
 #include "ace/os_include/os_stdio.h"
@@ -105,10 +109,9 @@ namespace ACE_OS {
   /// UNIX-style <ioctl>.
   ACE_NAMESPACE_INLINE_FUNCTION
   int ioctl (ACE_HANDLE handle,
-             int cmd,
+             ACE_IOCTL_TYPE_ARG2 cmd,
              void * = 0);
 
-#if !defined (ACE_HAS_WINCE)
   /// QoS-enabled <ioctl>.
   extern ACE_Export 
   int ioctl (ACE_HANDLE socket,
@@ -121,6 +124,7 @@ namespace ACE_OS {
              ACE_OVERLAPPED *overlapped,
              ACE_OVERLAPPED_COMPLETION_FUNC func);
 
+#if !defined (ACE_HAS_WINCE)
   /// QoS-enabled <ioctl> when the I/O control code is either
   /// SIO_SET_QOS or SIO_GET_QOS.
   extern ACE_Export 
@@ -132,7 +136,7 @@ namespace ACE_OS {
              unsigned long buffer = 0,
              ACE_OVERLAPPED *overlapped = 0,
              ACE_OVERLAPPED_COMPLETION_FUNC func = 0);
-#endif  // ACE_HAS_WINCE
+#endif  /* ACE_HAS_WINCE */
 
   ACE_NAMESPACE_INLINE_FUNCTION
   int isastream (ACE_HANDLE handle);

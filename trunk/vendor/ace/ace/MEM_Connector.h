@@ -4,7 +4,7 @@
 /**
  *  @file    MEM_Connector.h
  *
- *  MEM_Connector.h,v 4.13 2003/07/19 19:04:12 dhinton Exp
+ *  MEM_Connector.h,v 4.15 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Nanbor Wang <nanbor@cs.wustl.edu>
  */
@@ -139,7 +139,7 @@ public:
   void preferred_strategy (ACE_MEM_IO::Signal_Strategy strategy);
 
   /// Accessor to underlying malloc options.
-  /// This method has been deprecated.
+  /// @deprecated This method has been deprecated.
   ACE_MEM_SAP::MALLOC_OPTIONS &malloc_options (void);
 
   // = Meta-type info
@@ -164,9 +164,9 @@ private:
   ACE_MEM_IO::Signal_Strategy preferred_strategy_;
 };
 
-#if !defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/MEM_Connector.i"
-#endif
+#if defined (__ACE_INLINE__)
+#include "ace/MEM_Connector.inl"
+#endif /* __ACE_INLINE__ */
 
 #endif /* ACE_HAS_POSITION_INDEPENDENT_POINTERS == 1 */
 

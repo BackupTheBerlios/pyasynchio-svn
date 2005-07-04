@@ -4,7 +4,7 @@
 /**
  *  @file    POSIX_CB_Proactor.h
  *
- *  POSIX_CB_Proactor.h,v 4.7 2003/08/04 03:53:52 dhinton Exp
+ *  POSIX_CB_Proactor.h,v 4.12 2004/06/16 07:57:22 jwillemsen Exp
  *
  *  @author Alexander Libman <alibman@ihug.com.au>
  */
@@ -19,13 +19,17 @@
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
-#if defined (ACE_HAS_AIO_CALLS) && !defined(__sun) && !defined(__Lynx__)
+#if defined (ACE_HAS_AIO_CALLS) && !defined(__Lynx__) && !defined (__FreeBSD__)
 
 #include "ace/Synch_Traits.h"
 #include "ace/Thread_Semaphore.h"
 #include "ace/Null_Semaphore.h"
 
 #include "ace/POSIX_Proactor.h"
+
+#if defined(AIX) || defined(sun)
+typedef union sigval sigval_t;
+#endif
 
 /**
  * @class ACE_POSIX_CB_Proactor
@@ -46,9 +50,11 @@ public:
   /// be started at the same time.
   ACE_POSIX_CB_Proactor (size_t max_aio_operations = ACE_AIO_DEFAULT_SIZE);
 
-protected:
-
+  // This only public so the "extern C" completion function can see it
+  // when needed.
   static void aio_completion_func (sigval_t cb_data);
+
+protected:
 
   /**
    * Dispatch a single set of events.  If <wait_time> elapses before
@@ -80,15 +86,15 @@ protected:
    * dispatched. Return -1 on errors.
    */
   int handle_events_i (u_long milli_seconds);
- 
+
   /// semaphore variable to notify
   /// used to wait the first AIO start
   ACE_SYNCH_SEMAPHORE sema_;
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/POSIX_CB_Proactor.i"
+#include "ace/POSIX_CB_Proactor.inl"
 #endif /* __ACE_INLINE__ */
 
-#endif /* ACE_HAS_AIO_CALLS && !__sun && !__Lynx__ */
+#endif /* ACE_HAS_AIO_CALLS && !__Lynx__ && !__FreeBSD__  */
 #endif /* ACE_POSIX_CB_PROACTOR_H*/

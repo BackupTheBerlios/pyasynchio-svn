@@ -1,9 +1,9 @@
 // -*- C++ -*-
-// OS_NS_fcntl.cpp,v 1.3 2003/11/04 07:05:40 jwillemsen Exp
+// OS_NS_fcntl.cpp,v 1.4 2004/05/14 20:18:22 shuston Exp
 
 #include "ace/OS_NS_fcntl.h"
 
-ACE_RCSID(ace, OS_NS_fcntl, "OS_NS_fcntl.cpp,v 1.3 2003/11/04 07:05:40 jwillemsen Exp")
+ACE_RCSID(ace, OS_NS_fcntl, "OS_NS_fcntl.cpp,v 1.4 2004/05/14 20:18:22 shuston Exp")
 
 #if !defined (ACE_HAS_INLINED_OSCALLS)
 # include "ace/OS_NS_fcntl.inl"
@@ -76,18 +76,24 @@ ACE_OS::open (const char *filename,
     }
 
   DWORD shared_mode = perms;
+  SECURITY_ATTRIBUTES sa_buffer;
+  SECURITY_DESCRIPTOR sd_buffer;
 
 #if defined (ACE_HAS_WINCE)
-  ACE_HANDLE h = ::CreateFileW (ACE_Ascii_To_Wide (filename).wchar_rep (), access,
+  ACE_HANDLE h = ::CreateFileW (ACE_Ascii_To_Wide (filename).wchar_rep (),
+                                access,
                                 shared_mode,
-                                ACE_OS::default_win32_security_attributes (sa),
+                                ACE_OS::default_win32_security_attributes_r
+                                  (sa, &sa_buffer, &sd_buffer),
                                 creation,
                                 flags,
                                 0);
 #else /* ACE_HAS_WINCE */
-  ACE_HANDLE h = ::CreateFileA (filename, access,
+  ACE_HANDLE h = ::CreateFileA (filename,
+                                access,
                                 shared_mode,
-                                ACE_OS::default_win32_security_attributes (sa),
+                                ACE_OS::default_win32_security_attributes_r
+                                  (sa, &sa_buffer, &sd_buffer),
                                 creation,
                                 flags,
                                 0);
@@ -225,11 +231,14 @@ ACE_OS::open (const wchar_t *filename,
     }
 
   DWORD shared_mode = perms;
+  SECURITY_ATTRIBUTES sa_buffer;
+  SECURITY_DESCRIPTOR sd_buffer;
 
   ACE_HANDLE h = ::CreateFileW (filename,
                                 access,
                                 shared_mode,
-                                ACE_OS::default_win32_security_attributes (sa),
+                                ACE_OS::default_win32_security_attributes_r
+                                  (sa, &sa_buffer, &sd_buffer),
                                 creation,
                                 flags,
                                 0);

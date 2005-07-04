@@ -5,7 +5,7 @@
  *
  *  @file    SOCK_SEQPACK_Association.h
  *
- *  SOCK_SEQPACK_Association.h,v 4.4 2003/10/31 19:20:59 gthaker Exp
+ *  SOCK_SEQPACK_Association.h,v 4.8 2004/10/06 16:14:22 dwcraig Exp
  *
  *  @author  Patrick J. Lardieri <plardier@atl.lmco.com>
  *  @author  Gaurav Naik, Lockheed Martin ATL
@@ -122,7 +122,7 @@ public:
 
   /// Receive an <iovec> of size <iovcnt> from the connected socket.
   ssize_t recvv_n (iovec iov[],
-                   size_t iovcnt,
+                   int iovcnt,
                    const ACE_Time_Value *timeout = 0,
                    size_t *bytes_transferred = 0) const;
 
@@ -148,7 +148,7 @@ public:
 
   /// Send an <iovec> of size <iovcnt> to the connected socket.
   ssize_t sendv_n (const iovec iov[],
-                   size_t iovcnt,
+                   int iovcnt,
                    const ACE_Time_Value *timeout = 0,
                    size_t *bytes_transferred = 0) const;
 
@@ -174,6 +174,12 @@ public:
    * the close to avoid losing data).  */
   int close (void);
 
+  /**
+   * Abort the association according to RFC 2960 9.1 through the API
+   * in draft-ietf-tsvwg-sctpsocket-09 7.1.4.
+   */
+  int abort (void);
+
   // = Meta-type info
   typedef ACE_Multihomed_INET_Addr PEER_ADDR;
 
@@ -184,9 +190,9 @@ public:
   ACE_ALLOC_HOOK_DECLARE;
 };
 
-#if !defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/SOCK_SEQPACK_Association.i"
-#endif
+#if defined (__ACE_INLINE__)
+#include "ace/SOCK_SEQPACK_Association.inl"
+#endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"
 

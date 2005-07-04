@@ -4,7 +4,7 @@
 /**
  *  @file    Condition_Recursive_Thread_Mutex.h
  *
- *  Condition_Recursive_Thread_Mutex.h,v 4.2 2003/08/04 04:40:34 dhinton Exp
+ *  Condition_Recursive_Thread_Mutex.h,v 4.3 2004/06/14 13:58:41 jwillemsen Exp
  *
  *   Moved from Synch.h.
  *
@@ -105,10 +105,6 @@ public:
   ACE_Condition_Recursive_Thread_Mutex (ACE_Recursive_Thread_Mutex &m):
     ACE_Condition<ACE_Recursive_Thread_Mutex> (m) {}
 };
-
-#if defined (__ACE_INLINE__)
-#include "ace/Condition_Recursive_Thread_Mutex.inl"
-#endif /* __ACE_INLINE__ */
 
 #endif /* !ACE_HAS_THREADS */
 

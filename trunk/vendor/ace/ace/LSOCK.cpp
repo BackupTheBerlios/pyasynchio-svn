@@ -1,16 +1,17 @@
-// LSOCK.cpp,v 4.18 2003/07/27 20:48:25 dhinton Exp
+// LSOCK.cpp,v 4.21 2004/06/16 07:57:20 jwillemsen Exp
 
 #include "ace/LSOCK.h"
 
-ACE_RCSID(ace, LSOCK, "LSOCK.cpp,v 4.18 2003/07/27 20:48:25 dhinton Exp")
+ACE_RCSID(ace, LSOCK, "LSOCK.cpp,v 4.21 2004/06/16 07:57:20 jwillemsen Exp")
 
 #if !defined (ACE_LACKS_UNIX_DOMAIN_SOCKETS)
 
 #include "ace/Log_Msg.h"
+#include "ace/OS_NS_sys_socket.h"
 
-#if defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/LSOCK.i"
-#endif
+#if !defined (__ACE_INLINE__)
+#include "ace/LSOCK.inl"
+#endif /* __ACE_INLINE__ */
 
 ACE_ALLOC_HOOK_DEFINE(ACE_LSOCK)
 
@@ -140,7 +141,7 @@ ACE_LSOCK::recv_handle (ACE_HANDLE &handle, char *pbuf, int *len) const
         {
 #if defined (ACE_HAS_4_4BSD_SENDMSG_RECVMSG)
           // Close down the socket that was returned by the MSG_PEEK.
-          ACE_OS::closesocket (*(ACE_HANDLE *) CMSG_DATA ((cmsghdr *) cmsgbuf)); 
+          ACE_OS::closesocket (*(ACE_HANDLE *) CMSG_DATA ((cmsghdr *) cmsgbuf));
           recv_msg.msg_control = cmsgbuf;
           recv_msg.msg_controllen = sizeof cmsgbuf;
 #else

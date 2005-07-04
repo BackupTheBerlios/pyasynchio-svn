@@ -4,7 +4,7 @@
 /**
  *  @file    Activation_Queue.h
  *
- *  Activation_Queue.h,v 4.26 2003/08/04 03:53:50 dhinton Exp
+ *  Activation_Queue.h,v 4.27 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Andres Kruse <Andres.Kruse@cern.ch>
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
@@ -155,7 +155,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Activation_Queue.i"
+#include "ace/Activation_Queue.inl"
 #endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"

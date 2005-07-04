@@ -4,7 +4,7 @@
 /**
  *  @file    SPIPE_Connector.h
  *
- *  SPIPE_Connector.h,v 4.19 2003/07/19 19:04:13 dhinton Exp
+ *  SPIPE_Connector.h,v 4.21 2004/06/16 07:57:22 jwillemsen Exp
  *
  *  @author Doug Schmidt <schmidt@cs.wustl.edu>
  *  @author Prashant Jain <pjain@cs.wustl.edu>
@@ -16,6 +16,7 @@
 #include /**/ "ace/pre.h"
 
 #include "ace/SPIPE_Stream.h"
+#include "ace/os_include/os_fcntl.h"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
@@ -26,7 +27,7 @@
  *
  * @brief Defines an active connection factory for <ACE_SPIPE_Stream>.
  * On Windows this is mapped to Named Pipes, whereas on UNIX it is
- * mapped to STREAM pipes.  
+ * mapped to STREAM pipes.
  */
 class ACE_Export ACE_SPIPE_Connector
 {
@@ -105,9 +106,9 @@ public:
   ACE_ALLOC_HOOK_DECLARE;
 };
 
-#if !defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/SPIPE_Connector.i"
-#endif
+#if defined (__ACE_INLINE__)
+#include "ace/SPIPE_Connector.inl"
+#endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"
 #endif /* ACE_SPIPE_CONNECTOR_H */

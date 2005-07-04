@@ -1,15 +1,17 @@
 // UPIPE_Acceptor.cpp
-// UPIPE_Acceptor.cpp,v 4.10 2003/07/27 20:48:28 dhinton Exp
+// UPIPE_Acceptor.cpp,v 4.12 2004/06/16 07:57:21 jwillemsen Exp
 
 #include "ace/UPIPE_Acceptor.h"
 
-ACE_RCSID(ace, UPIPE_Acceptor, "UPIPE_Acceptor.cpp,v 4.10 2003/07/27 20:48:28 dhinton Exp")
+ACE_RCSID(ace, UPIPE_Acceptor, "UPIPE_Acceptor.cpp,v 4.12 2004/06/16 07:57:21 jwillemsen Exp")
 
 #if defined (ACE_HAS_THREADS)
 
-#if defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/UPIPE_Acceptor.i"
-#endif
+#include "ace/OS_NS_unistd.h"
+
+#if !defined (__ACE_INLINE__)
+#include "ace/UPIPE_Acceptor.inl"
+#endif /* __ACE_INLINE__ */
 
 ACE_ALLOC_HOOK_DEFINE(ACE_UPIPE_Acceptor)
 

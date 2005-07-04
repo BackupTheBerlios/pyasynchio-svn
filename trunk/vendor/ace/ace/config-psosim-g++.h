@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// config-psosim-g++.h,v 4.18 2003/07/19 19:04:15 dhinton Exp
+// config-psosim-g++.h,v 4.23 2004/12/20 11:01:31 jwillemsen Exp
 
 // The following configuration file is designed to work for pSOSim on SunOS5
 // using the GNU/Cygnus g++ 2.7.2 compiler, without repo patch.
@@ -69,6 +69,7 @@
 #define ACE_LACKS_MALLOC_H
 
 #define ACE_LACKS_MMAP
+#define ACE_LACKS_UMASK
 
 #define ACE_LACKS_UNIX_DOMAIN_SOCKETS
 
@@ -131,9 +132,9 @@
 
 #define ACE_LACKS_PTHREAD_THR_SIGSETMASK
 
-/* #define ACE_HAS_BROKEN_SENDMSG */
+/* #define ACE_HAS_NONCONST_SENDMSG */
 
-/* #define ACE_HAS_BROKEN_WRITEV  */
+/* #define ACE_HAS_NONCONST_WRITEV  */
 
 #define ACE_HAS_CHARPTR_SOCKOPT
 
@@ -177,7 +178,7 @@
 
 #define ACE_LACKS_MSYNC
 
-#define ACE_LACKS_PARAM_H
+#define ACE_LACKS_SYS_PARAM_H
 
 #define ACE_LACKS_PWD_FUNCTIONS
 
@@ -203,7 +204,7 @@
 
 #define ACE_LACKS_SYSCALL
 
-#define ACE_LACKS_SYSV_MSG_H
+#define ACE_LACKS_SYS_MSG_H
 
 #define ACE_LACKS_SYSV_SHMEM
 
@@ -220,10 +221,6 @@
 // #define ACE_LACKS_SYSTIME_H
 
 #define ACE_PAGE_SIZE 4096
-
-#if !defined (ACE_NTRACE)
-# define ACE_NTRACE 1
-#endif /* ACE_NTRACE */
 
 #if !defined (ACE_PSOS)
 #define ACE_PSOS

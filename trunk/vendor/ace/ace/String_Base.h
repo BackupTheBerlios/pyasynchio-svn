@@ -4,7 +4,7 @@
 /**
  *  @file    String_Base.h
  *
- *  String_Base.h,v 4.18 2003/11/01 11:15:17 dhinton Exp
+ *  String_Base.h,v 4.21 2004/06/23 18:11:11 shuston Exp
  *
  *  @author Douglas C. Schmidt (schmidt@cs.wustl.edu)
  *  @author Nanbor Wang <nanbor@cs.wustl.edu>
@@ -189,6 +189,20 @@ public:
   void clear (int release = 0);
 
   /**
+   * A more specialized version of clear(): "fast clear". fast_clear()
+   * resets the string to 0 length. If the string owns the buffer
+   * (@arg release_== 1):
+   *  - the string buffer is not freed
+   *  - the first character of the buffer is set to 0.
+   *
+   * If @arg release_ is 0 (this object does not own the buffer):
+   *  - the buffer pointer is reset to the NULL_String_ and does not
+   *    maintain a pointer to the caller-supplied buffer on return
+   *  - the maximum string length is reset to 0.
+   */
+  void fast_clear (void);
+
+  /**
    * Return a substring given an offset and length, if length == -1
    * use rest of str.  Return empty substring if offset or
    * offset/length are invalid.
@@ -314,35 +328,36 @@ public:
    *  Equality comparison operator (must match entire string).
    *
    * @param s Input ACE_String_Base string to compare against stored string.
-   * @return Integer value of result (1 = found, 0 = not found).
+   * @return Integer value of result (@c true = found, @c false = not
+   * found).
    */
-  int operator == (const ACE_String_Base<CHAR> &s) const;
+  bool operator == (const ACE_String_Base<CHAR> &s) const;
 
   /**
    *  Less than comparison operator.
    *
    *  @param s Input ACE_String_Base string to compare against stored string.
-   *  @return Integer value of result (1 = less than, 0 = greater than or
-   *  equal).
+   *  @return Integer value of result (@c true = less than, @c false =
+   *  greater than or equal).
    */
-  int operator < (const ACE_String_Base<CHAR> &s) const;
+  bool operator < (const ACE_String_Base<CHAR> &s) const;
 
   /**
    *  Greater than comparison operator.
    *
    *  @param s Input ACE_String_Base string to compare against stored string.
-   *  @return Integer value of result (1 = greater than, 0 = less than or
-   *  equal).
+   *  @return Integer value of result (@c true = greater than, @c
+   *  false = less than or equal).
    */
-  int operator > (const ACE_String_Base<CHAR> &s) const;
+  bool operator > (const ACE_String_Base<CHAR> &s) const;
 
   /**
    *  Inequality comparison operator.
    *
    *  @param s Input ACE_String_Base string to compare against stored string.
-   *  @return Integer value of result (1 = not equal, 0 = equal).
+   *  @return Integer value of result (@c true = not equal, @c false = equal).
    */
-  int operator != (const ACE_String_Base<CHAR> &s) const;
+  bool operator != (const ACE_String_Base<CHAR> &s) const;
 
   /**
    *  Performs a strncmp comparison.
@@ -426,7 +441,7 @@ template < class CHAR > ACE_INLINE
                                        const ACE_String_Base < CHAR > &t);
 
 #if defined (__ACE_INLINE__)
-#include "ace/String_Base.i"
+#include "ace/String_Base.inl"
 #endif /* __ACE_INLINE__ */
 
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)

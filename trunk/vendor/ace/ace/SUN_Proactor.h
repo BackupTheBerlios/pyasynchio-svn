@@ -4,7 +4,7 @@
 /**
  *  @file    SUN_Proactor.h
  *
- *  SUN_Proactor.h,v 4.15 2002/12/21 23:29:24 shuston Exp
+ *  SUN_Proactor.h,v 4.17 2004/06/28 17:27:08 jwillemsen Exp
  *
  *  @author Alexander Libman <alibman@baltimore.com>
  */
@@ -74,7 +74,7 @@ public:
 
 protected:
   /**
-   * Dispatch a single set of events.  If <wait_time> elapses before
+   * Dispatch a single set of events.  If @a wait_time elapses before
    * any events occur, return 0.  Return 1 on success i.e., when a
    * completion is dispatched, non-zero (-1) on errors and errno is
    * set accordingly.
@@ -119,7 +119,7 @@ protected:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/SUN_Proactor.i"
+#include "ace/SUN_Proactor.inl"
 #endif /* __ACE_INLINE__ */
 
 #endif /* ACE_HAS_AIO_CALLS && sun */

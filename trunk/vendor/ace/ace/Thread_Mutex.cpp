@@ -2,7 +2,7 @@
 /**
  * @file Thread_Mutex.cpp
  *
- * Thread_Mutex.cpp,v 4.5 2003/12/19 01:28:02 dhinton Exp
+ * Thread_Mutex.cpp,v 4.6 2004/04/22 20:54:00 shuston Exp
  *
  * Originally in Synch.cpp
  *
@@ -21,7 +21,7 @@
 #include "ace/Guard_T.h"
 #include "ace/Malloc_T.h"
 
-ACE_RCSID(ace, Thread_Mutex, "Thread_Mutex.cpp,v 4.5 2003/12/19 01:28:02 dhinton Exp")
+ACE_RCSID(ace, Thread_Mutex, "Thread_Mutex.cpp,v 4.6 2004/04/22 20:54:00 shuston Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_Thread_Mutex_Guard)
 
@@ -64,7 +64,7 @@ ACE_Thread_Mutex::ACE_Thread_Mutex (const ACE_TCHAR *name, ACE_mutexattr_t *arg)
 //  ACE_TRACE ("ACE_Thread_Mutex::ACE_Thread_Mutex");
 
   if (ACE_OS::thread_mutex_init (&this->lock_,
-                                 USYNC_THREAD,
+                                 0,
                                  name,
                                  arg) != 0)
     ACE_ERROR ((LM_ERROR,

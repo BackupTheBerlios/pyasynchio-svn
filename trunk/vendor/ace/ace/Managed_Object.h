@@ -4,7 +4,7 @@
 /**
  *  @file    Managed_Object.h
  *
- *  Managed_Object.h,v 4.31 2003/11/03 03:04:11 dhinton Exp
+ *  Managed_Object.h,v 4.32 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author David L. Levine
  */
@@ -147,7 +147,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Managed_Object.i"
+#include "ace/Managed_Object.inl"
 #endif /* __ACE_INLINE__ */
 
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)

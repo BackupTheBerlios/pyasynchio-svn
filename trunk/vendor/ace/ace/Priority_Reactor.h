@@ -4,7 +4,7 @@
 /**
  *  @file    Priority_Reactor.h
  *
- *  Priority_Reactor.h,v 4.18 2003/07/19 19:04:13 dhinton Exp
+ *  Priority_Reactor.h,v 4.19 2004/08/20 15:21:02 bala Exp
  *
  *  @author Carlos O'Ryan <coryan@uci.edu>
  */
@@ -70,6 +70,11 @@ protected:
 private:
   /// A small helper to initialize the bucket.
   void init_bucket (void);
+
+  /// Build the bucket from the given dispatch_mask
+  void build_bucket (ACE_Handle_Set& dispatch_mask,
+                     int &min_priority,
+                     int &max_priority);
 
   /// There is a queue per-priority, which simply holds the
   /// Event_Handlers until we know who goes first.

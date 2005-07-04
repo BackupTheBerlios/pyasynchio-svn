@@ -4,7 +4,7 @@
 /**
  *  @file    ATM_QoS.h
  *
- *  ATM_QoS.h,v 4.12 2003/07/19 19:04:10 dhinton Exp
+ *  ATM_QoS.h,v 4.14 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Joe Hoffert
  */
@@ -30,7 +30,7 @@ typedef ACE_QoS ATM_QoS;
 typedef struct netbuf ATM_QoS;
 #elif defined (ACE_HAS_LINUX_ATM)
 #include /**/ "atm.h"
-#include "ATM_Params.h"
+#include "ace/ATM_Params.h"
 typedef struct atm_qos ATM_QoS;
 #else
 typedef int ATM_QoS;
@@ -95,7 +95,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/ATM_QoS.i"
+#include "ace/ATM_QoS.inl"
 #endif /* __ACE_INLINE__ */
 
 #endif /* ACE_HAS_ATM */

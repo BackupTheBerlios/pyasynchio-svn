@@ -1,15 +1,15 @@
 // FIFO_Recv_Msg.cpp
-// FIFO_Recv_Msg.cpp,v 4.13 2003/11/01 11:15:12 dhinton Exp
+// FIFO_Recv_Msg.cpp,v 4.15 2004/06/16 07:57:20 jwillemsen Exp
 
 #include "ace/FIFO_Recv_Msg.h"
 
-#if defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/FIFO_Recv_Msg.i"
-#endif
-
 #include "ace/Log_Msg.h"
 
-ACE_RCSID(ace, FIFO_Recv_Msg, "FIFO_Recv_Msg.cpp,v 4.13 2003/11/01 11:15:12 dhinton Exp")
+#if !defined (__ACE_INLINE__)
+#include "ace/FIFO_Recv_Msg.inl"
+#endif /* __ACE_INLINE__ */
+
+ACE_RCSID(ace, FIFO_Recv_Msg, "FIFO_Recv_Msg.cpp,v 4.15 2004/06/16 07:57:20 jwillemsen Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_FIFO_Recv_Msg)
 

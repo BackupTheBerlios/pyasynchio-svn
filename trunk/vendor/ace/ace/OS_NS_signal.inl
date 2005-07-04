@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// OS_NS_signal.inl,v 1.3 2003/12/22 22:50:34 shuston Exp
+// OS_NS_signal.inl,v 1.6 2004/06/24 14:07:03 jtc Exp
 
 #include "ace/OS_NS_macros.h"
 #include "ace/OS_NS_errno.h"
@@ -21,8 +21,9 @@ ACE_INLINE int
 ACE_OS::pthread_sigmask (int how, const sigset_t *nsp, sigset_t *osp)
 {
 #if defined (ACE_HAS_PTHREADS_STD)  &&  !defined (ACE_LACKS_PTHREAD_SIGMASK)
+  int result;
   ACE_OSCALL_RETURN (ACE_ADAPT_RETVAL (::pthread_sigmask (how, nsp, osp),
-                                       ace_result_),
+                                       result),
                      int,
                      -1);
 #else /* !ACE_HAS_PTHREADS_STD && !ACE_LACKS_PTHREAD_SIGMASK */
@@ -62,7 +63,7 @@ ACE_OS::sigaction (int signum,
   ACE_NOTSUP_RETURN (-1);
 #elif !defined (ACE_HAS_SIGACTION_CONSTP2)
   ACE_OSCALL_RETURN (::sigaction (signum,
-                                  ACE_const_cast (struct sigaction*, nsa),
+                                  const_cast<struct sigaction*> (nsa),
                                   osa),
                      int, -1);
 #else
@@ -247,11 +248,7 @@ ACE_OS::sigprocmask (int how, const sigset_t *nsp, sigset_t *osp)
   ACE_UNUSED_ARG (osp);
   ACE_NOTSUP_RETURN (-1);
 #else
-# if defined (ACE_LACKS_POSIX_PROTOTYPES)
-  ACE_OSCALL_RETURN (::sigprocmask (how, (int*) nsp, osp), int, -1);
-# else
   ACE_OSCALL_RETURN (::sigprocmask (how, nsp, osp), int, -1);
-# endif /* ACE_LACKS_POSIX_PROTOTYPES */
 #endif /* ACE_LACKS_SIGSET || ACE_LACKS_SIGSET_DEFINITIONS */
 }
 

@@ -1,10 +1,13 @@
-// Proactor.cpp,v 4.129 2003/08/04 03:53:52 dhinton Exp
+// Proactor.cpp,v 4.138 2004/09/17 16:53:39 elliott_c Exp
 
+#include "ace/config-lite.h"
 #include "ace/Proactor.h"
 #if ((defined (ACE_WIN32) && !defined (ACE_HAS_WINCE)) || (defined (ACE_HAS_AIO_CALLS)))
+
 // This only works on Win32 platforms and on Unix platforms with aio
 // calls.
 
+#include "ace/Auto_Ptr.h"
 #include "ace/Proactor_Impl.h"
 #include "ace/Object_Manager.h"
 #include "ace/Task_T.h"
@@ -12,7 +15,11 @@
 #    include "ace/Service_Config.h"
 #  endif /* !ACE_HAS_WINCE && !ACE_LACKS_ACE_SVCCONF */
 
-ACE_RCSID(ace, Proactor, "Proactor.cpp,v 4.129 2003/08/04 03:53:52 dhinton Exp")
+
+ACE_RCSID (ace,
+           Proactor,
+           "Proactor.cpp,v 4.138 2004/09/17 16:53:39 elliott_c Exp")
+
 
 #include "ace/Task_T.h"
 #include "ace/Log_Msg.h"
@@ -20,12 +27,13 @@ ACE_RCSID(ace, Proactor, "Proactor.cpp,v 4.129 2003/08/04 03:53:52 dhinton Exp")
 
 #if defined (ACE_HAS_AIO_CALLS)
 #   include "ace/POSIX_Proactor.h"
+#   include "ace/POSIX_CB_Proactor.h"
 #else /* !ACE_HAS_AIO_CALLS */
 #   include "ace/WIN32_Proactor.h"
 #endif /* ACE_HAS_AIO_CALLS */
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Proactor.i"
+#include "ace/Proactor.inl"
 #endif /* __ACE_INLINE__ */
 
 #include "ace/Auto_Event.h"
@@ -50,7 +58,7 @@ int ACE_Proactor::delete_proactor_ = 0;
  * signaled, the thread will refresh the time it is currently
  * waiting on (in case the earliest time has changed).
  */
-class ACE_Proactor_Timer_Handler : public ACE_Task <ACE_NULL_SYNCH>
+class ACE_Proactor_Timer_Handler : public ACE_Task<ACE_NULL_SYNCH>
 {
 
   /// Proactor has special privileges
@@ -209,12 +217,14 @@ ACE_Proactor_Handle_Timeout_Upcall::timeout (TIMER_QUEUE &,
                       -1);
 
   // Create the Asynch_Timer.
-  ACE_Asynch_Result_Impl *asynch_timer = this->proactor_->create_asynch_timer (*handler,
-                                                                               act,
-                                                                               time,
-                                                                               ACE_INVALID_HANDLE,
-                                                                               0,
-                                                                               -1);
+  ACE_Asynch_Result_Impl *asynch_timer =
+    this->proactor_->create_asynch_timer (*handler,
+                                          act,
+                                          time,
+                                          ACE_INVALID_HANDLE,
+                                          0,
+                                          -1);
+
   if (asynch_timer == 0)
     ACE_ERROR_RETURN ((LM_ERROR,
                        ACE_LIB_TEXT ("%N:%l:(%P | %t):%p\n"),
@@ -222,12 +232,19 @@ ACE_Proactor_Handle_Timeout_Upcall::timeout (TIMER_QUEUE &,
                        ACE_LIB_TEXT ("create_asynch_timer failed")),
                       -1);
 
+  auto_ptr<ACE_Asynch_Result_Impl> safe_asynch_timer (asynch_timer);
+
   // Post a completion.
   if (asynch_timer->post_completion (this->proactor_->implementation ()) == -1)
     ACE_ERROR_RETURN ((LM_ERROR,
                        ACE_LIB_TEXT ("Failure in dealing with timers: ")
                        ACE_LIB_TEXT ("PostQueuedCompletionStatus failed\n")),
                       -1);
+
+  // The completion has been posted.  The proactor is now responsible
+  // for managing the asynch_timer memory.
+  (void) safe_asynch_timer.release ();
+
   return 0;
 }
 
@@ -298,12 +315,16 @@ ACE_Proactor::ACE_Proactor (ACE_Proactor_Impl *implementation,
       ACE_NEW (implementation, ACE_POSIX_AIOCB_Proactor);
 #  elif defined (ACE_POSIX_SIG_PROACTOR)
       ACE_NEW (implementation, ACE_POSIX_SIG_Proactor);
-#  else /* Default is to use the SIG one */
-#    if defined(ACE_HAS_POSIX_REALTIME_SIGNALS)
-      ACE_NEW (implementation, ACE_POSIX_SIG_Proactor);
+#  else /* Default order: CB (but not Lynx), SIG, AIOCB */
+#    if !defined (__Lynx) && !defined (__FreeBSD__)
+      ACE_NEW (implementation, ACE_POSIX_CB_Proactor);
 #    else
+#      if defined(ACE_HAS_POSIX_REALTIME_SIGNALS)
+      ACE_NEW (implementation, ACE_POSIX_SIG_Proactor);
+#      else
       ACE_NEW (implementation, ACE_POSIX_AIOCB_Proactor);
-#    endif /* ACE_HAS_POSIX_REALTIME_SIGNALS */
+#      endif /* ACE_HAS_POSIX_REALTIME_SIGNALS */
+#    endif /* !__Lynx && !__FreeBSD__ */
 #  endif /* ACE_POSIX_AIOCB_PROACTOR */
 #elif (defined (ACE_WIN32) && !defined (ACE_HAS_WINCE))
       // WIN_Proactor.
@@ -506,7 +527,7 @@ ACE_Proactor::proactor_run_event_loop (ACE_Time_Value &tv,
       if (eh != 0 && (*eh) (this))
         continue;
 
-      if (result == -1)
+      if (result == -1 || result == 0)
         break;
     }
 
@@ -1138,8 +1159,20 @@ template class ACE_Timer_Wheel_Iterator_T<ACE_Handler *,
 
 #if defined (ACE_HAS_EXPLICIT_TEMPLATE_INSTANTIATION)
 template class ACE_Framework_Component_T<ACE_Proactor>;
+#  if defined (ACE_LACKS_AUTO_PTR) \
+      || !(defined (ACE_HAS_STANDARD_CPP_LIBRARY) \
+           && (ACE_HAS_STANDARD_CPP_LIBRARY != 0))
+template class ACE_Auto_Basic_Ptr<ACE_Asynch_Result_Impl>;
+#  endif  /* ACE_LACKS_AUTO_PTR */
+template class auto_ptr<ACE_Asynch_Result_Impl>;
 #elif defined (ACE_HAS_TEMPLATE_INSTANTIATION_PRAGMA)
 #pragma instantiate ACE_Framework_Component_T<ACE_Proactor>
+#  if defined (ACE_LACKS_AUTO_PTR) \
+      || !(defined (ACE_HAS_STANDARD_CPP_LIBRARY) \
+           && (ACE_HAS_STANDARD_CPP_LIBRARY != 0))
+#pragma instantiate ACE_Auto_Basic_Ptr<ACE_Asynch_Result_Impl>
+#  endif  /* ACE_LACKS_AUTO_PTR */
+#pragma instanstiate auto_ptr<ACE_Asynch_Result_Impl>
 #endif /* ACE_HAS_EXPLICIT_TEMPLATE_INSTANTIATION */
 
 #else /* !ACE_WIN32 || !ACE_HAS_AIO_CALLS */
@@ -1170,10 +1203,9 @@ ACE_Proactor::run_event_loop (void)
 }
 
 int
-ACE_Proactor::run_event_loop (ACE_Time_Value &tv)
+ACE_Proactor::run_event_loop (ACE_Time_Value &)
 {
   // not implemented
-  ACE_UNUSED_ARG (tv);
   return -1;
 }
 

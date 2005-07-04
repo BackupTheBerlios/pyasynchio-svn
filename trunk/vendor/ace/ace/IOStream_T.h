@@ -4,14 +4,14 @@
 /**
  *  @file    IOStream_T.h
  *
- *  IOStream_T.h,v 4.36 2003/11/01 11:15:13 dhinton Exp
+ *  IOStream_T.h,v 4.39 2004/09/16 21:32:36 olli Exp
  *
  *  @author James CE Johnson <jcej@lads.com>
  *  @author Jim Crossley <jim@lads.com>
  *
  * This file should not be #included directly by application
  * code. Instead, it should #include "ace/IOStream.h".  That's because
- * we only put some conditional compilations in that file. 
+ * we only put some conditional compilations in that file.
  */
 //=============================================================================
 
@@ -30,6 +30,10 @@
 #  include "ace/INET_Addr.h"
 #  include "ace/Handle_Set.h"
 #  include "ace/Global_Macros.h"
+
+#  if defined (ACE_LACKS_IOSTREAM_FX)
+#   include "ace/os_include/os_ctype.h"
+#  endif /**/
 
 #  if defined (ACE_HAS_STRING_CLASS)
 template <class STREAM> STREAM & operator>> (STREAM &stream, ACE_Quoted_String &str);
@@ -54,17 +58,17 @@ public:
 
   virtual ssize_t recv (char *buf,
                         ssize_t len,
-                        ACE_Time_Value *tv = NULL);
+                        ACE_Time_Value *tv = 0);
 
   virtual ssize_t recv (char *buf,
                         ssize_t len,
                         int flags,
-                        ACE_Time_Value * tv = NULL);
+                        ACE_Time_Value * tv = 0);
 
   virtual ssize_t recv_n (char *buf,
                           ssize_t len,
                           int flags = 0,
-                          ACE_Time_Value *tv = NULL);
+                          ACE_Time_Value *tv = 0);
 
 protected:
   virtual ACE_HANDLE get_handle (void);
@@ -258,15 +262,15 @@ public:
   ssize_t send_n (char *buf, ssize_t len);
   ssize_t recv  (char *buf,
                  ssize_t len,
-                 ACE_Time_Value *tv = NULL);
+                 ACE_Time_Value *tv = 0);
   ssize_t recv (char *buf,
                 ssize_t len,
                 int flags,
-                ACE_Time_Value *tv = NULL);
+                ACE_Time_Value *tv = 0);
   ssize_t recv_n (char *buf,
                   ssize_t len,
                   int flags = 0,
-                  ACE_Time_Value *tv = NULL);
+                  ACE_Time_Value *tv = 0);
   int get_remote_addr (ACE_INET_Addr &addr) const;
 
 protected:
@@ -274,7 +278,7 @@ protected:
 };
 
 #  if defined (__ACE_INLINE__)
-#    include "ace/IOStream_T.i"
+#    include "ace/IOStream_T.inl"
 #  endif /* __ACE_INLINE__ */
 
 #  if defined (ACE_TEMPLATES_REQUIRE_SOURCE)

@@ -1,22 +1,24 @@
 // -*- C++ -*-
 //
-// SSL_SOCK_Connector.cpp,v 1.43 2003/11/09 04:12:07 dhinton Exp
+// SSL_SOCK_Connector.cpp,v 1.46 2004/06/21 16:46:36 shuston Exp
 
 #include "SSL_SOCK_Connector.h"
 
+#include "ace/OS_NS_errno.h"
 #include "ace/Handle_Set.h"
 #include "ace/INET_Addr.h"
 #include "ace/Log_Msg.h"
+#include "ace/Time_Value.h"
 
 #include <openssl/err.h>
 
-#if defined (ACE_LACKS_INLINE_FUNCTIONS)
+#if !defined (__ACE_INLINE__)
 #include "SSL_SOCK_Connector.i"
-#endif /* ACE_LACKS_INLINE_FUNCTIONS */
+#endif /* __ACE_INLINE__ */
 
 ACE_RCSID (ACE_SSL,
            SSL_SOCK_Connector,
-           "SSL_SOCK_Connector.cpp,v 1.43 2003/11/09 04:12:07 dhinton Exp")
+           "SSL_SOCK_Connector.cpp,v 1.46 2004/06/21 16:46:36 shuston Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_SSL_SOCK_Connector)
 

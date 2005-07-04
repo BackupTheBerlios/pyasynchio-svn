@@ -1,11 +1,12 @@
-// TLI_Acceptor.cpp,v 4.22 2003/11/01 11:15:17 dhinton Exp
+// TLI_Acceptor.cpp,v 4.24 2004/06/20 17:58:32 jwillemsen Exp
 
 #include "ace/TLI_Acceptor.h"
 #include "ace/Log_Msg.h"
 #include "ace/ACE.h"
 #include "ace/OS_NS_string.h"
+#include "ace/OS_Memory.h"
 
-ACE_RCSID(ace, TLI_Acceptor, "TLI_Acceptor.cpp,v 4.22 2003/11/01 11:15:17 dhinton Exp")
+ACE_RCSID(ace, TLI_Acceptor, "TLI_Acceptor.cpp,v 4.24 2004/06/20 17:58:32 jwillemsen Exp")
 
 #if defined (ACE_HAS_TLI)
 
@@ -162,6 +163,8 @@ open_new_endpoint (ACE_HANDLE listen_handle,
                                       ACE_const_cast (char *, "tirdwr"))
                                       == ACE_INVALID_HANDLE)
     fd = ACE_INVALID_HANDLE;
+#else
+  ACE_UNUSED_ARG(rwf);
 #endif /* I_PUSH */
 
   if (fd == ACE_INVALID_HANDLE)

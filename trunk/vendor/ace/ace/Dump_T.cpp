@@ -1,17 +1,18 @@
 // Dump_T.cpp
-// Dump_T.cpp,v 4.5 2003/08/05 17:36:31 dhinton Exp
+// Dump_T.cpp,v 4.7 2004/09/01 12:44:16 jwillemsen Exp
 
 #ifndef ACE_DUMP_T_C
 #define ACE_DUMP_T_C
 
 #include "ace/Dump_T.h"
-#include "Global_Macros.h"
+#include "ace/Global_Macros.h"
+#include "ace/config-all.h"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
-ACE_RCSID(ace, Dump_T, "Dump_T.cpp,v 4.5 2003/08/05 17:36:31 dhinton Exp")
+ACE_RCSID(ace, Dump_T, "Dump_T.cpp,v 4.7 2004/09/01 12:44:16 jwillemsen Exp")
 
 template <class Concrete>
 ACE_Dumpable_Adapter<Concrete>::~ACE_Dumpable_Adapter (void)

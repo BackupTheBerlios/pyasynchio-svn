@@ -1,5 +1,5 @@
 // -*- C++ -*-
-//config-win32-borland.h,v 4.63 2003/11/09 13:27:41 jwillemsen Exp
+//config-win32-borland.h,v 4.73 2004/02/01 19:08:54 jwillemsen Exp
 
 // The following configuration file contains defines for Borland compilers.
 
@@ -30,13 +30,11 @@
 
 # include "ace/config-win32-common.h"
 
-# define ACE_STRCASECMP_EQUIVALENT ::stricmp
-# define ACE_STRNCASECMP_EQUIVALENT ::strnicmp
-# define ACE_WCSDUP_EQUIVALENT ::_wcsdup
+// Borland on win32 has swab
+# undef ACE_LACKS_SWAB
 
 # define ACE_LACKS_MODE_MASKS 1
 # define ACE_WSTRING_HAS_USHORT_SUPPORT 1
-# define ACE_HAS_ITOA 1
 # define ACE_HAS_DIRENT
 
 #ifdef ACE_USES_STD_NAMESPACE_FOR_STDC_LIB
@@ -78,14 +76,23 @@
 #define ACE_LACKS_STROPTS_H
 
 #define ACE_LACKS_STRRECVFD
+#define ACE_USES_EXPLICIT_STD_NAMESPACE
 
-#if defined(__BORLANDC__) && (__BORLANDC__ >= 0x600)
+#if (__BORLANDC__ >= 0x600)
 # define ACE_LACKS_PTRDIFF_T
 # define ACE_PTRDIFF_T_TYPE std::ptrdiff_t
-#endif
-
-#if defined(__BORLANDC__) && (__BORLANDC__ < 0x600)
-#define ACE_USES_EXPLICIT_STD_NAMESPACE
+# define ACE_HAS_DINKUM_STL
+# undef ACE_HAS_WIN32_STRUCTURAL_EXCEPTIONS
+# define ACE_STRCASECMP_EQUIVALENT std::strcasecmp
+# define ACE_STRNCASECMP_EQUIVALENT std::strncasecmp
+# define ACE_LACKS_WCSDUP
+# define ACE_HAS_3_PARAM_WCSTOK
+#else
+# define ACE_WCSDUP_EQUIVALENT ::_wcsdup
+# define ACE_STRCASECMP_EQUIVALENT ::stricmp
+# define ACE_STRNCASECMP_EQUIVALENT ::strnicmp
+# define ACE_HAS_ITOA 1
+# define ACE_HAS_NONCONST_SWAB
 #endif
 
 #include /**/ "ace/post.h"

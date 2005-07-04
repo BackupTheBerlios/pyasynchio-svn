@@ -2,9 +2,9 @@
 
 //=============================================================================
 /**
- *  @file   OS.h
+ *  @file  OS.h
  *
- *  OS.h,v 4.1239 2003/12/19 10:29:16 jwillemsen Exp
+ *  OS.h,v 4.1246 2004/12/17 12:21:12 jwillemsen Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  *  @author Jesper S. M|ller<stophph@diku.dk>
@@ -254,7 +254,7 @@ class ACE_Timeout_Manager;
 #   elif defined (__QNX__)
 #     include "ace/os_include/sys/os_uio.h"
 #     include "ace/os_include/sys/os_ipc.h"
-#     include "ace/os_include:sys/os_time.h"
+#     include "ace/os_include/sys/os_time.h"
 #     include "ace/os_include/sys/os_wait.h"
 #     include "ace/os_include/sys/os_resource.h"
 #     include "ace/os_include/os_pwd.h"
@@ -296,14 +296,7 @@ class ACE_Timeout_Manager;
 #   endif /* ACE_HAS_STRINGS */
 
 #   if defined (ACE_HAS_TERM_IOCTLS)
-#     if defined (__QNX__)
-#       include "ace/os_include/os_termios.h"
-#     else  /* ! __QNX__ */
-#       include "ace/os_include/os_termios.h"  // <sys/termios.h>
-#     endif /* ! __QNX__ */
-#     if defined (HPUX)
-#       include /**/ <sys/modem.h>
-#     endif /* HPUX */
+#     include "ace/os_include/os_termios.h"
 #   endif /* ACE_HAS_TERM_IOCTLS */
 
 #   if defined (ACE_HAS_AIO_CALLS)
@@ -312,15 +305,7 @@ class ACE_Timeout_Manager;
 
 #     include "ace/os_include/os_limits.h"  // <sys/param.h>
 
-// This is here for ACE_OS::num_processors_online(). On HP-UX, it
-// needs sys/param.h (above) and sys/pstat.h. The implementation of the
-// num_processors_online() method also uses 'defined (__hpux)' to decide
-// whether or not to try the syscall.
-#   if defined (__hpux)
-#     include /**/ <sys/pstat.h>
-#   endif /* __hpux **/
-
-#   if !defined (ACE_LACKS_UNIX_DOMAIN_SOCKETS) && !defined (VXWORKS)
+#   if !defined (ACE_LACKS_UNIX_DOMAIN_SOCKETS)
 #     include "ace/os_include/sys/os_un.h"
 #   endif /* ACE_LACKS_UNIX_DOMAIN_SOCKETS */
 
@@ -376,7 +361,7 @@ namespace ACE_OS
 #     undef ACE_INLINE
 #   endif /* ACE_INLINE */
 #   define ACE_INLINE inline
-#   include "ace/OS.i"
+#   include "ace/OS.inl"
 # endif /* ACE_HAS_INLINED_OSCALLS */
 
 #if defined (ACE_LEGACY_MODE)

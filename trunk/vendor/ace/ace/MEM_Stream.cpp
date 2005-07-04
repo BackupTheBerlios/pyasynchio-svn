@@ -1,14 +1,15 @@
 // MEM_Stream.cpp
-// MEM_Stream.cpp,v 4.7 2003/07/27 20:48:25 dhinton Exp
+// MEM_Stream.cpp,v 4.9 2004/06/16 07:57:20 jwillemsen Exp
 
 #include "ace/MEM_Stream.h"
 
 #if (ACE_HAS_POSITION_INDEPENDENT_POINTERS == 1)
-#if defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/MEM_Stream.i"
-#endif
 
-ACE_RCSID(ace, MEM_Stream, "MEM_Stream.cpp,v 4.7 2003/07/27 20:48:25 dhinton Exp")
+#if !defined (__ACE_INLINE__)
+#include "ace/MEM_Stream.inl"
+#endif /* __ACE_INLINE__ */
+
+ACE_RCSID(ace, MEM_Stream, "MEM_Stream.cpp,v 4.9 2004/06/16 07:57:20 jwillemsen Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_MEM_Stream)
 

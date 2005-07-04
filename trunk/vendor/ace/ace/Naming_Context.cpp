@@ -1,4 +1,4 @@
-// Naming_Context.cpp,v 4.69 2003/12/15 11:33:29 jwillemsen Exp
+// Naming_Context.cpp,v 4.71 2004/08/14 07:03:12 ossama Exp
 
 #include "ace/Get_Opt.h"
 #include "ace/Naming_Context.h"
@@ -8,11 +8,12 @@
 #include "ace/Memory_Pool.h"
 #include "ace/RW_Process_Mutex.h"
 #include "ace/OS_NS_string.h"
+#include "ace/OS_NS_unistd.h"
 #if defined (ACE_HAS_TRACE)
 # include "ace/OS_NS_strings.h"
 #endif /* ACE_HAS_TRACE */
 
-ACE_RCSID(ace, Naming_Context, "Naming_Context.cpp,v 4.69 2003/12/15 11:33:29 jwillemsen Exp")
+ACE_RCSID(ace, Naming_Context, "Naming_Context.cpp,v 4.71 2004/08/14 07:03:12 ossama Exp")
 
 // Make life easier later on...
 
@@ -435,7 +436,7 @@ ACE_Name_Options::ACE_Name_Options (void)
   size_t pathsize = (MAXPATHLEN + 1) * sizeof (ACE_TCHAR);
   this->namespace_dir_ = ACE_static_cast (ACE_TCHAR *, ACE_OS::malloc (pathsize));
 
-  if (ACE_Lib_Find::get_temp_dir (this->namespace_dir_, MAXPATHLEN) == -1)
+  if (ACE::get_temp_dir (this->namespace_dir_, MAXPATHLEN) == -1)
     {
       ACE_ERROR ((LM_ERROR,
                   ACE_LIB_TEXT ("Temporary path too long, ")

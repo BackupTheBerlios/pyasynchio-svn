@@ -3,7 +3,7 @@
 /**
  *  @file   Hash_Map_With_Allocator_T.h
  *
- *  Hash_Map_With_Allocator_T.h,v 4.11 2003/08/04 03:53:51 dhinton Exp
+ *  Hash_Map_With_Allocator_T.h,v 4.12 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Marina Spivak <marina@cs.wustl.edu>
  *  @author Irfan Pyarali <irfan@cs.wustl.edu>
@@ -87,7 +87,7 @@ public:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Hash_Map_With_Allocator_T.i"
+#include "ace/Hash_Map_With_Allocator_T.inl"
 #endif /* __ACE_INLINE__ */
 
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)

@@ -4,7 +4,7 @@
 /**
  *  @file Node.h
  *
- *  Node.h,v 4.6 2003/07/19 19:04:12 dhinton Exp
+ *  Node.h,v 4.8 2004/03/05 01:45:23 dhinton Exp
  *
  *  @author Doug Schmidt
  */
@@ -30,6 +30,7 @@ template <class T> class ACE_Unbounded_Set_Ex_Iterator;
 template <class T> class ACE_Unbounded_Set_Ex_Const_Iterator;
 template <class T> class ACE_Unbounded_Queue;
 template <class T> class ACE_Unbounded_Queue_Iterator;
+template <class T> class ACE_Unbounded_Queue_Const_Iterator;
 template <class T> class ACE_Unbounded_Stack;
 template <class T> class ACE_Unbounded_Stack_Iterator;
 
@@ -44,6 +45,7 @@ class ACE_Node
 public:
   friend class ACE_Unbounded_Queue<T>;
   friend class ACE_Unbounded_Queue_Iterator<T>;
+  friend class ACE_Unbounded_Queue_Const_Iterator<T>;
   friend class ACE_Unbounded_Set<T>;
   friend class ACE_Unbounded_Set_Iterator<T>;
   friend class ACE_Unbounded_Set_Const_Iterator<T>;

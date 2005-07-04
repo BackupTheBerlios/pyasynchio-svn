@@ -1,4 +1,5 @@
-// OS_Log_Msg_Attributes.inl,v 4.1 2000/10/14 05:17:20 coryan Exp
+/* -*- C++ -*- */
+// OS_Log_Msg_Attributes.inl,v 4.2 2004/06/14 13:58:41 jwillemsen Exp
 
 ACE_INLINE
 ACE_OS_Log_Msg_Attributes::ACE_OS_Log_Msg_Attributes (void)

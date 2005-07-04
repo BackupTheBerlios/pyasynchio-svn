@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// config-psos-diab-ppc.h,v 4.13 2003/07/19 19:04:15 dhinton Exp
+// config-psos-diab-ppc.h,v 4.18 2004/12/20 11:01:31 jwillemsen Exp
 
 // The following configuration file is designed to work for:
 //      a) pSOSystem V2.5.0 for PowerPC (pssppc.250)
@@ -104,6 +104,7 @@
 #define ACE_LACKS_WRITEV
 
 #define ACE_LACKS_READV
+#define ACE_LACKS_UMASK
 
 // rename the main entry point
 #define ACE_MAIN extern "C" void root
@@ -132,9 +133,9 @@
 
 #define ACE_LACKS_PTHREAD_THR_SIGSETMASK
 
-/* #define ACE_HAS_BROKEN_SENDMSG */
+/* #define ACE_HAS_NONCONST_SENDMSG */
 
-/* #define ACE_HAS_BROKEN_WRITEV  */
+/* #define ACE_HAS_NONCONST_WRITEV  */
 
 #define ACE_HAS_BROKEN_CONVERSIONS
 
@@ -183,7 +184,7 @@
 
 #define ACE_LACKS_MSYNC
 
-#define ACE_LACKS_PARAM_H
+#define ACE_LACKS_SYS_PARAM_H
 
 #define ACE_LACKS_PWD_FUNCTIONS
 
@@ -207,7 +208,7 @@
 
 #define ACE_LACKS_SYSCALL
 
-#define ACE_LACKS_SYSV_MSG_H
+#define ACE_LACKS_SYS_MSG_H
 
 #define ACE_LACKS_SYSV_SHMEM
 
@@ -227,10 +228,6 @@
 // #define ACE_LACKS_SYSTIME_H
 
 #define ACE_PAGE_SIZE 4096
-
-#if !defined (ACE_NTRACE)
-# define ACE_NTRACE 1
-#endif /* ACE_NTRACE */
 
 #define ACE_PSOS_CANT_USE_SYS_TYPES
 

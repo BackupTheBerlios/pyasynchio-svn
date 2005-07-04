@@ -3,7 +3,7 @@
 /**
  *  @file   OS_String.h
  *
- *  OS_String.h,v 4.31 2003/11/06 18:19:39 dhinton Exp
+ *  OS_String.h,v 4.32 2004/06/19 12:47:48 jwillemsen Exp
  *
  *  @brief  Contains definition of class ACE_OS_String.
  *
@@ -23,20 +23,10 @@
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
-//#include "ace/Basic_Types.h"
-//#include "ace/os_include/os_stddef.h"
 #include "ace/OS_NS_string.h"
 #include "ace/OS_NS_strings.h"
 #include "ace/OS_NS_wchar.h"
 #include "ace/OS_NS_ctype.h"
-
-#if 0
-#if defined (ACE_USES_STD_NAMESPACE_FOR_STDC_LIB) && \
-            (ACE_USES_STD_NAMESPACE_FOR_STDC_LIB != 0)
-using std::size_t;
-using std::wint_t;
-#endif /* ACE_USES_STD_NAMESPACE_FOR_STDC_LIB */
-#endif
 
 # if defined (ACE_HAS_INLINED_OSCALLS)
 #   if defined (ACE_INLINE)

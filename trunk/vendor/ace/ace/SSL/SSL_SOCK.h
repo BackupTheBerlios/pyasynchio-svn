@@ -4,7 +4,7 @@
 /**
  *  @file    SSL_SOCK.h
  *
- *  SSL_SOCK.h,v 1.5 2003/07/19 19:04:15 dhinton Exp
+ *  SSL_SOCK.h,v 1.6 2004/06/19 07:18:01 jwillemsen Exp
  *
  *  @author Ossama Othman <ossama@ece.uci.edu>
  */
@@ -81,9 +81,9 @@ protected:
 
 };
 
-#if !defined (ACE_LACKS_INLINE_FUNCTIONS)
+#if defined (__ACE_INLINE__)
 #include "SSL_SOCK.i"
-#endif /* ACE_LACKS_INLINE_FUNCTIONS */
+#endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"
 

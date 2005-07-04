@@ -4,7 +4,7 @@
 /**
  *  @file   OS_NS_unistd.h
  *
- *  OS_NS_unistd.h,v 1.3 2003/11/01 23:42:24 dhinton Exp
+ *  OS_NS_unistd.h,v 1.9 2004/08/24 18:13:29 shuston Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  *  @author Jesper S. M|ller<stophph@diku.dk>
@@ -74,6 +74,14 @@ namespace ACE_OS {
 #endif /* ACE_LACKS_CHDIR */
 
   ACE_NAMESPACE_INLINE_FUNCTION
+  int rmdir (const char *path);
+
+#if defined (ACE_HAS_WCHAR)
+  ACE_NAMESPACE_INLINE_FUNCTION
+  int rmdir (const wchar_t *path);
+#endif /* ACE_HAS_WCHAR */
+
+  ACE_NAMESPACE_INLINE_FUNCTION
   int close (ACE_HANDLE handle);
 
   ACE_NAMESPACE_INLINE_FUNCTION
@@ -123,11 +131,7 @@ namespace ACE_OS {
 
   //@}
 
-#if !defined (ACE_WIN32)
   ACE_NAMESPACE_INLINE_FUNCTION
-#else
-  extern ACE_Export
-#endif /* ACE_WIN32 */
   int fsync (ACE_HANDLE handle);
 
   ACE_NAMESPACE_INLINE_FUNCTION
@@ -135,7 +139,12 @@ namespace ACE_OS {
                  off_t);
 
   ACE_NAMESPACE_INLINE_FUNCTION
-  ACE_TCHAR *getcwd (ACE_TCHAR *, size_t);
+  char *getcwd (char *, size_t);
+
+#if defined (ACE_HAS_WCHAR)
+  ACE_NAMESPACE_INLINE_FUNCTION
+  wchar_t *getcwd (wchar_t *, size_t);
+#endif /* ACE_HAS_WCHAR */
 
   ACE_NAMESPACE_INLINE_FUNCTION
   gid_t getgid (void);
@@ -277,6 +286,9 @@ namespace ACE_OS {
                       int substitute_env_args = 1);
 
   ACE_NAMESPACE_INLINE_FUNCTION
+  void swab (const void *src, void *dest, ssize_t n);
+
+  ACE_NAMESPACE_INLINE_FUNCTION
   long sysconf (int);
 
   // not in susv3
@@ -297,7 +309,12 @@ namespace ACE_OS {
                 const ACE_Time_Value &tv_interval = ACE_Time_Value::zero);
 
   ACE_NAMESPACE_INLINE_FUNCTION
-  int unlink (const ACE_TCHAR *path);
+  int unlink (const char *path);
+
+#if defined (ACE_HAS_WCHAR)
+  ACE_NAMESPACE_INLINE_FUNCTION
+  int unlink (const wchar_t *path);
+#endif /* ACE_HAS_WCHAR */
 
   ACE_NAMESPACE_INLINE_FUNCTION
   ssize_t write (ACE_HANDLE handle,

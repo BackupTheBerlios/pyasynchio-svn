@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// config-sunos5.8.h,v 4.3 2001/07/24 21:58:43 joeh Exp
+// config-sunos5.8.h,v 4.4 2004/09/03 20:20:12 shuston Exp
 
 // The following configuration file is designed to work for SunOS 5.8
 // (Solaris 8) platforms using the SunC++ 4.x, 5.x, 6.x, or g++ compilers.
@@ -10,6 +10,12 @@
 
 // #include the SunOS 5.7 config, then add any SunOS 5.8 updates below.
 #include "ace/config-sunos5.7.h"
+
+// This may be true for versions prior to Solaris 8 as well, but I don't
+// have any to try it on.
+#if !defined (ACE_HAS_TIMEZONE)
+#  define ACE_HAS_TIMEZONE
+#endif
 
 // The range of thread priorities for 5.8 differs from 5.7 in the
 // minimum priority for the SCHED_OTHER policy (i.e.,

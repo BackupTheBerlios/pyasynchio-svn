@@ -1,4 +1,4 @@
-// Cache_Map_Manager_T.cpp,v 4.12 2003/11/28 22:24:30 shuston Exp
+// Cache_Map_Manager_T.cpp,v 4.14 2004/06/16 07:57:20 jwillemsen Exp
 
 #ifndef ACE_CACHE_MAP_MANAGER_T_C
 #define ACE_CACHE_MAP_MANAGER_T_C
@@ -13,14 +13,12 @@
 #include "ace/Malloc_Base.h"
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Cache_Map_Manager_T.i"
+#include "ace/Cache_Map_Manager_T.inl"
 #endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, Cache_Map_Manager_T, "Cache_Map_Manager_T.cpp,v 4.12 2003/11/28 22:24:30 shuston Exp")
+ACE_RCSID(ace, Cache_Map_Manager_T, "Cache_Map_Manager_T.cpp,v 4.14 2004/06/16 07:57:20 jwillemsen Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_Cache_Map_Manager)
-
-#if !defined (ACE_HAS_BROKEN_EXTENDED_TEMPLATES)
 
 ACE_ALLOC_HOOK_DEFINE(ACE_Cache_Map_Iterator)
 
@@ -28,13 +26,6 @@ ACE_ALLOC_HOOK_DEFINE(ACE_Cache_Map_Reverse_Iterator)
 
 #define ACE_T1 class KEY, class VALUE, class MAP, class ITERATOR_IMPL, class REVERSE_ITERATOR_IMPL, class CACHING_STRATEGY, class ATTRIBUTES
 #define ACE_T2 KEY, VALUE, MAP, ITERATOR_IMPL, REVERSE_ITERATOR_IMPL, CACHING_STRATEGY, ATTRIBUTES
-
-#else
-
-#define ACE_T1 class KEY, class VALUE, class MAP, class CACHING_STRATEGY, class ATTRIBUTES
-#define ACE_T2 KEY, VALUE, MAP, CACHING_STRATEGY, ATTRIBUTES
-
-#endif /* ACE_HAS_BROKEN_EXTENDED_TEMPLATES */
 
 template <ACE_T1>
 ACE_Cache_Map_Manager<ACE_T2>::ACE_Cache_Map_Manager (CACHING_STRATEGY &caching_s,

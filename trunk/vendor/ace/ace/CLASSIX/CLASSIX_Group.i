@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// CLASSIX_Group.i,v 1.1 1998/06/23 09:55:24 wchiang Exp
+// CLASSIX_Group.i,v 1.2 2004/04/23 03:06:19 ossama Exp
 
 ACE_INLINE
 ACE_CLASSIX_Group::ACE_CLASSIX_Group()
@@ -72,17 +72,17 @@ ACE_CLASSIX_Group::get_cap(void) const
 }
 
 ACE_INLINE
-int
+bool
 ACE_CLASSIX_Group::operator ==(const ACE_CLASSIX_Group & theRhs) const
 {
-    return 
+    return
 	this->is_configured() &&
 	theRhs.is_configured() &&
 	((KnCap) (this->get_cap()) == (KnCap) (theRhs.get_cap()));
 }
 
 ACE_INLINE
-int
+bool
 ACE_CLASSIX_Group::operator !=(const ACE_CLASSIX_Group & theRhs) const
 {
     return !(*this == theRhs);

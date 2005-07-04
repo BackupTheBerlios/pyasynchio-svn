@@ -1,23 +1,25 @@
 // -*- C++ -*-
 //
-// SSL_SOCK_Acceptor.cpp,v 1.39 2003/08/14 18:03:14 ossama Exp
+// SSL_SOCK_Acceptor.cpp,v 1.42 2004/06/19 07:30:48 jwillemsen Exp
 
 
 #include "SSL_SOCK_Acceptor.h"
 
 #include "ace/Handle_Set.h"
 #include "ace/OS_Errno.h"
+#include "ace/OS_NS_errno.h"
 #include "ace/Log_Msg.h"
+#include "ace/Time_Value.h"
 
 ACE_ALLOC_HOOK_DEFINE(ACE_SSL_SOCK_Acceptor)
 
-#if defined (ACE_LACKS_INLINE_FUNCTIONS)
+#if !defined (__ACE_INLINE__)
 #include "SSL_SOCK_Acceptor.i"
-#endif /* ACE_LACKS_INLINE_FUNCTIONS */
+#endif /* __ACE_INLINE__ */
 
 ACE_RCSID (ACE_SSL,
            SSL_SOCK_Acceptor,
-           "SSL_SOCK_Acceptor.cpp,v 1.39 2003/08/14 18:03:14 ossama Exp")
+           "SSL_SOCK_Acceptor.cpp,v 1.42 2004/06/19 07:30:48 jwillemsen Exp")
 
 ACE_SSL_SOCK_Acceptor::~ACE_SSL_SOCK_Acceptor (void)
 {

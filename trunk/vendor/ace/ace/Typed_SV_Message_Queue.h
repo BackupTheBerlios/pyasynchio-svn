@@ -4,7 +4,7 @@
 /**
  *  @file    Typed_SV_Message_Queue.h
  *
- *  Typed_SV_Message_Queue.h,v 4.15 2003/07/19 19:04:14 dhinton Exp
+ *  Typed_SV_Message_Queue.h,v 4.16 2004/06/16 07:57:22 jwillemsen Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -73,7 +73,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Typed_SV_Message_Queue.i"
+#include "ace/Typed_SV_Message_Queue.inl"
 #endif /* __ACE_INLINE__ */
 
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)

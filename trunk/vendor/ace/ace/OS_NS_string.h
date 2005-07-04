@@ -4,7 +4,7 @@
 /**
  *  @file   OS_NS_string.h
  *
- *  OS_NS_string.h,v 1.5 2003/11/04 23:34:49 ossama Exp
+ *  OS_NS_string.h,v 1.9 2004/09/15 22:24:17 jtc Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  *  @author Jesper S. M|ller<stophph@diku.dk>
@@ -19,7 +19,7 @@
 
 # include /**/ "ace/pre.h"
 
-# include "ace/config-all.h"
+# include "ace/config-lite.h"
 
 # if !defined (ACE_LACKS_PRAGMA_ONCE)
 #  pragma once
@@ -183,7 +183,7 @@ namespace ACE_OS {
 #endif /* ACE_HAS_WCHAR */
 
   /// Returns a system error message.
-  ACE_NAMESPACE_INLINE_FUNCTION
+  extern ACE_Export
   char *strerror (int errnum);
 
 #if defined (ACE_LACKS_STRERROR)
@@ -456,13 +456,13 @@ namespace ACE_OS {
   /// Emulated strtok_r.
   extern ACE_Export
   char *strtok_r_emulation (char *s, const char *tokens, char **lasts);
+#endif /* !ACE_HAS_REENTRANT_FUNCTIONS */
 
-# if defined (ACE_HAS_WCHAR)
+# if defined (ACE_HAS_WCHAR) && defined(ACE_LACKS_WCSTOK)
   /// Emulated strtok_r (wchar_t version).
   extern ACE_Export
   wchar_t *strtok_r_emulation (ACE_WCHAR_T *s, const ACE_WCHAR_T *tokens, ACE_WCHAR_T **lasts);
-# endif  // ACE_HAS_WCHAR
-#endif /* !ACE_HAS_REENTRANT_FUNCTIONS */
+# endif  // ACE_HAS_WCHAR && ACE_LACKS_WCSTOK
 
 } /* namespace ACE_OS */
 

@@ -1,14 +1,16 @@
 // file      : TMCast/LinkListener.hpp
 // author    : Boris Kolpackov <boris@dre.vanderbilt.edu>
-// cvs-id    : LinkListener.hpp,v 1.3 2003/12/17 18:54:57 bala Exp
+// cvs-id    : LinkListener.hpp,v 1.6 2004/09/29 21:45:42 shuston Exp
 
 // OS primitives
+#include <ace/OS_NS_string.h>
 #include <ace/Synch.h>
 #include <ace/SOCK_Dgram_Mcast.h>
 #include <ace/Refcounted_Auto_Ptr.h>
 
 
 #include "Messaging.hpp"
+#include "Protocol.hpp"
 
 namespace TMCast
 {
@@ -125,7 +127,7 @@ namespace TMCast
             if (!control_.empty ()) break;
           }
 
-          ACE_Addr junk;
+          ACE_INET_Addr junk;
           ssize_t n = sock_.recv (msg,
                                   Protocol::MAX_MESSAGE_SIZE,
                                   junk,

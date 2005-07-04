@@ -4,7 +4,7 @@
 /**
  *  @file    SOCK_IO.h
  *
- *  SOCK_IO.h,v 4.31 2003/07/19 19:04:13 dhinton Exp
+ *  SOCK_IO.h,v 4.34 2004/06/25 11:46:38 jwillemsen Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -72,7 +72,7 @@ public:
                  int n,
                  const ACE_Time_Value *timeout = 0) const;
 
-  /// Same as above.  Deprecated.
+  /// @deprecated Same as above.  Deprecated.
   ssize_t recv (iovec iov[],
                 size_t n,
                 const ACE_Time_Value *timeout = 0) const;
@@ -138,9 +138,9 @@ public:
   ACE_ALLOC_HOOK_DECLARE;
 };
 
-#if !defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/SOCK_IO.i"
-#endif
+#if defined (__ACE_INLINE__)
+#include "ace/SOCK_IO.inl"
+#endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"
 

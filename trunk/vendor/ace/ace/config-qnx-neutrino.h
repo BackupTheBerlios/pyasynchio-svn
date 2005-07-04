@@ -1,5 +1,5 @@
-// config-qnx-neutrino.h,v 4.22 2003/12/22 22:50:34 shuston Exp
-
+// -*- C++ -*-
+// config-qnx-neutrino.h,v 4.28 2004/08/31 06:57:29 jtc Exp
 // The following configuration file is designed to work for Neutrino
 // 2.0 (Beta) with GNU C++ and the POSIX (pthread) threads package.
 
@@ -105,13 +105,11 @@
 #define ACE_LACKS_FORK
 #define ACE_LACKS_LINEBUFFERED_STREAMBUF
 #define ACE_LACKS_MADVISE
-#define ACE_LACKS_MSGBUF_T
 #define ACE_LACKS_MUTEXATTR_PSHARED
 #define ACE_LACKS_NAMED_POSIX_SEM
 #define ACE_LACKS_NETDB_REENTRANT_FUNCTIONS
 #define ACE_LACKS_NETDB_REENTRANT_FUNCTIONS
 #define ACE_LACKS_PTHREAD_THR_SIGSETMASK
-#define ACE_LACKS_RPC_H
 #define ACE_LACKS_RTTI
 #define ACE_LACKS_RWLOCK_T
 #define ACE_LACKS_SBRK
@@ -122,7 +120,7 @@
 #define ACE_LACKS_STRRECVFD
 #define ACE_LACKS_SYSCALL
 #define ACE_LACKS_SYSTIME_H
-#define ACE_LACKS_SYSV_MSG_H
+#define ACE_LACKS_SYS_MSG_H
 #define ACE_LACKS_SYSV_SHMEM
 #define ACE_LACKS_TCP_NODELAY
 #define ACE_LACKS_TELLDIR
@@ -141,10 +139,6 @@
 #define ACE_USES_STD_NAMESPACE_FOR_STDCPP_LIB 1
 #define ACE_HAS_SIGTIMEDWAIT
 #define ACE_HAS_SIGSUSPEND
-
-#if !defined (ACE_NTRACE)
-# define ACE_NTRACE 1
-#endif /* ACE_NTRACE */
 
 #include /**/ "ace/post.h"
 #endif /* ACE_CONFIG_H */

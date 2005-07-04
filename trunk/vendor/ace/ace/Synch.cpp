@@ -15,12 +15,7 @@
 
 ACE_RCSID (ace,
            Synch,
-           "Synch.cpp,v 4.121 2003/11/09 04:12:07 dhinton Exp")
-
-
-#if !defined (__ACE_INLINE__)
-#include "ace/Synch.i"
-#endif /* __ACE_INLINE__ */
+           "Synch.cpp,v 4.122 2004/06/14 13:58:42 jwillemsen Exp")
 
 #include "ace/TSS_Adapter.cpp"
 #include "ace/Auto_Event.cpp"

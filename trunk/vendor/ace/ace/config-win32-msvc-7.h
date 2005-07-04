@@ -3,7 +3,7 @@
 /**
  *  @file   config-win32-msvc-7.h
  *
- *  config-win32-msvc-7.h,v 4.7 2003/11/19 15:55:06 bala Exp
+ *  config-win32-msvc-7.h,v 4.12 2004/10/21 22:22:11 shuston Exp
  *
  *  @brief  Microsoft Visual C++ 7.0 configuration file.
  *
@@ -37,19 +37,6 @@
 #define ACE_AUTO_PTR_LACKS_RESET
 #endif
 
-#if !defined (ACE_HAS_BROKEN_NESTED_TEMPLATES)
-#define ACE_HAS_BROKEN_NESTED_TEMPLATES
-#endif
-
-// By default, we disable the C++ casting because
-// it requires the RTTI support to be turned on which
-// is not something we usually do.
-#if !defined (ACE_HAS_ANSI_CASTS)
-#define ACE_HAS_ANSI_CASTS 0
-#endif
-
-#define ACE_HAS_EXPLICIT_KEYWORD
-#define ACE_HAS_MUTABLE_KEYWORD
 #define ACE_HAS_TYPENAME_KEYWORD
 #define ACE_HAS_USING_KEYWORD
 
@@ -67,10 +54,6 @@
 #define ACE_HAS_EXCEPTIONS
 #endif /* ACE_HAS_WINCE */
 
-#if defined (ACE_HAS_ANSI_CASTS) && (ACE_HAS_ANSI_CASTS == 0)
-#undef  ACE_HAS_ANSI_CASTS
-#endif /* ACE_HAS_ANSI_CASTS && ACE_HAS_ANSI_CASTS == 0 */
-
 #define ACE_HAS_STRERROR
 #define ACE_HAS_STRPTIME
 #define ACE_LACKS_NATIVE_STRPTIME
@@ -83,6 +66,9 @@
 #define ACE_LACKS_STRRECVFD
 #define ACE_HAS_CPLUSPLUS_HEADERS
 
+#if (_MSC_VER >= 1310)
+#  define ACE_HAS_TEMPLATE_TYPEDEFS
+#endif
 #define ACE_TEMPLATES_REQUIRE_SOURCE
 #define ACE_HAS_TEMPLATE_SPECIALIZATION
 

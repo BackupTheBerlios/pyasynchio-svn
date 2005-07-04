@@ -2,7 +2,7 @@
 #ifndef ACE_CONFIG_UNIXWARE_UDK_H
 #define ACE_CONFIG_UNIXWARE_UDK_H
 
-// config-unixware-7.1.0.udk.h,v 4.2 2003/12/22 22:50:34 shuston Exp
+// config-unixware-7.1.0.udk.h,v 4.8 2004/08/31 07:16:29 jtc Exp
 
 // Configuration for the unixware UDK compiler. derived from the unixware/g++ config
 // which was itself derived from an autoconfig run.
@@ -41,7 +41,6 @@
 
 #define ACE_HAS_NEW_NO_H 1
 #define ACE_HAS_STDEXCEPT_NO_H 1
-#define ACE_HAS_IOMANIP_NO_H 1
 
 /* Platform provides <sys/ioctl.h> header */
 #define ACE_HAS_SYS_IOCTL_H 1
@@ -95,10 +94,6 @@
 /* Enable ACE inlining */
 #define __ACE_INLINE__ 1
 
-/* Platform supports new C++ style casts (dynamic_cast, static_cast,
-   reinterpret_cast and const_cast) */
-#define ACE_HAS_ANSI_CASTS
-
 /* Platform supports Asynchronous IO calls */
 /* #define ACE_HAS_AIO_CALLS */
 
@@ -151,7 +146,7 @@
 
 /* Platform has a getrusage () prototype in sys/resource.h that differs from
    the one in ace/OS.i. */
-#define ACE_HAS_GETRUSAGE_PROTO
+#define ACE_HAS_GETRUSAGE_PROTOTYPE
 
 /* The GPERF utility is compiled for this platform */
 #define ACE_HAS_GPERF
@@ -287,7 +282,7 @@
 #define ACE_HAS_SIZET_SOCKET_LEN
 
 /* Compiler/platform provides the sys/sockio.h file */
-#define ACE_HAS_SOCKIO_H
+#define ACE_HAS_SYS_SOCKIO_H
 
 /* Compiler supports the ssize_t typedef */
 #define ACE_HAS_SSIZE_T
@@ -322,9 +317,8 @@
 /* Platform has <strings.h> (which contains bzero() prototype) */
 #define ACE_HAS_STRINGS
 
-/* Platform has void * as second parameter to gettimeofday and a has a
-   prototype */
-#define ACE_HAS_SUNOS4_GETTIMEOFDAY
+/* Platform/compiler supports void * as second parameter to gettimeofday(). */
+#define ACE_HAS_VOIDPTR_GETTIMEOFDAY
 
 /* Compiler/platform supports SVR4 dynamic linking semantics */
 #define ACE_HAS_SVR4_DYNAMIC_LINKING
@@ -333,7 +327,7 @@
 #define ACE_HAS_SVR4_TLI
 
 /* Compiler/platform contains the <sys/syscall.h> file. */
-#define ACE_HAS_SYSCALL_H
+#define ACE_HAS_SYS_SYSCALL_H
 
 /* Platform supports system configuration information */
 #define ACE_HAS_SYSINFO 1
@@ -443,9 +437,6 @@
 
 /* Turns off the LM_DEBUG and LM_ERROR logging macros... */
 /* #undef ACE_NLOGGING */
-
-/* Turns off the tracing feature. */
-#define ACE_NTRACE 1
 
 /* The OS/platform supports the poll() event demultiplexor */
 #define ACE_USE_POLL 1

@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// config-chorus.h,v 4.63 2003/07/19 19:04:14 dhinton Exp
+// config-chorus.h,v 4.69 2004/08/08 14:21:35 jtc Exp
 
 // The following configuration file is designed to work for Chorus
 // platforms using one of these compilers:
@@ -27,7 +27,6 @@
 
 #if defined (__GNUG__)
 # include "ace/config-g++-common.h"
-# undef ACE_HAS_ANSI_CASTS
 # define ACE_LACKS_CHAR_STAR_RIGHT_SHIFTS
 #elif defined (ghs)
 # define ACE_CONFIG_INCLUDE_GHS_COMMON
@@ -72,7 +71,7 @@
 # define ACE_LACKS_LONGLONG_T
 #endif
 
-#define ACE_HAS_BROKEN_READV
+#define ACE_HAS_NONCONST_READV
 #define ACE_HAS_CLOCK_GETTIME
 #define ACE_HAS_CPLUSPLUS_HEADERS
 #define ACE_HAS_DIRENT
@@ -91,6 +90,7 @@
 #define ACE_LACKS_CONDATTR_PSHARED
 #define ACE_LACKS_FORK
 #define ACE_LACKS_GETHOSTENT
+#define ACE_LACKS_SETSID
 #define ACE_LACKS_GETPGID
 #define ACE_LACKS_SETPGID
 #define ACE_LACKS_SETREGID
@@ -101,7 +101,7 @@
 #define ACE_LACKS_MPROTECT
 #define ACE_LACKS_MSYNC
 #define ACE_LACKS_NAMED_POSIX_SEM
-#define ACE_LACKS_PARAM_H
+#define ACE_LACKS_SYS_PARAM_H
 #define ACE_LACKS_READDIR_R
 #define ACE_LACKS_READV
 #define ACE_LACKS_RLIMIT
@@ -110,7 +110,7 @@
 #define ACE_LACKS_SEMBUF_T
 #define ACE_LACKS_SIGSET
 #define ACE_LACKS_STRRECVFD
-#define ACE_LACKS_SYSV_MSG_H
+#define ACE_LACKS_SYS_MSG_H
 #define ACE_LACKS_SYSV_SHMEM
 #define ACE_LACKS_UNIX_SIGNALS
 #define ACE_LACKS_UTSNAME_T
@@ -142,10 +142,6 @@
 #if !defined (__ACE_INLINE__)
 # define __ACE_INLINE__
 #endif /* ! __ACE_INLINE__ */
-
-#if !defined (ACE_NTRACE)
-# define ACE_NTRACE 1
-#endif /* ACE_NTRACE */
 
 // By default, don't include RCS Id strings in object code.
 #if !defined (ACE_USE_RCSID)

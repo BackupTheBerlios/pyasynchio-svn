@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// OS_NS_sys_msg.inl,v 1.5 2004/01/08 16:50:40 bala Exp
+// OS_NS_sys_msg.inl,v 1.7 2004/06/23 18:38:54 jtc Exp
 
 #include "ace/OS_NS_errno.h"
 
@@ -38,13 +38,8 @@ ACE_OS::msgrcv (int int_id, void *buf, size_t len,
 {
   ACE_OS_TRACE ("ACE_OS::msgrcv");
 #if defined (ACE_HAS_SYSV_IPC)
-# if defined (ACE_LACKS_POSIX_PROTOTYPES) || defined (ACE_LACKS_SOME_POSIX_PROTOTYPES)
-  ACE_OSCALL_RETURN (::msgrcv (int_id, (msgbuf *) buf, len, type, flags),
-                     int, -1);
-# else
   ACE_OSCALL_RETURN (::msgrcv (int_id, buf, len, type, flags),
                      int, -1);
-# endif /* ACE_LACKS_POSIX_PROTOTYPES */
 #else
   ACE_UNUSED_ARG (int_id);
   ACE_UNUSED_ARG (buf);
@@ -62,12 +57,11 @@ ACE_OS::msgsnd (int int_id, const void *buf, size_t len, int flags)
   ACE_OS_TRACE ("ACE_OS::msgsnd");
 #if defined (ACE_HAS_SYSV_IPC)
 # if defined (ACE_HAS_NONCONST_MSGSND)
-  ACE_OSCALL_RETURN (::msgsnd (int_id, (void *) buf, len, flags), int, -1);
-# elif defined (ACE_LACKS_POSIX_PROTOTYPES) || defined (ACE_LACKS_SOME_POSIX_PROTOTYPES)
-  ACE_OSCALL_RETURN (::msgsnd (int_id, (msgbuf *) buf, len, flags), int, -1);
+  ACE_OSCALL_RETURN (::msgsnd (int_id,
+                               const_cast<void *> (buf), len, flags), int, -1);
 # else
-  ACE_OSCALL_RETURN (::msgsnd (int_id, ACE_const_cast (void *, buf), len, flags), int, -1);
-# endif /* ACE_LACKS_POSIX_PROTOTYPES || ACE_HAS_NONCONST_MSGSND */
+  ACE_OSCALL_RETURN (::msgsnd (int_id, buf, len, flags), int, -1);
+# endif /* ACE_HAS_NONCONST_MSGSND */
 #else
   ACE_UNUSED_ARG (int_id);
   ACE_UNUSED_ARG (buf);
@@ -77,4 +71,3 @@ ACE_OS::msgsnd (int int_id, const void *buf, size_t len, int flags)
   ACE_NOTSUP_RETURN (-1);
 #endif /* ACE_HAS_SYSV_IPC */
 }
-

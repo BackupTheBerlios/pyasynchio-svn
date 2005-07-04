@@ -6,7 +6,7 @@
  *
  *  time types
  *
- *  os_time.h,v 1.4 2003/11/04 17:17:32 ossama Exp
+ *  os_time.h,v 1.6 2004/08/25 16:05:42 shuston Exp
  *
  *  @author Don Hinton <dhinton@dresystems.com>
  *  @author This code was originally in various places including ace/OS.h.
@@ -18,7 +18,7 @@
 
 #include /**/ "ace/pre.h"
 
-#include "ace/config-all.h"
+#include "ace/config-lite.h"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
@@ -44,7 +44,7 @@ extern "C"
 # endif  /*  !m88k && !SCO */
 #elif defined (ACE_HAS_OSF1_GETTIMEOFDAY)
   int gettimeofday (struct timeval *tp, struct timezone * = 0);
-#elif defined (ACE_HAS_SUNOS4_GETTIMEOFDAY)
+#elif defined (ACE_HAS_VOIDPTR_GETTIMEOFDAY)
 # define ACE_HAS_SVR4_GETTIMEOFDAY
 #endif /* ACE_HAS_SVR4_GETTIMEOFDAY */
 

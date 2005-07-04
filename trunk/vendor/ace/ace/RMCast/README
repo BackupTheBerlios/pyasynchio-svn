@@ -1,4 +1,4 @@
-# README,v 1.1 2000/08/21 16:09:36 coryan Exp
+# README,v 1.2 2004/02/08 01:34:51 schmidt Exp
 
 	This directory will contain a simple, small-scale reliable
 multicast framework for ACE.  The framework is based on the ASX
@@ -33,7 +33,7 @@ Fragmentation   :	Fragment messages in smaller chunks
 Reassembly	:	and ensure that the IOVMAX limit is not
 		:	reached
 ----------------------------------------------------------------
-Tranport	:	Encapsulate the specific transport media
+Transport	:	Encapsulate the specific transport media
 		:	such as TCP/IP, ATM, or shared memory
 		:	Demuxes incoming data to the right chain
 		:	Change control messages and data messages

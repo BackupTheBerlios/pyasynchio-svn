@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// config-sunos5.4-sunc++-4.x.h,v 4.33 2003/07/19 19:04:15 dhinton Exp
+// config-sunos5.4-sunc++-4.x.h,v 4.37 2004/08/24 01:26:55 jtc Exp
 
 // The following configuration file is designed to work for SunOS 5.4
 // platforms using the SunC++ 4.0.x compiler.
@@ -26,7 +26,7 @@
 #define ACE_HAS_SYSV_IPC
 
 // Sun has the wrong prototype for sendmsg.
-#define ACE_HAS_BROKEN_SENDMSG
+#define ACE_HAS_NONCONST_SENDMSG
 
 // The SunOS 5.x version of rand_r is inconsistent with the header files...
 #define ACE_HAS_BROKEN_RANDR
@@ -41,7 +41,7 @@
 #define ACE_HAS_MSG
 
 // Compiler/platform contains the <sys/syscall.h> file.
-#define ACE_HAS_SYSCALL_H
+#define ACE_HAS_SYS_SYSCALL_H
 
 // Platform has terminal ioctl flags like TCGETS and TCSETS.
 #define ACE_HAS_TERM_IOCTLS
@@ -90,7 +90,7 @@
 #define ACE_HAS_UCONTEXT_T
 
 // Compiler/platform provides the sockio.h file.
-#define ACE_HAS_SOCKIO_H
+#define ACE_HAS_SYS_SOCKIO_H
 
 // Compiler supports the ssize_t typedef.
 #define ACE_HAS_SSIZE_T
@@ -173,12 +173,6 @@
 //#define ACE_USE_POLL
 
 #define ACE_NEEDS_DEV_IO_CONVERSION
-
-// Turns off the tracing feature.
-// #define ACE_NTRACE 0
-#if !defined (ACE_NTRACE)
-# define ACE_NTRACE 1
-#endif /* ACE_NTRACE */
 
 // Defines the page size of the system.
 #define ACE_PAGE_SIZE 4096

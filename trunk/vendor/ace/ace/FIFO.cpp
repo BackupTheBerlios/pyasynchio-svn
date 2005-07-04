@@ -1,18 +1,19 @@
 // FIFO.cpp
-// FIFO.cpp,v 4.12 2003/11/01 11:15:12 dhinton Exp
+// FIFO.cpp,v 4.14 2004/06/16 07:57:20 jwillemsen Exp
 
 #include "ace/FIFO.h"
 
 #if !defined (__ACE_INLINE__)
-#include "ace/FIFO.i"
+#include "ace/FIFO.inl"
 #endif /* __ACE_INLINE__ */
 
 #include "ace/Log_Msg.h"
 #include "ace/OS_NS_string.h"
 #include "ace/OS_NS_errno.h"
 #include "ace/OS_NS_sys_stat.h"
+#include "ace/OS_NS_fcntl.h"
 
-ACE_RCSID(ace, FIFO, "FIFO.cpp,v 4.12 2003/11/01 11:15:12 dhinton Exp")
+ACE_RCSID(ace, FIFO, "FIFO.cpp,v 4.14 2004/06/16 07:57:20 jwillemsen Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_FIFO)
 

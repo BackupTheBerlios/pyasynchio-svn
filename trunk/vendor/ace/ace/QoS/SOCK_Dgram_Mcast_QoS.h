@@ -4,7 +4,7 @@
 /**
  *  @file    SOCK_Dgram_Mcast_QoS.h
  *
- *  SOCK_Dgram_Mcast_QoS.h,v 1.6 2003/07/19 19:04:15 dhinton Exp
+ *  SOCK_Dgram_Mcast_QoS.h,v 1.7 2004/06/19 07:38:40 jwillemsen Exp
  *
  *  @author Vishal Kachroo <vishal@cs.wustl.edu>
  */
@@ -130,9 +130,9 @@ private:
 
 };
 
-#if !defined (ACE_LACKS_INLINE_FUNCTIONS)
+#if defined (__ACE_INLINE__)
 #include "SOCK_Dgram_Mcast_QoS.i"
-#endif /* ACE_LACKS_INLINE_FUNCTIONS */
+#endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"
 #endif /* ACE_SOCK_DGRAM_MCAST_QOS_H */

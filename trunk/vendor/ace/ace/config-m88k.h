@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// config-m88k.h,v 4.18 2003/07/19 19:04:14 dhinton Exp
+// config-m88k.h,v 4.22 2004/08/24 01:26:55 jtc Exp
 
 // The following configuration file is designed to work for Motorola
 // 88k SVR4 platforms using pthreads from Florida State (ACE_HAS_FSU_PTHREADS).
@@ -69,7 +69,7 @@ struct ip_mreq
 #define ACE_HAS_SYSV_IPC
 
 // Sun has the wrong prototype for sendmsg.
-#define ACE_HAS_BROKEN_SENDMSG
+#define ACE_HAS_NONCONST_SENDMSG
 
 // The SunOS 5.x version of rand_r is inconsistent with the header files...
 #define ACE_HAS_BROKEN_RANDR
@@ -84,7 +84,7 @@ struct ip_mreq
 #define ACE_HAS_MSG
 
 // Compiler/platform contains the <sys/syscall.h> file.
-#define ACE_HAS_SYSCALL_H
+#define ACE_HAS_SYS_SYSCALL_H
 
 #if !defined (ACE_HAS_FSU_PTHREADS)
 // Platform supports reentrant functions (i.e., all the POSIX *_r functions).
@@ -144,7 +144,7 @@ struct ip_mreq
 #define ACE_HAS_UCONTEXT_T
 
 // Compiler/platform provides the sockio.h file.
-#define ACE_HAS_SOCKIO_H
+#define ACE_HAS_SYS_SOCKIO_H
 
 // Compiler supports the ssize_t typedef.
 #define ACE_HAS_SSIZE_T
@@ -217,11 +217,6 @@ struct ip_mreq
 
 // Use the poll() event demultiplexor rather than select().
 //#define ACE_USE_POLL
-
-// Turns off the tracing feature.
-#if !defined (ACE_NTRACE)
-# define ACE_NTRACE 1
-#endif /* ACE_NTRACE */
 
 // Defines the page size of the system.
 #define ACE_PAGE_SIZE 4096

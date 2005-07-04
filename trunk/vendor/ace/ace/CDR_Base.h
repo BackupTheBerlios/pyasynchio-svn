@@ -4,7 +4,7 @@
 /**
  *  @file   CDR_Base.h
  *
- *  CDR_Base.h,v 4.12 2003/07/19 19:04:10 dhinton Exp
+ *  CDR_Base.h,v 4.26 2004/11/12 00:03:08 gmaxey Exp
  *
  * ACE Common Data Representation (CDR) basic types.
  *
@@ -38,6 +38,12 @@
 
 #include "ace/Basic_Types.h"
 #include "ace/Default_Constants.h"
+
+#if !defined (_MSC_VER) || (_MSC_VER >= 1310)
+  // MSVC++ 6 can't handle partial template specializations so fall
+  // back on an unsigned char typedef.
+# include "ace/If_Then_Else.h"
+#endif  /* _MSC_VER < 1310 */
 
 
 class ACE_Message_Block;
@@ -158,17 +164,22 @@ public:
   static size_t total_length (const ACE_Message_Block *begin,
                               const ACE_Message_Block *end);
 
-  // Definitions of the IDL basic types, for use in the CDR
-  // classes. The cleanest way to avoid complaints from all compilers
-  // is to define them all.
-#  if defined (CHORUS) && defined (ghs) && !defined (__STANDARD_CXX)
-    // This is non-compliant, but a nasty bout with
-    // Green Hills C++68000 1.8.8 forces us into it.
-    typedef unsigned long Boolean;
-#  else  /* ! (CHORUS && ghs 1.8.8) */
-    typedef unsigned char Boolean;
-#  endif /* ! (CHORUS && ghs 1.8.8) */
-
+  /**
+   * @name Basic OMG IDL Types
+   *
+   * These types are for use in the CDR classes.  The cleanest way to
+   * avoid complaints from all compilers is to define them all.
+   */
+  //@{
+# if (defined (_MSC_VER) && (_MSC_VER < 1310))
+  // MSVC++ 6 can't handle partial template specializations so fall
+  // back on an unsigned char typedef.
+  typedef unsigned char Boolean;
+# else
+  typedef ACE::If_Then_Else<(sizeof (bool) == 1),
+                            bool,
+                            unsigned char>::result_type Boolean;
+# endif  /* _MSC_VER <= 1310 */
   typedef unsigned char Octet;
   typedef char Char;
   typedef ACE_WCHAR_T WChar;
@@ -183,6 +194,8 @@ public:
       typedef __int64 LongLong;
 #   elif ACE_SIZEOF_LONG == 8 && !defined(_CRAYMPP)
       typedef long LongLong;
+#   elif defined(__TANDEM)
+      typedef long long LongLong;
 #   elif ACE_SIZEOF_LONG_LONG == 8 && !defined (ACE_LACKS_LONGLONG_T)
 #     if defined (sun) && !defined (ACE_LACKS_U_LONGLONG_T) && !defined (__KCC)
               // sun #defines   u_longlong_t, maybe other platforms do also.
@@ -211,8 +224,8 @@ public:
            * The canonical comparison operators.
            */
           //@{
-          int operator== (const LongLong &rhs) const;
-          int operator!= (const LongLong &rhs) const;
+          bool operator== (const LongLong &rhs) const;
+          bool operator!= (const LongLong &rhs) const;
           //@}
         };
 #   endif /* no native 64 bit integer type */
@@ -238,7 +251,7 @@ public:
             Float (void);
             Float (const float &init);
             Float & operator= (const float &rhs);
-            int operator!= (const Float &rhs) const;
+            bool operator!= (const Float &rhs) const;
 #         endif /* _UNICOS */
 #       endif /* ACE_SIZEOF_INT != 4 */
       };
@@ -273,11 +286,13 @@ public:
        struct ACE_Export LongDouble
        {
          char ld[16];
-         int operator== (const LongDouble &rhs) const;
-         int operator!= (const LongDouble &rhs) const;
+         bool operator== (const LongDouble &rhs) const;
+         bool operator!= (const LongDouble &rhs) const;
          // @@ also need other comparison operators.
        };
 #    endif /* ACE_SIZEOF_LONG_DOUBLE != 16 */
+
+  //@}
 
 #if !defined (ACE_CDR_GIOP_MAJOR_VERSION)
 #   define ACE_CDR_GIOP_MAJOR_VERSION 1

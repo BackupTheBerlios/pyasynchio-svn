@@ -1,11 +1,11 @@
 // Name_Proxy.cpp
-// Name_Proxy.cpp,v 4.15 2004/01/05 18:29:35 bala Exp
+// Name_Proxy.cpp,v 4.16 2004/05/05 21:16:28 ossama Exp
 
 #include "ace/Name_Proxy.h"
 #include "ace/Log_Msg.h"
 #include "ace/os_include/arpa/os_inet.h"
 
-ACE_RCSID(ace, Name_Proxy, "Name_Proxy.cpp,v 4.15 2004/01/05 18:29:35 bala Exp")
+ACE_RCSID(ace, Name_Proxy, "Name_Proxy.cpp,v 4.16 2004/05/05 21:16:28 ossama Exp")
 
 void
 ACE_Name_Proxy::dump (void) const
@@ -39,7 +39,7 @@ ACE_Name_Proxy::open (const ACE_INET_Addr &remote_addr,
   ACE_Time_Value *timeout = 0;
 
   if (options[ACE_Synch_Options::USE_TIMEOUT])
-    timeout = ACE_const_cast (ACE_Time_Value *, options.time_value ());
+    timeout = const_cast<ACE_Time_Value *> (options.time_value ());
 
   // Initiate the connection.
   return this->connector_.connect (this->peer_,

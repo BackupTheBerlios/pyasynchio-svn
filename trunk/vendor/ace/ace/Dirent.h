@@ -4,7 +4,7 @@
 /**
  *  @file    Dirent.h
  *
- *  Dirent.h,v 4.23 2003/11/01 11:15:12 dhinton Exp
+ *  Dirent.h,v 4.25 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  Define a portable C++ interface to ACE_OS_Dirent directory-entry
  *  manipulation.
@@ -38,7 +38,7 @@ public:
   ACE_Dirent (void);
 
   /// Constructor calls <opendir>
-  ACE_EXPLICIT ACE_Dirent (const ACE_TCHAR *dirname);
+  explicit ACE_Dirent (const ACE_TCHAR *dirname);
 
   /// Opens the directory named by filename and associates a directory
   /// stream with it.
@@ -111,7 +111,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Dirent.i"
+#include "ace/Dirent.inl"
 #endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"

@@ -6,7 +6,7 @@
  *
  *  definitions for internet operations
  *
- *  os_inet.h,v 1.4 2003/11/01 11:15:19 dhinton Exp
+ *  os_inet.h,v 1.7 2004/12/16 14:37:26 jwillemsen Exp
  *
  *  @author Don Hinton <dhinton@dresystems.com>
  *  @author This code was originally in various places including ace/OS.h.
@@ -62,13 +62,9 @@ extern "C"
 {
 #endif /* __cplusplus */
 
-#if defined (ACE_VXWORKS) && ACE_VXWORKS <= 0x540
-   // Work around a lack of ANSI prototypes for these functions on VxWorks.
-   unsigned long  inet_addr (const char *);
-   char           *inet_ntoa (const struct in_addr);
-   struct in_addr inet_makeaddr (const int, const int);
-   unsigned long  inet_network (const char *);
-#endif /* ! (ACE_VXWORKS) && ACE_VXWORKS <= 0x540 */
+#if defined (ACE_LACKS_INET_ATON_PROTOTYPE)
+  int inet_aton (const char *, struct in_addr *);
+#endif /* ACE_LACKS_INET_ATON_PROTOTYPE */
 
 #ifdef __cplusplus
 }

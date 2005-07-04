@@ -1,9 +1,11 @@
-// Read_Buffer.cpp,v 4.25 2003/11/01 11:15:16 dhinton Exp
+// Read_Buffer.cpp,v 4.27 2004/09/01 07:00:45 jwillemsen Exp
 
 #include "ace/Read_Buffer.h"
 
+#include "ace/config-all.h"
+
 #if !defined (__ACE_INLINE__)
-#include "ace/Read_Buffer.i"
+#include "ace/Read_Buffer.inl"
 #endif /* __ACE_INLINE__ */
 
 #include "ace/Log_Msg.h"
@@ -11,7 +13,7 @@
 #include "ace/Service_Config.h"
 #include "ace/OS_NS_stdio.h"
 
-ACE_RCSID(ace, Read_Buffer, "Read_Buffer.cpp,v 4.25 2003/11/01 11:15:16 dhinton Exp")
+ACE_RCSID(ace, Read_Buffer, "Read_Buffer.cpp,v 4.27 2004/09/01 07:00:45 jwillemsen Exp")
 
 void
 ACE_Read_Buffer::dump (void) const

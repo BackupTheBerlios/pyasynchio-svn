@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// OS_NS_sys_resource.inl,v 1.3 2003/11/04 07:05:40 jwillemsen Exp
+// OS_NS_sys_resource.inl,v 1.5 2004/08/08 14:21:35 jtc Exp
 
 #include "ace/OS_NS_errno.h"
 #include "ace/OS_NS_macros.h"
@@ -59,7 +59,7 @@ ACE_OS::getrusage (int who, struct rusage *ru)
 }
 
 ACE_INLINE int
-ACE_OS::setrlimit (int resource, ACE_SETRLIMIT_TYPE *rl)
+ACE_OS::setrlimit (int resource, const struct rlimit *rl)
 {
   ACE_OS_TRACE ("ACE_OS::setrlimit");
 
@@ -70,10 +70,23 @@ ACE_OS::setrlimit (int resource, ACE_SETRLIMIT_TYPE *rl)
   ACE_NOTSUP_RETURN (-1);
 #else
 # if defined (ACE_HAS_RLIMIT_RESOURCE_ENUM)
-  ACE_OSCALL_RETURN (::setrlimit ((ACE_HAS_RLIMIT_RESOURCE_ENUM) resource, rl), int, -1);
+#  if defined (ACE_HAS_NONCONST_SETRLIMIT)
+  ACE_OSCALL_RETURN (::setrlimit ((ACE_HAS_RLIMIT_RESOURCE_ENUM) resource,
+                                  const_cast<struct rlimit *>(rl)
+                                  ), int, -1);
 # else
+  ACE_OSCALL_RETURN (::setrlimit ((ACE_HAS_RLIMIT_RESOURCE_ENUM) resource,
+                                  resource,
+                                  ), int, -1);
+#  endif /* ACE_HAS_NONCONST_SETRLIMIT */				  
+# else /* ACE_HAS_RLIMIT_RESOURCE_ENUM */
+#  if defined (ACE_HAS_NONCONST_SETRLIMIT)
+  ACE_OSCALL_RETURN (::setrlimit (resource, const_cast<struct rlimit *>(rl)
+                                  ), int, -1);
+#  else
   ACE_OSCALL_RETURN (::setrlimit (resource, rl), int, -1);
-# endif /* ACE_HAS_RLIMIT_RESOURCE_ENUM */
+#  endif /* ACE_HAS_NONCONST_SETRLIMIT */
+# endif /* ACE_HAS_RLIMIT_RESOURCE_ENUM */  
 #endif /* ACE_LACKS_RLIMIT */
 }
 

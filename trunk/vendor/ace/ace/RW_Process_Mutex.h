@@ -1,10 +1,9 @@
 /* -*- C++ -*- */
-
 //=============================================================================
 /**
  *  @file    RW_Process_Mutex.h
  *
- *  RW_Process_Mutex.h,v 4.5 2003/11/01 11:15:16 dhinton Exp
+ *  RW_Process_Mutex.h,v 4.9 2004/06/03 17:34:32 parsons Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -21,6 +20,7 @@
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
 #include "ace/Default_Constants.h"
+#include "ace/OS_NS_fcntl.h"
 
 /**
  * @class ACE_RW_Process_Mutex
@@ -32,14 +32,25 @@
  * used between separate processes, rather than threads in the
  * same process.  This isn't a limitation of ACE, it's simply
  * the file lock semantics on UNIX and Win32.
+ * \todo For systems with pthread_rwlockattr_setpshared one 
+ * may consider using them to make the mutex faster.
  */
 class ACE_Export ACE_RW_Process_Mutex
 {
 public:
   /// Create a readers/writer <Process_Mutex>, passing in the optional
-  /// <name>.  If not specified, a name is generated.
+  /// <name>, <flags> and <mode> \sa ACE_File_Lock.  
+  ///  If not specified, a name is generated and flags and mode are set 
+  ///  to default platform values. 
+#if defined (ACE_WIN32)
   ACE_RW_Process_Mutex (const ACE_TCHAR *name = 0,
-                        int flags = O_CREAT|O_RDWR);
+                        int flags = O_CREAT|O_RDWR,
+                        mode_t mode =  ACE_DEFAULT_OPEN_PERMS);
+#else
+  ACE_RW_Process_Mutex (const ACE_TCHAR *name = 0,
+                        int flags = O_CREAT|O_RDWR,
+	                    mode_t mode = S_IRUSR | S_IWUSR );
+#endif /* ACE_WIN32 */
 
   ~ACE_RW_Process_Mutex (void);
 

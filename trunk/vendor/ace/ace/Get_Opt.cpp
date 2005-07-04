@@ -1,18 +1,22 @@
-// Get_Opt.cpp
-// Get_Opt.cpp,v 4.42 2003/11/05 23:30:46 shuston Exp
+// Get_Opt.cpp,v 4.48 2004/08/24 18:13:29 shuston Exp
 
 #include "ace/Get_Opt.h"
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Get_Opt.i"
+#include "ace/Get_Opt.inl"
 #endif /* __ACE_INLINE__ */
 
 #include "ace/ACE.h"
 #include "ace/Log_Msg.h"
 #include "ace/SString.h"
+#include "ace/OS_Memory.h"
 #include "ace/OS_NS_string.h"
+#include "ace/OS_NS_ctype.h"
+#include "ace/OS_NS_stdlib.h"
 
-ACE_RCSID(ace, Get_Opt, "Get_Opt.cpp,v 4.42 2003/11/05 23:30:46 shuston Exp")
+ACE_RCSID (ace,
+           Get_Opt,
+           "Get_Opt.cpp,v 4.48 2004/08/24 18:13:29 shuston Exp")
 
 /*
  * Copyright (c) 1987, 1993, 1994
@@ -114,7 +118,13 @@ ACE_Get_Opt::ACE_Get_Opt (int argc,
   ACE_NEW (this->last_option_, ACE_TString (ACE_LIB_TEXT ("")));
 
   // First check to see if POSIXLY_CORRECT was set.
-  if (ACE_OS::getenv (ACE_LIB_TEXT ("POSIXLY_CORRECT")) != 0)
+  // Win32 is the only platform capable of wide-char env var.
+#if defined (ACE_WIN32)
+  const ACE_TCHAR *env_check = ACE_LIB_TEXT ("POSIXLY_CORRECT");
+#else
+  const char *env_check = "POSIXLY_CORRECT";
+#endif
+  if (ACE_OS::getenv (env_check) != 0)
     this->ordering_ = REQUIRE_ORDER;
 
   // Now, check to see if any or the following were passed at
@@ -359,8 +369,8 @@ ACE_Get_Opt::short_option_i (void)
   this->last_option (opt);
 
   ACE_TCHAR *oli = 0;
-  oli = ACE_const_cast (ACE_TCHAR*,
-                        ACE_OS::strchr (this->optstring_->c_str (), opt));
+  oli =
+    const_cast<ACE_TCHAR*> (ACE_OS::strchr (this->optstring_->c_str (), opt));
 
   /* Increment `optind' when we start to process its last character.  */
   if (*this->nextchar_ == '\0')
@@ -482,17 +492,17 @@ ACE_Get_Opt::long_option (const ACE_TCHAR *name,
   // isalnum, otherwise, it will crash the program.
   if (short_option > 0 &&
       short_option < 256 &&
-      isalnum (short_option) != 0)
+      ACE_OS::ace_isalnum (short_option) != 0)
 #else
-  if (isalnum (short_option) != 0)
+  if (ACE_OS::ace_isalnum (short_option) != 0)
 #endif /* _MSC_VER && _MSC_VER >= 1300 */
     {
       // If the short_option already exists, make sure it matches, otherwise
       // add it.
       ACE_TCHAR *s = 0;
-      if ((s = ACE_const_cast (ACE_TCHAR*,
-                               ACE_OS::strchr (this->optstring_->c_str (),
-                                               short_option))) != 0)
+      if ((s = const_cast<ACE_TCHAR*> (
+                 ACE_OS::strchr (this->optstring_->c_str (),
+                                 short_option))) != 0)
         {
           // Short option exists, so verify the argument options
           if (s[1] == ':')
@@ -703,22 +713,28 @@ ACE_Get_Opt::permute (void)
 }
 
 const ACE_TCHAR *
-ACE_Get_Opt::optstring (void) const 
-{ 
+ACE_Get_Opt::optstring (void) const
+{
   return this->optstring_->c_str ();
 }
 
-ACE_Get_Opt::ACE_Get_Opt_Long_Option::ACE_Get_Opt_Long_Option (const ACE_TCHAR *name,
-                                                               int has_arg,
-                                                               int val)
-  :  name_ (ACE::strnew(name)),
+ACE_Get_Opt::ACE_Get_Opt_Long_Option::ACE_Get_Opt_Long_Option (
+  const ACE_TCHAR *name,
+  int has_arg,
+  int val)
+  :  name_ (ACE::strnew (name)),
      has_arg_ (has_arg),
      val_ (val)
 {}
 
 ACE_Get_Opt::ACE_Get_Opt_Long_Option::~ACE_Get_Opt_Long_Option (void)
 {
-  delete [] ACE_const_cast (ACE_TCHAR*, this->name_);
+  // MSVC++ 6 can't deal with deleting a const ACE_TCHAR *.
+#if defined (_MSC_VER) && _MSC_VER < 1300
+  delete [] const_cast <ACE_TCHAR *> (this->name_);
+#else
+  delete [] this->name_;
+#endif  /* _MSC_VER < 1300 */
 }
 
 #if defined (ACE_HAS_EXPLICIT_TEMPLATE_INSTANTIATION)

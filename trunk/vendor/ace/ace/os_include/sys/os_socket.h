@@ -6,7 +6,7 @@
  *
  *  main sockets header
  *
- *  os_socket.h,v 1.7 2003/11/20 22:34:42 shuston Exp
+ *  os_socket.h,v 1.9 2004/08/25 16:05:42 shuston Exp
  *
  *  @author Don Hinton <dhinton@dresystems.com>
  *  @author This code was originally in various places including ace/OS.h.
@@ -18,7 +18,7 @@
 
 #include /**/ "ace/pre.h"
 
-#include "ace/config-all.h"
+#include "ace/config-lite.h"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
@@ -49,12 +49,6 @@ extern "C"
 #if !defined (ACE_HAS_MSG) && !defined (SCO)
    struct msghdr {};
 #endif /* ACE_HAS_MSG */
-
-#if defined (ACE_HAS_BROKEN_SENDMSG)
-   typedef struct msghdr ACE_SENDMSG_TYPE;
-#else
-   typedef const struct msghdr ACE_SENDMSG_TYPE;
-#endif /* ACE_HAS_BROKEN_SENDMSG */
 
 #if defined (ACE_HAS_MSG) && defined (ACE_LACKS_MSG_ACCRIGHTS)
 #  if !defined (msg_accrights)
@@ -202,7 +196,7 @@ extern "C"
                           struct timespec *timeout);
 
   ssize_t sendmsg_timedwait (ACE_HANDLE handle,
-                             ACE_SENDMSG_TYPE *msg,
+			     const struct msghdr *msg,
                              int flags,
                              struct timespec *timeout);
 

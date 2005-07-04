@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// config-sunos4-g++.h,v 4.31 2003/07/19 19:04:15 dhinton Exp
+// config-sunos4-g++.h,v 4.34 2004/08/24 01:26:55 jtc Exp
 
 // for SunOS4 platforms using the GNU g++ compiler
 
@@ -38,7 +38,7 @@
 #define ACE_HAS_MSG
 
 // Compiler/platform contains the <sys/syscall.h> file.
-#define ACE_HAS_SYSCALL_H
+#define ACE_HAS_SYS_SYSCALL_H
 
 // Compiler/platform has the getrusage() system call.
 #define ACE_HAS_GETRUSAGE
@@ -63,7 +63,7 @@
 #define ACE_HAS_SEMUN
 
 // Compiler/platform provides the sockio.h file.
-#define ACE_HAS_SOCKIO_H
+#define ACE_HAS_SYS_SOCKIO_H
 
 // Compiler/platform supports struct strbuf
 #define ACE_HAS_STRBUF_T
@@ -99,10 +99,6 @@
 // Compiler/platform has <alloca.h>
 #define ACE_HAS_ALLOCA_H
 #define ACE_HAS_SVR4_GETTIMEOFDAY
-// Turns off the tracing feature.
-#if !defined (ACE_NTRACE)
-#define ACE_NTRACE 1
-#endif /* ACE_NTRACE */
 
 #include /**/ "ace/post.h"
 #endif /* ACE_CONFIG_H */

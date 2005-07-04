@@ -1,7 +1,7 @@
 #include "ace/Token_Collection.h"
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Token_Collection.i"
+#include "ace/Token_Collection.inl"
 #endif /* __ACE_INLINE__ */
 
 #if defined (ACE_HAS_TOKENS_LIBRARY)
@@ -9,7 +9,7 @@
 
 ACE_RCSID (ace,
            Token_Collection,
-           "Token_Collection.cpp,v 4.17 2003/07/27 20:48:28 dhinton Exp")
+           "Token_Collection.cpp,v 4.18 2004/06/16 07:57:21 jwillemsen Exp")
 
 
 ACE_Token_Collection::ACE_Token_Collection (int debug,

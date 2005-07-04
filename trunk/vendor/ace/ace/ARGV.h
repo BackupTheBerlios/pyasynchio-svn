@@ -4,7 +4,7 @@
 /**
  *  @file    ARGV.h
  *
- *  ARGV.h,v 4.33 2003/11/05 07:46:11 jwillemsen Exp
+ *  ARGV.h,v 4.34 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Doug Schmidt <schmidt@cs.wustl.edu>
  *  @author Everett Anderson <eea1@cs.wustl.edu>
@@ -176,7 +176,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/ARGV.i"
+#include "ace/ARGV.inl"
 #endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"

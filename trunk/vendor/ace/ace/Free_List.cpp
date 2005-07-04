@@ -1,4 +1,4 @@
-// Free_List.cpp,v 1.18 1999/07/02 18:48:15 irfan Exp
+// Free_List.cpp,v 1.19 2004/06/16 07:57:20 jwillemsen Exp
 
 #ifndef ACE_FREE_LIST_C
 #define ACE_FREE_LIST_C
@@ -10,10 +10,10 @@
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Free_List.i"
+#include "ace/Free_List.inl"
 #endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, Free_List, "Free_List.cpp,v 1.18 1999/07/02 18:48:15 irfan Exp")
+ACE_RCSID(ace, Free_List, "Free_List.cpp,v 1.19 2004/06/16 07:57:20 jwillemsen Exp")
 
 // Empty constructor
 

@@ -1,4 +1,4 @@
-// Timer_Queue_T.cpp,v 4.60 2003/11/05 23:30:47 shuston Exp
+// Timer_Queue_T.cpp,v 4.65 2004/06/16 07:57:21 jwillemsen Exp
 
 #ifndef ACE_TIMER_QUEUE_T_C
 #define ACE_TIMER_QUEUE_T_C
@@ -17,12 +17,12 @@
 #include "ace/OS_NS_sys_time.h"
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Timer_Queue_T.i"
+#include "ace/Timer_Queue_T.inl"
 #endif /* __ACE_INLINE__ */
 
 ACE_RCSID (ace,
            Timer_Queue_T,
-           "Timer_Queue_T.cpp,v 4.60 2003/11/05 23:30:47 shuston Exp")
+           "Timer_Queue_T.cpp,v 4.65 2004/06/16 07:57:21 jwillemsen Exp")
 
 
 // This fudge factor can be overriden for timers that need it, such as on
@@ -225,7 +225,7 @@ ACE_Timer_Queue_T<TYPE, FUNCTOR, ACE_LOCK>::schedule (const TYPE &type,
   ACE_MT (ACE_GUARD_RETURN (ACE_LOCK, ace_mon, this->mutex_, -1));
 
   // Schedule the timer.
-  int result =
+  long result =
     this->schedule_i (type,
                       act,
                       future_time,
@@ -349,15 +349,7 @@ ACE_Event_Handler_Handle_Timeout_Upcall<ACE_LOCK>::registration (TIMER_QUEUE &,
                                                                  ACE_Event_Handler *event_handler,
                                                                  const void *)
 {
-  int requires_reference_counting =
-    event_handler->reference_counting_policy ().value () ==
-    ACE_Event_Handler::Reference_Counting_Policy::ENABLED;
-
-  if (requires_reference_counting)
-    {
-      event_handler->add_reference ();
-    }
-
+  event_handler->add_reference ();
   return 0;
 }
 

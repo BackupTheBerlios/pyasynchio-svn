@@ -4,7 +4,7 @@
 /**
  *  @file    POSIX_Proactor.h
  *
- *  POSIX_Proactor.h,v 4.44 2002/12/06 03:20:24 shuston Exp
+ *  POSIX_Proactor.h,v 4.47 2004/09/16 16:39:50 shuston Exp
  *
  *  @author Irfan Pyarali <irfan@cs.wustl.edu>
  *  @author Tim Harrison <harrison@cs.wustl.edu>
@@ -47,8 +47,8 @@
  * AIOCBs are stored and completion status of the corresponding
  * operations are queried on them. The other one is based on
  * POSIX Real Time signals. This class abstracts out the common
- * code needed for both the strategies. <ACE_AIOCB_Proactor> and
- * <ACE_SIG_Proactor> specialize this class for each strategy.
+ * code needed for both the strategies. <ACE_POSIX_AIOCB_Proactor> and
+ * <ACE_POSIX_SIG_Proactor> specialize this class for each strategy.
  */
 class ACE_Export ACE_POSIX_Proactor : public ACE_Proactor_Impl
 {
@@ -74,21 +74,21 @@ public:
 
   enum SystemType  // open for future extention
   {
-    OS_UNDEFINED= 0x0000,
-    OS_WIN      = 0x0100,          // for future
-    OS_WIN_NT   = OS_WIN | 0x0001,
-    OS_WIN_2000 = OS_WIN | 0x0002,
-    OS_SUN      = 0x0200,          // Sun Solaris family
-    OS_SUN_55   = OS_SUN | 0x0001,
-    OS_SUN_56   = OS_SUN | 0x0002,
-    OS_SUN_57   = OS_SUN | 0x0004,
-    OS_SUN_58   = OS_SUN | 0x0008,
-    OS_HPUX     = 0x0400,          // HPUX family
-    OS_HPUX_11  = OS_HPUX | 0x0001,
-    OS_LINUX    = 0x0800,          // Linux family
-    OS_FREEBSD  = 0x1000,          // FreeBSD family
-    OS_IRIX     = 0x2000,          // SGI IRIX family
-    OS_OPENBSD  = 0x4000           // OpenBSD familty
+    ACE_OS_UNDEFINED= 0x0000,
+    ACE_OS_WIN      = 0x0100,          // for future
+    ACE_OS_WIN_NT   = ACE_OS_WIN | 0x0001,
+    ACE_OS_WIN_2000 = ACE_OS_WIN | 0x0002,
+    ACE_OS_SUN      = 0x0200,          // Sun Solaris family
+    ACE_OS_SUN_55   = ACE_OS_SUN | 0x0001,
+    ACE_OS_SUN_56   = ACE_OS_SUN | 0x0002,
+    ACE_OS_SUN_57   = ACE_OS_SUN | 0x0004,
+    ACE_OS_SUN_58   = ACE_OS_SUN | 0x0008,
+    ACE_OS_HPUX     = 0x0400,          // HPUX family
+    ACE_OS_HPUX_11  = ACE_OS_HPUX | 0x0001,
+    ACE_OS_LINUX    = 0x0800,          // Linux family
+    ACE_OS_FREEBSD  = 0x1000,          // FreeBSD family
+    ACE_OS_IRIX     = 0x2000,          // SGI IRIX family
+    ACE_OS_OPENBSD  = 0x4000           // OpenBSD familty
   };
 
   enum Opcode {
@@ -622,7 +622,7 @@ class ACE_Export ACE_POSIX_Asynch_Timer : public ACE_POSIX_Asynch_Result
   /// The factory method for this class is with the POSIX_Proactor
   /// class.
   friend class ACE_POSIX_Proactor;
-#if defined(ACE_HAS_POSIX_REALTIME_SIGNALS) 
+#if defined(ACE_HAS_POSIX_REALTIME_SIGNALS)
   friend class ACE_POSIX_SIG_Proactor;
 #endif
 
@@ -649,7 +649,7 @@ protected:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/POSIX_Proactor.i"
+#include "ace/POSIX_Proactor.inl"
 #endif /* __ACE_INLINE__ */
 
 #endif /* ACE_HAS_AIO_CALLS  && ACE_HAS_POSIX_REALTIME_SIGNALS */

@@ -4,7 +4,7 @@
 /**
  *  @file    FIFO.h
  *
- *  FIFO.h,v 4.15 2003/07/19 19:04:11 dhinton Exp
+ *  FIFO.h,v 4.16 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Doug Schmidt
  */
@@ -74,7 +74,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/FIFO.i"
+#include "ace/FIFO.inl"
 #endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"

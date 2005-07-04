@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// config-osf1-4.0.h,v 4.99 2003/12/24 12:33:45 jwillemsen Exp
+// config-osf1-4.0.h,v 4.103 2004/08/08 14:21:35 jtc Exp
 
 // NOTE:  if you are using Digital UNIX V4.0f or later, you must
 // use config-tru64.h instead of directly using this config file.
@@ -32,11 +32,6 @@
 #define ACE_LACKS_CLEARERR
 #endif /* ACE_MT_SAFE == 0 */
 
-// Turns off the tracing feature.
-#if !defined (ACE_NTRACE)
-# define ACE_NTRACE 1
-#endif /* ! ACE_NTRACE */
-
 // Include unistd.h to define _POSIX_C_SOURCE.
 #include <unistd.h>
 
@@ -66,7 +61,6 @@
 # define ACE_LACKS_SIGNED_CHAR
 
     // Exceptions are enabled by platform_osf1_4.0_rcc.GNU.
-# define ACE_HAS_ANSI_CASTS
 # define ACE_HAS_STDCPP_STL_INCLUDES
 # define ACE_HAS_TEMPLATE_SPECIALIZATION
 # define ACE_HAS_TYPENAME_KEYWORD
@@ -129,9 +123,9 @@
 
 #define ACE_DEFAULT_BASE_ADDR ((char *) 0x80000000)
 #define ACE_HAS_AUTOMATIC_INIT_FINI
-#define ACE_HAS_BROKEN_SETRLIMIT
+#define ACE_HAS_NONCONST_SETRLIMIT
 #define ACE_HAS_BROKEN_T_ERROR
-#define ACE_HAS_BROKEN_WRITEV
+#define ACE_HAS_NONCONST_WRITEV
 #define ACE_HAS_CLOCK_GETTIME
 #define ACE_HAS_CONSISTENT_SIGNAL_PROTOTYPES
 #define ACE_HAS_CPLUSPLUS_HEADERS
@@ -159,7 +153,7 @@
 #define ACE_HAS_STRPTIME
 #define ACE_HAS_SVR4_DYNAMIC_LINKING
 #define ACE_HAS_SVR4_SIGNAL_T
-#define ACE_HAS_SYSCALL_H
+#define ACE_HAS_SYS_SYSCALL_H
 #define ACE_HAS_SYSV_IPC
 #if (ACE_MT_SAFE == 0)
 // clearerr is not defined when _REENTRANT is not defined
@@ -184,7 +178,7 @@
 // approporiate ordering of the include files. The Platinum release
 // now temporarily supports both forms.  Platform's implementation of
 // sendmsg() has a non-const msgheader parameter.
-#define ACE_HAS_BROKEN_SENDMSG
+#define ACE_HAS_NONCONST_SENDMSG
 #define ACE_HAS_IDTYPE_T
 
 #include /**/ "ace/post.h"

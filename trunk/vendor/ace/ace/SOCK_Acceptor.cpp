@@ -1,20 +1,22 @@
 // SOCK_Acceptor.cpp
-// SOCK_Acceptor.cpp,v 4.33 2003/11/01 11:15:17 dhinton Exp
+// SOCK_Acceptor.cpp,v 4.40 2004/08/14 07:03:12 ossama Exp
 
 #include "ace/SOCK_Acceptor.h"
 
-#if defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/SOCK_Acceptor.i"
-#endif /* ACE_LACKS_INLINE_FUNCTIONS */
-
 #include "ace/Log_Msg.h"
 #include "ace/OS_NS_string.h"
+#include "ace/OS_NS_sys_socket.h"
+#include "ace/os_include/os_fcntl.h"
+
+#if !defined (__ACE_INLINE__)
+#include "ace/SOCK_Acceptor.inl"
+#endif /* __ACE_INLINE__ */
 
 #if !defined (ACE_HAS_WINCE)
 #include "ace/OS_QoS.h"
 #endif  // ACE_HAS_WINCE
 
-ACE_RCSID(ace, SOCK_Acceptor, "SOCK_Acceptor.cpp,v 4.33 2003/11/01 11:15:17 dhinton Exp")
+ACE_RCSID(ace, SOCK_Acceptor, "SOCK_Acceptor.cpp,v 4.40 2004/08/14 07:03:12 ossama Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_SOCK_Acceptor)
 
@@ -141,7 +143,8 @@ ACE_SOCK_Acceptor::accept (ACE_SOCK_Stream &new_stream,
           && remote_addr != 0)
         {
           remote_addr->set_size (len);
-          remote_addr->set_type (addr->sa_family);
+          if (addr)
+            remote_addr->set_type (addr->sa_family);
         }
     }
 
@@ -269,7 +272,8 @@ ACE_SOCK_Acceptor::shared_open (const ACE_Addr &local_sap,
                                                  local_sap.get_addr ());
       if (local_inet_addr.sin_port == 0)
         {
-          if (ACE::bind_port (this->get_handle ()) == -1)
+          if (ACE::bind_port (this->get_handle (),
+                              ACE_NTOHL (ACE_UINT32 (local_inet_addr.sin_addr.s_addr))) == -1)
             error = 1;
         }
       else if (ACE_OS::bind (this->get_handle (),
@@ -362,7 +366,7 @@ ACE_SOCK_Acceptor::open (const ACE_Addr &local_sap,
   else if (protocol_family == PF_UNSPEC)
     {
 #if defined (ACE_HAS_IPV6)
-      protocol_family = ACE_Sock_Connect::ipv6_enabled () ? PF_INET6 : PF_INET;
+      protocol_family = ACE::ipv6_enabled () ? PF_INET6 : PF_INET;
 #else
       protocol_family = PF_INET;
 #endif /* ACE_HAS_IPV6 */

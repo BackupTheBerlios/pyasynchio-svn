@@ -1,18 +1,18 @@
-// Malloc.cpp,v 4.57 2003/11/01 11:15:13 dhinton Exp
+// Malloc.cpp,v 4.59 2004/08/06 08:40:14 jwillemsen Exp
 
 #if !defined (ACE_MALLOC_CPP)
 #define ACE_MALLOC_CPP
 
-#include "ace/Malloc.h"
+#include "ace/Malloc_.h"
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Malloc.i"
+#include "ace/Malloc.inl"
 #endif /* __ACE_INLINE__ */
 
 #include "ace/Object_Manager.h"
 #include "ace/OS_NS_string.h"
 
-ACE_RCSID(ace, Malloc, "Malloc.cpp,v 4.57 2003/11/01 11:15:13 dhinton Exp")
+ACE_RCSID(ace, Malloc, "Malloc.cpp,v 4.59 2004/08/06 08:40:14 jwillemsen Exp")
 
 // Process-wide ACE_Allocator.
 ACE_Allocator *ACE_Allocator::allocator_ = 0;
@@ -138,7 +138,7 @@ void
 ACE_Control_Block::ACE_Name_Node::name (const char *)
 {
 #if !defined (ACE_PSOS)
-  ACE_ASSERT (0 == "not implemented!");
+  ACE_ASSERT (!"not implemented!");
 #endif /* ! ACE_PSOS */
 }
 

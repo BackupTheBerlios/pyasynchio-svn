@@ -1,19 +1,20 @@
 // TLI_Connector.cpp
-// TLI_Connector.cpp,v 4.24 2003/12/22 22:50:34 shuston Exp
+// TLI_Connector.cpp,v 4.26 2004/06/16 07:57:21 jwillemsen Exp
 
 #include "ace/TLI_Connector.h"
 
-ACE_RCSID(ace, TLI_Connector, "TLI_Connector.cpp,v 4.24 2003/12/22 22:50:34 shuston Exp")
+ACE_RCSID(ace, TLI_Connector, "TLI_Connector.cpp,v 4.26 2004/06/16 07:57:21 jwillemsen Exp")
 
 #if defined (ACE_HAS_TLI)
 
 #if !defined (__ACE_INLINE__)
-#include "ace/TLI_Connector.i"
+#include "ace/TLI_Connector.inl"
 #endif /* __ACE_INLINE__ */
 
 #include "ace/Handle_Set.h"
 #include "ace/ACE.h"
 #include "ace/OS_NS_string.h"
+#include "ace/Time_Value.h"
 
 ACE_ALLOC_HOOK_DEFINE(ACE_TLI_Connector)
 

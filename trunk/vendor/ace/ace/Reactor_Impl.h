@@ -4,7 +4,7 @@
 /**
  *  @file    Reactor_Impl.h
  *
- *  Reactor_Impl.h,v 4.44 2003/11/05 00:50:45 dhinton Exp
+ *  Reactor_Impl.h,v 4.45 2004/06/14 13:58:41 jwillemsen Exp
  *
  *  @author Irfan Pyarali
  */
@@ -144,10 +144,6 @@ public:
 
   /// Use a user specified signal handler instead.
   virtual int set_sig_handler (ACE_Sig_Handler *signal_handler) = 0;
-
-  /// @deprecated The following method is deprecated.  Use <timer_queue> instead.
-  /// Set a user specified timer queue.
-  virtual int set_timer_queue (ACE_Timer_Queue *tq) = 0;
 
   /// Set a user-specified timer queue.
   virtual int timer_queue (ACE_Timer_Queue *tq) = 0;

@@ -1,4 +1,4 @@
-// Map_Manager.cpp,v 4.81 2003/08/01 22:26:38 bala Exp
+// Map_Manager.cpp,v 4.82 2004/06/16 07:57:20 jwillemsen Exp
 
 #ifndef ACE_MAP_MANAGER_C
 #define ACE_MAP_MANAGER_C
@@ -12,10 +12,10 @@
 #include "ace/Malloc_Base.h"
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Map_Manager.i"
+#include "ace/Map_Manager.inl"
 #endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, Map_Manager, "Map_Manager.cpp,v 4.81 2003/08/01 22:26:38 bala Exp")
+ACE_RCSID(ace, Map_Manager, "Map_Manager.cpp,v 4.82 2004/06/16 07:57:20 jwillemsen Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_Map_Entry)
 

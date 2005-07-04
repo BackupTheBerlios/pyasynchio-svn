@@ -6,7 +6,7 @@
  *
  *  language information constants
  *
- *  os_langinfo.h,v 1.2 2003/07/19 19:04:15 dhinton Exp
+ *  os_langinfo.h,v 1.3 2004/03/06 05:06:22 bala Exp
  *
  *  @author Don Hinton <dhinton@dresystem.com>
  *  @author This code was originally in various places including ace/OS.h.
@@ -24,7 +24,7 @@
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
-#include "ace/os_include/so_nl_types.h"
+#include "ace/os_include/os_nl_types.h"
 
 #if !defined (ACE_LACKS_LANGINFO_H)
 # include /**/ <langinfo.h>

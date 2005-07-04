@@ -4,7 +4,7 @@
 /**
  *  @file   OS_NS_sys_uio.h
  *
- *  OS_NS_sys_uio.h,v 1.3 2003/11/01 23:42:24 dhinton Exp
+ *  OS_NS_sys_uio.h,v 1.5 2004/08/06 15:52:11 jtc Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  *  @author Jesper S. M|ller<stophph@diku.dk>
@@ -37,13 +37,13 @@ namespace ACE_OS {
 
   ACE_NAMESPACE_INLINE_FUNCTION
   ssize_t readv (ACE_HANDLE handle,
-                 iovec *iov,
+                 const iovec *iov,
                  int iovlen);
 
 #if defined (ACE_LACKS_READV)
   extern ACE_Export
   ssize_t readv_emulation (ACE_HANDLE handle,
-                           ACE_READV_TYPE *iov,
+                           const iovec *iov,
                            int iovcnt);
 #endif /* ACE_LACKS_READV */
 
@@ -56,9 +56,9 @@ namespace ACE_OS {
   //  or inl.
 #if defined (ACE_LACKS_WRITEV)
   extern ACE_Export
-  int writev_emulation (ACE_HANDLE handle,
-                        ACE_WRITEV_TYPE *iov,
-                        int iovcnt);
+  ssize_t writev_emulation (ACE_HANDLE handle,
+                            const iovec *iov,
+                            int iovcnt);
 #endif /* ACE_LACKS_WRITEV */
 
 } /* namespace ACE_OS */

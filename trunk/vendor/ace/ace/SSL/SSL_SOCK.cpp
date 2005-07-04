@@ -1,20 +1,20 @@
 // -*- C++ -*-
 //
-// SSL_SOCK.cpp,v 1.6 2003/11/04 16:46:04 dhinton Exp
+// SSL_SOCK.cpp,v 1.7 2004/06/19 07:18:01 jwillemsen Exp
 
 
 #include "SSL_SOCK.h"
 
-#if defined (ACE_LACKS_INLINE_FUNCTIONS)
+#if !defined (__ACE_INLINE__)
 #include "SSL_SOCK.i"
-#endif
+#endif /* __ACE_INLINE__ */
 
 #include "ace/OS_NS_errno.h"
 #include "ace/os_include/os_signal.h"
 
 ACE_RCSID (ACE_SSL,
            SSL_SOCK,
-           "SSL_SOCK.cpp,v 1.6 2003/11/04 16:46:04 dhinton Exp")
+           "SSL_SOCK.cpp,v 1.7 2004/06/19 07:18:01 jwillemsen Exp")
 
 
 ACE_SSL_SOCK::ACE_SSL_SOCK (void)

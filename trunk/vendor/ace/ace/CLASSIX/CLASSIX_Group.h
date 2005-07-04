@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// CLASSIX_Group.h,v 1.4 2003/07/19 19:04:15 dhinton Exp
+// CLASSIX_Group.h,v 1.5 2004/04/23 03:06:18 ossama Exp
 
 // ============================================================================
 //
@@ -75,8 +75,8 @@ class ACE_CLASSIX_Group : public ACE_CLASSIX_Addr
     // Inserts/removes the specified port in to the group
     // Returns 0, if successful; returns a negative value otherwise
 
-    int operator == (const ACE_CLASSIX_Group &) const;
-    int operator != (const ACE_CLASSIX_Group &) const;
+    bool operator == (const ACE_CLASSIX_Group &) const;
+    bool operator != (const ACE_CLASSIX_Group &) const;
 
     // = HELPER
     void dump(void) const;

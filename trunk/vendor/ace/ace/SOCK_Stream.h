@@ -4,7 +4,7 @@
 /**
  *  @file    SOCK_Stream.h
  *
- *  SOCK_Stream.h,v 4.29 2003/07/19 19:04:13 dhinton Exp
+ *  SOCK_Stream.h,v 4.31 2004/06/16 07:57:22 jwillemsen Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -159,9 +159,9 @@ public:
   ACE_ALLOC_HOOK_DECLARE;
 };
 
-#if !defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/SOCK_Stream.i"
-#endif
+#if defined (__ACE_INLINE__)
+#include "ace/SOCK_Stream.inl"
+#endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"
 #endif /* ACE_SOCK_STREAM_H */

@@ -1,5 +1,5 @@
 // Future.cpp
-// Future_Set.cpp,v 4.12 2000/05/17 23:31:05 brunsch Exp
+// Future_Set.cpp,v 4.13 2004/05/05 21:16:27 ossama Exp
 
 #ifndef ACE_FUTURE_SET_CPP
 #define ACE_FUTURE_SET_CPP
@@ -10,7 +10,7 @@
 #pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
-ACE_RCSID (ace, Future_Set, "Future_Set.cpp,v 4.12 2000/05/17 23:31:05 brunsch Exp")
+ACE_RCSID (ace, Future_Set, "Future_Set.cpp,v 4.13 2004/05/05 21:16:27 ossama Exp")
 
 #if defined (ACE_HAS_THREADS)
 
@@ -85,7 +85,7 @@ template <class T> void
 ACE_Future_Set<T>::update (const ACE_Future<T> &future)
 {
   ACE_Message_Block *mb;
-  FUTURE &local_future = ACE_const_cast (ACE_Future<T> &, future);
+  FUTURE &local_future = const_cast<ACE_Future<T> &> (future);
 
   ACE_NEW (mb,
            ACE_Message_Block ((char *) local_future.get_rep (), 0));
@@ -109,9 +109,7 @@ ACE_Future_Set<T>::next_readable (ACE_Future<T> &future,
                                                       tv) != -1)
     {
       // Extract future rep from the message block.
-      future_rep =
-        ACE_reinterpret_cast (FUTURE_REP *,
-                              mb->base ());
+      future_rep = reinterpret_cast<FUTURE_REP *> (mb->base ());
 
       // Delete the message block.
       mb->release ();

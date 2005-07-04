@@ -1,15 +1,17 @@
-// SOCK_SEQPACK_Acceptor.cpp
-// SOCK_SEQPACK_Acceptor.cpp,v 4.10 2003/11/05 18:04:38 schmidt Exp
+// SOCK_SEQPACK_Acceptor.cpp,v 4.15 2004/08/14 07:03:12 ossama Exp
 
 #include "ace/SOCK_SEQPACK_Acceptor.h"
 
-#if defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/SOCK_SEQPACK_Acceptor.i"
-#endif /* ACE_LACKS_INLINE_FUNCTIONS */
-
 #include "ace/Auto_Ptr.h"
 #include "ace/Log_Msg.h"
+#include "ace/OS_Memory.h"
 #include "ace/OS_NS_string.h"
+#include "ace/OS_NS_sys_socket.h"
+#include "ace/os_include/os_fcntl.h"
+
+#if !defined (__ACE_INLINE__)
+#include "ace/SOCK_SEQPACK_Acceptor.inl"
+#endif /* __ACE_INLINE__ */
 
 ACE_RCSID(ace, SOCK_SEQPACK_Acceptor, "SOCK_SEQPACK_Acceptor.cpp,v 4.30 2002/03/08 23:18:09 spark Exp")
 
@@ -342,8 +344,8 @@ ACE_SOCK_SEQPACK_Acceptor::shared_open (const ACE_Multihomed_INET_Addr &local_sa
           // representations of the primary and secondary
           // addresses.
           sockaddr_in*  local_inet_addrs = 0;
-          ACE_NEW_NORETURN(local_inet_addrs,
-                           sockaddr_in[num_addresses]);
+          ACE_NEW_NORETURN (local_inet_addrs,
+                            sockaddr_in[num_addresses]);
 
           if (!local_inet_addrs)
             error = 1;
@@ -401,11 +403,12 @@ ACE_SOCK_SEQPACK_Acceptor::shared_open (const ACE_Multihomed_INET_Addr &local_sa
               }
 #else
               // Call bind
+              size_t name_len = (sizeof local_inet_addr) * num_addresses;
               if (ACE_OS::bind (this->get_handle (),
                                 ACE_reinterpret_cast (sockaddr *,
                                                       local_inet_addrs),
-                                (sizeof local_inet_addr)*num_addresses) == -1)
-                  error = 1;
+                                ACE_static_cast (int, name_len)) == -1)
+                error = 1;
 #endif /* ACE_HAS_LKSCTP */
             }
 
@@ -500,7 +503,7 @@ ACE_SOCK_SEQPACK_Acceptor::open (const ACE_Addr &local_sap,
   else if (protocol_family == PF_UNSPEC)
     {
 #if defined (ACE_HAS_IPV6)
-      protocol_family = ACE_Sock_Connect::ipv6_enabled () ? PF_INET6 : PF_INET;
+      protocol_family = ACE::ipv6_enabled () ? PF_INET6 : PF_INET;
 #else
       protocol_family = PF_INET;
 #endif /* ACE_HAS_IPV6 */
@@ -537,7 +540,7 @@ ACE_SOCK_SEQPACK_Acceptor::open (const ACE_Multihomed_INET_Addr &local_sap,
   else if (protocol_family == PF_UNSPEC)
     {
 #if defined (ACE_HAS_IPV6)
-      protocol_family = ACE_Sock_Connect::ipv6_enabled () ? PF_INET6 : PF_INET;
+      protocol_family = ACE::ipv6_enabled () ? PF_INET6 : PF_INET;
 #else
       protocol_family = PF_INET;
 #endif /* ACE_HAS_IPV6 */

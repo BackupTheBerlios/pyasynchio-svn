@@ -1,16 +1,22 @@
-// Pipe.cpp,v 4.36 2003/12/09 15:25:41 elliott_c Exp
+// Pipe.cpp,v 4.41 2004/08/10 11:27:24 sma Exp
 
 #include "ace/Pipe.h"
 #include "ace/SOCK_Acceptor.h"
 #include "ace/SOCK_Connector.h"
 #include "ace/Log_Msg.h"
+#include "ace/OS_NS_sys_socket.h"
+
+#if defined (ACE_HAS_STREAM_PIPES) || defined (__QNX__)
+#  include "ace/OS_NS_unistd.h"
+#endif  // ACE_HAS_STREAM_PIPES || __QNX__
+
 #include "ace/os_include/netinet/os_tcp.h"
 
-#if defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/Pipe.i"
-#endif
+#if !defined (__ACE_INLINE__)
+#include "ace/Pipe.inl"
+#endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, Pipe, "Pipe.cpp,v 4.36 2003/12/09 15:25:41 elliott_c Exp")
+ACE_RCSID(ace, Pipe, "Pipe.cpp,v 4.41 2004/08/10 11:27:24 sma Exp")
 
 void
 ACE_Pipe::dump (void) const

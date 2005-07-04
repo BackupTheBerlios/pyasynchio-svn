@@ -4,7 +4,7 @@
 /**
  *  @file    SOCK_SEQPACK_Acceptor.h
  *
- *  SOCK_SEQPACK_Acceptor.h,v 1.9 2003/10/31 19:20:59 gthaker Exp
+ *  SOCK_SEQPACK_Acceptor.h,v 1.11 2004/06/16 07:57:22 jwillemsen Exp
  *  @author  Patrick J. Lardieri <plardier@atl.lmco.com>
  *  @author  Gaurav Naik, Lockheed Martin ATL
  *  @author  based on SOCK_STREAM_Acceptor
@@ -178,9 +178,9 @@ private:
   int get_remote_addr (ACE_Addr &) const;
 };
 
-#if !defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/SOCK_SEQPACK_Acceptor.i"
-#endif /* ACE_LACKS_INLINE_FUNCTIONS */
+#if defined (__ACE_INLINE__)
+#include "ace/SOCK_SEQPACK_Acceptor.inl"
+#endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"
 

@@ -1,5 +1,5 @@
 // Hash_Map_With_Allocator_T.cpp
-// Hash_Map_With_Allocator_T.cpp,v 4.2 2003/02/20 17:04:18 ossama Exp
+// Hash_Map_With_Allocator_T.cpp,v 4.3 2004/06/16 07:57:20 jwillemsen Exp
 
 #ifndef ACE_HASH_MAP_WITH_ALLOCATOR_T_CPP
 #define ACE_HASH_MAP_WITH_ALLOCATOR_T_CPP
@@ -11,7 +11,7 @@
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Hash_Map_With_Allocator_T.i"
+#include "ace/Hash_Map_With_Allocator_T.inl"
 #endif /* __ACE_INLINE__ */
 
 template <class EXT_ID, class INT_ID>

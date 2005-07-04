@@ -1,4 +1,4 @@
-// Token.cpp,v 4.38 2003/11/10 01:48:03 dhinton Exp
+// Token.cpp,v 4.40 2004/06/16 07:57:21 jwillemsen Exp
 
 #include "ace/Thread.h"
 #include "ace/Token.h"
@@ -9,10 +9,10 @@
 #include "ace/streams.h"
 #endif /* DEBUGGING */
 
-ACE_RCSID(ace, Token, "Token.cpp,v 4.38 2003/11/10 01:48:03 dhinton Exp")
+ACE_RCSID(ace, Token, "Token.cpp,v 4.40 2004/06/16 07:57:21 jwillemsen Exp")
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Token.i"
+#include "ace/Token.inl"
 #endif /* __ACE_INLINE__ */
 
 #if defined (ACE_HAS_THREADS)
@@ -30,7 +30,7 @@ ACE_Token::dump (void) const
 
   ACE_DEBUG ((LM_DEBUG, ACE_LIB_TEXT ("\nthread = %d"), ACE_Thread::self ()));
   // @@ Is there a portable way to do this?
-  // ACE_DEBUG ((LM_DEBUG, "\nowner_ = %l", (long) this->owner_));
+  // ACE_DEBUG ((LM_DEBUG, "\nowner_ = %d", (long) this->owner_));
   ACE_DEBUG ((LM_DEBUG, ACE_LIB_TEXT ("\nowner_ addr = %x"), &this->owner_));
   ACE_DEBUG ((LM_DEBUG, ACE_LIB_TEXT ("\nwaiters_ = %d"), this->waiters_));
   ACE_DEBUG ((LM_DEBUG, ACE_LIB_TEXT ("\nin_use_ = %d"), this->in_use_));

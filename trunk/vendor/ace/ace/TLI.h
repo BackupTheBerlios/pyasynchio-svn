@@ -4,7 +4,7 @@
 /**
  *  @file    TLI.h
  *
- *  TLI.h,v 4.16 2003/12/22 22:50:34 shuston Exp
+ *  TLI.h,v 4.18 2004/06/16 07:57:22 jwillemsen Exp
  *
  *  @author Doug Schmidt
  */
@@ -15,16 +15,17 @@
 #define ACE_TLI_H
 #include /**/ "ace/pre.h"
 
-#include "ace/IPC_SAP.h"
+#include "ace/OS_TLI.h"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
-#include "ace/Addr.h"
-#include "ace/OS_TLI.h"
-
 #if defined (ACE_HAS_TLI)
+
+#include "ace/IPC_SAP.h"
+#include "ace/Addr.h"
+#include "ace/os_include/os_fcntl.h"
 
 // There's not a universal device name for TLI devices.  If the platform
 // needs something other than /dev/tcp, it needs to be set up in the config.h
@@ -101,7 +102,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/TLI.i"
+#include "ace/TLI.inl"
 #endif /* __ACE_INLINE__ */
 
 #endif /* ACE_HAS_TLI */

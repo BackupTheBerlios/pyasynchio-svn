@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// config-macosx.h,v 4.28 2003/12/05 07:15:53 jmzorko Exp
+// config-macosx.h,v 4.36 2004/08/31 06:26:50 jtc Exp
 
 // This configuration file is designed to work with the MacOS X operating system, version 10.2 (Jaguar).
 
@@ -34,7 +34,6 @@
 #define ACE_HAS_MEMCHR
 
 #define ACE_LACKS_STROPTS_H
-#define ACE_LACKS_SYS_MSG_H
 #define ACE_LACKS_WCHAR_H
 
 #define ACE_SYS_SELECT_NEEDS_UNISTD_H
@@ -85,13 +84,11 @@
 
 #define ACE_HAS_SIN_LEN
 
-#define ACE_HAS_ANSI_CASTS
-
 // Platform supports System V IPC (most versions of UNIX, but not Win32)
 //#define ACE_HAS_SYSV_IPC
 
 // Compiler/platform contains the <sys/syscall.h> file.
-#define ACE_HAS_SYSCALL_H
+#define ACE_HAS_SYS_SYSCALL_H
 
 #define ACE_HAS_CONSISTENT_SIGNAL_PROTOTYPES
 
@@ -127,7 +124,7 @@
 #define ACE_HAS_STRERROR
 
 // Compiler/platform provides the sockio.h file.
-#define ACE_HAS_SOCKIO_H
+#define ACE_HAS_SYS_SOCKIO_H
 
 // Defines the page size of the system.
 #define ACE_HAS_GETPAGESIZE
@@ -135,16 +132,10 @@
 // Platform provides <sys/filio.h> header.
 #define ACE_HAS_SYS_FILIO_H
 
-// Compiler/platform supports SVR4 gettimeofday() prototype
-#define ACE_HAS_SUNOS4_GETTIMEOFDAY
+// Platform/compiler supports timezone * as second parameter to gettimeofday().
 #define ACE_HAS_TIMEZONE_GETTIMEOFDAY
 
-// Turns off the tracing feature.
-#if !defined (ACE_NTRACE)
-#define ACE_NTRACE 1
-#endif /* ACE_NTRACE */
-
-#define ACE_LACKS_SYSV_MSG_H
+#define ACE_LACKS_SYS_MSG_H
 #define ACE_LACKS_SYSV_MSQ_PROTOS
 #define ACE_HAS_MSG
 #define ACE_HAS_4_4BSD_SENDMSG_RECVMSG
@@ -159,8 +150,6 @@
 #endif /* ! ACE_MT_SAFE */
 #define ACE_HAS_PTHREADS
 #define ACE_HAS_PTHREADS_STD
-#define ACE_HAS_PTHREAD_KILL
-#define ACE_HAS_PTHREAD_CANCEL
 #define ACE_HAS_PTHREAD_SIGMASK
 #define ACE_LACKS_THREAD_PROCESS_SCOPING
 #define ACE_HAS_THREAD_SPECIFIC_STORAGE
@@ -177,11 +166,11 @@
 #define TCSETS TIOCSETA
 
 #define ACE_HAS_SEMUN
-#define ACE_HAS_SIGINFO_T 
-#define ACE_LACKS_SIGINFO_H 
-#define ACE_HAS_UCONTEXT_T 
-#define ACE_HAS_GETIFADDRS 
-#define ACE_LACKS_STATIC_DATA_MEMBER_TEMPLATES 
+#define ACE_HAS_SIGINFO_T
+#define ACE_LACKS_SIGINFO_H
+#define ACE_HAS_UCONTEXT_T
+#define ACE_HAS_GETIFADDRS
+#define ACE_LACKS_STATIC_DATA_MEMBER_TEMPLATES
 #define ACE_LACKS_UNNAMED_SEMAPHORE
 
 // dlcompat package (not part of base Darwin) is needed for dlopen().

@@ -1,20 +1,21 @@
 /* -*- C++ -*- */
-// POSIX_CB_Proactor.cpp,v 4.7 2003/12/15 17:12:16 schmidt Exp
+// POSIX_CB_Proactor.cpp,v 4.13 2004/06/16 07:57:20 jwillemsen Exp
 
 #include "ace/POSIX_CB_Proactor.h"
 
-#if defined (ACE_HAS_AIO_CALLS) && !defined(__sun) && !defined(__Lynx__)
+#if defined (ACE_HAS_AIO_CALLS) && !defined(__Lynx__) && !defined (__FreeBSD__)
 
+#include "ace/OS_NS_sys_time.h"
 #include "ace/Task_T.h"
 #include "ace/Log_Msg.h"
 #include "ace/Object_Manager.h"
 
 #if !defined (__ACE_INLINE__)
-#include "ace/POSIX_CB_Proactor.i"
+#include "ace/POSIX_CB_Proactor.inl"
 #endif /* __ACE_INLINE__ */
 
 ACE_POSIX_CB_Proactor::ACE_POSIX_CB_Proactor (size_t max_aio_operations)
-  : ACE_POSIX_AIOCB_Proactor (max_aio_operations, 
+  : ACE_POSIX_AIOCB_Proactor (max_aio_operations,
                               ACE_POSIX_Proactor::PROACTOR_CB),
     sema_ ((unsigned int) 0)
 {
@@ -30,17 +31,20 @@ ACE_POSIX_CB_Proactor::~ACE_POSIX_CB_Proactor (void)
   this->close ();
 }
 
-void ACE_POSIX_CB_Proactor::aio_completion_func ( sigval_t cb_data )
+void ACE_POSIX_CB_Proactor::aio_completion_func (sigval_t cb_data)
 {
-#if defined (__FreeBSD__)
-  ACE_POSIX_CB_Proactor * impl = ACE_static_cast (ACE_POSIX_CB_Proactor *, cb_data.sigval_ptr);
-#else
   ACE_POSIX_CB_Proactor * impl = ACE_static_cast (ACE_POSIX_CB_Proactor *, cb_data.sival_ptr);
-#endif
-
   if ( impl != 0 )
     impl->notify_completion (0);
 }
+
+#if defined (ACE_HAS_SIG_C_FUNC)
+extern "C" void
+ACE_POSIX_CB_Proactor_aio_completion (sigval_t cb_data)
+{
+  ACE_POSIX_CB_Proactor::aio_completion_func (cb_data);
+}
+#endif /* ACE_HAS_SIG_C_FUNC */
 
 int
 ACE_POSIX_CB_Proactor::handle_events (ACE_Time_Value &wait_time)
@@ -73,26 +77,30 @@ ACE_POSIX_CB_Proactor::allocate_aio_slot (ACE_POSIX_Asynch_Result *result)
     return -1;
 
   // setup OS notification methods for this aio
-  // store index!!, not pointer in signal info
-  // need to figure out correct thing to do here when we are not on SGI
+  // @@ TODO: This gets the completion method back to this proactor to
+  // find the completed aiocb. It would be so much better to not only get
+  // the proactor, but the aiocb as well.
 #if defined(__sgi)
   result->aio_sigevent.sigev_notify = SIGEV_CALLBACK;
   result->aio_sigevent.sigev_func   = aio_completion_func ;
 #else
-  result->aio_sigevent.sigev_notify = SIGEV_SIGNAL;
+  result->aio_sigevent.sigev_notify = SIGEV_THREAD;
+#  if defined (ACE_HAS_SIG_C_FUNC)
+  result->aio_sigevent.sigev_notify_function =
+    ACE_POSIX_CB_Proactor_aio_completion;
+#  else
+  result->aio_sigevent.sigev_notify_function = aio_completion_func;
+#  endif /* ACE_HAS_SIG_C_FUNC */
+  result->aio_sigevent.sigev_notify_attributes = 0;
 #endif /* __sgi */
 
-#if defined (__FreeBSD__)
-  result->aio_sigevent.sigev_value.sigval_ptr = this ;
-#else
   result->aio_sigevent.sigev_value.sival_ptr = this ;
-#endif /* __FreeBSD__ */
 
   return slot;
 }
 
 int
-ACE_POSIX_CB_Proactor::handle_events_i (unsigned long milli_seconds)
+ACE_POSIX_CB_Proactor::handle_events_i (u_long milli_seconds)
 {
 
   int result_wait=0;
@@ -106,7 +114,7 @@ ACE_POSIX_CB_Proactor::handle_events_i (unsigned long milli_seconds)
     {
       // Wait for <milli_seconds> amount of time.
       ACE_Time_Value abs_time = ACE_OS::gettimeofday ()
-                              + ACE_Time_Value ( milli_seconds);
+                              + ACE_Time_Value (0, milli_seconds * 1000);
 
       result_wait = this->sema_.acquire(abs_time);
     }
@@ -164,4 +172,4 @@ ACE_POSIX_CB_Proactor::handle_events_i (unsigned long milli_seconds)
   return ret_aio + ret_que > 0 ? 1 : 0;
 }
 
-#endif /* ACE_HAS_AIO_CALLS && !__sun && !__Lynx__ */
+#endif /* ACE_HAS_AIO_CALLS && !__Lynx__ && !__FreeBSD__ */

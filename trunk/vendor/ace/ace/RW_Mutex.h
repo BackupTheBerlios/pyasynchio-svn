@@ -4,7 +4,7 @@
 /**
  *  @file    RW_Mutex.h
  *
- *  RW_Mutex.h,v 4.3 2003/11/01 11:15:16 dhinton Exp
+ *  RW_Mutex.h,v 4.4 2004/05/13 03:20:40 ossama Exp
  *
  *   Moved from Synch.h.
  *
@@ -14,6 +14,7 @@
 
 #ifndef ACE_RW_MUTEX_H
 #define ACE_RW_MUTEX_H
+
 #include /**/ "ace/pre.h"
 
 #include "ace/ACE_export.h"
@@ -132,4 +133,5 @@ private:
 #endif /* ACE_HAS_THREADS */
 
 #include /**/ "ace/post.h"
+
 #endif /* ACE_RW_MUTEX_H */

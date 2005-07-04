@@ -4,7 +4,7 @@
 /**
  *  @file    SOCK_CODgram.h
  *
- *  SOCK_CODgram.h,v 4.13 2003/07/19 19:04:13 dhinton Exp
+ *  SOCK_CODgram.h,v 4.15 2004/06/16 07:57:22 jwillemsen Exp
  *
  *  @author Doug Schmidt
  */
@@ -65,9 +65,9 @@ public:
   ACE_ALLOC_HOOK_DECLARE;
 };
 
-#if !defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/SOCK_CODgram.i"
-#endif
+#if defined (__ACE_INLINE__)
+#include "ace/SOCK_CODgram.inl"
+#endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"
 #endif /* ACE_SOCK_CODGRAM_H */

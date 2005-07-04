@@ -1,15 +1,15 @@
 // MEM_Connector.cpp
-// MEM_Connector.cpp,v 4.15 2003/07/27 20:48:25 dhinton Exp
+// MEM_Connector.cpp,v 4.19 2004/06/16 07:57:20 jwillemsen Exp
 
 #include "ace/MEM_Connector.h"
 
-ACE_RCSID(ace, MEM_Connector, "MEM_Connector.cpp,v 4.15 2003/07/27 20:48:25 dhinton Exp")
+ACE_RCSID(ace, MEM_Connector, "MEM_Connector.cpp,v 4.19 2004/06/16 07:57:20 jwillemsen Exp")
 
 #if (ACE_HAS_POSITION_INDEPENDENT_POINTERS == 1)
 
-#if defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/MEM_Connector.i"
-#endif
+#if !defined (__ACE_INLINE__)
+#include "ace/MEM_Connector.inl"
+#endif /* __ACE_INLINE__ */
 
 ACE_ALLOC_HOOK_DEFINE(ACE_MEM_Connector)
 
@@ -71,9 +71,9 @@ ACE_MEM_Connector::connect (ACE_MEM_Stream &new_stream,
                        ACE_LIB_TEXT ("(%P|%t) MEM_Connector can't connect ")
                        ACE_LIB_TEXT ("to %s:%d which is not a local endpoint ")
                        ACE_LIB_TEXT ("(local address is %s:%d)\n"),
-                       remote_sap.get_host_name (),
+                       ACE_TEXT_CHAR_TO_TCHAR (remote_sap.get_host_name ()),
                        remote_sap.get_port_number (),
-                       this->address_.get_host_name (),
+                       ACE_TEXT_CHAR_TO_TCHAR (this->address_.get_host_name ()),
                        this->address_.get_port_number ()),
                       -1);
   else
@@ -134,7 +134,8 @@ ACE_MEM_Connector::connect (ACE_MEM_Stream &new_stream,
                        ACE_LIB_TEXT ("ACE_MEM_Connector::connect error receiving shm filename.\n")),
                       -1);
 
-  if (new_stream.init (buf, ACE_static_cast (ACE_MEM_IO::Signal_Strategy, server_strategy),
+  if (new_stream.init (buf,
+                       static_cast<ACE_MEM_IO::Signal_Strategy> (server_strategy),
                        &this->malloc_options_) == -1)
     return -1;
 

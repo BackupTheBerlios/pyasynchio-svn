@@ -4,7 +4,7 @@
 /**
  *  @file    Env_Value_T.h
  *
- *  Env_Value_T.h,v 4.27 2003/11/28 22:24:30 shuston Exp
+ *  Env_Value_T.h,v 4.30 2004/06/25 08:27:12 jwillemsen Exp
  *
  *  Template to encapsulate getting a value from an environment variable
  *  and using a supplied default value if not in the environment.
@@ -30,9 +30,9 @@
 /**
  * @class ACE_Env_Value
  *
- * @brief Enviroment Variable Value
+ * @brief Environment Variable Value
  *
- * Reads a variable from the user enviroment, providing a default
+ * Reads a variable from the user environment, providing a default
  * value.
  */
 template <class T>
@@ -56,8 +56,8 @@ public:
   /// Returns the value as type T.
   operator T (void);
 
-  /// The constructor, read <varname> from the environment, using
-  /// <vardefault> as its value if it is not defined.
+  /// The constructor, read @a varname from the environment, using
+  /// @a defval as its value if it is not defined.
   void open (const ACE_TCHAR *varname, const T &defval);
 
   /// Returns the name of the variable being tracked.
@@ -74,11 +74,11 @@ private:
   T value_;
 };
 
+/// Function to convert a string @a s into type @c T.
 template <class T> void ACE_Convert (const ACE_TCHAR *s, T &t);
-// Function to convert a string <s> into type <T>.
 
 #if defined (__ACE_INLINE__)
-#include "ace/Env_Value_T.i"
+#include "ace/Env_Value_T.inl"
 #endif /* __ACE_INLINE__ */
 
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)
@@ -113,20 +113,19 @@ ACE_Convert (const ACE_TCHAR *s, const ACE_TCHAR *&v)
 inline void
 ACE_Convert (const ACE_TCHAR *s, short &si)
 {
-  si = ACE_static_cast (short, ACE_OS::strtol (s, 0, 10));
+  si = static_cast<short> (ACE_OS::strtol (s, 0, 10));
 }
 
 inline void
 ACE_Convert (const ACE_TCHAR *s, u_short &us)
 {
-  us = ACE_static_cast (u_short, ACE_OS::strtol (s, 0, 10));
+  us = static_cast <u_short> (ACE_OS::strtol (s, 0, 10));
 }
 
 inline void
 ACE_Convert (const ACE_TCHAR *s, u_int &i)
 {
-  i = ACE_static_cast (u_int,
-                       ACE_OS::strtol (s, 0, 10));
+  i = static_cast<u_int> (ACE_OS::strtol (s, 0, 10));
 }
 
 inline void
@@ -138,7 +137,7 @@ ACE_Convert (const ACE_TCHAR *s, long &l)
 inline void
 ACE_Convert (const ACE_TCHAR *s, int &i)
 {
-  i = ACE_static_cast (int, ACE_OS::strtol (s, 0, 10));
+  i = static_cast<int> (ACE_OS::strtol (s, 0, 10));
 }
 
 inline void

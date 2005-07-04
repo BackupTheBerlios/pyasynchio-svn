@@ -1,14 +1,15 @@
 // FILE_Connector.cpp
-// FILE_Connector.cpp,v 4.14 2003/07/27 20:48:24 dhinton Exp
+// FILE_Connector.cpp,v 4.20 2004/08/24 18:13:29 shuston Exp
 
 #include "ace/FILE_Connector.h"
 #include "ace/Handle_Ops.h"
+#include "ace/OS_NS_stdlib.h"
 
-#if defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/FILE_Connector.i"
-#endif
+#if !defined (__ACE_INLINE__)
+#include "ace/FILE_Connector.inl"
+#endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, FILE_Connector, "FILE_Connector.cpp,v 4.14 2003/07/27 20:48:24 dhinton Exp")
+ACE_RCSID(ace, FILE_Connector, "FILE_Connector.cpp,v 4.20 2004/08/24 18:13:29 shuston Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_FILE_Connector)
 
@@ -31,12 +32,12 @@ ACE_FILE_Connector::ACE_FILE_Connector (void)
 
 int
 ACE_FILE_Connector::connect (ACE_FILE_IO &new_io,
-			     const ACE_FILE_Addr &remote_sap,
-			     ACE_Time_Value *timeout,
-			     const ACE_Addr &,
-			     int,
-			     int flags,
-			     int perms)
+                             const ACE_FILE_Addr &remote_sap,
+                             ACE_Time_Value *timeout,
+                             const ACE_Addr &,
+                             int,
+                             int flags,
+                             int perms)
 {
   ACE_TRACE ("ACE_FILE_Connector::connect");
   ACE_ASSERT (new_io.get_handle () == ACE_INVALID_HANDLE);
@@ -44,9 +45,8 @@ ACE_FILE_Connector::connect (ACE_FILE_IO &new_io,
   ACE_HANDLE handle = ACE_INVALID_HANDLE;
 
   // Check to see if caller has requested that we create the filename.
-  if (ACE_reinterpret_cast (const ACE_Addr &,
-                            ACE_const_cast (ACE_FILE_Addr &,
-                                            remote_sap)) == ACE_Addr::sap_any)
+  if (reinterpret_cast<const ACE_Addr &> (
+        const_cast<ACE_FILE_Addr &> (remote_sap)) == ACE_Addr::sap_any)
     {
       // Create a new temporary file.
 #ifdef ACE_LACKS_MKSTEMP
@@ -65,7 +65,7 @@ ACE_FILE_Connector::connect (ACE_FILE_IO &new_io,
       handle = ACE_OS::mkstemp (filename); // mkstemp() replaces "XXXXXX"
 
       if (handle == ACE_INVALID_HANDLE
-          || new_io.addr_.set (filename) != 0)
+          || new_io.addr_.set (ACE_TEXT_CHAR_TO_TCHAR (filename)) != 0)
         return -1;
 
       new_io.set_handle (handle);
@@ -76,7 +76,7 @@ ACE_FILE_Connector::connect (ACE_FILE_IO &new_io,
   else
     new_io.addr_ = remote_sap; // class copy.
 
-  handle = ACE_Handle_Ops::handle_timed_open (timeout,
+  handle = ACE::handle_timed_open (timeout,
                                               new_io.addr_.get_path_name (),
                                               flags,
                                               perms);

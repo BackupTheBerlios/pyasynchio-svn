@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// config-dgux-4.11-epc.h,v 4.18 2003/07/19 19:04:14 dhinton Exp
+// config-dgux-4.11-epc.h,v 4.21 2004/08/24 01:26:55 jtc Exp
 
 // The following configuration file is designed to work for DG/UX
 // 4.11 platforms using the EPC compiler.
@@ -32,7 +32,7 @@
 #define ACE_HAS_MSG
 
 // Compiler/platform contains the <sys/syscall.h> file.
-// #define ACE_HAS_SYSCALL_H
+// #define ACE_HAS_SYS_SYSCALL_H
 
 // Platform supports reentrant functions (i.e., all the POSIX *_r functions).
 #define ACE_HAS_REENTRANT_FUNCTIONS
@@ -81,7 +81,7 @@
 #define ACE_HAS_SIGINFO_T
 
 // Compiler/platform provides the sockio.h file.
-#define ACE_HAS_SOCKIO_H
+#define ACE_HAS_SYS_SOCKIO_H
 
 // Compiler supports the ssize_t typedef.
 #define ACE_HAS_SSIZE_T
@@ -158,11 +158,6 @@
 
 // Use the poll() event demultiplexor rather than select().
 //#define ACE_USE_POLL
-
-// Turns off the tracing feature.
-#if !defined (ACE_NTRACE)
-# define ACE_NTRACE 1
-#endif /* ACE_NTRACE */
 
 // Defines the page size of the system.
 #define ACE_PAGE_SIZE 4096

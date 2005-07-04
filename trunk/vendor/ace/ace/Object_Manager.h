@@ -4,7 +4,7 @@
 /**
  *  @file    Object_Manager.h
  *
- *  Object_Manager.h,v 4.98 2003/11/10 01:48:02 dhinton Exp
+ *  Object_Manager.h,v 4.99 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author David L. Levine <levine@cs.wustl.edu>
  *  @author Matthias Kerkhoff
@@ -427,7 +427,7 @@ private:
 #include "ace/Static_Object_Lock.h"
 
 #if defined (__ACE_INLINE__)
-#include "ace/Object_Manager.i"
+#include "ace/Object_Manager.inl"
 #endif /* __ACE_INLINE__ */
 
 #include "ace/Managed_Object.h"

@@ -6,7 +6,7 @@
  *
  *  data types
  *
- *  os_types.h,v 1.6 2003/11/04 17:17:32 ossama Exp
+ *  os_types.h,v 1.7 2004/08/25 16:05:42 shuston Exp
  *
  *  @author Don Hinton <dhinton@dresystems.com>
  *  @author This code was originally in various places including ace/OS.h.
@@ -18,7 +18,7 @@
 
 #include /**/ "ace/pre.h"
 
-#include "ace/config-all.h"
+#include "ace/config-lite.h"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
@@ -95,7 +95,7 @@ typedef double ACE_timer_t;
 #if defined (ACE_WIN32)
 #  if !defined (__BORLANDC__)
      typedef DWORD nlink_t;
-#    if !defined(__MINGW32__)
+#    if !defined(__MINGW32__) || defined(GCCXML)
         typedef u_short mode_t;
 #    endif /* !__MINGW32__ */
      typedef long uid_t;
@@ -133,7 +133,7 @@ typedef double ACE_timer_t;
    typedef int ACE_exitcode;
 #endif /* ACE_WIN32 */
 
-#if defined (ACE_WIN32) && !defined(__MINGW32__)
+#if defined (ACE_WIN32) && (!defined(__MINGW32__) || defined(GCCXML))
    typedef long pid_t;
 #elif defined (ACE_PSOS) && (!defined (ACE_PSOSIM) && defined (ACE_PSOS_CANT_USE_SYS_TYPES))
 #  if defined (ACE_PSOS_DIAB_PPC)

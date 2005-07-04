@@ -1,14 +1,13 @@
-// SV_Message_Queue.cpp
-// SV_Message_Queue.cpp,v 4.9 2003/07/27 20:48:27 dhinton Exp
+// SV_Message_Queue.cpp,v 4.11 2004/06/16 07:57:21 jwillemsen Exp
 
 #include "ace/SV_Message_Queue.h"
 #include "ace/Log_Msg.h"
 
-#if defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/SV_Message_Queue.i"
-#endif
+#if !defined (__ACE_INLINE__)
+#include "ace/SV_Message_Queue.inl"
+#endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, SV_Message_Queue, "SV_Message_Queue.cpp,v 4.9 2003/07/27 20:48:27 dhinton Exp")
+ACE_RCSID(ace, SV_Message_Queue, "SV_Message_Queue.cpp,v 4.11 2004/06/16 07:57:21 jwillemsen Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_SV_Message_Queue)
 

@@ -4,7 +4,7 @@
 /**
  *  @file    IPC_SAP.h
  *
- *  IPC_SAP.h,v 4.18 2003/07/19 19:04:11 dhinton Exp
+ *  IPC_SAP.h,v 4.20 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -15,6 +15,7 @@
 #include /**/ "ace/pre.h"
 
 #include "ace/Flag_Manip.h"
+#include "ace/os_include/sys/os_types.h"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
@@ -76,9 +77,9 @@ private:
   static pid_t pid_;
 };
 
-#if !defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/IPC_SAP.i"
-#endif /* ACE_LACKS_INLINE_FUNCTIONS */
+#if defined (__ACE_INLINE__)
+#include "ace/IPC_SAP.inl"
+#endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"
 #endif /* ACE_IPC_SAP_H */

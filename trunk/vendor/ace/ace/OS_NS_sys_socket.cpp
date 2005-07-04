@@ -1,9 +1,9 @@
 // -*- C++ -*-
-// OS_NS_sys_socket.cpp,v 1.2 2003/11/01 11:15:15 dhinton Exp
+// OS_NS_sys_socket.cpp,v 1.3 2004/08/30 21:42:31 shuston Exp
 
 #include "ace/OS_NS_sys_socket.h"
 
-ACE_RCSID(ace, OS_NS_sys_socket, "OS_NS_sys_socket.cpp,v 1.2 2003/11/01 11:15:15 dhinton Exp")
+ACE_RCSID(ace, OS_NS_sys_socket, "OS_NS_sys_socket.cpp,v 1.3 2004/08/30 21:42:31 shuston Exp")
 
 #if !defined (ACE_HAS_INLINED_OSCALLS)
 # include "ace/OS_NS_sys_socket.inl"
@@ -59,7 +59,6 @@ ACE_OS::connect (ACE_HANDLE handle,
                           addrlen);
 # endif /* ACE_HAS_WINSOCK2 */
 }
-#endif  // ACE_HAS_WINCE
 
 ACE_HANDLE
 ACE_OS::join_leaf (ACE_HANDLE socket,
@@ -95,6 +94,7 @@ ACE_OS::join_leaf (ACE_HANDLE socket,
   ACE_NOTSUP_RETURN (ACE_INVALID_HANDLE);
 # endif /* ACE_HAS_WINSOCK2 */
 }
+#endif  // ACE_HAS_WINCE
 
 int
 ACE_OS::socket_init (int version_high, int version_low)

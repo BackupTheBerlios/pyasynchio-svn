@@ -1,12 +1,16 @@
 // SPIPE_Acceptor.cpp
-// SPIPE_Acceptor.cpp,v 4.30 2003/11/01 11:15:17 dhinton Exp
+// SPIPE_Acceptor.cpp,v 4.33 2004/10/07 16:36:25 john_c Exp
 
 #include "ace/SPIPE_Acceptor.h"
 #include "ace/Log_Msg.h"
 #include "ace/OS_NS_sys_stat.h"
 #include "ace/OS_NS_sys_time.h"
 
-ACE_RCSID(ace, SPIPE_Acceptor, "SPIPE_Acceptor.cpp,v 4.30 2003/11/01 11:15:17 dhinton Exp")
+#if defined (ACE_HAS_STREAM_PIPES)
+#  include "ace/OS_NS_unistd.h"
+#endif  // ACE_HAS_STREAM_PIPES
+
+ACE_RCSID(ace, SPIPE_Acceptor, "SPIPE_Acceptor.cpp,v 4.33 2004/10/07 16:36:25 john_c Exp")
 
 ACE_SPIPE_Acceptor::ACE_SPIPE_Acceptor (void)
 #if (defined (ACE_WIN32) && defined (ACE_HAS_WINNT4) && (ACE_HAS_WINNT4 != 0))
@@ -24,7 +28,7 @@ ACE_SPIPE_Acceptor::remove (void)
   int result = this->close ();
 
   // Remove the underlying file.
-  return ACE_OS::unlink (this->local_addr_.get_path_name ()) == -1 
+  return ACE_OS::unlink (this->local_addr_.get_path_name ()) == -1
     || result == -1 ? -1 : 0;
 #else
   this->close ();
@@ -45,7 +49,7 @@ ACE_SPIPE_Acceptor::dump (void) const
 // General purpose routine for performing server ACE_SPIPE creation.
 
 int
-ACE_SPIPE_Acceptor::open (const ACE_SPIPE_Addr &local_sap, 
+ACE_SPIPE_Acceptor::open (const ACE_SPIPE_Addr &local_sap,
                           int reuse_addr,
                           int perms,
                           LPSECURITY_ATTRIBUTES sa,
@@ -90,6 +94,7 @@ ACE_SPIPE_Acceptor::create_new_instance (int perms)
                             this->local_addr_.get_path_name ()) == -1)
     return -1;
 
+  this->set_duplex_handle (spipe[0]);
   this->set_handle (spipe[1]);
   return 0;
 
@@ -99,7 +104,7 @@ ACE_SPIPE_Acceptor::create_new_instance (int perms)
   // an instance of the named pipe that is already connected to a
   // client process is reused with a new client process,
   // ::ConnectNamedPipe () would fail.
- 
+
   ACE_UNUSED_ARG (perms);
   ACE_TRACE ("ACE_SPIPE_Acceptor::create_new_instance");
   int status;
@@ -147,7 +152,7 @@ ACE_SPIPE_Acceptor::create_new_instance (int perms)
       ACE_ASSERT (!result);
 
       status = ::GetLastError ();
-      switch (status) 
+      switch (status)
         {
         case ERROR_IO_PENDING:
           break;
@@ -192,7 +197,7 @@ ACE_SPIPE_Acceptor::close (void)
   return result;
 }
 
-ACE_SPIPE_Acceptor::ACE_SPIPE_Acceptor (const ACE_SPIPE_Addr &local_sap, 
+ACE_SPIPE_Acceptor::ACE_SPIPE_Acceptor (const ACE_SPIPE_Addr &local_sap,
                                         int reuse_addr,
                                         int perms,
                                         LPSECURITY_ATTRIBUTES sa,
@@ -209,9 +214,9 @@ ACE_SPIPE_Acceptor::ACE_SPIPE_Acceptor (const ACE_SPIPE_Addr &local_sap,
 // General purpose routine for accepting new connections.
 
 int
-ACE_SPIPE_Acceptor::accept (ACE_SPIPE_Stream &new_io, 
+ACE_SPIPE_Acceptor::accept (ACE_SPIPE_Stream &new_io,
                             ACE_SPIPE_Addr *remote_addr,
-                            ACE_Time_Value *timeout, 
+                            ACE_Time_Value *timeout,
                             int restart,
                             int reset_new_handle)
 {
@@ -225,7 +230,7 @@ ACE_SPIPE_Acceptor::accept (ACE_SPIPE_Stream &new_io,
   // ACE_OS::ioctl (). Otherwise, we will wait for the desired number
   // of milli seconds using ACE_OS::poll.
 
-  if (timeout != 0 && 
+  if (timeout != 0 &&
       ACE::handle_timed_accept (this->get_handle (),
                                 timeout,
                                 restart) == -1)

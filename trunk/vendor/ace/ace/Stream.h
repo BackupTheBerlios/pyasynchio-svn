@@ -4,7 +4,7 @@
 /**
  *  @file    Stream.h
  *
- *  Stream.h,v 4.28 2003/07/19 19:04:13 dhinton Exp
+ *  Stream.h,v 4.31 2004/08/13 23:49:36 schmidt Exp
  *
  *  @author Douglas C. Schmidt <schmidt@uci.edu>
  */
@@ -23,11 +23,11 @@
 
 #include "ace/IO_Cntl_Msg.h"
 #include "ace/Message_Block.h"
-#include "ace/Time_Value.h"
 #include "ace/Module.h"
 
 // Forward decls.
 template<ACE_SYNCH_DECL> class ACE_Stream_Iterator;
+class ACE_Time_Value;
 
 /**
  * @class ACE_Stream
@@ -85,10 +85,14 @@ public:
 
   // = ACE_Stream plumbing operations
 
-  /// Add a new module <mod> right below the Stream head.
+  /// Add a new module <mod> right below the Stream head.  The
+  /// <open()> hook methods of the <ACE_Tasks> in this <ACE_Module>
+  /// are invoked to initialize the tasks.
   virtual int push (ACE_Module<ACE_SYNCH_USE> *mod);
 
   /// Remove the <mod> right below the Stream head and close it down.
+  //  The <close()> hook methods of the <ACE_Tasks> in this <ACE_Module>
+  /// are invoked to cleanup the tasks.
   virtual int pop (int flags = M_DELETE);
 
   /// Return the top module on the stream (right below the stream
@@ -217,7 +221,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Stream.i"
+#include "ace/Stream.inl"
 #endif /* __ACE_INLINE__ */
 
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)

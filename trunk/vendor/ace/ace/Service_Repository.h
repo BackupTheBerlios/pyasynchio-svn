@@ -4,7 +4,7 @@
 /**
  *  @file    Service_Repository.h
  *
- *  Service_Repository.h,v 4.26 2003/08/04 03:53:53 dhinton Exp
+ *  Service_Repository.h,v 4.29 2004/11/10 18:50:08 elliott_c Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -22,7 +22,7 @@
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
 #include "ace/Default_Constants.h"
-#include "ace/Thread_Mutex.h"
+#include "ace/Recursive_Thread_Mutex.h"
 
 
 class ACE_Service_Type;
@@ -103,8 +103,12 @@ public:
             const ACE_Service_Type **srp = 0,
             int ignore_suspended = 1);
 
-  /// Remove an existing service record.
-  int remove (const ACE_TCHAR[]);
+  /// Remove an existing service record. If @a sr == 0, the service record
+  /// is deleted before control is returned to the caller. If @a sr != 0,
+  /// the service's record is removed from the repository, but not deleted;
+  /// *sr receives the service record pointer and the caller is responsible
+  /// for properly disposing of it.
+  int remove (const ACE_TCHAR[], ACE_Service_Type **sr = 0);
 
   // = Liveness control
   /// Resume a service record.
@@ -149,7 +153,7 @@ private:
 
 #if defined (ACE_MT_SAFE) && (ACE_MT_SAFE != 0)
   /// Synchronization variable for the MT_SAFE Repository
-  ACE_Thread_Mutex lock_;
+  ACE_Recursive_Thread_Mutex lock_;
 #endif /* ACE_MT_SAFE */
 };
 
@@ -203,7 +207,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Service_Repository.i"
+#include "ace/Service_Repository.inl"
 #endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"

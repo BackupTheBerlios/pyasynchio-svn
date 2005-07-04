@@ -6,7 +6,7 @@
  *
  *  XSI message queue structures
  *
- *  os_msg.h,v 1.2 2003/07/19 19:04:15 dhinton Exp
+ *  os_msg.h,v 1.5 2004/08/25 16:05:41 shuston Exp
  *
  *  @author Don Hinton <dhinton@dresystems.com>
  *  @author This code was originally in various places including ace/OS.h.
@@ -18,7 +18,7 @@
 
 #include /**/ "ace/pre.h"
 
-#include "ace/config-all.h"
+#include "ace/config-lite.h"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
@@ -43,9 +43,9 @@ extern "C"
 {
 #endif /* __cplusplus */
 
-#if defined (ACE_LACKS_MSGBUF_T)
-   struct msgbuf {};
-#endif /* ACE_LACKS_MSGBUF_T */
+   // Declare opaque type.  Needed for ACE_OS wrappers on systems
+   // without SysV IPC.
+   struct msqid_ds;
 
 #if defined (ACE_LACKS_SYSV_MSQ_PROTOS)
    int msgget (key_t, int);
@@ -53,10 +53,6 @@ extern "C"
    int msgsnd (int, const void *, size_t, int);
    int msgctl (int, int, struct msqid_ds *);
 #endif /* ACE_LACKS_SYSV_MSQ_PROTOS */
-
-#if defined (ACE_WIN32)
-   struct msqid_ds {};
-#endif /* ACE_WIN32 */
 
 #ifdef __cplusplus
 }

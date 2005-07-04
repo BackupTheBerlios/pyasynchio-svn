@@ -1,4 +1,4 @@
-// Auto_IncDec_T.cpp,v 4.5 2003/07/27 20:48:24 dhinton Exp
+// Auto_IncDec_T.cpp,v 4.6 2004/06/16 07:57:20 jwillemsen Exp
 
 #ifndef ACE_AUTO_INCDEC_T_C
 #define ACE_AUTO_INCDEC_T_C
@@ -13,7 +13,7 @@
 ACE_RCSID(ace, Auto_IncDec_T, "Auto_IncDec_T.cpp, by Edan Ayal")
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Auto_IncDec_T.i"
+#include "ace/Auto_IncDec_T.inl"
 #endif /* __ACE_INLINE__ */
 
 ACE_ALLOC_HOOK_DEFINE(ACE_Auto_IncDec)

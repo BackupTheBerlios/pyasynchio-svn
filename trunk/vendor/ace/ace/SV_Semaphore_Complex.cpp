@@ -1,15 +1,15 @@
 // SV_Semaphore_Complex.cpp
-// SV_Semaphore_Complex.cpp,v 4.18 2003/07/27 20:48:27 dhinton Exp
+// SV_Semaphore_Complex.cpp,v 4.20 2004/06/16 07:57:21 jwillemsen Exp
 
 #include "ace/SV_Semaphore_Complex.h"
 #include "ace/Log_Msg.h"
-#include "ace/os_include/sys/os_sem.h"
+#include "ace/OS_NS_Thread.h"
 
-#if defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/SV_Semaphore_Complex.i"
-#endif
+#if !defined (__ACE_INLINE__)
+#include "ace/SV_Semaphore_Complex.inl"
+#endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, SV_Semaphore_Complex, "SV_Semaphore_Complex.cpp,v 4.18 2003/07/27 20:48:27 dhinton Exp")
+ACE_RCSID(ace, SV_Semaphore_Complex, "SV_Semaphore_Complex.cpp,v 4.20 2004/06/16 07:57:21 jwillemsen Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_SV_Semaphore_Complex)
 

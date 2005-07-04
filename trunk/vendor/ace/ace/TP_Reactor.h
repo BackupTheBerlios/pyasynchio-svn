@@ -4,7 +4,7 @@
 /**
  *  @file    TP_Reactor.h
  *
- *  TP_Reactor.h,v 4.40 2003/11/05 23:30:47 shuston Exp
+ *  TP_Reactor.h,v 4.42 2004/08/20 15:21:02 bala Exp
  *
  *  The <ACE_TP_Reactor> (aka, Thread Pool Reactor) uses the
  *  Leader/Followers pattern to demultiplex events among a pool of
@@ -287,8 +287,11 @@ public:
   ACE_ALLOC_HOOK_DECLARE;
 
 protected:
-
   // = Internal methods that do the actual work.
+
+  /// Template method from the base class.
+  virtual void clear_dispatch_mask (ACE_HANDLE handle,
+                                    ACE_Reactor_Mask mask);
 
   /// Dispatch just 1 signal, timer, notification handlers
   int dispatch_i (ACE_Time_Value *max_wait_time,
@@ -346,7 +349,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/TP_Reactor.i"
+#include "ace/TP_Reactor.inl"
 #endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"

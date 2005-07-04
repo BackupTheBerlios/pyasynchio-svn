@@ -1,34 +1,21 @@
-// IOStream_T.cpp,v 4.21 2003/07/16 12:37:24 dhinton Exp
+// IOStream_T.cpp,v 4.24 2004/12/17 13:18:12 jwillemsen Exp
 
 #ifndef ACE_IOSTREAM_T_C
 #define ACE_IOSTREAM_T_C
 
 #include "ace/IOStream_T.h"
+#include "ace/OS_Memory.h"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
-ACE_RCSID(ace, IOStream_T, "IOStream_T.cpp,v 4.21 2003/07/16 12:37:24 dhinton Exp")
+ACE_RCSID(ace, IOStream_T, "IOStream_T.cpp,v 4.24 2004/12/17 13:18:12 jwillemsen Exp")
 
 #if !defined (ACE_LACKS_ACE_IOSTREAM)
 
-#if defined (__GNUG__)
-# if !defined (ACE_IOSTREAM_T_H)
-    // _Only_ define this when compiling this .cpp file standalone, not
-    // when instantiating templates.  Its purpose is to provide something
-    // for global constructors and destructors to be tied to.  Without it,
-    // they would be tied to the file(name).  With Cygnus g++ 2.7.2/VxWorks,
-    // that name is used directly in variable names in the munched ctor/dtor
-    // file.  That name contains a ".", so it's not a legal C variable name.
-    // The root of all this trouble is a static instance (of Iostream_init)
-    // declared in the iostream.h header file.
-    int ACE_IOStream_global_of_builtin_type_to_avoid_munch_problems = 0;
-# endif /* ! ACE_IOSTREAM_T_H */
-#endif /*__GNUG__ */
-
 #if !defined (__ACE_INLINE__)
-#include "ace/IOStream_T.i"
+#include "ace/IOStream_T.inl"
 #endif /* !__ACE_INLINE__ */
 
 // We will be given a STREAM by the iostream object which creates us.

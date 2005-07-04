@@ -4,7 +4,7 @@
 /**
  *  @file    SOCK_Connector.h
  *
- *  SOCK_Connector.h,v 4.32 2003/07/19 19:04:13 dhinton Exp
+ *  SOCK_Connector.h,v 4.35 2004/06/16 07:57:22 jwillemsen Exp
  *
  *  @author Doug Schmidt <schmidt@cs.wustl.edu>
  */
@@ -20,7 +20,8 @@
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
-#include "ace/Time_Value.h"
+class ACE_QoS_Params;
+class ACE_Time_Value;
 
 /**
  * @class ACE_SOCK_Connector
@@ -316,9 +317,9 @@ protected:
                              int result);
 };
 
-#if !defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/SOCK_Connector.i"
-#endif
+#if defined (__ACE_INLINE__)
+#include "ace/SOCK_Connector.inl"
+#endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"
 #endif /* ACE_SOCK_CONNECTOR_H */

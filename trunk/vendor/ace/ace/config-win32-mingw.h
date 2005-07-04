@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// config-win32-mingw.h,v 4.19 2003/11/05 14:06:25 jwillemsen Exp
+// config-win32-mingw.h,v 4.24 2004/12/06 11:33:35 jwillemsen Exp
 
 //
 // The following configuration file is designed to work for win32
@@ -41,8 +41,20 @@
 
 #if (__MINGW32_MAJOR_VERSION >= 3)
 #  define ACE_HAS_SSIZE_T
+#  undef ACE_LACKS_STRUCT_DIR
+#  undef ACE_LACKS_OPENDIR
+#  undef ACE_LACKS_CLOSEDIR
+#  undef ACE_LACKS_READDIR
+#  undef ACE_LACKS_TELLDIR
+#  undef ACE_LACKS_SEEKDIR
+#  undef ACE_LACKS_REWINDDIR
+#else
+#  define ACE_LACKS_DIRENT_H
 #endif
 
+#undef ACE_LACKS_SIGSET
+
+#define ACE_LACKS_SIGSET_DEFINITIONS
 #define ACE_LACKS_SYS_SHM_H
 #define ACE_LACKS_TERMIOS_H
 #define ACE_LACKS_NETINET_TCP_H
@@ -55,7 +67,6 @@
 #define ACE_LACKS_SYS_MSG_H
 #define ACE_LACKS_PWD_H
 #define ACE_LACKS_SEMAPHORE_H
-#define ACE_LACKS_DIRENT_H
 #define ACE_LACKS_UCONTEXT_H
 #define ACE_LACKS_SYS_SELECT_H
 #define ACE_LACKS_SYS_RESOURCE_H
@@ -87,7 +98,8 @@
 # endif
 #endif
 
-#define ACE_DLL_PREFIX ACE_LIB_TEXT ("lib")
+#define ACE_INT64_FORMAT_SPECIFIER ACE_LIB_TEXT ("%I64d")
+#define ACE_UINT64_FORMAT_SPECIFIER ACE_LIB_TEXT ("%I64u")
 
 #define ACE_ENDTHREADEX(STATUS)  ::_endthreadex ((DWORD) (STATUS))
 

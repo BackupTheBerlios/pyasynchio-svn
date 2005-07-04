@@ -1,14 +1,14 @@
 // FIFO_Send.cpp
-// FIFO_Send.cpp,v 4.11 2003/07/27 20:48:24 dhinton Exp
+// FIFO_Send.cpp,v 4.13 2004/06/16 07:57:20 jwillemsen Exp
 
 #include "ace/FIFO_Send.h"
 #include "ace/Log_Msg.h"
 
-#if defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/FIFO_Send.i"
-#endif
+#if !defined (__ACE_INLINE__)
+#include "ace/FIFO_Send.inl"
+#endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, FIFO_Send, "FIFO_Send.cpp,v 4.11 2003/07/27 20:48:24 dhinton Exp")
+ACE_RCSID(ace, FIFO_Send, "FIFO_Send.cpp,v 4.13 2004/06/16 07:57:20 jwillemsen Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_FIFO_Send)
 

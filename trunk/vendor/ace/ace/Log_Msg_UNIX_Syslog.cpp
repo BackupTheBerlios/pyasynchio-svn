@@ -1,4 +1,4 @@
-// Log_Msg_UNIX_Syslog.cpp,v 4.8 2003/11/01 11:15:13 dhinton Exp
+// Log_Msg_UNIX_Syslog.cpp,v 4.11 2004/08/24 18:13:29 shuston Exp
 
 #include "ace/config-all.h"
 
@@ -8,6 +8,7 @@
 #include "ace/Log_Msg.h"
 #include "ace/Log_Msg_UNIX_Syslog.h"
 #include "ace/Log_Record.h"
+#include "ace/OS_NS_string.h"
 #include "ace/os_include/os_syslog.h"
 
 // NOTE:
@@ -40,9 +41,15 @@ ACE_Log_Msg_UNIX_Syslog::open (const ACE_TCHAR * logger_key)
   // options LOG_CONS and LOG_PID to be set.  There really should be a
   // logging strategy option to control the syslog log options,
   // however, we'll take the easy way out for now.
-  openlog (ACE_const_cast (char *, logger_key),
+#if defined (ACE_USES_WCHAR)
+  openlog (ACE_TEXT_ALWAYS_CHAR (logger_key),
            LOG_CONS|LOG_PID,
            ACE_DEFAULT_SYSLOG_FACILITY);
+#else
+  openlog (const_cast<char *> (logger_key),
+           LOG_CONS|LOG_PID,
+           ACE_DEFAULT_SYSLOG_FACILITY);
+#endif /* ACE_USES_WCHAR */
 
   // Enable logging of all syslog priorities.  If logging of all
   // priorities is not desired, use the ACE_Log_Msg::priority_mask()
@@ -102,14 +109,18 @@ ACE_Log_Msg_UNIX_Syslog::log (ACE_Log_Record &log_record)
           || ACE_BIT_ENABLED (flags, ACE_Log_Msg::VERBOSE_LITE))
         {
           ACE_TCHAR date_and_time[35];
+          if (0 == ACE::timestamp (date_and_time, sizeof (date_and_time), 1))
+            ACE_OS::strcpy (date_and_time, ACE_LIB_TEXT ("<time error>"));
+          const ACE_TCHAR *prio_name =
+            ACE_Log_Record::priority_name(ACE_Log_Priority(log_record.type()));
           syslog (syslog_priority,
-                  ACE_LIB_TEXT ("%s: %s: %s"),
-                  ACE::timestamp (date_and_time, sizeof (date_and_time), 1),
-                  ACE_Log_Record::priority_name (ACE_Log_Priority(log_record.type ())),
-                  line);
+                  "%s: %s: %s",
+                  ACE_TEXT_ALWAYS_CHAR (date_and_time),
+                  ACE_TEXT_ALWAYS_CHAR (prio_name),
+                  ACE_TEXT_ALWAYS_CHAR (line));
         }
       else // No formatting required.
-        syslog (syslog_priority, ACE_LIB_TEXT ("%s"), line);
+        syslog (syslog_priority, "%s", ACE_TEXT_ALWAYS_CHAR (line));
     }
 
   return 0;

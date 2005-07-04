@@ -1,17 +1,18 @@
-// TLI_Stream.cpp,v 4.13 2003/12/22 22:50:34 shuston Exp
+// TLI_Stream.cpp,v 4.15 2004/06/16 07:57:21 jwillemsen Exp
 
 /* Defines the member functions for the base class of the ACE_TLI_Stream
    abstraction. */
 
 #include "ace/TLI_Stream.h"
 #include "ace/ACE.h"
+#include "ace/OS_NS_unistd.h"
 
-ACE_RCSID(ace, TLI_Stream, "TLI_Stream.cpp,v 4.13 2003/12/22 22:50:34 shuston Exp")
+ACE_RCSID(ace, TLI_Stream, "TLI_Stream.cpp,v 4.15 2004/06/16 07:57:21 jwillemsen Exp")
 
 #if defined (ACE_HAS_TLI)
 
 #if !defined (__ACE_INLINE__)
-#include "ace/TLI_Stream.i"
+#include "ace/TLI_Stream.inl"
 #endif /* __ACE_INLINE__ */
 
 ACE_ALLOC_HOOK_DEFINE(ACE_TLI_Stream)

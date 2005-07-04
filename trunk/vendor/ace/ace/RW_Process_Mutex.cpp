@@ -1,16 +1,20 @@
-// RW_Process_Mutex.cpp,v 4.9 2003/12/19 01:28:02 dhinton Exp
+// RW_Process_Mutex.cpp,v 4.11 2004/06/14 13:58:41 jwillemsen Exp
 
 #include "ace/RW_Process_Mutex.h"
 #include "ace/Log_Msg.h"
 #include "ace/ACE.h"
 
-ACE_RCSID(ace, RW_Process_Mutex, "RW_Process_Mutex.cpp,v 4.9 2003/12/19 01:28:02 dhinton Exp")
+ACE_RCSID(ace, RW_Process_Mutex, "RW_Process_Mutex.cpp,v 4.11 2004/06/14 13:58:41 jwillemsen Exp")
 
 #if !defined (__ACE_INLINE__)
 #include "ace/RW_Process_Mutex.inl"
 #endif /* __ACE_INLINE__ */
 
 #include "ace/Malloc_T.h"
+
+#if defined (ACE_WIN32)
+#include "ace/OS_NS_fcntl.h"
+#endif /* ACE_WIN32 */
 
 ACE_ALLOC_HOOK_DEFINE(ACE_RW_Process_Mutex)
 
@@ -22,13 +26,9 @@ ACE_RW_Process_Mutex::unique_name (void)
 }
 
 ACE_RW_Process_Mutex::ACE_RW_Process_Mutex (const ACE_TCHAR *name,
-                                            int flags)
-  : lock_ (name ? name : this->unique_name (), flags
-#if defined (ACE_WIN32)
-           , ACE_DEFAULT_OPEN_PERMS)
-#else
-           , S_IRUSR | S_IWUSR)
-#endif /* ACE_WIN32 */
+                                            int flags,
+	                                        mode_t mode )
+  : lock_ (name ? name : this->unique_name (), flags, mode)
 {
 // ACE_TRACE ("ACE_RW_Process_Mutex::ACE_RW_Process_Mutex");
 }

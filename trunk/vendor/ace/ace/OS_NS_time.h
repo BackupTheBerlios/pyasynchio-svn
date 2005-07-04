@@ -4,7 +4,7 @@
 /**
  *  @file   OS_NS_time.h
  *
- *  OS_NS_time.h,v 1.4 2003/11/05 21:54:33 dhinton Exp
+ *  OS_NS_time.h,v 1.12 2004/11/12 00:03:08 gmaxey Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  *  @author Jesper S. M|ller<stophph@diku.dk>
@@ -25,6 +25,7 @@
 #  pragma once
 # endif /* ACE_LACKS_PRAGMA_ONCE */
 
+#include "ace/OS_NS_errno.h"
 #include "ace/Basic_Types.h"
 #include "ace/os_include/os_time.h"
 #include "ace/ACE_export.h"
@@ -105,10 +106,6 @@ private:
 #endif /* ACE_PSOS_HAS_TIME */
 
 #if defined (ACE_HAS_WINCE)
-  /// Supporting data for ctime and ctime_r functions on WinCE.
-  const wchar_t *day_of_week_name[7];
-  const wchar_t *month_name[12];
-
 // WinCE doesn't have most of the standard C library time functions. It
 // also doesn't define struct tm. SYSTEMTIME has pretty much the same
 // info though, so we can map it when needed. Define struct tm here and
@@ -137,35 +134,35 @@ struct tm {
  */
 inline long ace_timezone()
 {
-#if !defined (VXWORKS) && !defined (ACE_PSOS) && !defined (CHORUS)
-# if defined (ACE_HAS_WINCE)
+#if defined (ACE_HAS_WINCE)
   TIME_ZONE_INFORMATION tz;
   GetTimeZoneInformation (&tz);
   return tz.Bias * 60;
-# elif defined (ACE_WIN32)
+#elif defined (ACE_WIN32) && !defined (ACE_HAS_DINKUM_STL)
   return _timezone;  // For Win32.
-# elif ( defined (__Lynx__) || defined (__FreeBSD__) || defined (ACE_HAS_SUNOS4_GETTIMEOFDAY) ) && ( !defined (__linux__) )
+#elif defined (ACE_WIN32) && defined (ACE_HAS_DINKUM_STL)
+  time_t tod = time(0);   // get current time
+  time_t t1 = mktime(gmtime(&tod));   // convert without timezone
+  time_t t2 = mktime(localtime(&tod));   // convert with timezone
+  return difftime(t1, t2); // compute difference in seconds
+#elif defined (ACE_HAS_TIMEZONE)
+  // The XPG/POSIX specification requires that tzset() be called to
+  // set the global variable <timezone>.
+  ::tzset();
+  return timezone;
+#elif defined (ACE_HAS_TIMEZONE_GETTIMEOFDAY)
+  // The XPG/POSIX specification does not require gettimeofday to
+  // set the timezone struct (it leaves the behavior of passing a
+  // non-null struct undefined). 
   long result = 0;
   struct timeval time;
   struct timezone zone;
   ACE_UNUSED_ARG (result);
   ACE_OSCALL (::gettimeofday (&time, &zone), int, -1, result);
   return zone.tz_minuteswest * 60;
-# else  /* __Lynx__ || __FreeBSD__ ... */
-# if defined (__linux__)
-  // Under Linux, gettimeofday() does not correctly set the timezone
-  // struct, so we should use the global variable <timezone>.
-  // However, it is initialized by tzset().  I assume other systems
-  // are the same (i.e., tzset() needs to be called to set
-  // <timezone>), but since no one is complaining, I will only make
-  // the change for Linux.
-  ::tzset();
-# endif
-  return timezone;
-# endif /* __Lynx__ || __FreeBSD__ ... */
-#else
+#else  
   ACE_NOTSUP_RETURN (0);
-#endif /* !ACE_HAS_WINCE && !VXWORKS && !ACE_PSOS */
+#endif
 }
 
 
@@ -204,6 +201,8 @@ typedef ACE_UINT64 ACE_hrtime_t;
 #   endif // ACE_LACKS_LONGLONG_T
 # elif defined (ACE_PSOS)
 typedef ACE_UINT64 ACE_hrtime_t;
+# elif defined (_TNS_R_TARGET)
+typedef long long ACE_hrtime_t;
 # else /* !ACE_WIN32 && !ACE_PSOS */
 #   if defined (ACE_HAS_HI_RES_TIMER) &&  !defined (ACE_LACKS_LONGLONG_T)
   /* hrtime_t is defined on systems (Suns) with ACE_HAS_HI_RES_TIMER */
@@ -214,8 +213,22 @@ typedef ACE_UINT64 ACE_hrtime_t;
 # endif /* ACE_WIN32 */
 
 
+# if defined (ACE_HRTIME_T_IS_BASIC_TYPE)
+#   define ACE_HRTIME_CONVERSION(VAL) (VAL)
+#   define ACE_HRTIME_TO_U64(VAL) ACE_U_LongLong(VAL)
+# else
+#   define ACE_HRTIME_CONVERSION(VAL) ACE_U64_TO_U32(VAL)
+#   define ACE_HRTIME_TO_U64(VAL) (VAL)
+# endif
+
 
 namespace ACE_OS {
+
+# if defined (ACE_HAS_WINCE)
+  /// Supporting data for ctime and ctime_r functions on WinCE.
+  const wchar_t *day_of_week_name[];
+  const wchar_t *month_name[];
+# endif /* ACE_HAS_WINCE */
 
 # if defined (CHORUS) && !defined (CHORUS_4)
   // We must format this code as follows to avoid confusing OSE.
@@ -292,11 +305,11 @@ namespace ACE_OS {
   int nanosleep (const struct timespec *requested,
                  struct timespec *remaining = 0);
 
-# if defined (ACE_HAS_POWERPC_TIMER) && (defined (ghs) || defined (__GNUG__))
+# if defined (ACE_HAS_POWERPC_TIMER) && defined (ghs)
   extern ACE_Export
   void readPPCTimeBase (u_long &most,
                         u_long &least);
-# endif /* ACE_HAS_POWERPC_TIMER  &&  (ghs or __GNUG__) */
+# endif /* ACE_HAS_POWERPC_TIMER && ghs */
 
   ACE_NAMESPACE_INLINE_FUNCTION
   size_t strftime (char *s,

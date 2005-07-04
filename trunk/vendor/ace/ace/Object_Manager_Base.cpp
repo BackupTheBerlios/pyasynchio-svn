@@ -1,13 +1,9 @@
 // -*- C++ -*-
-// Object_Manager_Base.cpp,v 1.5 2003/11/04 07:05:40 jwillemsen Exp
+// Object_Manager_Base.cpp,v 1.8 2004/08/24 18:13:29 shuston Exp
 
 #include "ace/Object_Manager_Base.h"
 
-ACE_RCSID(ace, Object_Manager_Base, "Object_Manager_Base.cpp,v 1.5 2003/11/04 07:05:40 jwillemsen Exp")
-
-#if !defined (ACE_HAS_INLINED_OSCALLS)
-# include "ace/Object_Manager_Base.inl"
-#endif /* ACE_HAS_INLINED_OS_CALLS */
+ACE_RCSID(ace, Object_Manager_Base, "Object_Manager_Base.cpp,v 1.8 2004/08/24 18:13:29 shuston Exp")
 
 #include "ace/OS_Memory.h"
 #include "ace/OS_NS_Thread.h"
@@ -412,7 +408,7 @@ ACE_OS_Object_Manager::print_error_message (u_int line_number,
 #if !defined (ACE_HAS_WINCE)
   fprintf (stderr, "ace/OS.cpp, line %u: %s ",
            line_number,
-           message);
+           ACE_TEXT_ALWAYS_CHAR (message));
   perror ("failed");
 #else
   // @@ Need to use the following information.
@@ -459,7 +455,7 @@ ACE_OS_Object_Manager::shutting_down (void)
 /**
  * @class ACE_OS_Object_Manager_Manager
  *
- * @brief Ensure that the <ACE_OS_Object_Manager> gets initialized at
+ * @brief Ensure that the ACE_OS_Object_Manager gets initialized at
  * program startup, and destroyed at program termination.
  *
  * Without ACE_HAS_NONSTATIC_OBJECT_MANAGER, a static instance of this

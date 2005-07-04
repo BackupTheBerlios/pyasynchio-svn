@@ -4,7 +4,7 @@
 /**
  *  @file    DEV_Addr.h
  *
- *  DEV_Addr.h,v 4.17 2003/07/19 19:04:11 dhinton Exp
+ *  DEV_Addr.h,v 4.22 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Gerhard Lenzer and Douglas C. Schmidt
  */
@@ -43,7 +43,7 @@ public:
   int set (const ACE_DEV_Addr &sa);
 
   /// Create a ACE_DEV_Addr from a device name.
-  ACE_EXPLICIT ACE_DEV_Addr (const ACE_TCHAR *devname);
+  explicit ACE_DEV_Addr (const ACE_TCHAR *devname);
 
   /// Create a ACE_Addr from a ACE_DEV pathname.
   void set (const ACE_TCHAR *devname);
@@ -58,10 +58,10 @@ public:
   virtual int addr_to_string (ACE_TCHAR *addr, size_t) const;
 
   /// Compare two addresses for equality.
-  int operator == (const ACE_DEV_Addr &SAP) const;
+  bool operator == (const ACE_DEV_Addr &SAP) const;
 
   /// Compare two addresses for inequality.
-  int operator != (const ACE_DEV_Addr &SAP) const;
+  bool operator != (const ACE_DEV_Addr &SAP) const;
 
   /// Return the path name used for the rendezvous point.
   const ACE_TCHAR *get_path_name (void) const;
@@ -74,11 +74,11 @@ public:
 
 private:
   /// Name of the device.
-  ACE_TCHAR devname_[MAXNAMLEN + 1];
+  ACE_TCHAR devname_[MAXPATHLEN + 1];
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/DEV_Addr.i"
+#include "ace/DEV_Addr.inl"
 #endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"

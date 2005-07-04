@@ -9,14 +9,14 @@
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Atomic_Op_T.i"
+#include "ace/Atomic_Op_T.inl"
 #endif /* __ACE_INLINE__ */
 
 
 ACE_ALLOC_HOOK_DEFINE(ACE_Atomic_Op_Ex)
 ACE_ALLOC_HOOK_DEFINE(ACE_Atomic_Op)
 
-ACE_RCSID(ace, Atomic_Op_T, "Atomic_Op_T.cpp,v 4.3 2003/07/27 20:48:24 dhinton Exp")
+ACE_RCSID(ace, Atomic_Op_T, "Atomic_Op_T.cpp,v 4.4 2004/06/16 07:57:20 jwillemsen Exp")
 
 // *************************************************
 template <class ACE_LOCK, class TYPE> ACE_LOCK &

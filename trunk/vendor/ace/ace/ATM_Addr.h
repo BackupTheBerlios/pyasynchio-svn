@@ -4,7 +4,7 @@
 /**
  *  @file    ATM_Addr.h
  *
- *  ATM_Addr.h,v 4.18 2003/07/19 19:04:10 dhinton Exp
+ *  ATM_Addr.h,v 4.20 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Joe Hoffert <joeh@cs.wustl.edu>
  */
@@ -156,10 +156,10 @@ public:
    * equal if they contain the same ATM address.  Q: Is there any
    * other check for equality needed for ATM?
    */
-  int operator == (const ACE_ATM_Addr &SAP) const;
+  bool operator == (const ACE_ATM_Addr &SAP) const;
 
   /// Compare two addresses for inequality.
-  int operator != (const ACE_ATM_Addr &SAP) const;
+  bool operator != (const ACE_ATM_Addr &SAP) const;
 
   /// Dump the state of an object.
   void dump (void) const;
@@ -178,7 +178,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/ATM_Addr.i"
+#include "ace/ATM_Addr.inl"
 #endif /* __ACE_INLINE__ */
 
 #endif /* ACE_HAS_ATM */

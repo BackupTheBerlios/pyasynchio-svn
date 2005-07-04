@@ -4,7 +4,7 @@
 /**
  *  @file    Message_Queue_T.h
  *
- *  Message_Queue_T.h,v 4.49 2003/08/04 03:53:51 dhinton Exp
+ *  Message_Queue_T.h,v 4.53 2004/11/21 16:38:48 schmidt Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -233,13 +233,14 @@ public:
                             ACE_Time_Value *timeout = 0);
 
   /**
-   * Dequeue and return the <ACE_Message_Block *> that has the lowest
-   * priority.  Note that <timeout> uses <{absolute}> time rather than
-   * <{relative}> time.  If the <timeout> elapses without receiving a
-   * message -1 is returned and <errno> is set to <EWOULDBLOCK>.  If
-   * the queue is deactivated -1 is returned and <errno> is set to
-   * <ESHUTDOWN>.  Otherwise, returns -1 on failure, else the number
-   * of items still on the queue.
+   * Dequeue and return earliest the <ACE_Message_Block *> that has
+   * the lowest priority (i.e., preserves FIFO order for messages with
+   * the same priority).  Note that <timeout> uses <{absolute}> time
+   * rather than <{relative}> time.  If the <timeout> elapses without
+   * receiving a message -1 is returned and <errno> is set to
+   * <EWOULDBLOCK>.  If the queue is deactivated -1 is returned and
+   * <errno> is set to <ESHUTDOWN>.  Otherwise, returns -1 on failure,
+   * else the number of items still on the queue.
    */
   virtual int dequeue_prio (ACE_Message_Block *&first_item,
                             ACE_Time_Value *timeout = 0);
@@ -258,7 +259,7 @@ public:
 
   /**
    * Dequeue and return the <ACE_Message_Block *> with the lowest
-   * deadlien time.  Note that <timeout> uses <{absolute}> time rather than
+   * deadline time.  Note that <timeout> uses <{absolute}> time rather than
    * <{relative}> time.  If the <timeout> elapses without receiving a
    * message -1 is returned and <errno> is set to <EWOULDBLOCK>.  If
    * the queue is deactivated -1 is returned and <errno> is set to
@@ -280,11 +281,13 @@ public:
    * block sizes.
    */
   virtual size_t message_bytes (void);
+
   /**
    * Number of total length on the queue, i.e., sum of the message
    * block lengths.
    */
   virtual size_t message_length (void);
+
   /**
    * Number of total messages on the queue.
    */
@@ -1216,13 +1219,13 @@ public:
   /// Declare the dynamic allocation hooks.
   ACE_ALLOC_HOOK_DECLARE;
 
-private:
+protected:
   /// Implement this via an <ACE_Message_Queue>.
   ACE_Message_Queue<ACE_SYNCH_USE> queue_;
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Message_Queue_T.i"
+#include "ace/Message_Queue_T.inl"
 #endif /* __ACE_INLINE__ */
 
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)

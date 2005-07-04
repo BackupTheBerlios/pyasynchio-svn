@@ -6,7 +6,7 @@
 
 ACE_RCSID (ace,
            Arg_Shifter,
-           "Arg_Shifter.cpp,v 4.22 2003/11/01 11:15:12 dhinton Exp")
+           "Arg_Shifter.cpp,v 4.24 2004/05/05 21:16:27 ossama Exp")
 
 
 ACE_Arg_Shifter::ACE_Arg_Shifter (int& argc,
@@ -37,10 +37,10 @@ ACE_Arg_Shifter::ACE_Arg_Shifter (int& argc,
   this->init ();
 }
 
-void 
-ACE_Arg_Shifter::init (void) 
-{ 
-  // If not provided with one, allocate a temporary array.  
+void
+ACE_Arg_Shifter::init (void)
+{
+  // If not provided with one, allocate a temporary array.
   if (this->temp_ == 0)
     ACE_NEW (this->temp_,
              const ACE_TCHAR *[this->total_size_]);
@@ -133,7 +133,7 @@ ACE_Arg_Shifter::cur_arg_strncasecmp (const ACE_TCHAR *flag)
               size_t remaining = ACE_OS::strspn
                 (this->temp_[current_index_] + flag_length,
 		 ACE_LIB_TEXT (" ")) + flag_length;
-              return ACE_static_cast (int, remaining);
+              return static_cast<int> (remaining);
 	    }
 	}
     }

@@ -1,4 +1,4 @@
-//Cached_Connect_Strategy_T.cpp,v 4.33 2003/08/04 03:53:50 dhinton Exp
+//Cached_Connect_Strategy_T.cpp,v 4.35 2004/05/13 07:21:49 jwillemsen Exp
 
 #ifndef CACHED_CONNECT_STRATEGY_T_C
 #define CACHED_CONNECT_STRATEGY_T_C
@@ -16,7 +16,7 @@
 #include "ace/WFMO_Reactor.h"
 #include "ace/Pair_T.h"
 
-ACE_RCSID(ace, Cached_Connect_Strategy_T, "Cached_Connect_Strategy_T.cpp,v 4.33 2003/08/04 03:53:50 dhinton Exp")
+ACE_RCSID(ace, Cached_Connect_Strategy_T, "Cached_Connect_Strategy_T.cpp,v 4.35 2004/05/13 07:21:49 jwillemsen Exp")
 
 #define ACE_T1 class SVC_HANDLER, ACE_PEER_CONNECTOR_1, class CACHING_STRATEGY, class ATTRIBUTES, class MUTEX
 #define ACE_T2 SVC_HANDLER, ACE_PEER_CONNECTOR_2, CACHING_STRATEGY, ATTRIBUTES, MUTEX
@@ -328,7 +328,6 @@ ACE_Cached_Connect_Strategy_Ex<ACE_T2>::connect_svc_handler_i
   // Check if the user passed a hint svc_handler
   if (sh != 0)
     {
-
       int result = this->check_hint_i (sh,
                                        remote_addr,
                                        timeout,
@@ -358,14 +357,13 @@ ACE_Cached_Connect_Strategy_Ex<ACE_T2>::connect_svc_handler_i
       if (result != 0)
         return result;
 
+      // Increment the refcount
+      entry->ext_id_.increment ();
     }
 
   // For all successful cases: mark the <svc_handler> in the cache
   // as being <in_use>.  Therefore recyclable is BUSY.
   entry->ext_id_.recycle_state (ACE_RECYCLABLE_BUSY);
-
-  // And increment the refcount
-  entry->ext_id_.increment ();
 
   return 0;
 }
@@ -529,46 +527,8 @@ ACE_Cached_Connect_Strategy_Ex<ACE_T2>::cleanup (void)
 {
   // Excluded other threads from changing the cache while we cleanup
   ACE_GUARD (MUTEX, ace_mon, *this->lock_);
+
   // Close down all cached service handlers.
-#if defined (ACE_HAS_BROKEN_EXTENDED_TEMPLATES)
-
-  typedef ACE_Hash_Map_Iterator_Ex<REFCOUNTED_HASH_RECYCLABLE_ADDRESS,
-                                   ACE_Pair<SVC_HANDLER *, ATTRIBUTES>,
-                                   ACE_Hash<REFCOUNTED_HASH_RECYCLABLE_ADDRESS>,
-                                   ACE_Equal_To<REFCOUNTED_HASH_RECYCLABLE_ADDRESS>,
-                                   ACE_Null_Mutex>
-    CONNECTION_MAP_ITERATOR;
-
-  // CONNECTION_MAP_ITERATOR end = this->connection_cache_.map ().end ();
-  CONNECTION_MAP_ITERATOR iter = this->connection_cache_.map ().begin ();
-
-
-  while (iter != this->connection_cache_.map ().end ())
-   {
-     if ((*iter).int_id_.first () != 0)
-       {
-         // save entry for future use
-         CONNECTION_CACHE_ENTRY *entry = (CONNECTION_CACHE_ENTRY *)
-           (*iter).int_id_.first ()->recycling_act ();
-
-         // close handler
-         (*iter).int_id_.first ()->recycler (0, 0);
-         (*iter).int_id_.first ()->close ();
-
-         // remember next iter
-         CONNECTION_MAP_ITERATOR next_iter = iter;
-         ++next_iter;
-
-         // purge the item from the hash
-         this->purge_i (entry);
-
-         // assign next iter
-         iter  = next_iter;
-     }
-     else
-       ++iter;
-   }
-#else  /* ACE_HAS_BROKEN_EXTENDED_TEMPLATES */
   ACE_TYPENAME CONNECTION_CACHE::ITERATOR iter =
     this->connection_cache_.begin ();
   while (iter != this->connection_cache_.end ())
@@ -596,8 +556,6 @@ ACE_Cached_Connect_Strategy_Ex<ACE_T2>::cleanup (void)
      else
        ++iter;
     }
-#endif /* ACE_HAS_BROKEN_EXTENDED_TEMPLATES */
-
 }
 
 ACE_ALLOC_HOOK_DEFINE(ACE_Cached_Connect_Strategy_Ex)

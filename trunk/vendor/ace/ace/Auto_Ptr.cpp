@@ -1,5 +1,5 @@
 // Auto_Ptr.cpp
-// Auto_Ptr.cpp,v 4.10 2003/07/27 20:48:24 dhinton Exp
+// Auto_Ptr.cpp,v 4.11 2004/06/16 07:57:20 jwillemsen Exp
 
 #if !defined (ACE_AUTO_PTR_C)
 #define ACE_AUTO_PTR_C
@@ -7,10 +7,10 @@
 #include "ace/Auto_Ptr.h"
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Auto_Ptr.i"
+#include "ace/Auto_Ptr.inl"
 #endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, Auto_Ptr, "Auto_Ptr.cpp,v 4.10 2003/07/27 20:48:24 dhinton Exp")
+ACE_RCSID(ace, Auto_Ptr, "Auto_Ptr.cpp,v 4.11 2004/06/16 07:57:20 jwillemsen Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_Auto_Basic_Ptr)
 

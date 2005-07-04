@@ -4,7 +4,7 @@
 /**
  *  @file    Stream_Modules.h
  *
- *  Stream_Modules.h,v 4.20 2003/07/19 19:04:13 dhinton Exp
+ *  Stream_Modules.h,v 4.21 2004/09/23 19:56:15 jwillemsen Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -24,7 +24,7 @@
 /**
  * @class ACE_Stream_Head
  *
- * @brief Standard module that acts as the head of a ustream.
+ * @brief Standard module that acts as the head of a stream.
  */
 template <ACE_SYNCH_DECL>
 class ACE_Stream_Head : public ACE_Task<ACE_SYNCH_USE>
@@ -62,7 +62,7 @@ private:
 /**
  * @class ACE_Stream_Tail
  *
- * @brief Standard module that acts as the head of a ustream.
+ * @brief Standard module that acts as the head of a stream.
  */
 template <ACE_SYNCH_DECL>
 class ACE_Stream_Tail : public ACE_Task<ACE_SYNCH_USE>

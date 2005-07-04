@@ -1,14 +1,15 @@
 #include "ace/Synch_Options.h"
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Synch_Options.i"
+#include "ace/Synch_Options.inl"
 #endif /* __ACE_INLINE__ */
 
 #include "ace/Global_Macros.h"
+#include "ace/config-all.h"
 
 ACE_RCSID (ace,
            Synch_Options,
-           "Synch_Options.cpp,v 4.10 2003/07/30 21:15:59 dhinton Exp")
+           "Synch_Options.cpp,v 4.12 2004/09/01 06:54:33 jwillemsen Exp")
 
 
 ACE_ALLOC_HOOK_DEFINE (ACE_Synch_Options)

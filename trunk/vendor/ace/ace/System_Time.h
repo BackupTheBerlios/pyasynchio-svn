@@ -5,13 +5,12 @@
 /**
  *  @file    System_Time.h
  *
- *  System_Time.h,v 4.20 2003/11/01 11:15:17 dhinton Exp
+ *  System_Time.h,v 4.21 2004/08/04 16:25:42 schmidt Exp
  *
  *  @author Prashant Jain
  *  @author Tim H. Harrison and Douglas C. Schmidt
  */
 //=============================================================================
-
 
 #ifndef ACE_SYSTEM_TIME_H
 #define ACE_SYSTEM_TIME_H

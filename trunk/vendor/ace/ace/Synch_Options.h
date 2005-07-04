@@ -4,7 +4,7 @@
 /**
  *  @file   Synch_Options.h
  *
- *  Synch_Options.h,v 4.19 2003/07/19 19:04:13 dhinton Exp
+ *  Synch_Options.h,v 4.21 2004/06/28 12:14:56 jwillemsen Exp
  *
  *  @author Douglas C. Schmidt <schmidt@uci.edu>
  */
@@ -101,11 +101,11 @@ public:
   /// Set the "magic cookie" argument.
   void arg (const void *);
 
-  /// Returns a reference to the <Time_Value>.  This value only makes
+  /// Returns a reference to the ACE_Time_Value.  This value only makes
   /// sense if (*this)[USE_TIMEOUT] is true.
   const ACE_Time_Value &timeout (void) const;
 
-  /// Set the <Time_Value>.
+  /// Set the ACE_Time_Value.
   void timeout (const ACE_Time_Value &tv);
 
   /**
@@ -150,7 +150,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Synch_Options.i"
+#include "ace/Synch_Options.inl"
 #endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"

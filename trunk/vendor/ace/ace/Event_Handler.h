@@ -4,7 +4,7 @@
 /**
  *  @file    Event_Handler.h
  *
- *  Event_Handler.h,v 4.52 2003/08/04 03:53:51 dhinton Exp
+ *  Event_Handler.h,v 4.53 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -377,7 +377,7 @@ public:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Event_Handler.i"
+#include "ace/Event_Handler.inl"
 #endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"

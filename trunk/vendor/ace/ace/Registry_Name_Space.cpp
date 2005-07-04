@@ -1,8 +1,8 @@
-// Registry_Name_Space.cpp,v 4.16 2003/07/27 20:48:27 dhinton Exp
+// Registry_Name_Space.cpp,v 4.17 2004/05/14 20:18:22 shuston Exp
 
 #include "ace/Registry_Name_Space.h"
 
-ACE_RCSID(ace, Registry_Name_Space, "Registry_Name_Space.cpp,v 4.16 2003/07/27 20:48:27 dhinton Exp")
+ACE_RCSID(ace, Registry_Name_Space, "Registry_Name_Space.cpp,v 4.17 2004/05/14 20:18:22 shuston Exp")
 
 #if (defined (ACE_WIN32) && defined (UNICODE))
 // This only works on Win32 platforms when UNICODE is turned on
@@ -67,11 +67,11 @@ ACE_Registry_Name_Space::bind (const ACE_NS_WString &name,
   const ACE_WSTRING_TYPE *data = value.fast_rep ();
 
   // Size
-  u_long size = value.length () * sizeof (ACE_WSTRING_TYPE);
+  size_t size = value.length () * sizeof (ACE_WSTRING_TYPE);
 
   // Represent value as an ACE_Registry::Object
   ACE_Registry::Object object ((void *) data,
-                               size,
+                               static_cast<u_long> (size),
                                REG_SZ);
   // Add new <key>/<value> pair
 #if defined ACE_USES_WCHAR
@@ -95,11 +95,11 @@ ACE_Registry_Name_Space::rebind (const ACE_NS_WString &name,
   const ACE_WSTRING_TYPE *data = value.fast_rep ();
 
   // Size
-  u_long size = value.length () * sizeof (ACE_WSTRING_TYPE);
+  size_t size = value.length () * sizeof (ACE_WSTRING_TYPE);
 
   // Represent value as an ACE_Registry::Object
   ACE_Registry::Object object ((void *) data,
-                               size,
+                               static_cast<u_long> (size),
                                REG_SZ);
   // Add new <key>/<value> pair
 #if defined (ACE_USES_WCHAR)

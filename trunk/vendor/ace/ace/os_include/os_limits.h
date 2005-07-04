@@ -6,7 +6,7 @@
  *
  *  implementation-defined constants
  *
- *  os_limits.h,v 1.6 2003/11/01 11:15:19 dhinton Exp
+ *  os_limits.h,v 1.12 2004/09/26 18:54:47 jwillemsen Exp
  *
  *  @author Don Hinton <dhinton@dresystems.com>
  *  @author This code was originally in various places including ace/OS.h.
@@ -18,7 +18,7 @@
 
 #include /**/ "ace/pre.h"
 
-#include "ace/config-all.h"
+#include "ace/config-lite.h"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
@@ -31,9 +31,15 @@
 # include /**/ <limits.h>
 #endif /* !ACE_LACKS_LIMITS_H */
 
-#if !defined (ACE_LACKS_PARAM_H)
+#if !defined (ACE_LACKS_SYS_PARAM_H)
 #  include /**/ <sys/param.h>
-#endif /* ACE_LACKS_PARAM_H */
+#endif /* ACE_LACKS_SYS_PARAM_H */
+
+// On VxWorks _POSIX_TIMER_MAX is defined in time.h, report this to WindRiver
+// support.
+#if defined (VXWORKS)
+#  include /**/ <time.h>
+#endif /* VXWORKS */
 
 // Place all additions (especially function declarations) within extern "C" {}
 #ifdef __cplusplus
@@ -118,6 +124,11 @@ extern "C"
 #     define ACE_RTSIG_MAX 8
 #  endif /* _POSIX_RTSIG_MAX */
 #endif /* ACE_HAS_POSIX_REALTIME_SIGNALS */
+
+  // The maximum number of concurrent timers per process.
+# if !defined (_POSIX_TIMER_MAX)
+#   define _POSIX_TIMER_MAX 44
+# endif /* _POSIX_TIMER_MAX */
 
 #ifdef __cplusplus
 }

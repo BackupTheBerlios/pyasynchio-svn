@@ -4,7 +4,7 @@
 /**
  *  @file   Malloc_Allocator.h
  *
- *  Malloc_Allocator.h,v 4.10 2003/11/09 04:12:06 dhinton Exp
+ *  Malloc_Allocator.h,v 4.11 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Based on code that formerly existed in another ACE file.
  */
@@ -134,7 +134,7 @@ protected:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Malloc_Allocator.i"
+#include "ace/Malloc_Allocator.inl"
 #endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"

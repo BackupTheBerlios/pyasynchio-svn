@@ -1,6 +1,6 @@
 // file      : TMCast/Group.cpp
 // author    : Boris Kolpackov <boris@dre.vanderbilt.edu>
-// cvs-id    : Group.cpp,v 1.3 2003/12/17 18:54:57 bala Exp
+// cvs-id    : Group.cpp,v 1.8 2004/09/29 16:34:35 shuston Exp
 
 #include "Group.hpp"
 
@@ -84,7 +84,7 @@ namespace TMCast
                               &thread_) != 0) ::abort ();
     }
 
-    ~Scheduler ()
+    virtual ~Scheduler ()
     {
       {
         MessageQueueAutoLock lock (in_control_);
@@ -109,7 +109,6 @@ namespace TMCast
     thread_thunk (void* arg)
     {
       Scheduler* obj = reinterpret_cast<Scheduler*> (arg);
-
       obj->execute ();
       return 0;
     }
@@ -120,7 +119,6 @@ namespace TMCast
       try
       {
         sock_.join (addr_);
-
         auto_ptr<LinkListener> ll (new LinkListener (sock_, in_link_data_));
 
         {
@@ -149,7 +147,6 @@ namespace TMCast
                 break;
               }
 
-
               // outsync
               //
               //
@@ -160,7 +157,6 @@ namespace TMCast
                 outsync ();
 
                 // schedule next outsync
-
                 sync_schedule =
                   ACE_OS::gettimeofday () +
                   ACE_Time_Value (0, Protocol::SYNC_PERIOD);
@@ -174,7 +170,7 @@ namespace TMCast
                 MessagePtr m (in_link_data_.front ());
                 in_link_data_.pop ();
 
-                std::type_info const* exp (&typeid (*m));
+                std::type_info const* exp = &typeid (*m);
 
                 if (exp == typeid (LinkFailure))
                 {
@@ -184,7 +180,7 @@ namespace TMCast
                 else if (exp == typeid (LinkData))
                 {
 
-                  LinkData* data (dynamic_cast<LinkData*> (m.get ()));
+                  LinkData* data = dynamic_cast<LinkData*> (m.get ());
 
                   // INSYNC, TL, CT
 
@@ -227,7 +223,6 @@ namespace TMCast
       catch (...)
       {
         // cerr << "Exception in scheduler loop." << endl;
-
         MessageQueueAutoLock lock (out_control_);
         out_control_.push (MessagePtr (new Failure));
       }
@@ -272,7 +267,6 @@ namespace TMCast
       fault_detector_.outsync ();
 
       // sock_.send (buf, hdr->length, addr_);
-
       sock_.send (buf, hdr->length);
     }
 
@@ -331,7 +325,7 @@ namespace TMCast
   class Group::GroupImpl
   {
   public:
-    ~GroupImpl ()
+    virtual ~GroupImpl ()
     {
     }
 
@@ -384,7 +378,7 @@ namespace TMCast
           MessagePtr m (in_send_data_.front ());
           in_send_data_.pop ();
 
-          std::type_info const* exp (&typeid (*m));
+          std::type_info const* exp = &typeid (*m);
 
           if (exp == typeid (TMCast::Aborted))
           {
@@ -426,11 +420,11 @@ namespace TMCast
           MessagePtr m (in_recv_data_.front ());
           in_recv_data_.pop ();
 
-          std::type_info const* exp (&typeid (*m));
+          std::type_info const* exp = &typeid (*m);
 
           if (exp == typeid (Recv))
           {
-            Recv* data (dynamic_cast<Recv*> (m.get ()));
+            Recv* data = dynamic_cast<Recv*> (m.get ());
 
             if (size < data->size ()) throw Group::InsufficienSpace ();
 
@@ -506,3 +500,9 @@ namespace TMCast
     return pimpl_->recv (msg, size);
   }
 }
+
+#if defined (ACE_HAS_EXPLICIT_TEMPLATE_INSTANTIATION)
+template class ACE_Condition<ACE_Thread_Mutex>;
+#elif defined (ACE_HAS_TEMPLATE_INSTANTIATION_PRAGMA)
+#pragma instantiate ACE_Condition<ACE_Thread_Mutex>
+#endif /* ACE_HAS_EXPLICIT_TEMPLATE_INSTANTIATION */

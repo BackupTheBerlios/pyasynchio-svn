@@ -6,7 +6,7 @@
  *
  *  signals
  *
- *  os_signal.h,v 1.10 2003/12/09 15:25:41 elliott_c Exp
+ *  os_signal.h,v 1.16 2004/12/06 09:26:29 jwillemsen Exp
  *
  *  @author Don Hinton <dhinton@dresystems.com>
  *  @author This code was originally in various places including ace/OS.h.
@@ -18,14 +18,13 @@
 
 #include /**/ "ace/pre.h"
 
-#include "ace/config-all.h"
+#include "ace/config-lite.h"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
 #include "ace/os_include/sys/os_types.h"
-#include "ace/os_include/os_time.h"
 
 #if !defined (ACE_LACKS_SIGNAL_H)
    extern "C" {
@@ -41,7 +40,7 @@
 
 #if defined (ACE_HAS_SIGINFO_T)
 #  if !defined (ACE_LACKS_SIGINFO_H)
-#    if defined (__QNX__) || defined (__OpenBSD__)
+#    if defined (__QNX__) || defined (__OpenBSD__) || defined (__INTERIX)
 #      include /**/ <sys/siginfo.h>
 #    else  /* __QNX__ || __OpenBSD__ */
 #      include /**/ <siginfo.h>
@@ -67,13 +66,11 @@ extern "C"
 #endif /* __cplusplus */
 
 #if defined (ACE_SIGINFO_IS_SIGINFO_T)
-   typedef struct siginfo siginfo_t;
+  typedef struct siginfo siginfo_t;
 #endif /* ACE_LACKS_SIGINFO_H */
 
 #if defined (ACE_LACKS_SIGSET)
-#  if !defined(__MINGW32__)
-     typedef u_int sigset_t;
-#  endif /* !__MINGW32__*/
+  typedef u_int sigset_t;
 #endif /* ACE_LACKS_SIGSET */
 
 #if defined (ACE_HAS_SIG_MACROS)
@@ -312,7 +309,9 @@ extern "C"
 #  endif /* __rtems__ */
 #endif /* ! DIGITAL_UNIX && ! ACE_HAS_SIGWAIT */
 
+#if !defined (ACE_HAS_PTHREAD_SIGMASK_PROTO)
   int pthread_sigmask(int, const sigset_t *, sigset_t *);
+#endif /*!ACE_HAS_PTHREAD_SIGMASK_PROTO */
 
 #ifdef __cplusplus
 }

@@ -1,6 +1,6 @@
 
 // -*- C++ -*-
-// Export.hpp,v 1.1 2003/11/03 23:23:22 boris Exp
+// Export.hpp,v 1.2 2004/01/15 16:05:25 jwillemsen Exp
 // Definition for Win32 Export directives.
 // This file is generated automatically by generate_export_file.pl TMCast
 // ------------------------------
@@ -9,8 +9,12 @@
 
 #include "ace/config-all.h"
 
+#if defined (ACE_AS_STATIC_LIBS) && !defined (TMCAST_HAS_DLL)
+#  define TMCAST_HAS_DLL 0
+#endif /* ACE_AS_STATIC_LIBS && TMCAST_HAS_DLL */
+
 #if !defined (TMCAST_HAS_DLL)
-#  define TMCAST_HAS_DLL 1
+#define TMCAST_HAS_DLL 1
 #endif /* ! TMCAST_HAS_DLL */
 
 #if defined (TMCAST_HAS_DLL) && (TMCAST_HAS_DLL == 1)

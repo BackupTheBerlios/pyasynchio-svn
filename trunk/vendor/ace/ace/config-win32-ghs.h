@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// config-win32-ghs.h,v 4.5 2003/07/19 19:04:15 dhinton Exp
+// config-win32-ghs.h,v 4.9 2004/08/03 15:54:46 jtc Exp
 
 // The following configuration file contains defines for Green Hills compilers.
 
@@ -22,7 +22,6 @@
 #define ACE_HAS_DLL 0
 #define TAO_HAS_DLL 0
 #undef _DLL
-#define ACE_OS_HAS_DLL 0
 
 //Green Hills Native x86 does not support structural exceptions
 # undef ACE_HAS_WIN32_STRUCTURAL_EXCEPTIONS
@@ -54,18 +53,12 @@
 //  This section above was extracted from config-win32-msvc
 
 # define ACE_EXPORT_NESTED_CLASSES 1
-# define ACE_HAS_ANSI_CASTS 1
 # define ACE_HAS_CPLUSPLUS_HEADERS 1
 //# define ACE_HAS_EXCEPTIONS 1
-# define ACE_HAS_EXPLICIT_KEYWORD 1
 # define ACE_HAS_GNU_CSTRING_H 1
-# define ACE_HAS_MUTABLE_KEYWORD 1
 # define ACE_HAS_NONCONST_SELECT_TIMEVAL 1
 # define ACE_HAS_SIG_ATOMIC_T 1
 # define ACE_HAS_STANDARD_CPP_LIBRARY 1
-//# if (__BORLANDC__ <= 0x540)
-//#  define ACE_HAS_STD_TEMPLATE_METHOD_SPECIALIZATION 1
-//# endif
 # define ACE_HAS_STD_TEMPLATE_SPECIALIZATION 1
 # define ACE_HAS_STDCPP_STL_INCLUDES 1
 # define ACE_HAS_STRERROR 1

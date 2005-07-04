@@ -1,6 +1,6 @@
 // file      : TMCast/Protocol.cpp
 // author    : Boris Kolpackov <boris@dre.vanderbilt.edu>
-// cvs-id    : Protocol.cpp,v 1.1 2003/11/03 23:23:22 boris Exp
+// cvs-id    : Protocol.cpp,v 1.2 2004/05/07 23:03:45 ossama Exp
 
 #include "Protocol.hpp"
 
@@ -8,13 +8,13 @@ namespace TMCast
 {
   namespace Protocol
   {
-    namespace
-    {
-      char const* labels[] = {
-        "NONE", "BEGIN", "COMMIT", "ABORT", "COMMITED", "ABORTED"};
-    }
-
     /*
+      namespace
+      {
+      char const* labels[] = {
+      "NONE", "BEGIN", "COMMIT", "ABORT", "COMMITED", "ABORTED"};
+      }
+
       std::string
       tslabel (Protocol::TransactionStatus s)
       {

@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// config-hpux-10.x-g++.h,v 4.25 2003/07/19 19:04:14 dhinton Exp
+// config-hpux-10.x-g++.h,v 4.26 2004/06/13 10:16:42 jwillemsen Exp
 
 // The following configuration file is designed to work for HP
 // platforms running HP/UX 10.x using G++.
@@ -21,6 +21,9 @@
 // Compiler supports the ssize_t typedef.
 #define ACE_HAS_SSIZE_T
 #define _CLOCKID_T
+
+// We have to explicitly instantiate static template members
+# define ACE_HAS_EXPLICIT_STATIC_TEMPLATE_MEMBER_INSTANTIATION
 
 #include "ace/config-hpux-10.x.h"
 

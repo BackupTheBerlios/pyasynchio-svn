@@ -4,7 +4,7 @@
 /**
  *  @file    Token.h
  *
- *  Token.h,v 4.42 2003/11/01 11:15:18 dhinton Exp
+ *  Token.h,v 4.44 2004/06/28 17:27:08 jwillemsen Exp
  *
  *  @author Original author
  *  @author Karl-Heinz Dorn (kdorn@erlh.siemens.de)
@@ -34,9 +34,7 @@
 # define ACE_TOKEN_USES_SEMAPHORE
 #endif /* (ACE_WIN32 && !ACE_HAS_WINCE) || VXWORKS || ACE_PSOS */
 
-//class ACE_Thread_Mutex;
 class ACE_Time_Value;
-//class ACE_Condition_Attributes;
 
 #if defined (ACE_TOKEN_USES_SEMAPHORE)
 #  include "ace/Semaphore.h"
@@ -352,7 +350,7 @@ public:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Token.i"
+#include "ace/Token.inl"
 #endif /* __ACE_INLINE__ */
 
 

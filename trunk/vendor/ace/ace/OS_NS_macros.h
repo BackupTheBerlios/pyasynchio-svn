@@ -4,7 +4,7 @@
 /**
  *  @file   OS_NS_macros.h
  *
- *  OS_NS_macros.h,v 1.3 2003/11/02 10:02:15 jwillemsen Exp
+ *  OS_NS_macros.h,v 1.8 2004/12/13 18:53:13 ossama Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  *  @author Jesper S. M|ller<stophph@diku.dk>
@@ -30,15 +30,20 @@
   do { TYPE ace_result_ = (TYPE) OP; \
       if (ace_result_ == FAILVALUE) { int ___ = ::WSAGetLastError (); errno = ___; return (TYPE) FAILVALUE; } else return ace_result_; \
   } while (0)
+# define ACE_SOCKCALL(OP,TYPE,FAILVALUE,RESULT) \
+  do { RESULT = (TYPE) OP; \
+      if (RESULT == FAILVALUE) { int ___ = ::WSAGetLastError (); errno = ___; RESULT = FAILVALUE; } \
+  } while (0)
 #else
 # define ACE_SOCKCALL_RETURN(OP,TYPE,FAILVALUE) ACE_OSCALL_RETURN(OP,TYPE,FAILVALUE)
+# define ACE_SOCKCALL(OP,TYPE,FAILVALUE,RESULT) ACE_OSCALL(OP,TYPE,FAILVALUE,RESULT)
 #endif /* ACE_WIN32 */
 
 #if !defined (ACE_WIN32)
 
 // Adapt the weird threading and synchronization routines (which
 // return errno rather than -1) so that they return -1 and set errno.
-// This is more consistent with the rest of ACE_OS and enables use to
+// This is more consistent with the rest of ACE_OS and enables us to
 // use the ACE_OSCALL* macros.
 # if defined (VXWORKS)
 #   define ACE_ADAPT_RETVAL(OP,RESULT) ((RESULT = (OP)) != OK ? (errno = RESULT, -1) : 0)

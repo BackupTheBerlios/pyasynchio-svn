@@ -1,6 +1,6 @@
-// WIN32_Proactor.cpp,v 4.32 2003/11/01 11:15:18 dhinton Exp
+// WIN32_Proactor.cpp,v 4.37 2004/06/14 13:58:42 jwillemsen Exp
 
-// ACE_RCSID(ace, Proactor, "WIN32_Proactor.cpp,v 4.32 2003/11/01 11:15:18 dhinton Exp")
+// ACE_RCSID(ace, Proactor, "WIN32_Proactor.cpp,v 4.37 2004/06/14 13:58:42 jwillemsen Exp")
 
 #include "ace/WIN32_Proactor.h"
 
@@ -10,6 +10,7 @@
 #include "ace/Log_Msg.h"
 #include "ace/Object_Manager.h"
 #include "ace/OS_NS_errno.h"
+#include "ace/OS_NS_unistd.h"
 
 /**
  * @class ACE_WIN32_Wakeup_Completion
@@ -120,7 +121,7 @@ ACE_WIN32_Proactor::register_handle (ACE_HANDLE handle,
                                      const void *completion_key)
 {
 #if defined (ACE_WIN64)
-  ULONG_PTR comp_key (ACE_static_cast (ULONG_PTR, completion_key));
+  ULONG_PTR comp_key (ACE_reinterpret_cast (ULONG_PTR, completion_key));
 #else
   ULONG comp_key (ACE_reinterpret_cast (ULONG, completion_key));
 #endif /* ACE_WIN64 */
@@ -660,11 +661,6 @@ ACE_WIN32_Proactor::post_completion (ACE_WIN32_Asynch_Result *result)
   // Grab the event associated with the Proactor
   HANDLE handle = this->get_handle ();
 
-  // If Proactor event is valid, signal it
-  if (handle != ACE_INVALID_HANDLE &&
-      handle != 0)
-    ACE_OS::event_signal (&handle);
-
   // pass
   //   bytes_transferred
   //   completion_key
@@ -683,7 +679,7 @@ ACE_WIN32_Proactor::post_completion (ACE_WIN32_Asynch_Result *result)
       completion_key = result->completion_key();
     }
 #if defined (ACE_WIN64)
-  ULONG_PTR comp_key (ACE_static_cast (ULONG_PTR, completion_key));
+  ULONG_PTR comp_key (ACE_reinterpret_cast (ULONG_PTR, completion_key));
 #else
   ULONG comp_key (ACE_reinterpret_cast (ULONG, completion_key));
 #endif /* ACE_WIN64 */
@@ -705,6 +701,11 @@ ACE_WIN32_Proactor::post_completion (ACE_WIN32_Asynch_Result *result)
         }
       return -1;
     }
+
+  // If Proactor event is valid, signal it
+  if (handle != ACE_INVALID_HANDLE 
+      && handle != 0)
+    ACE_OS::event_signal (&handle);
 
   return 0;
 }

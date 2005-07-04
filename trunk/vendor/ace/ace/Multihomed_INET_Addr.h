@@ -4,7 +4,7 @@
 /**
  *  @file    Multihomed_INET_Addr.h
  *
- *  Multihomed_INET_Addr.h,v 4.5 2003/11/18 01:06:01 bala Exp
+ *  Multihomed_INET_Addr.h,v 4.7 2004/11/09 20:41:17 dwcraig Exp
  *
  *  @author Edward R. Mulholland <emulholl@atl.lmco.com>
  */
@@ -66,6 +66,25 @@ public:
                            int encode = 1,
                            const ACE_UINT32 *secondary_ip_addrs = 0,
                            size_t size = 0);
+
+#if defined (ACE_HAS_WCHAR)
+    /**
+     * WCHAR versions of the methods that take char's as arguments.
+     */
+  ACE_Multihomed_INET_Addr(u_short port_number,
+                           const wchar_t primary_host_name[],
+                           int encode = 1,
+                           int address_family = AF_UNSPEC,
+                           const wchar_t *(secondary_host_names[]) = 0,
+                           size_t size = 0);
+  int set (u_short port_number,
+           const wchar_t primary_host_name[],
+           int encode = 1,
+           int address_family = AF_UNSPEC,
+           const wchar_t *(secondary_host_names[]) = 0,
+           size_t size = 0);
+
+#endif /* ACE_HAS_WCHAR */
 
   /// Use compiler-generated copy constructor.
 
@@ -155,7 +174,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#  include "ace/Multihomed_INET_Addr.i"
+#  include "ace/Multihomed_INET_Addr.inl"
 #endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"

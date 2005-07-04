@@ -1,4 +1,4 @@
-// Timer_Queue_Adapters.cpp,v 4.40 2004/01/05 22:57:06 shuston Exp
+// Timer_Queue_Adapters.cpp,v 4.43 2004/06/16 07:57:21 jwillemsen Exp
 
 #include "ace/Timer_Queue_Adapters.h"
 
@@ -9,10 +9,10 @@
 #ifndef ACE_TIMER_QUEUE_ADAPTERS_C
 # define ACE_TIMER_QUEUE_ADAPTERS_C
 
-ACE_RCSID(ace, Timer_Queue_Adapters, "Timer_Queue_Adapters.cpp,v 4.40 2004/01/05 22:57:06 shuston Exp")
+ACE_RCSID(ace, Timer_Queue_Adapters, "Timer_Queue_Adapters.cpp,v 4.43 2004/06/16 07:57:21 jwillemsen Exp")
 
 # if !defined (__ACE_INLINE__)
-#  include "ace/Timer_Queue_Adapters.i"
+#  include "ace/Timer_Queue_Adapters.inl"
 # endif /* __ACE_INLINE__ */
 
 #include "ace/OS_NS_unistd.h"

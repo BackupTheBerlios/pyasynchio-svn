@@ -3,7 +3,7 @@
 /**
  *  @file    Obchunk.h
  *
- *  Obchunk.h,v 4.2 2003/07/19 19:04:12 dhinton Exp
+ *  Obchunk.h,v 4.3 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Doug Schmidt
  */
@@ -14,7 +14,7 @@
 #define ACE_OBCHUNK_H
 #include /**/ "ace/pre.h"
 
-#include "ace/Malloc.h"
+#include "ace/Malloc_.h"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
@@ -65,7 +65,7 @@ public:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Obchunk.i"
+#include "ace/Obchunk.inl"
 #endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"

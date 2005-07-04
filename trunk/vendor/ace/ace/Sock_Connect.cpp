@@ -1,4 +1,4 @@
-// Sock_Connect.cpp,v 1.33 2004/01/10 16:20:52 shuston Exp
+// Sock_Connect.cpp,v 1.44 2004/12/06 09:27:56 jwillemsen Exp
 
 #include "ace/Sock_Connect.h"
 #include "ace/INET_Addr.h"
@@ -7,6 +7,11 @@
 #include "ace/Auto_Ptr.h"
 #include "ace/SString.h"
 #include "ace/OS_Memory.h"
+
+#if defined (sparc) && ! defined (CHORUS)
+#  include "ace/OS_NS_fcntl.h"
+#endif  // sparc && !CHORUS
+
 #include "ace/OS_NS_stdlib.h"
 #include "ace/OS_NS_string.h"
 #include "ace/OS_NS_sys_socket.h"
@@ -29,6 +34,7 @@
 extern "C" {
   extern struct in_ifaddr* in_ifaddr;
 }
+#include "ace/OS_NS_stdio.h"
 #endif /* VXWORKS */
 
 #if defined (ACE_HAS_WINCE)
@@ -40,8 +46,14 @@ extern "C" {
 #    include "ace/Object_Manager.h"
 #  endif /* ACE_HAS_THREADS */
 
-// Whether or not ipv6 is turned on in this box
-int ACE_Sock_Connect::ipv6_enabled_ = -1;
+namespace ACE
+{
+  // private:
+  //  Used internally so not exported.
+
+  /// Does this box have ipv6 turned on?
+  int ipv6_enabled_ = -1;
+}
 #endif /* ACE_HAS_IPV6 */
 
 // This is a hack to work around a problem with Visual Age C++ 5 and 6 on AIX.
@@ -58,11 +70,10 @@ static ACE_Auto_Array_Ptr<sockaddr> force_compiler_to_include_socket_h;
 #endif /* AIX && __IBMCPP__ >= 500 */
 
 
-#if defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/Sock_Connect.i"
-#endif /* ACE_LACKS_INLINE_FUNCTIONS */
+ACE_RCSID (ace,
+           Sock_Connect,
+           "Sock_Connect.cpp,v 1.44 2004/12/06 09:27:56 jwillemsen Exp")
 
-ACE_RCSID(ace, Sock_Connect, "Sock_Connect.cpp,v 1.33 2004/01/10 16:20:52 shuston Exp")
 
 #if defined (ACE_WIN32) && \
     (!defined (ACE_HAS_WINSOCK2) \
@@ -262,11 +273,11 @@ get_windows_version()
 // Bind socket to an unused port.
 
 int
-ACE_Sock_Connect::bind_port (ACE_HANDLE handle,
-                             ACE_UINT32 ip_addr, 
+ACE::bind_port (ACE_HANDLE handle,
+                             ACE_UINT32 ip_addr,
                              int address_family)
 {
-  ACE_TRACE ("ACE_Sock_Connect::bind_port");
+  ACE_TRACE ("ACE::bind_port");
 
   ACE_INET_Addr addr;
 
@@ -332,14 +343,14 @@ ACE_Sock_Connect::bind_port (ACE_HANDLE handle,
 }
 
 int
-ACE_Sock_Connect::get_bcast_addr (ACE_UINT32 &bcast_addr,
+ACE::get_bcast_addr (ACE_UINT32 &bcast_addr,
                      const ACE_TCHAR *host_name,
                      ACE_UINT32 host_addr,
                      ACE_HANDLE handle)
 {
-  ACE_TRACE ("ACE_Sock_Connect::get_bcast_addr");
+  ACE_TRACE ("ACE::get_bcast_addr");
 
-#if !defined(ACE_WIN32)
+#if !defined(ACE_WIN32) && !defined(__INTERIX)
   ACE_HANDLE s = handle;
 
   if (s == ACE_INVALID_HANDLE)
@@ -367,7 +378,7 @@ ACE_Sock_Connect::get_bcast_addr (ACE_UINT32 &bcast_addr,
   if (ACE_OS::ioctl (s, cmd, (char *) &ifc) == -1)
     ACE_ERROR_RETURN ((LM_ERROR,
                        ACE_LIB_TEXT ("%p\n"),
-                       ACE_LIB_TEXT ("ACE_Sock_Connect::get_bcast_addr:")
+                       ACE_LIB_TEXT ("ACE::get_bcast_addr:")
                        ACE_LIB_TEXT ("ioctl (get interface configuration)")),
                       -1);
 
@@ -378,7 +389,7 @@ ACE_Sock_Connect::get_bcast_addr (ACE_UINT32 &bcast_addr,
   // Get host ip address if necessary.
   if (host_name)
     {
-      hostent *hp = ACE_OS::gethostbyname (host_name);
+      hostent *hp = ACE_OS::gethostbyname (ACE_TEXT_ALWAYS_CHAR (host_name));
 
       if (hp == 0)
         return -1;
@@ -408,17 +419,20 @@ ACE_Sock_Connect::get_bcast_addr (ACE_UINT32 &bcast_addr,
 #endif /* ! _UNICOS */
     }
 
-  for (int n = ifc.ifc_len / sizeof (struct ifreq);
-       n > 0;
-#if !defined (CHORUS_4) && !defined (__FreeBSD__)
+#if !defined(CHORUS_4) && !defined(AIX) && !defined (__QNX__) && !defined (__FreeBSD__) && !defined(__NetBSD__)
+  for (int n = ifc.ifc_len / sizeof (struct ifreq) ; n > 0;
        n--, ifr++)
 #else
-       n--,
-           ((ifr->ifr_addr.sa_len <= sizeof (struct sockaddr)) ?
-             ifr++ :
-             ifr = (struct ifreq *)
-             (ifr->ifr_addr.sa_len + (caddr_t) &ifr->ifr_addr)))
-#endif /* !CHORUS_4 && !__FreeBSD__ */
+  // see mk_broadcast@SOCK_Dgram_Bcast.cpp
+  for (int nbytes = ifc.ifc_len; nbytes >= (int) sizeof (struct ifreq) &&
+        ((ifr->ifr_addr.sa_len > sizeof (struct sockaddr)) ?
+          (nbytes >= (int) sizeof (ifr->ifr_name) + ifr->ifr_addr.sa_len) : 1);
+        ((ifr->ifr_addr.sa_len > sizeof (struct sockaddr)) ?
+          (nbytes -= sizeof (ifr->ifr_name) + ifr->ifr_addr.sa_len,
+            ifr = (struct ifreq *)
+              ((caddr_t) &ifr->ifr_addr + ifr->ifr_addr.sa_len)) :
+          (nbytes -= sizeof (struct ifreq), ifr++)))
+#endif /* !defined(CHORUS_4) && !defined(AIX) && !defined (__QNX__) && !defined (__FreeBSD__) && !defined(__NetBSD__) */
     {
       struct sockaddr_in if_addr;
 
@@ -434,7 +448,7 @@ ACE_Sock_Connect::get_bcast_addr (ACE_UINT32 &bcast_addr,
         {
           ACE_ERROR ((LM_ERROR,
                       ACE_LIB_TEXT ("%p\n"),
-                      ACE_LIB_TEXT ("ACE_Sock_Connect::get_bcast_addr:")
+                      ACE_LIB_TEXT ("ACE::get_bcast_addr:")
                       ACE_LIB_TEXT ("Not AF_INET")));
           continue;
         }
@@ -446,7 +460,7 @@ ACE_Sock_Connect::get_bcast_addr (ACE_UINT32 &bcast_addr,
         {
           ACE_ERROR ((LM_ERROR,
                       ACE_LIB_TEXT ("%p\n"),
-                      ACE_LIB_TEXT ("ACE_Sock_Connect::get_bcast_addr:")
+                      ACE_LIB_TEXT ("ACE::get_bcast_addr:")
                       ACE_LIB_TEXT (" ioctl (get interface flags)")));
           continue;
         }
@@ -455,7 +469,7 @@ ACE_Sock_Connect::get_bcast_addr (ACE_UINT32 &bcast_addr,
         {
           ACE_ERROR ((LM_ERROR,
                       ACE_LIB_TEXT ("%p\n"),
-                      ACE_LIB_TEXT ("ACE_Sock_Connect::get_bcast_addr:")
+                      ACE_LIB_TEXT ("ACE::get_bcast_addr:")
                       ACE_LIB_TEXT ("Network interface is not up")));
           continue;
         }
@@ -470,7 +484,7 @@ ACE_Sock_Connect::get_bcast_addr (ACE_UINT32 &bcast_addr,
                              (char *) &if_req) == -1)
             ACE_ERROR ((LM_ERROR,
                         ACE_LIB_TEXT ("%p\n"),
-                        ACE_LIB_TEXT ("ACE_Sock_Connect::get_bcast_addr:")
+                        ACE_LIB_TEXT ("ACE::get_bcast_addr:")
                         ACE_LIB_TEXT ("ioctl (get broadaddr)")));
           else
             {
@@ -492,7 +506,7 @@ ACE_Sock_Connect::get_bcast_addr (ACE_UINT32 &bcast_addr,
       else
         ACE_ERROR ((LM_ERROR,
                     ACE_LIB_TEXT ("%p\n"),
-                    ACE_LIB_TEXT ("ACE_Sock_Connect::get_bcast_addr:")
+                    ACE_LIB_TEXT ("ACE::get_bcast_addr:")
                     ACE_LIB_TEXT ("Broadcast is not enable for this interface.")));
 
       if (handle == ACE_INVALID_HANDLE)
@@ -509,7 +523,7 @@ ACE_Sock_Connect::get_bcast_addr (ACE_UINT32 &bcast_addr,
   ACE_UNUSED_ARG (host_name);
   bcast_addr = (ACE_UINT32 (INADDR_BROADCAST));
   return 0;
-#endif /* !ACE_WIN32 */
+#endif /* !ACE_WIN32 && !__INTERIX */
 }
 
 // return an array of all configured IP interfaces on this host, count
@@ -517,10 +531,10 @@ ACE_Sock_Connect::get_bcast_addr (ACE_UINT32 &bcast_addr,
 // responsible for calling delete [] on parray
 
 int
-ACE_Sock_Connect::get_ip_interfaces (size_t &count,
-                                     ACE_INET_Addr *&addrs)
+ACE::get_ip_interfaces (size_t &count,
+                        ACE_INET_Addr *&addrs)
 {
-  ACE_TRACE ("ACE_Sock_Connect::get_ip_interfaces");
+  ACE_TRACE ("ACE::get_ip_interfaces");
 
   count = 0;
   addrs = 0;
@@ -718,7 +732,7 @@ ACE_Sock_Connect::get_ip_interfaces (size_t &count,
                     }
                     if (n_interfaces == 0) {
                         ACE_ERROR_RETURN ((LM_ERROR,
-                            ACE_LIB_TEXT ("%p\nACE_Sock_Connect::get_ip_interfaces - ")
+                            ACE_LIB_TEXT ("%p\nACE::get_ip_interfaces - "),
                             ACE_LIB_TEXT ("No adapter found.")),
                             -1);
                     }
@@ -743,28 +757,28 @@ ACE_Sock_Connect::get_ip_interfaces (size_t &count,
 
         case ERROR_NOT_SUPPORTED: // OS does not support this method
             ACE_ERROR_RETURN ((LM_ERROR,
-                ACE_LIB_TEXT ("%p\nACE_Sock_Connect::get_ip_interfaces - ")
+                ACE_LIB_TEXT ("%p\nACE::get_ip_interfaces - "),
                 ACE_LIB_TEXT ("This version of WinCE does not support GetAdapterInfo.")),
                 -1);
             break;
 
         case ERROR_NO_DATA:  // no adapter installed
             ACE_ERROR_RETURN ((LM_ERROR,
-                ACE_LIB_TEXT ("%p\nACE_Sock_Connect::get_ip_interfaces - ")
+                ACE_LIB_TEXT ("%p\nACE::get_ip_interfaces - "),
                 ACE_LIB_TEXT ("No network adapter installed.")),
                 -1);
             break;
 
         case ERROR_INVALID_PARAMETER:
             ACE_ERROR_RETURN ((LM_ERROR,
-                ACE_LIB_TEXT ("%p\nACE_Sock_Connect::get_ip_interfaces - ")
+                ACE_LIB_TEXT ("%p\nACE::get_ip_interfaces - "),
                 ACE_LIB_TEXT ("Invalid parameter.")),
                 -1);
             break;
 
         default:
             ACE_ERROR_RETURN ((LM_ERROR,
-                ACE_LIB_TEXT ("%p\nACE_Sock_Connect::get_ip_interfaces - ")
+                ACE_LIB_TEXT ("%p\nACE::get_ip_interfaces - "),
                 ACE_LIB_TEXT ("Adapter info access permission denied.")),
                 -1);
             break;
@@ -1012,9 +1026,9 @@ ACE_Sock_Connect::get_ip_interfaces (size_t &count,
   if (handle == ACE_INVALID_HANDLE)
     ACE_ERROR_RETURN ((LM_ERROR,
                        ACE_LIB_TEXT ("%p\n"),
-                       ACE_LIB_TEXT ("ACE_Sock_Connect::get_ip_interfaces:open")),
+                       ACE_LIB_TEXT ("ACE::get_ip_interfaces:open")),
                       -1);
-  if (ACE_Sock_Connect::count_interfaces (handle, num_ifs))
+  if (ACE::count_interfaces (handle, num_ifs))
     {
       ACE_OS::close (handle);
       return -1;
@@ -1056,7 +1070,7 @@ ACE_Sock_Connect::get_ip_interfaces (size_t &count,
       ACE_OS::close (handle);
       ACE_ERROR_RETURN ((LM_ERROR,
                          ACE_LIB_TEXT ("%p\n"),
-                         ACE_LIB_TEXT ("ACE_Sock_Connect::get_ip_interfaces:")
+                         ACE_LIB_TEXT ("ACE::get_ip_interfaces:")
                          ACE_LIB_TEXT ("ioctl - SIOCGIFCONF failed")),
                         -1);
     }
@@ -1114,7 +1128,7 @@ ACE_Sock_Connect::get_ip_interfaces (size_t &count,
 #endif /* ! _UNICOS */
         }
 
-#if !defined (CHORUS_4)  && !defined (__FreeBSD__)
+#if !defined(CHORUS_4) && !defined(AIX) && !defined (__QNX__) && !defined (__FreeBSD__) && !defined(__NetBSD__)
       pcur++;
 #else
       if (pcur->ifr_addr.sa_len <= sizeof (struct sockaddr))
@@ -1126,7 +1140,7 @@ ACE_Sock_Connect::get_ip_interfaces (size_t &count,
            pcur = (struct ifreq *)
                (pcur->ifr_addr.sa_len + (caddr_t) &pcur->ifr_addr);
         }
-#endif  /* !CHORUS_4 && !__FreeBSD__ */
+#endif /* !defined(CHORUS_4) && !defined(AIX) && !defined (__QNX__) && !defined (__FreeBSD__) && !defined(__NetBSD__) */
     }
   return 0;
 #elif defined (VXWORKS)
@@ -1168,7 +1182,7 @@ ACE_Sock_Connect::get_ip_interfaces (size_t &count,
           else
             {
               ACE_ERROR_RETURN ((LM_ERROR,
-                                 ACE_LIB_TEXT ("ACE::get_ip_interface failed\n"),
+                                 ACE_LIB_TEXT ("ACE::get_ip_interface failed\n")
                                  ACE_LIB_TEXT ("Couldnt get the IP Address\n")),
                                  -1);
             }
@@ -1188,7 +1202,7 @@ ACE_Sock_Connect::get_ip_interfaces (size_t &count,
 // list of ifreq structs.
 
 int
-ACE_Sock_Connect::count_interfaces (ACE_HANDLE handle, size_t &how_many)
+ACE::count_interfaces (ACE_HANDLE handle, size_t &how_many)
 {
 #if defined (sparc) && defined (SIOCGIFNUM)
   int tmp_how_many; // For 64 bit Solaris
@@ -1197,7 +1211,7 @@ ACE_Sock_Connect::count_interfaces (ACE_HANDLE handle, size_t &how_many)
                      (caddr_t) &tmp_how_many) == -1)
     ACE_ERROR_RETURN ((LM_ERROR,
                        ACE_LIB_TEXT ("%p\n"),
-                       ACE_LIB_TEXT ("ACE_Sock_Connect::count_interfaces:")
+                       ACE_LIB_TEXT ("ACE::count_interfaces:")
                        ACE_LIB_TEXT ("ioctl - SIOCGIFNUM failed")),
                       -1);
   how_many = (size_t) tmp_how_many;
@@ -1261,7 +1275,7 @@ ACE_Sock_Connect::count_interfaces (ACE_HANDLE handle, size_t &how_many)
       ACE_OS::free (ifcfg.ifc_req);
       ACE_ERROR_RETURN ((LM_ERROR,
                          ACE_LIB_TEXT ("%p\n"),
-                         ACE_LIB_TEXT ("ACE_Sock_Connect::count_interfaces:")
+                         ACE_LIB_TEXT ("ACE::count_interfaces:")
                          ACE_LIB_TEXT ("ioctl - SIOCGIFCONF failed")),
                         -1);
     }
@@ -1280,7 +1294,7 @@ ACE_Sock_Connect::count_interfaces (ACE_HANDLE handle, size_t &how_many)
         break;
 
       if_count++;
-#if !defined (CHORUS_4) && !defined (__FreeBSD__)
+#if !defined(CHORUS_4) && !defined(AIX) && !defined (__QNX__) && !defined (__FreeBSD__) && !defined(__NetBSD__)
       p_ifs++;
 #else
      if (p_ifs->ifr_addr.sa_len <= sizeof (struct sockaddr))
@@ -1292,7 +1306,7 @@ ACE_Sock_Connect::count_interfaces (ACE_HANDLE handle, size_t &how_many)
           p_ifs = (struct ifreq *)
               (p_ifs->ifr_addr.sa_len + (caddr_t) &p_ifs->ifr_addr);
        }
-#endif /* !CHORUS_4 && !__FreeBSD__ */
+#endif /* !defined(CHORUS_4) && !defined(AIX) && !defined (__QNX__) && !defined (__FreeBSD__) && !defined(__NetBSD__) */
     }
 
   ACE_OS::free (ifcfg.ifc_req);
@@ -1308,7 +1322,7 @@ ACE_Sock_Connect::count_interfaces (ACE_HANDLE handle, size_t &how_many)
 // Routine to return a handle from which ioctl() requests can be made.
 
 ACE_HANDLE
-ACE_Sock_Connect::get_handle (void)
+ACE::get_handle (void)
 {
   // Solaris 2.x
   ACE_HANDLE handle = ACE_INVALID_HANDLE;
@@ -1325,33 +1339,33 @@ ACE_Sock_Connect::get_handle (void)
 
 
 int
-ACE_Sock_Connect::ipv6_enabled (void)
+ACE::ipv6_enabled (void)
 {
 #if defined (ACE_HAS_IPV6)
-  if (ACE_Sock_Connect::ipv6_enabled_ == -1)
+  if (ACE::ipv6_enabled_ == -1)
     {
       // Perform Double-Checked Locking Optimization.
       ACE_MT (ACE_GUARD_RETURN (ACE_Recursive_Thread_Mutex, ace_mon,
                                 *ACE_Static_Object_Lock::instance (), 0));
 
-      if (ACE_Sock_Connect::ipv6_enabled_ == -1)
+      if (ACE::ipv6_enabled_ == -1)
         {
           // Determine if the kernel has IPv6 support by attempting to
           // create a PF_INET6 socket and see if it fails.
           ACE_HANDLE s = ACE_OS::socket (PF_INET6, SOCK_DGRAM, 0);
           if (s == ACE_INVALID_HANDLE)
             {
-              ACE_Sock_Connect::ipv6_enabled_ = 0;
+              ACE::ipv6_enabled_ = 0;
             }
           else
             {
-              ACE_Sock_Connect::ipv6_enabled_ = 1;
+              ACE::ipv6_enabled_ = 1;
               ACE_OS::closesocket (s);
             }
         }
     }
 
-  return ACE_Sock_Connect::ipv6_enabled_;
+  return ACE::ipv6_enabled_;
 #else
   return 0;
 #endif /* ACE_HAS_IPV6 */

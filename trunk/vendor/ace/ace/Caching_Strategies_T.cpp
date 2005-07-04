@@ -1,4 +1,4 @@
-//Caching_Strategies_T.cpp,v 4.11 2000/10/13 22:53:53 shuston Exp
+//Caching_Strategies_T.cpp,v 4.12 2004/06/16 07:57:20 jwillemsen Exp
 
 #ifndef CACHING_STRATEGIES_T_C
 #define CACHING_STRATEGIES_T_C
@@ -7,14 +7,14 @@
 #include "ace/Log_Msg.h"
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Caching_Strategies_T.i"
+#include "ace/Caching_Strategies_T.inl"
 #endif /* __ACE_INLINE__ */
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 #define ACE_LACKS_PRAGMA_ONCE
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
-ACE_RCSID(ace, Caching_Strategies_T, "Caching_Strategies_T.cpp,v 4.11 2000/10/13 22:53:53 shuston Exp")
+ACE_RCSID(ace, Caching_Strategies_T, "Caching_Strategies_T.cpp,v 4.12 2004/06/16 07:57:20 jwillemsen Exp")
 
 template<class ATTRIBUTES, class CACHING_UTILITY>
 ACE_Caching_Strategy<ATTRIBUTES, CACHING_UTILITY>::~ACE_Caching_Strategy (void)

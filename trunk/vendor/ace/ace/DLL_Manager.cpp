@@ -1,5 +1,4 @@
-// DLL_Manager.cpp
-// DLL_Manager.cpp,v 4.23 2003/11/05 23:30:46 shuston Exp
+// DLL_Manager.cpp,v 4.30 2004/09/29 21:51:48 irfan Exp
 
 #include "ace/DLL_Manager.h"
 
@@ -15,9 +14,8 @@
 #include "ace/OS_NS_dlfcn.h"
 #include "ace/OS_NS_string.h"
 
-ACE_RCSID (ace,
-	   DLL_Manager,
-	   "DLL_Manager.cpp,v 4.23 2003/11/05 23:30:46 shuston Exp")
+ACE_RCSID (ace, DLL_Manager,
+    "DLL_Manager.cpp,v 4.23 2003/11/05 23:30:46 shuston Exp")
 
 /******************************************************************/
 
@@ -88,33 +86,78 @@ ACE_DLL_Handle::open (const ACE_TCHAR *dll_name,
           if (ACE::debug ())
             ACE_DEBUG ((LM_DEBUG, ACE_LIB_TEXT ("ACE_DLL_Handle::open: calling dlopen on ")
                         ACE_LIB_TEXT ("\"%s\"\n"), dll_name));
+
+          /*
+          ** Get the set of names to try loading. We need to do this to
+          ** properly support the ability for a user to specify a simple,
+          ** unadorned name (for example, "ACE") that will work across
+          ** platforms. We apply platform specifics to get a name that will
+          ** work (e.g. libACE, ACEd.dll, ACE.dll, etc.) We rely on the
+          ** underlying dlopen() implementation to "Do The Right Thing" in
+          ** terms of using relative paths, LD_LIBRARY_PATH, system security
+          ** rules, etc. except when ACE_MUST_HELP_DLOPEN_SEARCH_PATH is set.
+          ** If it is set, then ACE::ldfind() scans the configured path
+          ** looking for a match on the name and prefix/suffix applications.
+          ** NOTE: having ACE scan for a file and then pass a fully-qualified
+          ** pathname to dlopen() is a potential security hole; therefore,
+          ** do not use ACE_MUST_HELP_DLOPEN_SEARCH_PATH unless necessary
+          ** and only after considering the risks.
+          */
+          ACE_Array<ACE_TString> dll_names;
+          dll_names.max_size (10);    // Decent guess to avoid realloc later
+
+#if defined (ACE_MUST_HELP_DLOPEN_SEARCH_PATH)
           // Find out where the library is
           ACE_TCHAR dll_pathname[MAXPATHLEN + 1];
 
           // Transform the pathname into the appropriate dynamic link library
           // by searching the ACE_LD_SEARCH_PATH.
-          ACE_Lib_Find::ldfind (dll_name,
-                                dll_pathname,
-                                (sizeof dll_pathname / sizeof (ACE_TCHAR)));
+          ACE::ldfind (dll_name,
+                       dll_pathname,
+                       (sizeof dll_pathname / sizeof (ACE_TCHAR)));
+          ACE_TString dll_str (dll_pathname);
+          dll_names.size (1);
+          dll_names.set (dll_str, 0);
+#else
+          this->get_dll_names (dll_name, dll_names);
+#endif
 
-          // The ACE_SHLIB_HANDLE object is obtained.
-          this->handle_ = ACE_OS::dlopen (dll_pathname,
-                                          open_mode);
+          ACE_Array_Iterator<ACE_TString> name_iter (dll_names);
+          ACE_TString *name = 0;
+          while (name_iter.next (name))
+            {
+              if (ACE::debug ())
+                ACE_DEBUG ((LM_DEBUG,
+                            ACE_LIB_TEXT ("ACE_DLL_Handle::open: Trying to open DLL %s with %s name\n"),
+                            this->dll_name_,
+                            name->c_str ()));
+              
+              // The ACE_SHLIB_HANDLE object is obtained.
+              this->handle_ = ACE_OS::dlopen (name->c_str (),
+                                              open_mode);
+              if (this->handle_ != ACE_SHLIB_INVALID_HANDLE)   // Good one
+                break;
 
 #if defined (AIX)
-          if (this->handle_ == ACE_SHLIB_INVALID_HANDLE)
-            {
-              // AIX often puts the shared library file (most often named shr.o)
-              // inside an archive library. If this is an archive library
-              // name, then try appending [shr.o] and retry.
-              if (0 != ACE_OS::strstr (dll_pathname, ACE_LIB_TEXT (".a")))
+              // AIX often puts the shared library file (most often named
+              // shr.o) inside an archive library. If this is an archive
+              // library name, then try appending [shr.o] and retry.
+              if (ACE_TString::npos != name->strstr (ACE_LIB_TEXT (".a")))
                 {
-                  ACE_OS::strcat (dll_pathname, ACE_LIB_TEXT ("(shr.o)"));
+                  ACE_TCHAR aix_pathname[MAXPATHLEN + 1];
+                  ACE_OS::strncpy (aix_pathname,
+                                   name->c_str (),
+                                   name->length ());
+                  aix_pathname[name->length ()] = '\0';
+                  ACE_OS::strcat (aix_pathname, ACE_LIB_TEXT ("(shr.o)"));
                   open_mode |= RTLD_MEMBER;
-                  this->handle_ = ACE_OS::dlopen (dll_pathname, open_mode);
+                  this->handle_ = ACE_OS::dlopen (aix_pathname, open_mode);
+                  if (this->handle_ != ACE_SHLIB_INVALID_HANDLE)
+                    break;
                 }
-            }
 #endif /* AIX */
+              name_iter.advance ();
+            }
 
           if (this->handle_ == ACE_SHLIB_INVALID_HANDLE)
             {
@@ -195,25 +238,29 @@ ACE_DLL_Handle::symbol (const ACE_TCHAR *sym_name, int ignore_errors)
   ACE_TRACE ("ACE_DLL_Handle::symbol");
   ACE_MT (ACE_GUARD_RETURN (ACE_Thread_Mutex, ace_mon, this->lock_, 0));
 
-  ACE_Auto_Array_Ptr <ACE_TCHAR> auto_name (ACE_Lib_Find::ldname (sym_name));
+  ACE_Auto_Array_Ptr <ACE_TCHAR> auto_name (ACE::ldname (sym_name));
+    // handle_ can be invalid especially when ACE_DLL_Handle resigned ownership
+    // BTW. Handle lifecycle management is a little crazy in ACE
+  if ( this->handle_ != ACE_SHLIB_INVALID_HANDLE )
+  {
+    void *sym =  ACE_OS::dlsym (this->handle_, auto_name.get ());
 
-  void *sym =  ACE_OS::dlsym (this->handle_, auto_name.get ());
+    // Linux says that the symbol could be null and that it isn't an error.
+    // So you should check the error message also, but since null symbols
+    // won't do us much good anyway, let's still report an error.
+    if (!sym && ignore_errors != 1)
+      {
+        if (ACE::debug ())
+          ACE_ERROR ((LM_ERROR,
+                      ACE_LIB_TEXT ("ACE_DLL_Handle::symbol (\"%s\") \"%s\".\n"),
+                      auto_name.get (),
+                      this->error ()->c_str ()));
 
-  // Linux says that the symbol could be null and that it isn't an error.
-  // So you should check the error message also, but since null symbols
-  // won't do us much good anyway, let's still report an error.
-  if (!sym && ignore_errors != 1)
-    {
-      if (ACE::debug ())
-        ACE_ERROR ((LM_ERROR,
-                    ACE_LIB_TEXT ("ACE_DLL_Handle::symbol (\"%s\") \"%s\".\n"),
-                    auto_name.get (),
-                    this->error ()->c_str ()));
-
-      return 0;
-    }
-
-  return sym;
+        return 0;
+      }
+    return sym;
+  }
+  return 0;
 }
 
 ACE_SHLIB_HANDLE
@@ -262,6 +309,97 @@ ACE_DLL_Handle::error (void)
   auto_ptr<ACE_TString> str
     (new ACE_TString (error ? error : ACE_LIB_TEXT ("no error")));
   return str;
+}
+
+void
+ACE_DLL_Handle::get_dll_names (const ACE_TCHAR *dll_name,
+                               ACE_Array<ACE_TString> &try_names)
+{
+  // Build the array of DLL names to try on this platform by applying the
+  // proper prefixes and/or suffixes to the specified dll_name.
+  ACE_TString base (dll_name);
+  ACE_TString base_dir, base_file, base_suffix;
+
+  // 1. Separate the dll_name into the dir part and the file part. We
+  // only decorate the file part to determine the names to try loading.
+  int pos = base.rfind (ACE_DIRECTORY_SEPARATOR_CHAR);
+  if (pos != ACE_TString::npos)
+    {
+      base_dir = base.substr (0, static_cast<ssize_t>(pos) + 1);
+      base_file = base.substr (static_cast<size_t>(pos) + 1);
+    }
+  else
+    base_file = base;
+
+  // 2. Locate the file suffix, if there is one. Move the '.' and the
+  // suffix to base_suffix.
+  if ((pos = base_file.rfind (ACE_TEXT ('.'))) != ACE_TString::npos)
+    {
+      base_suffix = base_file.substr (static_cast<size_t>(pos));
+      base_file = base_file.substr (0, static_cast<ssize_t>(pos));
+    }
+
+  // 3. Build the combinations to try for this platform.
+  // Try these combinations:
+  //   - name as originally given
+  //   - name with decorator and platform's suffix appended (if not supplied)
+  //   - name with platform's suffix appended (if not supplied)
+  //   - name with platform's dll prefix (if it has one) and suffix
+  //   - name with platform's dll prefix, decorator, and suffix.
+  // So we need room for 5 entries in try_names.
+  try_names.size (0);
+  if ((try_names.max_size () - try_names.size ()) < 5)
+    try_names.max_size (try_names.max_size () + 5);
+#if defined (ACE_WIN32) && defined (ACE_LD_DECORATOR_STR) && !defined (ACE_DISABLE_DEBUG_DLL_CHECK)
+  ACE_TString decorator (ACE_LD_DECORATOR_STR);
+#endif
+  ACE_TString suffix (ACE_DLL_SUFFIX);
+  ACE_TString prefix (ACE_DLL_PREFIX);
+
+  for (size_t i = 0; i < 5 && try_names.size () < try_names.max_size (); ++i)
+    {
+      ACE_TString try_this;
+      size_t j = try_names.size ();
+      switch (i)
+        {
+        case 0:
+          try_this = dll_name;
+          break;
+
+        case 1:        // Name + decorator + suffix
+        case 2:        // Name + suffix
+        case 3:        // Prefix + name + decorator + suffix
+        case 4:        // Prefix + name + suffix
+          if (
+              base_suffix.length () > 0
+#if !(defined(ACE_WIN32) && defined (ACE_LD_DECORATOR_STR) && !defined (ACE_DISABLE_DEBUG_DLL_CHECK))
+              || (i == 2 || i == 4)    // No decorator desired; skip
+#endif
+              )
+            break;
+          try_this = base_dir;
+          if (i > 2)
+            try_this += prefix;
+          try_this += base_file;
+          if (base_suffix.length () > 0)
+            try_this += base_suffix;
+          else
+            {
+#if defined (ACE_WIN32) && defined (ACE_LD_DECORATOR_STR) && !defined (ACE_DISABLE_DEBUG_DLL_CHECK)
+              try_this += decorator;
+#endif
+              try_this += suffix;
+            }
+          break;
+        }
+
+      if (try_this.length ())
+        {
+          try_names.size (j + 1);
+          try_names.set (try_this, j);
+        }
+    }
+  return;
 }
 
 /******************************************************************/
@@ -449,8 +587,8 @@ ACE_DLL_Manager::close (void)
         {
           if (this->handle_vector_[i])
             {
-              ACE_DLL_Handle *s = ACE_const_cast (ACE_DLL_Handle *,
-                                                  this->handle_vector_[i]);
+              ACE_DLL_Handle *s =
+                const_cast<ACE_DLL_Handle *> (this->handle_vector_[i]);
               this->handle_vector_[i] = 0;
               this->unload_dll (s, force_close);
               delete s;
@@ -503,11 +641,11 @@ ACE_DLL_Manager::unload_dll (ACE_DLL_Handle *dll_handle, int force_unload)
               typedef int (*dll_unload_policy)(void);
               dll_unload_policy the_policy = 0;
               void *unload_policy_ptr =
-                dll_handle->symbol (ACE_TEXT ("_get_dll_unload_policy"), 1);
+                dll_handle->symbol (ACE_LIB_TEXT ("_get_dll_unload_policy"), 1);
               ptrdiff_t temp_p =
-                ACE_reinterpret_cast (ptrdiff_t, unload_policy_ptr);
+                reinterpret_cast<ptrdiff_t> (unload_policy_ptr);
               the_policy =
-                ACE_reinterpret_cast (dll_unload_policy, temp_p);
+                reinterpret_cast<dll_unload_policy> (temp_p);
               if (the_policy != 0)
                 unload = ACE_BIT_DISABLED (the_policy (),
                                            ACE_DLL_UNLOAD_POLICY_LAZY);
@@ -540,6 +678,8 @@ ACE_DLL_Manager::unload_dll (ACE_DLL_Handle *dll_handle, int force_unload)
 }
 
 #if defined (ACE_HAS_EXPLICIT_TEMPLATE_INSTANTIATION)
+template class ACE_Array_Base<ACE_TString>;
+template class ACE_Array_Iterator<ACE_TString>;
 template class auto_ptr<ACE_TString>;
 #  if defined (ACE_LACKS_AUTO_PTR) \
       || !(defined (ACE_HAS_STANDARD_CPP_LIBRARY) \
@@ -547,7 +687,9 @@ template class auto_ptr<ACE_TString>;
 template class ACE_Auto_Basic_Ptr<ACE_TString>;
 #  endif  /* ACE_LACKS_AUTO_PTR */
 #elif defined (ACE_HAS_TEMPLATE_INSTANTIATION_PRAGMA)
-#pragma instantiate auto_ptr<ACE_TString>
+# pragma instantiate ACE_Array_Base<ACE_TString>
+# pragma instantiate ACE_Array_Iterator<ACE_TString>
+# pragma instantiate auto_ptr<ACE_TString>
 #  if defined (ACE_LACKS_AUTO_PTR) \
       || !(defined (ACE_HAS_STANDARD_CPP_LIBRARY) \
            && (ACE_HAS_STANDARD_CPP_LIBRARY != 0))

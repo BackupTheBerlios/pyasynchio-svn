@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// config-sco-5.0.0.h,v 4.17 2003/12/22 22:50:34 shuston Exp
+// config-sco-5.0.0.h,v 4.19 2004/08/08 14:21:35 jtc Exp
 
 #ifndef ACE_CONFIG_SCO_5_0_0_H
 #define ACE_CONFIG_SCO_5_0_0_H
@@ -39,7 +39,7 @@
 #define ACE_HAS_TERM_IOCTLS
 
 // Compiler/platform contains the <sys/syscall.h> file.
-//#define ACE_HAS_SYSCALL_H
+//#define ACE_HAS_SYS_SYSCALL_H
 
 // Fixes a problem with HP/UX not wrapping the mmap(2) header files
 // with extern "C".
@@ -74,9 +74,6 @@
 
 #define ACE_HAS_TIMEZONE_GETTIMEOFDAY
 
-// HP/UX has an undefined syscall for GETRUSAGE...
-//#define ACE_HAS_SYSCALL_GETRUSAGE
-
 // Note, this only works if the flag is set above!
 //#define ACE_HAS_GETRUSAGE
 
@@ -87,11 +84,6 @@
 #define ACE_HAS_TLI_PROTOTYPES
 // Platform has the XLI version of ACE_TLI.
 // #define ACE_HAS_XLI
-
-// Turns off the tracing feature.
-#if !defined (ACE_NTRACE)
-#define ACE_NTRACE 1
-#endif /* ACE_NTRACE */
 
 #define ACE_HAS_SIGINFO_T
 #define ACE_HAS_UCONTEXT_T

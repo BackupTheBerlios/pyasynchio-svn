@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// Asynch_Connector.cpp,v 1.6 2003/11/18 01:06:01 bala Exp
+// Asynch_Connector.cpp,v 1.12 2004/11/24 21:08:33 shuston Exp
 
 #ifndef ACE_ASYNCH_CONNECTOR_C
 #define ACE_ASYNCH_CONNECTOR_C
@@ -10,16 +10,17 @@
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
-ACE_RCSID(ace, Asynch_Connector, "Asynch_Connector.cpp,v 1.6 2003/11/18 01:06:01 bala Exp")
+ACE_RCSID(ace, Asynch_Connector, "Asynch_Connector.cpp,v 1.12 2004/11/24 21:08:33 shuston Exp")
 
 #if defined (ACE_WIN32) || defined (ACE_HAS_AIO_CALLS)
 // This only works on platforms that support async I/O.
 
+#include "ace/OS_NS_sys_socket.h"
+#include "ace/OS_Memory.h"
 #include "ace/Flag_Manip.h"
 #include "ace/Log_Msg.h"
 #include "ace/Message_Block.h"
 #include "ace/INET_Addr.h"
-
 
 template <class HANDLER>
 ACE_Asynch_Connector<HANDLER>::ACE_Asynch_Connector (void)
@@ -94,7 +95,7 @@ ACE_Asynch_Connector<HANDLER>::handle_connect (const ACE_Asynch_Connect::Result 
 
   // set blocking mode
   if (!error &&
-      ACE_Flag_Manip::clr_flags
+      ACE::clr_flags
         (result.connect_handle (), ACE_NONBLOCK) != 0)
     {
       error = 1;
@@ -201,8 +202,7 @@ ACE_Asynch_Connector<HANDLER>::parse_address (const ACE_Asynch_Connect::Result &
 
   // Get the local address.
   if (ACE_OS::getsockname (result.connect_handle (),
-                           ACE_reinterpret_cast (sockaddr *,
-                                                 &local_addr),
+                           reinterpret_cast<sockaddr *> (&local_addr),
                            &local_size) < 0)
     ACE_ERROR ((LM_ERROR,
                 ACE_LIB_TEXT("%p\n"),
@@ -210,19 +210,16 @@ ACE_Asynch_Connector<HANDLER>::parse_address (const ACE_Asynch_Connect::Result &
 
   // Get the remote address.
   if (ACE_OS::getpeername (result.connect_handle (),
-                           ACE_reinterpret_cast (sockaddr *,
-                                                 &remote_addr),
+                           reinterpret_cast<sockaddr *> (&remote_addr),
                            &remote_size) < 0)
     ACE_ERROR ((LM_ERROR,
                 ACE_LIB_TEXT("%p\n"),
                 ACE_LIB_TEXT("ACE_Asynch_Connector::<getpeername> failed")));
 
   // Set the addresses.
-  local_address.set  (ACE_reinterpret_cast (sockaddr_in *,
-                                            &local_addr),
+  local_address.set  (reinterpret_cast<sockaddr_in *> (&local_addr),
                       local_size);
-  remote_address.set (ACE_reinterpret_cast (sockaddr_in *,
-                                            &remote_addr),
+  remote_address.set (reinterpret_cast<sockaddr_in *> (&remote_addr),
                       remote_size);
 
 #if 0
@@ -233,20 +230,20 @@ ACE_Asynch_Connector<HANDLER>::parse_address (const ACE_Asynch_Connect::Result &
   if (local_address.addr_to_string (local_address_buf,
                                     sizeof local_address_buf) == -1)
     ACE_ERROR ((LM_ERROR,
-                "Error:%p:can't obtain local_address's address string"));
+                "Error:%m:can't obtain local_address's address string"));
 
   ACE_DEBUG ((LM_DEBUG,
-              "ACE_Asynch_Connector<HANDLER>::parse_address : "\
+              "ACE_Asynch_Connector<HANDLER>::parse_address : "
               "Local address %s\n",
               local_address_buf));
 
   if (remote_address.addr_to_string (remote_address_buf,
                                      sizeof remote_address_buf) == -1)
     ACE_ERROR ((LM_ERROR,
-                "Error:%p:can't obtain remote_address's address string"));
+                "Error:%m:can't obtain remote_address's address string"));
 
   ACE_DEBUG ((LM_DEBUG,
-              "ACE_Asynch_Connector<HANDLER>::parse_address : "\
+              "ACE_Asynch_Connector<HANDLER>::parse_address : "
               "Remote address %s\n",
               remote_address_buf));
 #endif /* 0 */

@@ -1,19 +1,19 @@
 // FILE.cpp
-// FILE.cpp,v 4.16 2003/11/01 11:15:12 dhinton Exp
+// FILE.cpp,v 4.19 2004/06/20 14:37:36 jwillemsen Exp
 
 /* Defines the member functions for the base class of the ACE_IO_SAP
    ACE_FILE abstraction. */
 
 #include "ace/FILE.h"
 
-#if defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/FILE.i"
-#endif
-
 #include "ace/OS_NS_unistd.h"
 #include "ace/OS_NS_sys_stat.h"
 
-ACE_RCSID(ace, FILE, "FILE.cpp,v 4.16 2003/11/01 11:15:12 dhinton Exp")
+#if !defined (__ACE_INLINE__)
+#include "ace/FILE.inl"
+#endif /* __ACE_INLINE__ */
+
+ACE_RCSID(ace, FILE, "FILE.cpp,v 4.19 2004/06/20 14:37:36 jwillemsen Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_FILE)
 
@@ -92,24 +92,10 @@ ACE_FILE::seek (off_t offset, int startpos)
 }
 
 off_t
-ACE_FILE::position (long offset, int startpos)
-{
-  ACE_TRACE ("ACE_FILE::position");
-  return this->seek (offset, startpos);
-}
-
-off_t
 ACE_FILE::tell (void)
 {
   ACE_TRACE ("ACE_FILE::tell");
   return ACE_OS::lseek (this->get_handle (), 0, SEEK_CUR);
-}
-
-off_t
-ACE_FILE::position (void)
-{
-  ACE_TRACE ("ACE_FILE::position");
-  return this->tell ();
 }
 
 // Return the local endpoint address.

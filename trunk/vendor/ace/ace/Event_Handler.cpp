@@ -1,5 +1,5 @@
 // Event_Handler.cpp
-// Event_Handler.cpp,v 4.24 2003/07/07 23:58:32 irfan Exp
+// Event_Handler.cpp,v 4.26 2004/06/16 07:57:20 jwillemsen Exp
 
 #include "ace/Event_Handler.h"
 #include "ace/Message_Block.h"
@@ -8,10 +8,10 @@
 #include "ace/Thread_Manager.h"
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Event_Handler.i"
+#include "ace/Event_Handler.inl"
 #endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, Event_Handler, "Event_Handler.cpp,v 4.24 2003/07/07 23:58:32 irfan Exp")
+ACE_RCSID(ace, Event_Handler, "Event_Handler.cpp,v 4.26 2004/06/16 07:57:20 jwillemsen Exp")
 
 // Implement conceptually abstract virtual functions in the base class
 // so derived classes don't have to implement unused ones.
@@ -184,19 +184,37 @@ ACE_Event_Handler::reactor_timer_interface (void) const
 ACE_Event_Handler::Reference_Count
 ACE_Event_Handler::add_reference (void)
 {
-  return ++this->reference_count_;
+  int reference_counting_required =
+    this->reference_counting_policy ().value () ==
+    ACE_Event_Handler::Reference_Counting_Policy::ENABLED;
+
+  if (reference_counting_required)
+    return ++this->reference_count_;
+  else
+    return 1;
 }
 
 ACE_Event_Handler::Reference_Count
 ACE_Event_Handler::remove_reference (void)
 {
-  Reference_Count result =
-    --this->reference_count_;
+  int reference_counting_required =
+    this->reference_counting_policy ().value () ==
+    ACE_Event_Handler::Reference_Counting_Policy::ENABLED;
 
-  if (result == 0)
-    delete this;
+  if (reference_counting_required)
+    {
+      Reference_Count result =
+        --this->reference_count_;
 
-  return result;
+      if (result == 0)
+        delete this;
+
+      return result;
+    }
+  else
+    {
+      return 1;
+    }
 }
 
 ACE_Event_Handler::Policy::~Policy (void)

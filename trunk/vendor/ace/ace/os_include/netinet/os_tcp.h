@@ -6,7 +6,7 @@
  *
  *  definitions for the Internet Transmission Control Protocol (TCP)
  *
- *  os_tcp.h,v 1.4 2003/11/13 16:04:55 dhinton Exp
+ *  os_tcp.h,v 1.5 2004/09/29 09:48:36 jwillemsen Exp
  *
  *  @author Don Hinton <dhinton@dresystems.com>
  *  @author This code was originally in various places including ace/OS.h.
@@ -23,11 +23,6 @@
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
-
-// @todo: remove this, and fix references when you get a chance... dhinton
-#if defined (ACE_LACKS_TCP_H)
-#  define ACE_LACKS_NETINET_TCP_H
-#endif /* ACE_LACKS_TCP_H */
 
 #if !defined (ACE_LACKS_NETINET_TCP_H)
 # include /**/ <netinet/tcp.h>

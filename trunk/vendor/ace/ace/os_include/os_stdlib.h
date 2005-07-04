@@ -6,7 +6,7 @@
  *
  *  standard library definitions
  *
- *  os_stdlib.h,v 1.5 2003/11/05 20:09:07 dhinton Exp
+ *  os_stdlib.h,v 1.10 2004/09/03 17:28:46 olli Exp
  *
  *  @author Don Hinton <dhinton@dresystems.com>
  *  @author This code was originally in various places including ace/OS.h.
@@ -18,7 +18,7 @@
 
 #include /**/ "ace/pre.h"
 
-#include "ace/config-all.h"
+#include "ace/config-lite.h"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
@@ -67,15 +67,22 @@ extern "C"
    int putenv (char *); // stdlib.h
 #endif /* ACE_PSOS_SNARFS_HEADER_INFO */
 
-// These prototypes are chronically lacking from many versions of
-// UNIX.
-#if !defined (ACE_WIN32) && defined (ACE_LACKS_MKTEMP)
-  char *mktemp (char *);
-#endif /* !ACE_WIN32 && ACE_LACKS_MKTEMP */
 
 #if defined (DIGITAL_UNIX)
   extern int _Prand_r (unsigned int *seedptr);
 #endif /* DIGITAL_UNIX */
+
+#if defined (ACE_LACKS_PUTENV_PROTOTYPE)
+  int putenv (char *);
+#endif /* ACE_LACKS_PUTENV_PROTOTYPE */
+
+#if defined (ACE_LACKS_MKTEMP_PROTOTYPE)
+  char *mktemp (char *);
+#endif /* ACE_LACKS_MKTEMP_PROTOTYPE */
+
+#if defined (ACE_LACKS_MKSTEMP_PROTOTYPE)
+  int mkstemp(char *);
+#endif /* ACE_LACKS_MKSTEMP_PROTOTYPE */
 
 #ifdef __cplusplus
 }

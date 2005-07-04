@@ -2,7 +2,7 @@
 /**
  * @file Thread_Semaphore.cpp
  *
- * Thread_Semaphore.cpp,v 4.5 2003/12/18 22:56:52 dhinton Exp
+ * Thread_Semaphore.cpp,v 4.6 2004/05/17 12:39:59 jwillemsen Exp
  *
  * Originally in Synch.cpp
  *
@@ -19,7 +19,7 @@
 
 #include "ace/ACE.h"
 
-ACE_RCSID(ace, Thread_Semaphore, "Thread_Semaphore.cpp,v 4.5 2003/12/18 22:56:52 dhinton Exp")
+ACE_RCSID(ace, Thread_Semaphore, "Thread_Semaphore.cpp,v 4.6 2004/05/17 12:39:59 jwillemsen Exp")
 
 
 void
@@ -32,7 +32,7 @@ ACE_Thread_Semaphore::dump (void) const
 #endif /* ACE_HAS_DUMP */
 }
 
-ACE_Thread_Semaphore::ACE_Thread_Semaphore (u_int count,
+ACE_Thread_Semaphore::ACE_Thread_Semaphore (unsigned int count,
                                             const ACE_TCHAR *name,
                                             void *arg,
                                             int max)

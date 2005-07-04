@@ -1,4 +1,4 @@
-// Message_Queue.cpp,v 4.61 2003/07/27 20:48:25 dhinton Exp
+// Message_Queue.cpp,v 4.65 2004/10/06 18:26:54 jtc Exp
 
 #if !defined (ACE_MESSAGE_QUEUE_C)
 #define ACE_MESSAGE_QUEUE_C
@@ -7,10 +7,23 @@
 #include "ace/Log_Msg.h"
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Message_Queue.i"
+#include "ace/Message_Queue.inl"
 #endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, Message_Queue, "Message_Queue.cpp,v 4.61 2003/07/27 20:48:25 dhinton Exp")
+ACE_RCSID(ace, Message_Queue, "Message_Queue.cpp,v 4.65 2004/10/06 18:26:54 jtc Exp")
+
+
+ACE_Message_Queue_Base::~ACE_Message_Queue_Base (void)
+{
+}
+
+int
+ACE_Message_Queue_Base::state (void)
+{
+  ACE_TRACE ("ACE_Message_Queue_Base::state");
+
+  return this->state_;
+}
 
 #if defined (VXWORKS)
 
@@ -62,8 +75,8 @@ ACE_Message_Queue_Vx::ACE_Message_Queue_Vx (size_t max_messages,
                                             size_t max_message_length,
                                             ACE_Notification_Strategy *ns)
   : ACE_Message_Queue<ACE_NULL_SYNCH> (0, 0, ns),
-    max_messages_ (ACE_static_cast (int, max_messages)),
-    max_message_length_ (ACE_static_cast (int, max_message_length))
+    max_messages_ (static_cast<int> (max_messages)),
+    max_message_length_ (static_cast<int> (max_message_length))
 {
   ACE_TRACE ("ACE_Message_Queue_Vx::ACE_Message_Queue_Vx");
 
@@ -96,8 +109,8 @@ ACE_Message_Queue_Vx::open (size_t max_messages,
   this->cur_count_ = 0;
   this->head_ = 0;
   this->notification_strategy_ = ns;
-  this->max_messages_ = ACE_static_cast (int, max_messages);
-  this->max_message_length_ = ACE_static_cast (int, max_message_length);
+  this->max_messages_ = static_cast<int> (max_messages);
+  this->max_message_length_ = static_cast<int> (max_message_length);
 
   if (tail_)
     {
@@ -107,7 +120,7 @@ ACE_Message_Queue_Vx::open (size_t max_messages,
     }
 
   return (this->tail_ =
-            ACE_reinterpret_cast (ACE_Message_Block *,
+          reinterpret_cast<ACE_Message_Block *> (
               ::msgQCreate (max_messages_,
                             max_message_length_,
                             MSG_Q_FIFO))) == 0 ? -1 : 0;
@@ -304,7 +317,7 @@ ACE_Message_Queue_NT::open (DWORD max_threads)
   this->max_cthrs_ = max_threads;
   this->completion_port_ = ::CreateIoCompletionPort (ACE_INVALID_HANDLE,
                                                      0,
-                                                     ACE_Message_Queue_Base::WAS_ACTIVE,
+                                                     ACE_Message_Queue_Base::ACTIVATED,
                                                      max_threads);
   return (this->completion_port_ == 0 ? -1 : 0);
 }
@@ -343,9 +356,9 @@ ACE_Message_Queue_NT::enqueue (ACE_Message_Block *new_item,
 #endif /* ACE_WIN64 */
       state_to_post = ACE_Message_Queue_Base::ACTIVATED;
       if (::PostQueuedCompletionStatus (this->completion_port_,
-                                        ACE_static_cast (DWORD, msize),
+                                        static_cast<DWORD> (msize),
                                         state_to_post,
-                                        ACE_reinterpret_cast (LPOVERLAPPED, new_item)))
+                                        reinterpret_cast<LPOVERLAPPED> (new_item)))
         {
           // Update the states once I succeed.
           this->cur_bytes_ += msize;
@@ -389,7 +402,7 @@ ACE_Message_Queue_NT::dequeue (ACE_Message_Block *&first_item,
   int retv = ::GetQueuedCompletionStatus (this->completion_port_,
                                           &msize,
                                           &queue_state,
-                                          ACE_reinterpret_cast (LPOVERLAPPED *, &first_item),
+                                          reinterpret_cast<LPOVERLAPPED *> (&first_item),
                                           (timeout == 0 ? INFINITE : timeout->msec ()));
   {
     ACE_GUARD_RETURN (ACE_Thread_Mutex, ace_mon, this->lock_, -1);

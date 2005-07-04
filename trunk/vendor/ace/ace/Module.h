@@ -1,10 +1,9 @@
 // -*- C++ -*-
-
 //==========================================================================
 /**
  *  @file    Module.h
  *
- *  Module.h,v 4.30 2003/11/01 11:15:14 dhinton Exp
+ *  Module.h,v 4.34 2004/08/13 23:49:36 schmidt Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -91,7 +90,7 @@ public:
               int flags = M_DELETE);
 
   /**
-   * Create an initialized module with <module_name> as its identity
+   * Initialize the module with <module_name> as its identity
    * and <reader> and <writer> as its tasks.  Previously register
    * reader or writers or closed down and deleted according to the
    * value of flags_.  Should not be called from within
@@ -104,7 +103,7 @@ public:
             int flags = M_DELETE);
 
   /**
-   * Close down the Module and its Tasks.  The flags argument can be
+   * Close down the module and its tasks.  The flags argument can be
    * used to override the default behaviour, which depends on previous
    * <flags> values in calls to c'tor, <open>, <reader>, and <writer>.
    * A previous value M_DELETE[_XXX] can not be overridden.  Should
@@ -179,7 +178,7 @@ private:
   ACE_Task<ACE_SYNCH_USE> *q_pair_[2];
 
   /// Name of the ACE_Module.
-  ACE_TCHAR name_[MAXNAMLEN + 1];
+  ACE_TCHAR name_[MAXPATHLEN + 1];
 
   /// Next ACE_Module in the stack.
   ACE_Module<ACE_SYNCH_USE> *next_;
@@ -194,7 +193,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Module.i"
+#include "ace/Module.inl"
 #endif /* __ACE_INLINE__ */
 
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)

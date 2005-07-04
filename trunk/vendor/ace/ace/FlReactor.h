@@ -4,7 +4,7 @@
 /**
  *  @file   FlReactor.h
  *
- *  FlReactor.h,v 4.11 2003/07/19 19:04:11 dhinton Exp
+ *  FlReactor.h,v 4.12 2004/06/14 13:58:41 jwillemsen Exp
  *
  *  @author Carlos O'Ryan <coryan@cs.wustl.edu>
  *  @author Based in part in the ACE_XtReactor implementation by
@@ -102,10 +102,6 @@ private:
   ACE_FlReactor (const ACE_FlReactor &);
   ACE_FlReactor &operator = (const ACE_FlReactor &);
 };
-
-#if defined(__ACE_INLINE__)
-#include "ace/FlReactor.i"
-#endif /* __ACE_INLINE__ */
 
 #endif /* ACE_HAS_FL */
 

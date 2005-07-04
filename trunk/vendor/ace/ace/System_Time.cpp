@@ -1,11 +1,12 @@
 // System_Time.cpp
-// System_Time.cpp,v 4.17 2003/11/01 11:15:17 dhinton Exp
+// System_Time.cpp,v 4.20 2004/08/14 07:10:06 ossama Exp
 
 #include "ace/System_Time.h"
 #include "ace/OS_NS_string.h"
 #include "ace/OS_NS_time.h"
+#include "ace/Time_Value.h"
 
-ACE_RCSID(ace, System_Time, "System_Time.cpp,v 4.17 2003/11/01 11:15:17 dhinton Exp")
+ACE_RCSID(ace, System_Time, "System_Time.cpp,v 4.20 2004/08/14 07:10:06 ossama Exp")
 
 ACE_System_Time::ACE_System_Time (const ACE_TCHAR *poolname)
   : delta_time_ (0)
@@ -21,11 +22,11 @@ ACE_System_Time::ACE_System_Time (const ACE_TCHAR *poolname)
       ACE_OS::strcpy (this->poolname_,
                       ACE_DEFAULT_BACKING_STORE);
 #else /* ACE_DEFAULT_BACKING_STORE */
-      if (ACE_Lib_Find::get_temp_dir (this->poolname_, 
+      if (ACE::get_temp_dir (this->poolname_,
                                       MAXPATHLEN - 17) == -1)
         // -17 for ace-malloc-XXXXXX
         {
-          ACE_ERROR ((LM_ERROR, 
+          ACE_ERROR ((LM_ERROR,
                       ACE_LIB_TEXT ("Temporary path too long, ")
                       ACE_LIB_TEXT ("defaulting to current directory\n")));
           this->poolname_[0] = 0;
@@ -33,14 +34,14 @@ ACE_System_Time::ACE_System_Time (const ACE_TCHAR *poolname)
 
       // Add the filename to the end
       ACE_OS::strcat (this->poolname_, ACE_LIB_TEXT ("ace-malloc-XXXXXX"));
-  
+
 #endif /* ACE_DEFAULT_BACKING_STORE */
     }
   else
     ACE_OS::strsncpy (this->poolname_,
                       poolname,
                       (sizeof this->poolname_ / sizeof (ACE_TCHAR)));
-  
+
   ACE_NEW (this->shmem_,
            ALLOCATOR (this->poolname_));
 }
@@ -81,14 +82,14 @@ ACE_System_Time::get_master_system_time (ACE_UINT32 &time_out)
       // Try to find it
       void * temp;
       if (this->shmem_->find (ACE_DEFAULT_TIME_SERVER_STR, temp) ==  -1)
-	{
-	  // No time entry in shared memory (meaning no Clerk exists)
-	  // so return the local time of the host.
-	  return this->get_local_system_time (time_out);
-	}
+        {
+          // No time entry in shared memory (meaning no Clerk exists)
+          // so return the local time of the host.
+          return this->get_local_system_time (time_out);
+        }
       else
-	// Extract the delta time.
-	this->delta_time_ = (long *) temp;
+        // Extract the delta time.
+        this->delta_time_ = (long *) temp;
     }
 
   ACE_UINT32 local_time;
@@ -140,4 +141,3 @@ template class ACE_Allocator_Adapter<ACE_Malloc<ACE_MMAP_MEMORY_POOL, ACE_Null_M
 #pragma instantiate ACE_Malloc<ACE_MMAP_MEMORY_POOL, ACE_Null_Mutex>
 #pragma instantiate ACE_Allocator_Adapter<ACE_Malloc<ACE_MMAP_MEMORY_POOL, ACE_Null_Mutex> >
 #endif /* ACE_HAS_EXPLICIT_TEMPLATE_INSTANTIATION */
-

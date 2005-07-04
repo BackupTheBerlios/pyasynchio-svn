@@ -1,10 +1,10 @@
-/* -*- C++ -*- */
+// -*- C++ -*-
 
 //=============================================================================
 /**
  *  @file    Timeprobe.h
  *
- *  Timeprobe.h,v 4.38 2003/12/21 10:00:26 jwillemsen Exp
+ *  Timeprobe.h,v 4.41 2004/06/16 07:57:22 jwillemsen Exp
  *
  *  @author Irfan Pyarali
  *
@@ -73,7 +73,7 @@ public:
   u_long minimum_id_;
 
   /// Comparison
-  int operator== (const ACE_Event_Descriptions &rhs) const;
+  bool operator== (const ACE_Event_Descriptions &rhs) const;
 };
 
 /**
@@ -112,10 +112,10 @@ public:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Timeprobe.i"
+#include "ace/Timeprobe.inl"
 #endif /* __ACE_INLINE__ */
 
-#include "ace/Synch.h"
+#include "ace/Synch_Traits.h"
 #include "ace/Singleton.h"
 #include "ace/Timeprobe_T.h"
 

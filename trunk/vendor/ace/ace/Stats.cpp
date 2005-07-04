@@ -1,16 +1,16 @@
-// Stats.cpp,v 4.31 2003/11/01 11:15:17 dhinton Exp
+// Stats.cpp,v 4.34 2004/06/16 07:57:21 jwillemsen Exp
 
 #include "ace/Stats.h"
 
 #if !defined (__ACE_INLINE__)
-# include "ace/Stats.i"
+# include "ace/Stats.inl"
 #endif /* __ACE_INLINE__ */
 
 #include "ace/High_Res_Timer.h"
 #include "ace/OS_NS_stdio.h"
 #include "ace/OS_NS_string.h"
 
-ACE_RCSID(ace, Stats, "Stats.cpp,v 4.31 2003/11/01 11:15:17 dhinton Exp")
+ACE_RCSID(ace, Stats, "Stats.cpp,v 4.34 2004/06/16 07:57:21 jwillemsen Exp")
 
 ACE_UINT32
 ACE_Stats_Value::fractional_field (void) const
@@ -291,8 +291,8 @@ ACE_Stats::quotient (const ACE_UINT64 dividend,
                      ACE_Stats_Value &quotient)
 {
   // The whole part of the division comes from simple integer division.
-  quotient.whole (ACE_static_cast (ACE_UINT32,
-    divisor == 0  ?  0  :  dividend / divisor));
+  quotient.whole (static_cast<ACE_UINT32> (divisor == 0
+                                           ?  0  :  dividend / divisor));
 
   if (quotient.precision () > 0  ||  divisor == 0)
     {
@@ -305,8 +305,8 @@ ACE_Stats::quotient (const ACE_UINT64 dividend,
       //                10^precision/2 / 10^precision
       //            = ((dividend % divisor) * 10^precision  +  divisor) /
       //                divisor
-      quotient.fractional (ACE_static_cast (ACE_UINT32,
-        dividend % divisor * field / divisor));
+      quotient.fractional (static_cast<ACE_UINT32> (
+                             dividend % divisor * field / divisor));
     }
   else
     {
@@ -587,19 +587,26 @@ ACE_Throughput_Stats::dump_throughput (const ACE_TCHAR *msg,
                                        ACE_UINT64 elapsed_time,
                                        ACE_UINT32 samples_count)
 {
+#ifndef ACE_NLOGGING
   double seconds =
-#if defined ACE_LACKS_LONGLONG_T
+# if defined ACE_LACKS_LONGLONG_T
     elapsed_time / sf;
-#else  /* ! ACE_LACKS_LONGLONG_T */
-    ACE_static_cast (double,
-                     ACE_UINT64_DBLCAST_ADAPTER(elapsed_time / sf));
-#endif /* ! ACE_LACKS_LONGLONG_T */
+# else  /* ! ACE_LACKS_LONGLONG_T */
+    static_cast<double> (ACE_UINT64_DBLCAST_ADAPTER (elapsed_time / sf));
+# endif /* ! ACE_LACKS_LONGLONG_T */
   seconds /= ACE_HR_SCALE_CONVERSION;
-  double t_avg = samples_count / seconds;
+
+  const double t_avg = samples_count / seconds;
 
   ACE_DEBUG ((LM_DEBUG,
               ACE_LIB_TEXT ("%s throughput: %.2f (events/second)\n"),
               msg, t_avg));
+#else
+  ACE_UNUSED_ARG (msg);
+  ACE_UNUSED_ARG (sf);
+  ACE_UNUSED_ARG (elapsed_time);
+  ACE_UNUSED_ARG (samples_count);
+#endif /* ACE_NLOGGING */
 }
 
 // ****************************************************************

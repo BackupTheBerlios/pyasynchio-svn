@@ -1,4 +1,4 @@
-//Template_Instantiations.cpp,v 4.13 2003/06/13 11:05:36 bala Exp
+//Template_Instantiations.cpp,v 4.14 2004/02/19 20:28:00 shuston Exp
 // Note: this file has been created through concatenation of ALL
 // explicit template instantiations in ACE, and only those that
 // interfered with the multithreaded port of ACE to pSOS using the
@@ -350,5 +350,7 @@ template class ACE_Timer_Queue_T<ACE_Event_Handler*, ACE_Timer_Hash_Upcall<ACE_E
 
 template class ACE_Timer_Queue_Iterator_T<ACE_Event_Handler*, ACE_Timer_Hash_Upcall<ACE_Event_Handler*, ACE_Event_Handler_Handle_Timeout_Upcall<ACE_Null_Mutex>, ACE_Null_Mutex>, ACE_Null_Mutex>;
 
-
+#elif defined (__HP_aCC)
+// Make aC++ stop complaining about an empty translation unit
+static int shut_up_aCC = 0;
 #endif /* defined (ACE_HAS_EXPLICIT_TEMPLATE_INSTANTIATION_FILE) */

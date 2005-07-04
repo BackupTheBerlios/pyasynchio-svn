@@ -4,7 +4,7 @@
 /**
  *  @file   OS_NS_wchar.h
  *
- *  OS_NS_wchar.h,v 1.5 2003/11/07 17:05:24 dhinton Exp
+ *  OS_NS_wchar.h,v 1.6 2004/02/10 13:31:33 bala Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  *  @author Jesper S. M|ller<stophph@diku.dk>
@@ -29,6 +29,8 @@
 #include "ace/Basic_Types.h"
 #include "ace/ACE_export.h"
 #include "ace/ace_wchar.h" // include for the time being, but this code needs to be moved.  dhinton
+
+#include "ace/os_include/os_errno.h"
 
 #if defined (ACE_EXPORT_MACRO)
 #  undef ACE_EXPORT_MACRO

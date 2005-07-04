@@ -1,19 +1,21 @@
-// Profile_Timer.cpp,v 4.31 2003/11/01 11:15:16 dhinton Exp
+// Profile_Timer.cpp,v 4.35 2004/10/14 13:09:43 elliott_c Exp
 
 #include "ace/Profile_Timer.h"
 
 #if !defined (__ACE_INLINE__)
-# include "ace/Profile_Timer.i"
+# include "ace/Profile_Timer.inl"
 #endif /* __ACE_INLINE__ */
 
 #include "ace/Log_Msg.h"
 #include "ace/OS_NS_string.h"
 
-ACE_RCSID(ace, Profile_Timer, "Profile_Timer.cpp,v 4.31 2003/11/01 11:15:16 dhinton Exp")
+ACE_RCSID(ace, Profile_Timer, "Profile_Timer.cpp,v 4.35 2004/10/14 13:09:43 elliott_c Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_Profile_Timer)
 
 #if (defined (ACE_HAS_PRUSAGE_T) || defined (ACE_HAS_GETRUSAGE)) && !defined (ACE_WIN32)
+
+#include "ace/OS_NS_stdio.h"
 
 void
 ACE_Profile_Timer::dump (void) const
@@ -35,7 +37,7 @@ ACE_Profile_Timer::ACE_Profile_Timer (void)
 #  if defined (ACE_HAS_PRUSAGE_T)
   ACE_OS::memset (&this->last_usage_, 0, sizeof this->last_usage_);
   char buf[20];
-  ACE_OS::sprintf (buf, "/proc/%d", ACE_static_cast (int, ACE_OS::getpid ()));
+  ACE_OS::sprintf (buf, "/proc/%d", static_cast<int> (ACE_OS::getpid ()));
 
   this->proc_handle_ = ACE_OS::open (buf, O_RDONLY, 0);
   if (this->proc_handle_ == -1)
@@ -394,12 +396,12 @@ ACE_Profile_Timer::elapsed_time (ACE_Elapsed_Time &et)
   // Store the time in usecs.
   et.real_time = delta_t.sec () * ACE_ONE_SECOND_IN_USECS  +
                  delta_t.usec ();
-#  else  /* ! ACE_LACKS_FLOATING_POINT */
+#  else  /* ACE_LACKS_FLOATING_POINT */
   ACE_hrtime_t delta_t; /* nanoseconds */
   timer_.elapsed_time (delta_t);
 
   et.real_time = delta_t / (double) ACE_ONE_SECOND_IN_NSECS;
-#  endif /* ! ACE_LACKS_FLOATING_POINT */
+#  endif /* ACE_LACKS_FLOATING_POINT */
 
   et.user_time = 0;
   et.system_time = 0;

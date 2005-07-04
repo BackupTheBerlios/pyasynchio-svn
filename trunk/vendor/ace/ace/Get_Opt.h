@@ -4,7 +4,7 @@
 /**
  *  @file    Get_Opt.h
  *
- *  Get_Opt.h,v 4.42 2003/07/19 19:04:11 dhinton Exp
+ *  Get_Opt.h,v 4.44 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  *  @author Don Hinton <dhinton@gmx.net> (added long option support)
@@ -370,7 +370,7 @@ private:
     /// Default dtor.
     ~ACE_Get_Opt_Long_Option (void);
 
-    int operator < (const ACE_Get_Opt_Long_Option &rhs);
+    bool operator < (const ACE_Get_Opt_Long_Option &rhs);
 
     /// Long option name.
     const ACE_TCHAR *name_;
@@ -459,7 +459,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Get_Opt.i"
+#include "ace/Get_Opt.inl"
 #endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"

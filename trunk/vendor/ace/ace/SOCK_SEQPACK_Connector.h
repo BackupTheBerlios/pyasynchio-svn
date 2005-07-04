@@ -4,7 +4,7 @@
 /**
  *  @file    SOCK_SEQPACK_Connector.h
  *
- *  SOCK_SEQPACK_Connector.h,v 4.6 2003/10/31 19:20:59 gthaker Exp
+ *  SOCK_SEQPACK_Connector.h,v 4.8 2004/06/16 07:57:22 jwillemsen Exp
  *
  *  @author  Patrick J. Lardieri <plardier@atl.lmco.com>
  *  @author  Gaurav Naik, Lockheed Martin ATL
@@ -28,7 +28,8 @@
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
-#include "ace/Time_Value.h"
+// Forward declarations.
+class ACE_Time_Value;
 
 /**
  * @class ACE_SOCK_SEQPACK_Connector
@@ -317,9 +318,9 @@ protected:
                              int result);
 };
 
-#if !defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/SOCK_SEQPACK_Connector.i"
-#endif
+#if defined (__ACE_INLINE__)
+#include "ace/SOCK_SEQPACK_Connector.inl"
+#endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"
 

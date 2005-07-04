@@ -4,7 +4,7 @@
 /**
  *  @file    Timer_Queue_Adapters.h
  *
- *  Timer_Queue_Adapters.h,v 4.33 2003/08/05 17:36:31 dhinton Exp
+ *  Timer_Queue_Adapters.h,v 4.41 2004/07/08 20:00:45 shuston Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu> and
  *          Carlos O'Ryan <coryan@uci.edu>
@@ -23,6 +23,11 @@
 
 #include "ace/Signal.h"
 #include "ace/Condition_Recursive_Thread_Mutex.h"
+
+#if defined (ACE_HAS_DEFERRED_TIMER_COMMANDS)
+#  include "ace/Unbounded_Queue.h"
+class ACE_Command_Base;
+#endif /* ACE_HAS_DEFERRED_TIMER_COMMANDS */
 
 /**
  * @class ACE_Async_Timer_Queue_Adapter
@@ -146,10 +151,6 @@ public:
   /// Access the locking mechanism, useful for iteration.
   ACE_SYNCH_RECURSIVE_MUTEX &mutex (void);
 
-  /// @deprecated Access the implementation queue, useful for iteration.
-  /// Use the method that returns a pointer instead
-  TQ &timer_queue (void);
-
   /// Set a user-specified timer queue.
   int timer_queue (TQ *tq);
 
@@ -230,7 +231,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-# include "ace/Timer_Queue_Adapters.i"
+# include "ace/Timer_Queue_Adapters.inl"
 #endif /* __ACE_INLINE__ */
 
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)

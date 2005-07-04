@@ -4,7 +4,7 @@
 /**
  *  @file    XTI_ATM_Mcast.h
  *
- *  XTI_ATM_Mcast.h,v 4.7 2003/07/19 19:04:14 dhinton Exp
+ *  XTI_ATM_Mcast.h,v 4.8 2004/06/16 07:57:22 jwillemsen Exp
  *
  *  @author Joe Hoffert
  */
@@ -123,7 +123,7 @@ public:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/XTI_ATM_Mcast.i"
+#include "ace/XTI_ATM_Mcast.inl"
 #endif /* __ACE_INLINE__ */
 
 #endif /* ACE_HAS_XTI_ATM */

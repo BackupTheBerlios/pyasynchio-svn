@@ -4,7 +4,7 @@
 /**
  *  @file    MEM_Stream.h
  *
- *  MEM_Stream.h,v 4.11 2003/07/19 19:04:12 dhinton Exp
+ *  MEM_Stream.h,v 4.13 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Nanbor Wang <nanbor@cs.wustl.edu>
  */
@@ -139,9 +139,9 @@ public:
   ACE_ALLOC_HOOK_DECLARE;
 };
 
-#if !defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/MEM_Stream.i"
-#endif /* ACE_LACKS_INLINE_FUNCTIONS */
+#if defined (__ACE_INLINE__)
+#include "ace/MEM_Stream.inl"
+#endif /* __ACE_INLINE__ */
 
 #endif /* ACE_HAS_POSITION_INDEPENDENT_POINTERS == 1 */
 

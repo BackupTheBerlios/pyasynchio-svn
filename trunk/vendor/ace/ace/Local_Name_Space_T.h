@@ -4,7 +4,7 @@
 /**
  *  @file    Local_Name_Space_T.h
  *
- *  Local_Name_Space_T.h,v 4.36 2003/08/04 03:53:51 dhinton Exp
+ *  Local_Name_Space_T.h,v 4.37 2004/06/25 11:46:38 jwillemsen Exp
  *
  *  @author Prashant Jain <pjain@cs.wustl.edu>
  *  @author Irfan Pyarali <irfan@wuerl.wustl.edu> and
@@ -40,7 +40,7 @@ typedef ACE_Hash_Map_Manager_Ex<ACE_NS_String, ACE_NS_Internal, ACE_Hash<ACE_NS_
 typedef ACE_Map_Manager<ACE_NS_String, ACE_NS_Internal, ACE_Null_Mutex> MAP_MANAGER;
 #endif /* 0 */
 
-// Deprecated typedefs.  Use the map's traits instead.
+/// @deprecated Deprecated typedefs.  Use the map's traits instead.
 typedef MAP_MANAGER::ITERATOR MAP_ITERATOR;
 typedef MAP_MANAGER::ENTRY MAP_ENTRY;
 

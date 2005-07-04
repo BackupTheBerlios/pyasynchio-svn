@@ -1,11 +1,11 @@
-// INET_Addr.cpp,v 4.97 2003/12/30 21:25:20 bala Exp
+// INET_Addr.cpp,v 4.109 2004/12/20 12:54:39 jwillemsen Exp
 
 // Defines the Internet domain address family address format.
 
 #include "ace/INET_Addr.h"
 
 #if !defined (__ACE_INLINE__)
-#include "ace/INET_Addr.i"
+#include "ace/INET_Addr.inl"
 #endif /* __ACE_INLINE__ */
 
 #include "ace/Log_Msg.h"
@@ -20,7 +20,7 @@
 
 ACE_RCSID (ace,
            INET_Addr,
-           "INET_Addr.cpp,v 4.97 2003/12/30 21:25:20 bala Exp")
+           "INET_Addr.cpp,v 4.109 2004/12/20 12:54:39 jwillemsen Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_INET_Addr)
 
@@ -40,9 +40,6 @@ ACE_INET_Addr::addr_to_string (ACE_TCHAR s[],
                       ACE_OS::strlen (this->get_host_addr ()))
     + ACE_OS::strlen ("65536") // Assume the max port number.
     + sizeof (':')
-#if defined ACE_HAS_IPV6
-    + ACE_OS::strlen ("[]")
-#endif
     + sizeof ('\0'); // For trailing '\0'.
 
   if (size < total_len)
@@ -50,11 +47,7 @@ ACE_INET_Addr::addr_to_string (ACE_TCHAR s[],
   else
     {
       ACE_OS::sprintf (s,
-#if defined ACE_HAS_IPV6
-                       ACE_LIB_TEXT ("[%s]:%d"),
-#else
                        ACE_LIB_TEXT ("%s:%d"),
-#endif
                        ACE_TEXT_CHAR_TO_TCHAR (ipaddr_format == 0
                                                ? this->get_host_name ()
                                                : this->get_host_addr ()),
@@ -80,7 +73,7 @@ ACE_INET_Addr::dump (void) const
 
 // Compare two addresses for inequality.
 
-int
+bool
 ACE_INET_Addr::operator != (const ACE_INET_Addr &sap) const
 {
   ACE_TRACE ("ACE_INET_Addr::operator !=");
@@ -89,14 +82,14 @@ ACE_INET_Addr::operator != (const ACE_INET_Addr &sap) const
 
 // Compare two addresses for equality.
 
-int
+bool
 ACE_INET_Addr::operator == (const ACE_INET_Addr &sap) const
 {
   ACE_TRACE ("ACE_INET_Addr::operator ==");
 
-  if (this->get_type () != sap.get_type () ||
-      this->get_size () != sap.get_size ()    )
-    return 0;
+  if (this->get_type () != sap.get_type ()
+      || this->get_size () != sap.get_size ())
+    return false;
 
   return (ACE_OS::memcmp (&this->inet_addr_,
                           &sap.inet_addr_,
@@ -151,8 +144,8 @@ ACE_INET_Addr::string_to_addr (const char s[])
   if (port_p == 0) // Assume it's a port number.
     {
       char *endp = 0;
-      u_short port = ACE_static_cast (u_short,
-                                      ACE_OS::strtol (ip_addr, &endp, 10));
+      u_short port =
+        static_cast<u_short> (ACE_OS::strtol (ip_addr, &endp, 10));
       if (port > 0 && *endp == '\0')
         result = this->set (port, ACE_UINT32 (INADDR_ANY));
       else // port name
@@ -163,8 +156,7 @@ ACE_INET_Addr::string_to_addr (const char s[])
       *port_p = '\0'; ++port_p; // skip over ':'
 
       char *endp = 0;
-      u_short port = ACE_static_cast (u_short,
-                                      ACE_OS::strtol (port_p, &endp, 10));
+      u_short port = static_cast<u_short> (ACE_OS::strtol (port_p, &endp, 10));
       if (port > 0 && *endp == '\0')
         result = this->set (port, ip_addr);
       else
@@ -221,7 +213,7 @@ ACE_INET_Addr::set (u_short port_number,
                     int map)
 {
   ACE_TRACE ("ACE_INET_Addr::set");
-  this->set_address (ACE_reinterpret_cast (const char *, &inet_address),
+  this->set_address (reinterpret_cast<const char *> (&inet_address),
                      sizeof inet_address,
                      encode, map);
   this->set_port_number (port_number, encode);
@@ -329,26 +321,26 @@ static int get_port_number_from_name (const char port_name[],
 
   // Maybe port_name is directly a port number?
   char *endp = 0;
-  port_number = ACE_static_cast (int,
-                                 ACE_OS::strtol (port_name, &endp, 10));
-  if (port_number > 0 && *endp == '\0')
+  port_number = static_cast<int> (ACE_OS::strtol (port_name, &endp, 10));
+
+  if (port_number >= 0 && *endp == '\0')
     {
       // Ok, port_name was really a number, and nothing else.  We
       // store that value as the port number.  NOTE: this number must
       // be returned in network byte order!
-      u_short n = ACE_static_cast (u_short, port_number);
+      u_short n = static_cast<u_short> (port_number);
       n = htons (n);
       return n;
     }
 
   // We try to resolve port number from its name.
 
-#if defined (VXWORKS) || defined (CHORUS) || defined (ACE_LACKS_GETSERVBYNAME)
+#if defined (ACE_LACKS_GETSERVBYNAME)
   port_number = 0;
   ACE_UNUSED_ARG (port_name);
   ACE_UNUSED_ARG (protocol);
 #else
-  port_number = 0;
+  port_number = -1;
   servent sentry;
   ACE_SERVENT_DATA buf;
   servent *sp = ACE_OS::getservbyname_r (port_name,
@@ -357,7 +349,7 @@ static int get_port_number_from_name (const char port_name[],
                                          buf);
   if (sp != 0)
     port_number = sp->s_port;
-#endif /* VXWORKS */
+#endif /* ACE_LACKS_GETSERVBYNAME */
 
   return port_number;
 }
@@ -385,7 +377,7 @@ ACE_INET_Addr::set (const char port_name[],
     address_family = AF_INET6;
 #  endif /* ACE_HAS_IPV6 */
 
-  return this->set (ACE_static_cast (u_short, port_number),
+  return this->set (static_cast<u_short> (port_number),
                     host_name, 0, address_family);
 }
 
@@ -406,7 +398,7 @@ ACE_INET_Addr::set (const char port_name[],
       ACE_NOTSUP_RETURN (-1);
     }
 
-  return this->set (ACE_static_cast (u_short, port_number),
+  return this->set (static_cast<u_short> (port_number),
                     inet_address, 0);
 }
 
@@ -475,6 +467,9 @@ ACE_INET_Addr::set (const sockaddr_in *addr, int len)
 
   if (addr->sin_family == AF_INET)
     {
+      int maxlen = static_cast<int> (sizeof (this->inet_addr_.in4_));
+      if (len > maxlen)
+        len = maxlen;
       ACE_OS::memcpy (&this->inet_addr_.in4_, addr, len);
       this->base_set (AF_INET, len);
       return 0;
@@ -482,6 +477,9 @@ ACE_INET_Addr::set (const sockaddr_in *addr, int len)
 #if defined (ACE_HAS_IPV6)
   else if (addr->sin_family == AF_INET6)
     {
+      int maxlen = static_cast<int> (sizeof (this->inet_addr_.in6_));
+      if (len > maxlen)
+        len = maxlen;
       ACE_OS::memcpy (&this->inet_addr_.in6_, addr, len);
       this->base_set (AF_INET6, len);
       return 0;
@@ -497,7 +495,7 @@ void
 ACE_INET_Addr::set_addr (void *addr, int /* len */, int map)
 {
   ACE_TRACE ("ACE_INET_Addr::set_addr");
-  struct sockaddr_in *getfamily = ACE_static_cast (struct sockaddr_in *, addr);
+  struct sockaddr_in *getfamily = static_cast<struct sockaddr_in *> (addr);
 
   if (getfamily->sin_family == AF_INET)
     {
@@ -508,16 +506,16 @@ ACE_INET_Addr::set_addr (void *addr, int /* len */, int map)
 #endif /* ACE_HAS_IPV6 */
         this->set_type (AF_INET);
       this->set_port_number (getfamily->sin_port, 0);
-      this->set_address (ACE_reinterpret_cast (const char*, &getfamily->sin_addr),
+      this->set_address (reinterpret_cast<const char*> (&getfamily->sin_addr),
                          sizeof (getfamily->sin_addr),
                          0, map);
     }
 #if defined (ACE_HAS_IPV6)
   else if (getfamily->sin_family == AF_INET6)
     {
-      struct sockaddr_in6 *in6 = ACE_static_cast (struct sockaddr_in6*, addr);
+      struct sockaddr_in6 *in6 = static_cast<struct sockaddr_in6*> (addr);
       this->set_port_number (in6->sin6_port, 0);
-      this->set_address (ACE_reinterpret_cast (const char*, &in6->sin6_addr),
+      this->set_address (reinterpret_cast<const char*> (&in6->sin6_addr),
                          sizeof (in6->sin6_addr),
                          0);
     }
@@ -591,7 +589,7 @@ ACE_INET_Addr::ACE_INET_Addr (const char port_name[],
   ACE_TRACE ("ACE_INET_Addr::ACE_INET_Addr");
   this->reset ();
   if (this->set (port_name,
-                 inet_address,
+                 htonl (inet_address),
                  protocol) == -1)
     ACE_ERROR ((LM_ERROR,
                 ACE_LIB_TEXT ("ACE_INET_Addr::ACE_INET_Addr")));
@@ -606,7 +604,7 @@ ACE_INET_Addr::ACE_INET_Addr (const wchar_t port_name[],
   ACE_TRACE ("ACE_INET_Addr::ACE_INET_Addr");
   this->reset ();
   if (this->set (port_name,
-                 inet_address,
+                 htonl (inet_address),
                  protocol) == -1)
     ACE_ERROR ((LM_ERROR,
                 ACE_LIB_TEXT ("ACE_INET_Addr::ACE_INET_Addr")));
@@ -796,7 +794,7 @@ int ACE_INET_Addr::set_address (const char *ip_addr,
 
   if (len == 4)
     {
-      ACE_UINT32 ip4 = *ACE_reinterpret_cast (const ACE_UINT32 *, ip_addr);
+      ACE_UINT32 ip4 = *reinterpret_cast<const ACE_UINT32 *> (ip_addr);
       if (encode)
         ip4 = ACE_HTONL (ip4);
 
@@ -930,11 +928,23 @@ ACE_INET_Addr::get_host_addr (char *dst, int size) const
           return ACE_OS::inet_ntop (AF_INET, &addr, dst, size);
         }
 
+#  if defined (ACE_WIN32)
+      if (0 == ::getnameinfo (reinterpret_cast<const sockaddr*> (&this->inet_addr_.in6_),
+                              this->get_size (),
+                              dst,
+                              size,
+                              0, 0,    // Don't want service name
+                              NI_NUMERICHOST))
+        return dst;
+      ACE_OS::set_errno_to_wsa_last_error ();
+      return 0;
+#  else
       const char *ch = ACE_OS::inet_ntop (AF_INET6,
                                           &this->inet_addr_.in6_.sin6_addr,
                                           dst,
                                           size);
       return ch;
+#  endif /* ACE_WIN32 */
     }
 #endif /* ACE_HAS_IPV6 */
 
@@ -947,8 +957,8 @@ ACE_INET_Addr::get_host_addr (char *dst, int size) const
   // on vxworks or lack of thread safety.
   //
   // So, we use the way that vxworks suggests.
-  ACE_INET_Addr *ncthis = ACE_const_cast (ACE_INET_Addr *, this);
-  inet_ntoa_b (this->inet_addr_.in4_.sin_addr, ncthis->buf_);
+  ACE_INET_Addr *ncthis = const_cast<ACE_INET_Addr *> (this);
+  inet_ntoa_b(this->inet_addr_.in4_.sin_addr, ncthis->buf_);
   ACE_OS::strsncpy (dst, &buf_[0], size);
   return &buf_[0];
 #else /* VXWORKS */
@@ -973,7 +983,7 @@ ACE_INET_Addr::get_host_addr (void) const
   // on vxworks or lack of thread safety.
   //
   // So, we use the way that vxworks suggests.
-  ACE_INET_Addr *ncthis = ACE_const_cast (ACE_INET_Addr *, this);
+  ACE_INET_Addr *ncthis = const_cast<ACE_INET_Addr *> (this);
   inet_ntoa_b (this->inet_addr_.in4_.sin_addr, ncthis->buf_);
   return &buf_[0];
 #  else /* VXWORKS */
@@ -983,7 +993,6 @@ ACE_INET_Addr::get_host_addr (void) const
 }
 
 // Return the 4-byte IP address, converting it into host byte order.
-
 ACE_UINT32
 ACE_INET_Addr::get_ip_address (void) const
 {

@@ -4,7 +4,7 @@
 /**
  *  @file    Timer_Queue_T.h
  *
- *  Timer_Queue_T.h,v 4.69 2003/11/02 10:02:44 jwillemsen Exp
+ *  Timer_Queue_T.h,v 4.72 2004/06/16 07:57:22 jwillemsen Exp
  *
  *  @author Doug Schmidt <schmidt@cs.wustl.edu>
  *  @author Irfan Pyarali <irfan@cs.wustl.edu> and
@@ -543,7 +543,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Timer_Queue_T.i"
+#include "ace/Timer_Queue_T.inl"
 #endif /* __ACE_INLINE__ */
 
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE) && !defined (ACE_HAS_BROKEN_HPUX_TEMPLATES)

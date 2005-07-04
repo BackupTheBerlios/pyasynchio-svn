@@ -1,6 +1,6 @@
 // file      : TMCast/MTQueue.hpp
 // author    : Boris Kolpackov <boris@dre.vanderbilt.edu>
-// cvs-id    : MTQueue.hpp,v 1.2 2003/12/31 13:15:23 elliott_c Exp
+// cvs-id    : MTQueue.hpp,v 1.4 2004/05/03 22:14:16 shuston Exp
 
 #ifndef TMCAST_MT_QUEUE_HPP
 #define TMCAST_MT_QUEUE_HPP
@@ -26,19 +26,17 @@ namespace TMCast
 
   public:
 
-    MTQueue (size_t hint = 0)
+    MTQueue ()
         : mutexp_ (new MutexType),
           mutex_ (*mutexp_),
-          // queue_ (hint),
           queue_ (),
           signal_ (false)
     {
     }
 
-    MTQueue (MutexType& mutex, size_t hint = 0)
+    MTQueue (MutexType& mutex)
         : mutexp_ (),
           mutex_ (mutex),
-          // queue_ (hint),
           queue_ (),
           signal_ (false)
     {
@@ -158,7 +156,7 @@ namespace TMCast
 
   private:
     auto_ptr<MutexType> mutexp_;
-    mutable MutexType& mutex_;
+    MutexType& mutex_;
     QueueType queue_;
 
     typedef

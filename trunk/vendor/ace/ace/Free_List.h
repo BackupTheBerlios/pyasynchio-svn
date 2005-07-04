@@ -4,7 +4,7 @@
 /**
  *  @file    Free_List.h
  *
- *  Free_List.h,v 1.32 2003/08/04 21:45:15 dhinton Exp
+ *  Free_List.h,v 1.33 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Darrell Brunsch (brunsch@cs.wustl.edu)
  */
@@ -135,7 +135,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Free_List.i"
+#include "ace/Free_List.inl"
 #endif /* __ACE_INLINE__ */
 
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)

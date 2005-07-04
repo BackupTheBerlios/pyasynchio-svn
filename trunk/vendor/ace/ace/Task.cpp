@@ -1,13 +1,13 @@
-// Task.cpp,v 4.69 2003/07/06 14:57:42 bala Exp
+// Task.cpp,v 4.80 2004/12/11 09:53:27 jwillemsen Exp
 
 #include "ace/Task.h"
 #include "ace/Module.h"
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Task.i"
+#include "ace/Task.inl"
 #endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, Task, "Task.cpp,v 4.69 2003/07/06 14:57:42 bala Exp")
+ACE_RCSID(ace, Task, "Task.cpp,v 4.80 2004/12/11 09:53:27 jwillemsen Exp")
 
 ACE_Task_Base::~ACE_Task_Base (void)
 {
@@ -202,12 +202,12 @@ ACE_Task_Base::svc_run (void *args)
   // Call the Task's svc() hook method.
   int svc_status = t->svc ();
   ACE_THR_FUNC_RETURN status;
-#if (defined (__BORLANDC__) && (__BORLANDC__ < 0x570)) || defined (__MINGW32__) || (defined (_MSC_VER) && (_MSC_VER <= 1310))
+#if (defined (__BORLANDC__) && (__BORLANDC__ <= 0x571)) || defined (__MINGW32__) || (defined (_MSC_VER) && (_MSC_VER <= 1400)) || (defined (ACE_WIN32) && defined(__IBMCPP__) || defined (__DCC__))
   // Some compilers complain about reinterpret_cast from int to unsigned long...
-  status = ACE_static_cast (ACE_THR_FUNC_RETURN, svc_status);
+  status = static_cast<ACE_THR_FUNC_RETURN> (svc_status);
 #else
-  status = ACE_reinterpret_cast (ACE_THR_FUNC_RETURN, svc_status);
-#endif /* (__BORLANDC__ < 0x570) || __MINGW32__ || _MSC_VER <= 1200 */
+  status = reinterpret_cast<ACE_THR_FUNC_RETURN> (svc_status);
+#endif /* (__BORLANDC__ <= 0x570) || __MINGW32__ || _MSC_VER <= 1400 || __IBMCPP__ */
 
 // If we changed this zero change the other if in OS.cpp Thread_Adapter::invoke
 #if 1

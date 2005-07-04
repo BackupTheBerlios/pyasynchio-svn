@@ -1,4 +1,4 @@
-// Lib_Find.cpp,v 1.18 2003/11/01 11:15:13 dhinton Exp
+// Lib_Find.cpp,v 1.25 2004/08/24 18:13:29 shuston Exp
 
 #include "ace/Lib_Find.h"
 #include "ace/Log_Msg.h"
@@ -14,16 +14,94 @@
 #  include "ace/OS_NS_strings.h"
 #endif /* ACE_WIN32 */
 
-ACE_RCSID(ace, Lib_Find, "Lib_Find.cpp,v 1.18 2003/11/01 11:15:13 dhinton Exp")
+#if defined (ACE_OPENVMS)
+#include /**/ "descrip.h"
+#include /**/ "chfdef.h"
+#include /**/ "stsdef.h"
+#include /**/ "libdef.h"
 
+extern "C" int LIB$FIND_IMAGE_SYMBOL(...);
+#endif
+
+ACE_RCSID(ace, Lib_Find, "Lib_Find.cpp,v 1.25 2004/08/24 18:13:29 shuston Exp")
 
 #if ! defined (ACE_PSOS_DIAB_MIPS)
 int
-ACE_Lib_Find::ldfind (const ACE_TCHAR* filename,
-                      ACE_TCHAR pathname[],
-                      size_t maxpathnamelen)
+ACE::ldfind (const ACE_TCHAR* filename,
+             ACE_TCHAR pathname[],
+             size_t maxpathnamelen)
 {
-  ACE_TRACE ("ACE_Lib_Find::ldfind");
+  ACE_TRACE ("ACE::ldfind");
+#if defined (ACE_OPENVMS)
+  if (strlen(filename) >= maxpathnamelen)
+  {
+    errno = ENOMEM;
+    return -1;
+  }
+
+  dsc$descriptor nameDsc;
+  nameDsc.dsc$b_class = DSC$K_CLASS_S;
+  nameDsc.dsc$b_dtype = DSC$K_DTYPE_T;
+  nameDsc.dsc$w_length = strlen(filename);
+  nameDsc.dsc$a_pointer = (char*)filename;
+
+  char symbol[] = "NULL";
+  dsc$descriptor symbolDsc;
+  symbolDsc.dsc$b_class = DSC$K_CLASS_S;
+  symbolDsc.dsc$b_dtype = DSC$K_DTYPE_T;
+  symbolDsc.dsc$w_length = strlen(symbol);
+  symbolDsc.dsc$a_pointer = symbol;
+
+  int symbolValue;
+  int result;
+  try
+  {
+    result = LIB$FIND_IMAGE_SYMBOL(&nameDsc, &symbolDsc, &symbolValue, 0, 0);
+  }
+  catch (chf$signal_array& sig)
+  {
+    result = sig.chf$l_sig_name;
+  }
+
+  int severity = result & STS$M_SEVERITY;
+  int conditionId = result & STS$M_COND_ID;
+  if (severity == STS$K_SUCCESS || severity == STS$K_WARNING || severity == STS$K_INFO ||
+      (severity == STS$K_ERROR && conditionId == (LIB$_KEYNOTFOU & STS$M_COND_ID)))
+  {
+    strcpy(pathname, filename);
+    return 0;
+  }
+
+  if (strlen(filename) + strlen(ACE_DLL_PREFIX) >= maxpathnamelen)
+  {
+    errno = ENOMEM;
+    return -1;
+  }
+
+
+  strcpy(pathname, ACE_DLL_PREFIX);
+  strcat(pathname, filename);
+  nameDsc.dsc$w_length = strlen(pathname);
+  nameDsc.dsc$a_pointer = pathname;
+  try
+  {
+    result = LIB$FIND_IMAGE_SYMBOL(&nameDsc, &symbolDsc, &symbolValue, 0, 0);
+  }
+  catch (chf$signal_array& sig)
+  {
+    result = sig.chf$l_sig_name;
+  }
+
+  severity = result & STS$M_SEVERITY;
+  conditionId = result & STS$M_COND_ID;
+  if (severity == STS$K_SUCCESS || severity == STS$K_WARNING || severity == STS$K_INFO ||
+      (severity == STS$K_ERROR && conditionId == (LIB$_KEYNOTFOU & STS$M_COND_ID)))
+  {
+    return 0;
+  }
+  errno = ENOENT;
+  return -1;
+#endif /* ACE_OPENVMS */
 
 #if defined (ACE_WIN32) && !defined (ACE_HAS_WINCE) && \
     !defined (ACE_HAS_PHARLAP)
@@ -60,7 +138,7 @@ ACE_Lib_Find::ldfind (const ACE_TCHAR* filename,
 #if (ACE_DIRECTORY_SEPARATOR_CHAR != '/')
   // Make all the directory separators "canonical" to simplify
   // subsequent code.
-  ACE_Lib_Find::strrepl (tempcopy, ACE_DIRECTORY_SEPARATOR_CHAR, '/');
+  ACE::strrepl (tempcopy, ACE_DIRECTORY_SEPARATOR_CHAR, '/');
 #endif /* ACE_DIRECTORY_SEPARATOR_CHAR */
 
   // Separate filename from pathname.
@@ -144,9 +222,9 @@ ACE_Lib_Find::ldfind (const ACE_TCHAR* filename,
             {
 #if (ACE_DIRECTORY_SEPARATOR_CHAR != '/')
               // Revert to native path name separators.
-              ACE_Lib_Find::strrepl (searchpathname,
-                                     '/',
-                                     ACE_DIRECTORY_SEPARATOR_CHAR);
+              ACE::strrepl (searchpathname,
+                            '/',
+                            ACE_DIRECTORY_SEPARATOR_CHAR);
 #endif /* ACE_DIRECTORY_SEPARATOR_CHAR */
               // First, try matching the filename *without* adding a
               // prefix.
@@ -155,10 +233,9 @@ ACE_Lib_Find::ldfind (const ACE_TCHAR* filename,
                                ACE_LIB_TEXT ("%s%s%s"),
                                searchpathname,
                                searchfilename,
-                               got_suffix ? ACE_static_cast (ACE_TCHAR *,
-                                                             ACE_LIB_TEXT (""))
-                               : ACE_static_cast (ACE_TCHAR *,
-                                                  dll_suffix));
+                               got_suffix
+                               ? static_cast<ACE_TCHAR *> (ACE_LIB_TEXT (""))
+                               : static_cast<ACE_TCHAR *> (dll_suffix));
 #else /* ! defined (ACE_HAS_BROKEN_CONDITIONAL_STRING_CASTS) */
               ACE_OS::sprintf (pathname,
                                ACE_LIB_TEXT ("%s%s%s"),
@@ -176,10 +253,9 @@ ACE_Lib_Find::ldfind (const ACE_TCHAR* filename,
                                searchpathname,
                                ACE_DLL_PREFIX,
                                searchfilename,
-                               got_suffix ? ACE_static_cast (ACE_TCHAR *,
-                                                             ACE_LIB_TEXT (""))
-                               : ACE_static_cast (ACE_TCHAR *,
-                                                  dll_suffix));
+                               got_suffix
+                               ? static_cast<ACE_TCHAR *> (ACE_LIB_TEXT (""))
+                               : static_cast<ACE_TCHAR *> (dll_suffix));
 #else /* ! defined (ACE_HAS_BROKEN_CONDITIONAL_STRING_CASTS) */
               ACE_OS::sprintf (pathname,
                                ACE_LIB_TEXT ("%s%s%s%s"),
@@ -199,13 +275,32 @@ ACE_Lib_Find::ldfind (const ACE_TCHAR* filename,
         {
 #if defined (ACE_WIN32) && !defined (ACE_HAS_WINCE)
           ACE_TCHAR *file_component = 0;
-          DWORD pathlen = ACE_TEXT_SearchPath (0,
-                                               searchfilename,
-                                               dll_suffix,
-                                               ACE_static_cast (DWORD,
-                                                                maxpathnamelen),
-                                               pathname,
-                                               &file_component);
+          DWORD pathlen =
+            ACE_TEXT_SearchPath (0,
+                                 searchfilename,
+                                 dll_suffix,
+                                 static_cast<DWORD> (maxpathnamelen),
+                                 pathname,
+                                 &file_component);
+          if (pathlen >= maxpathnamelen)
+          {
+              errno = ENOMEM;
+              return -1;
+          }
+          else if (pathlen > 0)
+              return 0;
+
+          // In case not found we should try again with the ACE_DLL_PREFIX
+          // prefixed
+          ACE_OS::strcpy (searchfilename, ACE_DLL_PREFIX);
+          ACE_OS::strcat (searchfilename, tempcopy);
+          pathlen =
+            ACE_TEXT_SearchPath (0,
+                                 searchfilename,
+                                 dll_suffix,
+                                 static_cast<DWORD> (maxpathnamelen),
+                                 pathname,
+                                 &file_component);
           if (pathlen >= maxpathnamelen)
           {
               errno = ENOMEM;
@@ -214,12 +309,20 @@ ACE_Lib_Find::ldfind (const ACE_TCHAR* filename,
           else if (pathlen > 0)
               return 0;
 #else
-          ACE_TCHAR *ld_path =
-#if defined ACE_DEFAULT_LD_SEARCH_PATH
-            ACE_DEFAULT_LD_SEARCH_PATH;
-#else
-            ACE_OS::getenv (ACE_LD_SEARCH_PATH);
-#endif /* ACE_DEFAULT_LD_SEARCH_PATH */
+          ACE_TCHAR *ld_path;
+#  if defined ACE_DEFAULT_LD_SEARCH_PATH
+          ld_path = ACE_DEFAULT_LD_SEARCH_PATH;
+#  else
+#    if defined (ACE_WIN32) || !defined (ACE_USES_WCHAR)
+          ld_path = ACE_OS::getenv (ACE_LD_SEARCH_PATH);
+#    else
+          // Wide-char, non-Windows only offers char * getenv. So capture
+          // it, translate to wide-char, and continue.
+          ACE_Ascii_To_Wide wide_ldpath
+            (ACE_OS::getenv (ACE_TEXT_ALWAYS_CHAR (ACE_LD_SEARCH_PATH)));
+          ld_path = wide_ldpath.wchar_rep ();
+#    endif /* ACE_WIN32 || !ACE_USES_WCHAR */
+#  endif /* ACE_DEFAULT_LD_SEARCH_PATH */
 
 #if defined (ACE_HAS_WINCE)
             ACE_TCHAR *ld_path_temp = 0;
@@ -264,9 +367,9 @@ ACE_Lib_Find::ldfind (const ACE_TCHAR* filename,
 
               ACE_TCHAR *nextholder = 0;
               const ACE_TCHAR *path_entry =
-                ACE_Lib_Find::strsplit_r (ld_path,
-                                          ACE_LD_SEARCH_PATH_SEPARATOR_STR,
-                                          nextholder);
+                ACE::strsplit_r (ld_path,
+                                 ACE_LD_SEARCH_PATH_SEPARATOR_STR,
+                                 nextholder);
               int result = 0;
 
               for (;;)
@@ -302,10 +405,9 @@ ACE_Lib_Find::ldfind (const ACE_TCHAR* filename,
                                    path_entry,
                                    ACE_DIRECTORY_SEPARATOR_CHAR,
                                    searchfilename,
-                                   got_suffix ? ACE_static_cast (ACE_TCHAR *,
-                                                                 ACE_LIB_TEXT (""))
-                                   : ACE_static_cast (ACE_TCHAR *,
-                                                      dll_suffix));
+                                   got_suffix
+                                   ? static_cast<ACE_TCHAR *> (ACE_LIB_TEXT (""))
+                                   : static_cast<ACE_TCHAR *> (dll_suffix));
 #else /* ! defined (ACE_HAS_BROKEN_CONDITIONAL_STRING_CASTS) */
                   ACE_OS::sprintf (pathname,
                                    ACE_LIB_TEXT ("%s%c%s%s"),
@@ -326,10 +428,9 @@ ACE_Lib_Find::ldfind (const ACE_TCHAR* filename,
                                    ACE_DIRECTORY_SEPARATOR_CHAR,
                                    ACE_DLL_PREFIX,
                                    searchfilename,
-                                   got_suffix ? ACE_static_cast (ACE_TCHAR *,
-                                                                 ACE_LIB_TEXT (""))
-                                   : ACE_static_cast (ACE_TCHAR *,
-                                                      dll_suffix));
+                                   got_suffix
+                                   ? static_cast<ACE_TCHAR *> (ACE_LIB_TEXT (""))
+                                   : static_cast<ACE_TCHAR *> (dll_suffix));
 #else /* ! defined (ACE_HAS_BROKEN_CONDITIONAL_STRING_CASTS) */
                   ACE_OS::sprintf (pathname,
                                    ACE_LIB_TEXT ("%s%c%s%s%s"),
@@ -343,9 +444,10 @@ ACE_Lib_Find::ldfind (const ACE_TCHAR* filename,
                     break;
 
                   // Fetch the next item in the path
-                  path_entry = ACE_Lib_Find::strsplit_r (0,
-                                                         ACE_LD_SEARCH_PATH_SEPARATOR_STR,
-                                                         nextholder);
+                  path_entry =
+                    ACE::strsplit_r (0,
+                                     ACE_LD_SEARCH_PATH_SEPARATOR_STR,
+                                     nextholder);
                 }
 
 #if defined (ACE_HAS_WINCE)
@@ -370,13 +472,13 @@ ACE_Lib_Find::ldfind (const ACE_TCHAR* filename,
 }
 
 FILE *
-ACE_Lib_Find::ldopen (const ACE_TCHAR *filename,
+ACE::ldopen (const ACE_TCHAR *filename,
              const ACE_TCHAR *type)
 {
-  ACE_TRACE ("ACE_Lib_Find::ldopen");
+  ACE_TRACE ("ACE::ldopen");
 
   ACE_TCHAR buf[MAXPATHLEN + 1];
-  if (ACE_Lib_Find::ldfind (filename,
+  if (ACE::ldfind (filename,
                    buf,
                    sizeof (buf) /sizeof (ACE_TCHAR)) == -1)
     return 0;
@@ -385,9 +487,9 @@ ACE_Lib_Find::ldopen (const ACE_TCHAR *filename,
 }
 
 ACE_TCHAR *
-ACE_Lib_Find::ldname (const ACE_TCHAR *entry_point)
+ACE::ldname (const ACE_TCHAR *entry_point)
 {
-  ACE_TRACE ("ACE_Lib_Find::ldname");
+  ACE_TRACE ("ACE::ldname");
 
 #if defined(ACE_NEEDS_DL_UNDERSCORE)
   size_t size =
@@ -415,32 +517,39 @@ ACE_Lib_Find::ldname (const ACE_TCHAR *entry_point)
                   0);
 
   ACE_OS::strcpy (new_name, entry_point);
-
+#if defined (ACE_OPENVMS)
+  if (size > 32)
+    new_name[31] = '\000';
+#endif
   return new_name;
 #endif /* ACE_NEEDS_DL_UNDERSCORE */
 }
 
 int
-ACE_Lib_Find::get_temp_dir (ACE_TCHAR *buffer, size_t buffer_len)
+ACE::get_temp_dir (ACE_TCHAR *buffer, size_t buffer_len)
 {
   int result;
 #if defined (ACE_WIN32)
-  result = ACE_TEXT_GetTempPath (ACE_static_cast (DWORD, buffer_len),
+  result = ACE_TEXT_GetTempPath (static_cast<DWORD> (buffer_len),
                                  buffer);
 
   // Make sure to return -1 if there is an error
   if (result == 0 && ::GetLastError () != ERROR_SUCCESS
-      || result > ACE_static_cast (int, buffer_len))
+      || result > static_cast<int> (buffer_len))
     result = -1;
 
 #else /* ACE_WIN32 */
 
+  // NOTE! Non-Windows platforms don't deal with wide chars for env.
+  // variables, so do this narrow-char and convert to wide for the
+  // caller if necessary.
+
   // On non-win32 platforms, check to see what the TMPDIR environment
   // variable is defined to be.  If it doesn't exist, just use /tmp
-  const ACE_TCHAR *tmpdir = ACE_OS::getenv (ACE_LIB_TEXT ("TMPDIR"));
+  const char *tmpdir = ACE_OS::getenv ("TMPDIR");
 
   if (tmpdir == 0)
-    tmpdir = ACE_LIB_TEXT ("/tmp");
+    tmpdir = "/tmp";
 
   size_t len = ACE_OS::strlen (tmpdir);
 
@@ -452,11 +561,11 @@ ACE_Lib_Find::get_temp_dir (ACE_TCHAR *buffer, size_t buffer_len)
     }
   else
     {
-      ACE_OS::strcpy (buffer, tmpdir);
+      ACE_OS::strcpy (buffer, ACE_TEXT_CHAR_TO_TCHAR (tmpdir));
 
       // Add a trailing slash because we cannot assume there is already one
       // at the end.  And having an extra one should not cause problems.
-      buffer[len] = '/';
+      buffer[len] = ACE_LIB_TEXT ('/');
       buffer[len + 1] = 0;
       result = 0;
     }
@@ -465,7 +574,7 @@ ACE_Lib_Find::get_temp_dir (ACE_TCHAR *buffer, size_t buffer_len)
 }
 
 ACE_HANDLE
-ACE_Lib_Find::open_temp_file (const ACE_TCHAR *name, int mode, int perm)
+ACE::open_temp_file (const ACE_TCHAR *name, int mode, int perm)
 {
 #if defined (ACE_WIN32)
   ACE_UNUSED_ARG(perm);
@@ -490,9 +599,9 @@ ACE_Lib_Find::open_temp_file (const ACE_TCHAR *name, int mode, int perm)
 #endif /* ! ACE_PSOS_DIAB_MIPS */
 
 size_t
-ACE_Lib_Find::strrepl (char *s, char search, char replace)
+ACE::strrepl (char *s, char search, char replace)
 {
-  ACE_TRACE ("ACE_Lib_Find::strrepl");
+  ACE_TRACE ("ACE::strrepl");
 
   size_t replaced = 0;
 
@@ -511,9 +620,9 @@ ACE_Lib_Find::strrepl (char *s, char search, char replace)
 // "split".
 
 char *
-ACE_Lib_Find::strsplit_r (char *str,
-                          const char *token,
-                          char *&next_start)
+ACE::strsplit_r (char *str,
+                 const char *token,
+                 char *&next_start)
 {
   char *result = 0;
 
@@ -545,9 +654,9 @@ ACE_Lib_Find::strsplit_r (char *str,
 
 #if defined (ACE_HAS_WCHAR)
 wchar_t *
-ACE_Lib_Find::strsplit_r (wchar_t *str,
-                          const wchar_t *token,
-                          wchar_t *&next_start)
+ACE::strsplit_r (wchar_t *str,
+                 const wchar_t *token,
+                 wchar_t *&next_start)
 {
   wchar_t *result = 0;
 
@@ -578,9 +687,9 @@ ACE_Lib_Find::strsplit_r (wchar_t *str,
 }
 
 size_t
-ACE_Lib_Find::strrepl (wchar_t *s, wchar_t search, wchar_t replace)
+ACE::strrepl (wchar_t *s, wchar_t search, wchar_t replace)
 {
-  ACE_TRACE ("ACE_Lib_Find::strrepl");
+  ACE_TRACE ("ACE::strrepl");
 
   size_t replaced = 0;
 

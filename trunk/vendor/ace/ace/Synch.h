@@ -4,7 +4,7 @@
 /**
  *  @file    Synch.h
  *
- *  Synch.h,v 4.146 2003/11/09 04:12:07 dhinton Exp
+ *  Synch.h,v 4.147 2004/06/14 13:58:42 jwillemsen Exp
  *
  *   Wrapper Facades for various synchronization mechanisms.
  *
@@ -46,10 +46,6 @@
 #include "ace/Thread_Mutex.h"
 #include "ace/Thread_Semaphore.h"
 #include "ace/TSS_Adapter.h"
-
-#if defined (__ACE_INLINE__)
-#include "ace/Synch.i"
-#endif /* __ACE_INLINE__ */
 
 // Include the templates here.
 // FUZZ: disable check_for_synch_include

@@ -1,4 +1,4 @@
-// Future.cpp,v 4.46 2003/12/11 23:31:05 shuston Exp
+// Future.cpp,v 4.48 2004/05/05 21:16:27 ossama Exp
 
 #ifndef ACE_FUTURE_CPP
 #define ACE_FUTURE_CPP
@@ -9,7 +9,7 @@
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
-ACE_RCSID (ace, Future, "Future.cpp,v 4.46 2003/12/11 23:31:05 shuston Exp")
+ACE_RCSID (ace, Future, "Future.cpp,v 4.48 2004/05/05 21:16:27 ossama Exp")
 
 #if defined (ACE_HAS_THREADS)
 
@@ -209,14 +209,14 @@ ACE_Future_Rep<T>::get (T &value,
   if (this->value_ == 0)
     {
       ACE_MT (ACE_GUARD_RETURN (ACE_Recursive_Thread_Mutex, ace_mon,
-                                ACE_const_cast (ACE_Recursive_Thread_Mutex &, this->value_ready_mutex_),
+                                this->value_ready_mutex_,
                                 -1));
       // If the value is not yet defined we must block until the
       // producer writes to it.
 
       while (this->value_ == 0)
         // Perform a timed wait.
-        if ((ACE_const_cast (ACE_Condition_Recursive_Thread_Mutex &, this->value_ready_)).wait (tv) == -1)
+        if (this->value_ready_.wait (tv) == -1)
           return -1;
 
       // Destructor releases the lock.
@@ -308,13 +308,13 @@ ACE_Future<T>::~ACE_Future (void)
   FUTURE_REP::detach (future_rep_);
 }
 
-template <class T> int
+template <class T> bool
 ACE_Future<T>::operator== (const ACE_Future<T> &r) const
 {
   return r.future_rep_ == this->future_rep_;
 }
 
-template <class T> int
+template <class T> bool
 ACE_Future<T>::operator!= (const ACE_Future<T> &r) const
 {
   return r.future_rep_ != this->future_rep_;

@@ -4,7 +4,7 @@
 /**
  *  @file    Shared_Memory_MM.h
  *
- *  Shared_Memory_MM.h,v 4.15 2003/07/19 19:04:13 dhinton Exp
+ *  Shared_Memory_MM.h,v 4.16 2004/06/16 07:57:22 jwillemsen Exp
  *
  *  @author Doug Schmidt
  */
@@ -109,7 +109,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Shared_Memory_MM.i"
+#include "ace/Shared_Memory_MM.inl"
 #endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"

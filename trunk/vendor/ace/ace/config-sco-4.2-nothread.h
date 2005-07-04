@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// config-sco-4.2-nothread.h,v 4.15 2003/07/19 19:04:15 dhinton Exp
+// config-sco-4.2-nothread.h,v 4.18 2004/08/08 14:21:35 jtc Exp
 
 // The following configuration file is designed to work for SCO UNIX
 // version 4.2 without threads.
@@ -55,7 +55,7 @@
 //#define ACE_HAS_MSG
 
 // Compiler/platform contains the <sys/syscall.h> file.
-//#define ACE_HAS_SYSCALL_H
+//#define ACE_HAS_SYS_SYSCALL_H
 
 // Fixes a problem with HP/UX not wrapping the mmap(2) header files
 // with extern "C".
@@ -88,11 +88,8 @@
 // Compiler/platform supports strerror ().
 #define ACE_HAS_STRERROR
 
-// ???
-#define ACE_HAS_SUNOS4_GETTIMEOFDAY
-
-// HP/UX has an undefined syscall for GETRUSAGE...
-//#define ACE_HAS_SYSCALL_GETRUSAGE
+// Platform/compiler supports void * as second parameter to gettimeofday().
+#define ACE_HAS_VOIDPTR_GETTIMEOFDAY
 
 // Note, this only works if the flag is set above!
 //#define ACE_HAS_GETRUSAGE
@@ -107,10 +104,7 @@
 
 #define ACE_HAS_GNU_CSTRING_H
 
-// Turns off the tracing feature.
-#if !defined (ACE_NTRACE)
-#define ACE_NTRACE 1
-#endif /* ACE_NTRACE */
 #define ACE_HAS_DIRENT
+
 #include /**/ "ace/post.h"
 #endif /* ACE_CONFIG_H */

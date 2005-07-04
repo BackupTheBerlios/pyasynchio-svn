@@ -1,12 +1,15 @@
 // file      : TMCast/TransactionController.hpp
 // author    : Boris Kolpackov <boris@dre.vanderbilt.edu>
-// cvs-id    : TransactionController.hpp,v 1.1 2003/11/03 23:23:22 boris Exp
+// cvs-id    : TransactionController.hpp,v 1.2 2004/05/03 22:14:02 shuston Exp
 
-#include <ace/Synch.h>
-#include <ace/Refcounted_Auto_Ptr.h>
+#include "ace/OS_NS_string.h"
+#include "ace/Synch.h"
+#include "ace/Refcounted_Auto_Ptr.h"
 
 #include "Protocol.hpp"
 #include "Messaging.hpp"
+
+#include <typeinfo>
 
 namespace TMCast
 {

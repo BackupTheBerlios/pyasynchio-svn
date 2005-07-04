@@ -1,16 +1,17 @@
-// SOCK_SEQPACK_Association.cpp
+// SOCK_SEQPACK_Association.cpp,v 4.12 2004/10/06 16:14:22 dwcraig Exp
 
 #include "ace/SOCK_SEQPACK_Association.h"
 
-#if defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/SOCK_SEQPACK_Association.i"
-#endif
-
 #include "ace/Auto_Ptr.h"
 #include "ace/Log_Msg.h"
+#include "ace/OS_Memory.h"
 #include "ace/OS_NS_string.h"
 
-ACE_RCSID(ace, SOCK_SEQPACK_Association, "SOCK_SEQPACK_Association.cpp,v 4.7 2003/11/01 11:15:17 dhinton Exp")
+#if !defined (__ACE_INLINE__)
+#include "ace/SOCK_SEQPACK_Association.inl"
+#endif /* __ACE_INLINE__ */
+
+ACE_RCSID(ace, SOCK_SEQPACK_Association, "SOCK_SEQPACK_Association.cpp,v 4.12 2004/10/06 16:14:22 dwcraig Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_SOCK_SEQPACK_Association)
 
@@ -38,39 +39,66 @@ ACE_SOCK_SEQPACK_Association::close (void)
   return ACE_SOCK::close ();
 }
 
+// Developed according to the API discussed in 7.1.4 of
+// draft-ietf-tsvwg-sctpsocket-09.txt to abruptly free a transport
+// transport association's resources.
+int
+ACE_SOCK_SEQPACK_Association::abort (void)
+{
+  //
+  // setsockopt() SO_LINGER configures socket to reap immediately.
+  // Normal close then aborts the association.
+  //
+  linger slinger;
+
+  slinger.l_onoff = 1;
+  slinger.l_linger = 0;
+
+  if (-1 == ACE_OS::setsockopt (this->get_handle (),
+                                SOL_SOCKET,
+                                SO_LINGER,
+                                ACE_reinterpret_cast (const char *, &slinger),
+                                sizeof (linger)))
+  {
+    return -1;
+  }
+
+  return this->close ();
+}
+
 int
 ACE_SOCK_SEQPACK_Association::get_local_addrs (ACE_INET_Addr *addrs, size_t &size) const
 {
   ACE_TRACE ("ACE_SOCK_SEQPACK_Association::get_local_addrs");
 
 #if defined (ACE_HAS_LKSCTP)
-  /* 
+  /*
     The size of ACE_INET_Addr must be large enough to hold the number of
     local addresses on the machine.  If the array is too small, the function
-    will only return the number of addresses that will fit.  If the array is 
+    will only return the number of addresses that will fit.  If the array is
     too large, the 'size' parameter will be modified to indicate the number
-    of addrs.  
+    of addrs.
 
     We will call sctp_getladdrs() which accepts 3 parameters
     1. a socket fd
-    2. a sctp association_id which will be ignored since we are using 
-       tcp sockets    
+    2. a sctp association_id which will be ignored since we are using
+       tcp sockets
     3. a pointer to sockaddr
 
     lksctp/draft will allocate memory and we are responsible for freeing
-    it by calling sctp_freeladdrs().  
+    it by calling sctp_freeladdrs().
   */
 
   sockaddr_in *si = 0;
   sockaddr *laddrs = 0;
   int err = 0;
   size_t len = 0;
- 
+
   err = sctp_getladdrs(this->get_handle(), 0, &laddrs);
   if (err > 0)
   {
     len = err;
-    // check to see if we have more addresses than we have 
+    // check to see if we have more addresses than we have
     // space in our ACE_INET_Addr array
     if (len > size)
     {
@@ -78,7 +106,7 @@ ACE_SOCK_SEQPACK_Association::get_local_addrs (ACE_INET_Addr *addrs, size_t &siz
       // few that fit
       len = size;
     }
-      
+
     for (size_t i = 0; i < len; i++)
     {
       // first we cast the sockaddr to sockaddr_in
@@ -130,55 +158,59 @@ ACE_SOCK_SEQPACK_Association::get_local_addrs (ACE_INET_Addr *addrs, size_t &siz
   // an ACE_Auto_Array_Ptr.)
   {
     sockaddr_in *addr_structs_bootstrap = 0;
-    ACE_NEW_RETURN(addr_structs_bootstrap,
-                   sockaddr_in[size],
-                   -1);
+    ACE_NEW_RETURN (addr_structs_bootstrap, sockaddr_in[size], -1);
     addr_structs.reset(addr_structs_bootstrap);
   }
 
   // Physical size of this array is its logical size multiplied by
   // the physical size of one of its elements.
-  int physical_size = size * sizeof(sockaddr_in);
+  size_t physical_size = size * sizeof(sockaddr_in);
 
   /* Clear the array */
   ACE_OS::memset(addr_structs.get(),
                  0,
                  physical_size);
 
-  /* Populate the array with real values from the getsockname system
-     call.  The variables addr_structs and phycisal_size are
-     modified. */
+  /*
+  ** Populate the array with real values from the getsockname system
+  ** call.  addr_structs is modified, and name_size is modified to contain
+  ** the number of bytes written to addr_structs.
+  ** Use name_size to get the data types right across the call.
+  */
+  int name_size = ACE_static_cast (int, physical_size);
   if (ACE_OS::getsockname (this->get_handle (),
                            ACE_reinterpret_cast (sockaddr *,
                                                  addr_structs.get()),
-                           &physical_size) == -1)
+                           &name_size) == -1)
     return -1;
 
   /* Calculate the NEW physical size of the array */
-  size = physical_size / sizeof (sockaddr_in);
+  name_size /= sizeof (sockaddr_in);
+  size = ACE_static_cast (size_t, name_size);
 
   /* Copy each sockaddr_in to the address structure of an ACE_Addr from
      the passed-in array */
-  for (size_t i = 0; i < size; ++i) {
-
-    addrs[i].set_addr(&(addr_structs[i]), sizeof(sockaddr_in));
-    addrs[i].set_type(addr_structs[i].sin_family);
-    addrs[i].set_size(sizeof(sockaddr_in));
-  }
+  const int addrlen (ACE_static_cast (int, sizeof (sockaddr_in)));
+  for (int i = 0; i < name_size; ++i)
+    {
+      addrs[i].set_addr (&(addr_structs[i]), addrlen);
+      addrs[i].set_type (addr_structs[i].sin_family);
+      addrs[i].set_size (addrlen);
+    }
 #endif /* ACE_HAS_LKSCTP */
   return 0;
 }
 
 
-int 
+int
 ACE_SOCK_SEQPACK_Association::get_remote_addrs (ACE_INET_Addr *addrs, size_t &size) const
 {
   ACE_TRACE ("ACE_SOCK_SEQPACK_Association::get_remote_addrs");
 #if defined (ACE_HAS_LKSCTP)
   /*
     The size of ACE_INET_Addr must be large enough to hold the number of
-    remotes addresses in the association.  If the array is too small, the 
-    function will only return the number of addresses that will fit.  If the 
+    remotes addresses in the association.  If the array is too small, the
+    function will only return the number of addresses that will fit.  If the
     array is too large, the 'size' parameter will be modified to indicate
     the number of addrs.
 
@@ -261,41 +293,45 @@ ACE_SOCK_SEQPACK_Association::get_remote_addrs (ACE_INET_Addr *addrs, size_t &si
   // an ACE_Auto_Array_Ptr.)
   {
     sockaddr_in *addr_structs_bootstrap = 0;
-    ACE_NEW_RETURN(addr_structs_bootstrap,
-                   sockaddr_in[size],
-                   -1);
+    ACE_NEW_RETURN (addr_structs_bootstrap, sockaddr_in[size], -1);
     addr_structs.reset(addr_structs_bootstrap);
   }
 
   // Physical size of this array is its logical size multiplied by
   // the physical size of one of its elements.
-  int physical_size = size * sizeof(sockaddr_in);
+  size_t physical_size = size * sizeof(sockaddr_in);
 
   /* Clear the array */
   ACE_OS::memset(addr_structs.get(),
                  0,
                  physical_size);
 
-  /* Populate the array with real values from the getpeername system
-     call.  The variables addr_structs and phycisal_size are
-     modified. */
+  /*
+  ** Populate the array with real values from the getpeername system
+  ** call.  addr_structs is modified, and name_size is modified to contain
+  ** the number of bytes written to addr_structs.
+  ** Use name_size to get the data types right across the call.
+  */
+  int name_size = ACE_static_cast (int, physical_size);
   if (ACE_OS::getpeername (this->get_handle (),
                            ACE_reinterpret_cast (sockaddr *,
                                                  addr_structs.get()),
-                           &physical_size) == -1)
+                           &name_size) == -1)
     return -1;
 
   /* Calculate the NEW physical size of the array */
-  size = physical_size / sizeof (sockaddr_in);
+  name_size /= sizeof (sockaddr_in);
+  size = ACE_static_cast (size_t, name_size);
 
   /* Copy each sockaddr_in to the address structure of an ACE_Addr from
      the passed-in array */
-  for (size_t i = 0; i < size; ++i) {
-
-    addrs[i].set_addr(&(addr_structs[i]), sizeof(sockaddr_in));
-    addrs[i].set_type(addr_structs[i].sin_family);
-    addrs[i].set_size(sizeof(sockaddr_in));
-  }
+  const int addrlen (ACE_static_cast (int, sizeof (sockaddr_in)));
+  for (int i = 0; i < name_size; ++i)
+    {
+      addrs[i].set_addr (&(addr_structs[i]), addrlen);
+      addrs[i].set_type (addr_structs[i].sin_family);
+      addrs[i].set_size (addrlen);
+    }
 #endif /* ACE_HAS_LKSCTP */
   return 0;
 }

@@ -1,4 +1,4 @@
-// Log_Msg_NT_Event_Log.cpp,v 4.13 2003/11/26 18:04:13 schmidt Exp
+// Log_Msg_NT_Event_Log.cpp,v 4.15 2004/06/14 13:58:41 jwillemsen Exp
 
 #include "ace/config-all.h"
 
@@ -8,8 +8,9 @@
 #include "ace/Log_Msg.h"
 #include "ace/Log_Record.h"
 #include "ace/OS_NS_stdio.h"
+#include "ace/OS_NS_string.h"
 
-ACE_RCSID(ace, Log_Msg_NT_Event_Log, "Log_Msg_NT_Event_Log.cpp,v 4.13 2003/11/26 18:04:13 schmidt Exp")
+ACE_RCSID(ace, Log_Msg_NT_Event_Log, "Log_Msg_NT_Event_Log.cpp,v 4.15 2004/06/14 13:58:41 jwillemsen Exp")
 
 ACE_Log_Msg_NT_Event_Log::ACE_Log_Msg_NT_Event_Log (void)
   : evlog_handle_(0)
@@ -32,9 +33,8 @@ ACE_Log_Msg_NT_Event_Log::open (const ACE_TCHAR *logger_key)
                                    msg_file,
                                    MAXPATHLEN))
     return -1;
-  DWORD msg_file_length = ACE_static_cast (DWORD,
-                                           (ACE_OS::strlen (msg_file) + 1) 
-                                           * sizeof (ACE_TCHAR));
+  DWORD msg_file_length =
+    static_cast<DWORD> ((ACE_OS::strlen (msg_file) + 1) * sizeof (ACE_TCHAR));
 
   // If a logger_key has been supplied then we use that as the event
   // source name, otherwise we default to the program name.
@@ -87,7 +87,7 @@ ACE_Log_Msg_NT_Event_Log::reset (void)
 int
 ACE_Log_Msg_NT_Event_Log::close (void)
 {
-  if (this->evlog_handle_ == 0 
+  if (this->evlog_handle_ == 0
       || DeregisterEventSource (this->evlog_handle_))
     {
       this->evlog_handle_ = 0;

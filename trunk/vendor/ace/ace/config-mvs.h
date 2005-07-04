@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// config-mvs.h,v 4.50 2003/07/19 19:04:15 dhinton Exp
+// config-mvs.h,v 4.54 2004/09/29 09:50:28 jwillemsen Exp
 
 // Config file for MVS with OpenEdition
 
@@ -86,8 +86,7 @@
 #define ACE_LACKS_LINEBUFFERED_STREAMBUF
 #define ACE_LACKS_MADVISE
 #define ACE_LACKS_MALLOC_H
-#define ACE_LACKS_MSGBUF_T
-#define ACE_LACKS_PARAM_H
+#define ACE_LACKS_SYS_PARAM_H
 #define ACE_LACKS_PLACEMENT_OPERATOR_DELETE
 #define ACE_LACKS_PTHREAD_THR_SIGSETMASK
 #define ACE_LACKS_READDIR_R
@@ -97,7 +96,7 @@
 #define ACE_LACKS_STRRECVFD
 #define ACE_LACKS_SYSTIME_H
 #define ACE_LACKS_SYS_NERR
-#define ACE_LACKS_TCP_H
+#define ACE_LACKS_NETINET_TCP_H
 #define ACE_LACKS_THREAD_PROCESS_SCOPING
 #define ACE_LACKS_THREAD_STACK_ADDR
 #define ACE_LACKS_TIMESPEC_T
@@ -107,10 +106,6 @@
 #endif
 
 #define ACE_NEEDS_DEV_IO_CONVERSION
-
-#if !defined (ACE_NTRACE)
-# define ACE_NTRACE 1
-#endif /* ACE_NTRACE */
 
 #define ACE_SIZEOF_FLOAT 4
 #define ACE_SIZEOF_DOUBLE 8

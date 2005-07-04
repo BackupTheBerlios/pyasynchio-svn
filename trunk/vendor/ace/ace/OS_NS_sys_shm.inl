@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// OS_NS_sys_shm.inl,v 1.5 2004/01/08 15:49:42 pmorrison Exp
+// OS_NS_sys_shm.inl,v 1.7 2004/06/24 14:07:03 jtc Exp
 
 #include "ace/OS_NS_errno.h"
 
@@ -8,11 +8,7 @@ ACE_OS::shmat (int int_id, void *shmaddr, int shmflg)
 {
   ACE_OS_TRACE ("ACE_OS::shmat");
 #if defined (ACE_HAS_SYSV_IPC)
-# if defined (ACE_LACKS_POSIX_PROTOTYPES) || defined (ACE_LACKS_SOME_POSIX_PROTOTYPES)
-  ACE_OSCALL_RETURN (::shmat (int_id, (char *)shmaddr, shmflg), void *, (void *) -1);
-# else
   ACE_OSCALL_RETURN (::shmat (int_id, static_cast <char *> (shmaddr), shmflg), void *, (void *) -1);
-# endif /* ACE_LACKS_POSIX_PROTOTYPES */
 #else
   ACE_UNUSED_ARG (int_id);
   ACE_UNUSED_ARG (shmaddr);
@@ -64,4 +60,3 @@ ACE_OS::shmget (key_t key, int size, int flags)
   ACE_NOTSUP_RETURN (-1);
 #endif /* ACE_HAS_SYSV_IPC */
 }
-

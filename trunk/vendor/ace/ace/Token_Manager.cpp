@@ -2,14 +2,14 @@
 #include "ace/Object_Manager.h"
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Token_Manager.i"
+#include "ace/Token_Manager.inl"
 #endif /* __ACE_INLINE__ */
 
 #if defined (ACE_HAS_TOKENS_LIBRARY)
 
 ACE_RCSID (ace,
            Token_Manager,
-           "Token_Manager.cpp,v 4.20 2003/07/27 20:48:28 dhinton Exp")
+           "Token_Manager.cpp,v 4.21 2004/06/16 07:57:21 jwillemsen Exp")
 
 // singleton token manager
 ACE_Token_Manager *ACE_Token_Manager::token_manager_ = 0;

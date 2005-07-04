@@ -1,15 +1,15 @@
-// FIFO_Send_Msg.cpp,v 4.19 2003/11/01 11:15:12 dhinton Exp
+// FIFO_Send_Msg.cpp,v 4.22 2004/06/16 07:57:20 jwillemsen Exp
 
 #include "ace/FIFO_Send_Msg.h"
-
-#if defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/FIFO_Send_Msg.i"
-#endif
 
 #include "ace/Log_Msg.h"
 #include "ace/OS_NS_sys_uio.h"
 
-ACE_RCSID(ace, FIFO_Send_Msg, "FIFO_Send_Msg.cpp,v 4.19 2003/11/01 11:15:12 dhinton Exp")
+#if !defined (__ACE_INLINE__)
+#include "ace/FIFO_Send_Msg.inl"
+#endif /* __ACE_INLINE__ */
+
+ACE_RCSID(ace, FIFO_Send_Msg, "FIFO_Send_Msg.cpp,v 4.22 2004/06/16 07:57:20 jwillemsen Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_FIFO_Send_Msg)
 
@@ -32,7 +32,7 @@ ACE_FIFO_Send_Msg::send (const ACE_Str_Buf &send_msg)
                       (strbuf *) &send_msg,
                       0) == -1)
     return -1;
-  else 
+  else
     return send_msg.len;
 #else
   iovec iov[2];
@@ -41,7 +41,7 @@ ACE_FIFO_Send_Msg::send (const ACE_Str_Buf &send_msg)
   iov[0].iov_len  = sizeof send_msg.len;
 
   iov[1].iov_base = (char *) send_msg.buf;
-  iov[1].iov_len  =  ACE_static_cast (u_long, send_msg.len);
+  iov[1].iov_len  =  static_cast<u_long> (send_msg.len);
 
   ssize_t sent = ACE_OS::writev (this->get_handle (), iov, 2);
   if (sent > 0)

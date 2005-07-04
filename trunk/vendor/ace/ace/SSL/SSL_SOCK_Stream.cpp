@@ -1,23 +1,22 @@
-// -*- C++ -*-
-//
-// SSL_SOCK_Stream.cpp,v 1.26 2003/11/04 16:46:04 dhinton Exp
+// SSL_SOCK_Stream.cpp,v 1.30 2004/08/17 05:57:40 ossama Exp
 
 #include "ace/Handle_Set.h"
 #include "ace/Log_Msg.h"
+#include "ace/Time_Value.h"
+#include "ace/OS_NS_string.h"
+#include "ace/OS_NS_sys_select.h"
 
 #include <openssl/err.h>
 
 #include "SSL_SOCK_Stream.h"
-#include "ace/OS_NS_string.h"
-#include "ace/OS_NS_sys_select.h"
 
-#if defined (ACE_LACKS_INLINE_FUNCTIONS)
+#if !defined (__ACE_INLINE__)
 #include "SSL_SOCK_Stream.i"
-#endif
+#endif /* __ACE_INLINE__ */
 
 ACE_RCSID (ACE_SSL,
            SSL_SOCK_Stream,
-           "SSL_SOCK_Stream.cpp,v 1.26 2003/11/04 16:46:04 dhinton Exp")
+           "SSL_SOCK_Stream.cpp,v 1.30 2004/08/17 05:57:40 ossama Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_SSL_SOCK_Stream)
 
@@ -52,7 +51,6 @@ ACE_SSL_SOCK_Stream::~ACE_SSL_SOCK_Stream (void)
   ACE_TRACE ("ACE_SSL_SOCK_Stream::~ACE_SSL_SOCK_Stream");
 
   ::SSL_free (this->ssl_);
-  this->ssl_ = 0;
 
   // @@ Question: should we reference count the Context object or
   // leave that to the application developer? We do not reference
@@ -76,7 +74,7 @@ ACE_SSL_SOCK_Stream::sendv (const iovec iov[],
 
   ACE_Time_Value t;
   ACE_Time_Value *timeout =
-    ACE_const_cast (ACE_Time_Value *, max_wait_time);
+    const_cast<ACE_Time_Value *> (max_wait_time);
 
   if (max_wait_time != 0)
     {
@@ -115,7 +113,7 @@ ACE_SSL_SOCK_Stream::sendv (const iovec iov[],
           // This avoids a subtle problem where "holes" in the data
           // stream would occur if partial sends of a given buffer in
           // the iovec array occured.
-          if (ACE_static_cast (size_t, result) < iov[i].iov_len)
+          if (static_cast<size_t> (result) < iov[i].iov_len)
             break;
         }
 

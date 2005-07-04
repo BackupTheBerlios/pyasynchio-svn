@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// OS_NS_sys_wait.inl,v 1.4 2003/11/14 10:49:26 jwillemsen Exp
+// OS_NS_sys_wait.inl,v 1.5 2004/01/23 18:09:57 gmaxey Exp
 
 #include "ace/OS_NS_errno.h"
 #include "ace/Global_Macros.h"
@@ -85,6 +85,10 @@ ACE_OS::waitpid (pid_t pid,
   ACE_UNUSED_ARG (wait_options);
   ACE_UNUSED_ARG (handle);
   ACE_OSCALL_RETURN (::await (&ACE_OS::actorcaps_[pid]),
+                     pid_t, -1);
+#elif defined(ACE_TANDEM_T1248_PTHREADS)
+  ACE_UNUSED_ARG (handle);
+  ACE_OSCALL_RETURN (::spt_waitpid (pid, status, wait_options),
                      pid_t, -1);
 #else
   ACE_UNUSED_ARG (handle);

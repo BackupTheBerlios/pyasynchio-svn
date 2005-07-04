@@ -2,7 +2,7 @@
 /**
  *  @file   config-win32-msvc.h
  *
- *  config-win32-msvc.h,v 4.22 2003/12/31 13:15:23 elliott_c Exp
+ *  config-win32-msvc.h,v 4.26 2004/12/19 07:33:23 turkaye Exp
  *
  *  @brief  Microsoft Visual C++ configuration file.
  *
@@ -46,12 +46,23 @@
 # endif  /* ACE_LD_DECORATOR_STR */
 #endif  /* _MSC_VER >= 1200 */
 
-#if (_MSC_VER >= 1300)
+// Compiler sets _CPPRTTI if rtti is enabled.
+#if defined (_CPPRTTI)
+#  if defined (ACE_LACKS_RTTI)
+#    undef ACE_LACKS_RTTI
+#  endif
+#else
+#  if !defined (ACE_LACKS_RTTI)
+#    define ACE_LACKS_RTTI
+#  endif
+#endif /* _CPPRTTI */
+
+#if (_MSC_VER >= 1400)
+# include "ace/config-win32-msvc-8.h"
+#elif (_MSC_VER >= 1300)
 # include "ace/config-win32-msvc-7.h"
 #elif (_MSC_VER >= 1200)
 # include "ace/config-win32-msvc-6.h"
-#elif (_MSC_VER >= 1100)
-# include "ace/config-win32-msvc-5.h"
 #else
 # error This version of Microsoft Visual C++ not supported.
 #endif
@@ -130,7 +141,9 @@
 
 // Define QT_DLL for QtReactor to be compiled correct
 #   if defined (ACE_HAS_QT)
-#     define QT_DLL
+#     if !defined (QT_DLL)   /* may already be defined */
+#       define QT_DLL
+#     endif /* !QT_DLL */
 #   endif
 
 #include /**/ "ace/post.h"

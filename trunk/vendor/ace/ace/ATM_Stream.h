@@ -4,7 +4,7 @@
 /**
  *  @file    ATM_Stream.h
  *
- *  ATM_Stream.h,v 4.11 2003/07/19 19:04:10 dhinton Exp
+ *  ATM_Stream.h,v 4.13 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Joe Hoffert
  */
@@ -27,10 +27,10 @@
 #include "ace/ATM_Params.h"
 
 #if defined (ACE_WIN32)
-#include "SOCK_Stream.h"
+#include "ace/SOCK_Stream.h"
 typedef ACE_SOCK_Stream ATM_Stream;
 #else
-#include "TLI_Stream.h"
+#include "ace/TLI_Stream.h"
 typedef ACE_TLI_Stream ATM_Stream;
 #endif
 
@@ -91,7 +91,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/ATM_Stream.i"
+#include "ace/ATM_Stream.inl"
 #endif /* __ACE_INLINE__ */
 
 #endif /* ACE_HAS_ATM */

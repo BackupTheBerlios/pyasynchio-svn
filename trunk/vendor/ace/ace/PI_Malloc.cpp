@@ -5,12 +5,12 @@
 
 ACE_RCSID (ace,
            PI_Malloc,
-           "PI_Malloc.cpp,v 4.11 2003/11/09 04:12:07 dhinton Exp")
+           "PI_Malloc.cpp,v 4.12 2004/06/16 07:57:20 jwillemsen Exp")
 
 #if (ACE_HAS_POSITION_INDEPENDENT_POINTERS == 1)
 
 #if !defined (__ACE_INLINE__)
-#include "ace/PI_Malloc.i"
+#include "ace/PI_Malloc.inl"
 #endif /* __ACE_INLINE__ */
 
 #include "ace/Object_Manager.h"

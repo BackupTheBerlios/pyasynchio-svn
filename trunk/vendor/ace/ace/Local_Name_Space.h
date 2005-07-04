@@ -4,7 +4,7 @@
 /**
  *  @file    Local_Name_Space.h
  *
- *  Local_Name_Space.h,v 4.25 2003/08/04 03:53:51 dhinton Exp
+ *  Local_Name_Space.h,v 4.26 2004/04/23 03:06:18 ossama Exp
  *
  *  @author Prashant Jain (pjain@cs.wustl.edu)
  *  @author Irfan Pyarali (irfan@wuerl.wustl.edu)
@@ -62,10 +62,10 @@ public:
   int strstr (const ACE_NS_String &) const;
 
   /// Compare an ACE_NS_String.
-  int operator == (const ACE_NS_String &) const;
+  bool operator == (const ACE_NS_String &) const;
 
   /// Compare an ACE_NS_String.
-  int operator != (const ACE_NS_String &) const;
+  bool operator != (const ACE_NS_String &) const;
 
   /// Returns length of the string
   size_t len (void) const;
@@ -104,7 +104,7 @@ public:
   ACE_NS_Internal (ACE_NS_String &value, const char *type);
 
   /// Compare an ACE_NS_Internal
-  int operator == (const ACE_NS_Internal &) const;
+  bool operator == (const ACE_NS_Internal &) const;
 
   /// Return value.
   ACE_NS_String value (void);

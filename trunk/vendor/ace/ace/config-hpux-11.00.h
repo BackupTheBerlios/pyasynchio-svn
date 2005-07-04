@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// config-hpux-11.00.h,v 1.30 2003/12/22 22:50:34 shuston Exp
+// config-hpux-11.00.h,v 1.45 2004/10/11 12:47:43 mcorino Exp
 
 // The following configuration file is designed to work for HP
 // platforms running HP-UX 11.00 using aC++, CC, or gcc (2.95 and up).
@@ -19,8 +19,16 @@
 
 #  include "ace/config-g++-common.h"
 
+#  if __GLIBC__ >= 2
+     // glibc 2 and higher has wchar support
+#    define ACE_HAS_XPG4_MULTIBYTE_CHAR
+#  endif
+
 // gcc 2.95.2 supplies the ssize_t typedef.
 #  define ACE_HAS_SSIZE_T
+
+// We have to explicitly instantiate static template members
+# define ACE_HAS_EXPLICIT_STATIC_TEMPLATE_MEMBER_INSTANTIATION
 
 // gcc 3.0 claims to have wide character stuff, but (at least the version
 // built by HP) can't actually compile it. It refers to a wctype.h file
@@ -74,9 +82,6 @@
 // Precompiler needs extra flags to ignore "invalid #pragma directive"
 #    define ACE_CC_PREPROCESSOR_ARGS "-E +W 67"
 
-// Compiler supports ANSI casts
-#    define ACE_HAS_ANSI_CASTS
-
 // Compiler can't handle calls like foo->operator T *()
 #    define ACE_HAS_BROKEN_CONVERSIONS
 
@@ -125,6 +130,7 @@
 // new(nothrow_t) is offered.
 #    define ACE_NEW_THROWS_EXCEPTIONS
 #    define ACE_HAS_NEW_NOTHROW
+#    define ACE_HAS_NEW_NO_H 1
 
 // Compiler's template mechanism must see source code (i.e., .C files).
 #    define ACE_TEMPLATES_REQUIRE_SOURCE
@@ -133,7 +139,8 @@
 #    define ACE_HAS_TEMPLATE_SPECIALIZATION
 // ... and uses the template<> syntax
 #    define ACE_HAS_STD_TEMPLATE_SPECIALIZATION
-#    define ACE_HAS_STD_TEMPLATE_METHOD_SPECIALIZATION
+
+#    define ACE_HAS_STD_TEMPLATE_CLASS_MEMBER_SPECIALIZATION
 
 // Preprocessor needs some help with data types
 #    if defined (__LP64__)
@@ -160,7 +167,6 @@
 // KCC Specific Section
 #if defined(__KCC)
 #  include "ace/config-kcc-common.h"
-#  undef ACE_HAS_STD_TEMPLATE_METHOD_SPECIALIZATION
 #  undef ACE_CC_PREPROCESSOR_ARGS
 #endif
 
@@ -189,6 +195,15 @@
 // HP-UX is a POSIX-compliant system - see what's available.
 #include "ace/config-posix.h"
 
+// config-posix.h sets up ACE_HAS_AIO_CALLS if the headers define the
+// proper things. In HP-UX 11's case, the AIOCB Proactor works the best
+// overall. If the user hasn't overridden it, select AIOCB.
+#if defined (ACE_HAS_AIO_CALLS)
+#  if !defined (ACE_POSIX_AIOCB_PROACTOR) && !defined (ACE_POSIX_SIG_PROACTOR)
+#    define ACE_POSIX_AIOCB_PROACTOR
+#  endif /* !ACE_HAS_POSIX_AIOCB_PROACTOR && !ACE_POSIX_SIG_PROACTOR */
+#endif /* ACE_HAS_AIO_CALLS */
+
 ////////////////////////////////////////////////////////////////////////////
 //
 // General OS information - see README for more details on what they mean
@@ -200,12 +215,6 @@
 // It can also be set so that the mapped region is shareable with 32-bit
 // programs.  To enable the 32/64 sharing, comment out the first definition
 // of ACE_DEFAULT_BASE_ADDR and uncomment the two lines after it.
-// Note - there's a compiler bug on aC++ A.03.04 in 64-bit mode which prevents
-// these from working as-is.  So, there's some hackery in Naming_Context.cpp
-// and Memory_Pool.cpp which works around it.  It requires the
-// ACE_DEFAULT_BASE_ADDRL definition below - make sure it has the same
-// value as what you use for ACE_DEFAULT_BASE_ADDR.  This is allegedly fixed
-// in A.03.10 on the June Applications CD.
 #if defined (__LP64__)
 #  define ACE_DEFAULT_BASE_ADDR ((char *) 0x0000001100000000)
 //#  define ACE_DEFAULT_BASE_ADDR ((char *) 0x80000000)
@@ -226,6 +235,9 @@
 #  define ACE_INFINITE 10000000
 #endif
 
+/* Compiler/platform correctly calls init()/fini() for shared libraries. */
+#define ACE_HAS_AUTOMATIC_INIT_FINI 1
+
 // Manually tweak the malloc control block paddings to properly align
 // things.
 #define ACE_MALLOC_PADDING 16
@@ -233,7 +245,10 @@
 #define ACE_PI_CONTROL_BLOCK_ALIGN_LONGS  3
 
 // Compiler/platform contains the <sys/syscall.h> file.
-#define ACE_HAS_SYSCALL_H
+#define ACE_HAS_SYS_SYSCALL_H
+
+#define ACE_HAS_SYS_PSTAT_H
+
 // But doesn't have a prototype for syscall()
 #define ACE_LACKS_SYSCALL
 
@@ -263,6 +278,12 @@
 // Platform supports IP multicast
 #define ACE_HAS_IP_MULTICAST
 
+/* Platform defines MAP_FAILED as a long constant. */
+#define ACE_HAS_LONG_MAP_FAILED 1
+
+/* Define to 1 if platform has memchr(). */
+#define ACE_HAS_MEMCHR 1
+
 // Platform supports recvmsg and sendmsg.
 #define ACE_HAS_MSG
 
@@ -272,11 +293,25 @@
 // Compiler/platform supports poll().
 #define ACE_HAS_POLL
 
+/* Platform supports "position-independent" features provided by
+   ACE_Based_Pointer<>. */
+#define ACE_HAS_POSITION_INDEPENDENT_POINTERS 1
+
+/* Platform supports POSIX getpwnam_r() function */
+#define ACE_HAS_POSIX_GETPWNAM_R 1
+
 // Platform supports POSIX O_NONBLOCK semantics.
 #define ACE_HAS_POSIX_NONBLOCK
 
 // Platform supports the POSIX struct timespec type
 #define ACE_HAS_POSIX_TIME
+
+/* Platform has pread() and pwrite() support. */
+#define ACE_HAS_P_READ_WRITE 1
+
+/* Platform will recurse infinitely on thread exits from TSS cleanup routines
+   (e.g., AIX) */
+#define ACE_HAS_RECURSIVE_THR_EXIT_SEMANTICS 1
 
 // Platform supports reentrant functions (all the POSIX *_r functions).
 #define ACE_HAS_REENTRANT_FUNCTIONS
@@ -291,17 +326,35 @@
 // in the future (problem ID P64).
 #define ACE_LACKS_NETDB_REENTRANT_FUNCTIONS
 
+/* Platform lacks pri_t (e.g., Tandem NonStop UNIX). */
+#define ACE_LACKS_PRI_T 1
+
 // Platform has shm_open
 #define ACE_HAS_SHM_OPEN
 
 // Compiler/platform defines the sig_atomic_t typedef
 #define ACE_HAS_SIG_ATOMIC_T
 
+/* Compiler requires extern "C" functions for signals. */
+#define ACE_HAS_SIG_C_FUNC 1
+
+// Platform's sigaction() function takes const sigaction* as 2nd parameter.
+#define ACE_HAS_SIGACTION_CONSTP2
+
 // Platform supports SVR4 extended signals
 #define ACE_HAS_SIGINFO_T
 
+/* Define to 1 if platform has sigsuspend(). */
+#define ACE_HAS_SIGSUSPEND 1
+
 // Platform doesn't detect a signal out of range unless it's way out of range.
 #define ACE_HAS_SIGISMEMBER_BUG
+
+/* Platform provides socklen_t type, such as Linux with glibc2. */
+#define ACE_HAS_SOCKLEN_T 1
+
+/* Platform/compiler supports _sys_errlist symbol */
+#define ACE_HAS_SYS_ERRLIST 1
 
 #define ACE_HAS_UALARM
 
@@ -311,8 +364,14 @@
 // Compiler/platform supports strerror ().
 #define ACE_HAS_STRERROR
 
-// SunOS 4 style prototype for gettimeofday
-#define ACE_HAS_SUNOS4_GETTIMEOFDAY
+// Platform/compiler supports void * as second parameter to gettimeofday().
+#define ACE_HAS_VOIDPTR_GETTIMEOFDAY
+
+/* Platform requires void * for mmap(). */
+#define ACE_HAS_VOIDPTR_MMAP 1
+
+/* OS/compiler uses void * arg 4 setsockopt() rather than const char * */
+#define ACE_HAS_VOIDPTR_SOCKOPT 1
 
 // Platform supports SVR4 dynamic linking semantics, in 64-bit mode only.
 // When used, this requires -ldl on the ACE library link line.
@@ -320,10 +379,11 @@
 #define ACE_HAS_SVR4_DYNAMIC_LINKING
 #endif
 
-// HP/UX has an undefined syscall for GETRUSAGE...
-#define ACE_HAS_SYSCALL_GETRUSAGE
-// Note, this only works if the flag is set above!
+// Platform supports the getrusage() system call.
 #define ACE_HAS_GETRUSAGE
+
+/* Define to 1 if platform has the declaration of getrusage(). */
+#define ACE_HAS_GETRUSAGE_PROTOTYPE 1
 
 // Platform has the sigwait function in a header file
 #define ACE_HAS_SIGWAIT
@@ -362,6 +422,8 @@
 // But the putmsg signature doesn't have it as const...
 // Well, it really does, but it depends on preprocessor defines.
 #define ACE_LACKS_CONST_STRBUF_PTR
+/* Platform supports TLI timod STREAMS module */
+#define ACE_HAS_TIMOD_H 1
 
 // Platform supports STREAM pipes
 // This is possible, but not by default - need to rebuild the kernel to
@@ -382,6 +444,8 @@
 // The definitions of TCP_NODELAY and TCP_MAXSEG conflict between
 // sys/xti.h and netinet/tcp.h.
 #define ACE_HAS_CONFLICTING_XTI_MACROS
+/* Platform provides <sys/xti.h> header */
+#define ACE_HAS_SYS_XTI_H 1
 
 /////////////////////////////////////////////////////////////////////////
 //
@@ -416,19 +480,14 @@
 #  define ACE_HAS_PTHREADS_STD
 #  define ACE_HAS_PTHREADS_UNIX98_EXT
 #  define ACE_HAS_PTHREAD_CONTINUE
+#  define ACE_HAS_PTHREAD_RESUME_NP
 #  define ACE_HAS_PTHREAD_SUSPEND
-
+#  define ACE_HAS_RECURSIVE_MUTEXES
 #  define ACE_HAS_THREAD_SPECIFIC_STORAGE
 #endif /* ACE_HAS_THREADS */
 
 #define ACE_HAS_POSIX_SEM
 #define ACE_HAS_TERM_IOCTLS
-
-// Turns off the tracing feature.
-// To build with tracing enabled, make sure ACE_NTRACE is not defined
-#if !defined (ACE_NTRACE)
-#  define ACE_NTRACE 1
-#endif /* ACE_NTRACE */
 
 #include /**/ "ace/post.h"
 #endif /* ACE_CONFIG_H */

@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// RMCast_Copy_On_Write.h,v 1.8 2003/11/01 11:15:19 dhinton Exp
+// RMCast_Copy_On_Write.h,v 1.9 2004/10/22 14:47:38 elliott_c Exp
 
 #ifndef ACE_RMCAST_COPY_ON_WRITE_H
 #define ACE_RMCAST_COPY_ON_WRITE_H
@@ -176,7 +176,7 @@ public:
   //! Destructor
   ~ACE_RMCast_Copy_On_Write (void);
 
-  //! Iterate over all the elements invoking \param worker on each one.
+  //! Iterate over all the elements invoking worker on each one.
   int for_each (ACE_RMCast_Worker<KEY,ITEM> *worker);
 
   //! Get the first key

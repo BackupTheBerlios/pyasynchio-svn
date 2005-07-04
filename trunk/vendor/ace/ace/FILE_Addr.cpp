@@ -1,4 +1,4 @@
-// FILE_Addr.cpp,v 4.29 2003/11/05 23:30:46 shuston Exp
+// FILE_Addr.cpp,v 4.32 2004/08/14 07:03:12 ossama Exp
 
 #include "ace/FILE_Addr.h"
 #include "ace/Lib_Find.h"
@@ -8,10 +8,10 @@
 #include "ace/os_include/sys/os_socket.h"
 
 #if !defined (__ACE_INLINE__)
-#include "ace/FILE_Addr.i"
+#include "ace/FILE_Addr.inl"
 #endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, FILE_Addr, "FILE_Addr.cpp,v 4.29 2003/11/05 23:30:46 shuston Exp")
+ACE_RCSID(ace, FILE_Addr, "FILE_Addr.cpp,v 4.32 2004/08/14 07:03:12 ossama Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_FILE_Addr)
 
@@ -31,7 +31,7 @@ ACE_FILE_Addr::set (const ACE_FILE_Addr &sa)
       ACE_OS::strcpy (this->filename_,
                       ACE_DEFAULT_TEMP_FILE);
 #else /* ACE_DEFAULT_TEMP_FILE */
-      if (ACE_Lib_Find::get_temp_dir (this->filename_,
+      if (ACE::get_temp_dir (this->filename_,
                                       MAXPATHLEN - 15) == -1)
         // -15 for ace-file-XXXXXX
         {
@@ -49,8 +49,7 @@ ACE_FILE_Addr::set (const ACE_FILE_Addr &sa)
       if (ACE_OS::mktemp (this->filename_) == 0)
         return -1;
       this->base_set (AF_FILE,
-                      ACE_static_cast (int,
-                                       ACE_OS::strlen (this->filename_) + 1));
+                      static_cast<int> (ACE_OS::strlen (this->filename_) + 1));
     }
   else
     {
@@ -76,8 +75,7 @@ int
 ACE_FILE_Addr::set (const ACE_TCHAR *filename)
 {
   this->ACE_Addr::base_set (AF_FILE,
-                            ACE_static_cast (int,
-                                             ACE_OS::strlen (filename) + 1));
+                            static_cast<int> (ACE_OS::strlen (filename) + 1));
   (void) ACE_OS::strsncpy (this->filename_,
                            filename,
                            sizeof this->filename_ / sizeof (ACE_TCHAR));

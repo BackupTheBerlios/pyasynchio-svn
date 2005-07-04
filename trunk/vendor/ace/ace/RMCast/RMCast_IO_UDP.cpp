@@ -1,4 +1,4 @@
-// RMCast_IO_UDP.cpp,v 1.18 2003/12/20 04:58:53 bala Exp
+// RMCast_IO_UDP.cpp,v 1.19 2004/04/16 09:34:41 jwillemsen Exp
 
 #include "RMCast_IO_UDP.h"
 
@@ -84,9 +84,7 @@ ACE_RMCast_IO_UDP::handle_events (ACE_Time_Value *tv)
 int
 ACE_RMCast_IO_UDP::handle_input (ACE_HANDLE)
 {
-  // @@ We should use a system constant instead of this literal
-  const int max_udp_packet_size = 65536;
-  char buffer[max_udp_packet_size];
+  char buffer[ACE_MAX_UDP_PACKET_SIZE];
 
   ACE_INET_Addr from_address;
   ssize_t r =

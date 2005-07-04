@@ -1,14 +1,14 @@
-// MEM_SAP.cpp,v 4.16 2003/07/27 20:48:25 dhinton Exp
+// MEM_SAP.cpp,v 4.18 2004/06/16 07:57:20 jwillemsen Exp
 
 #include "ace/MEM_SAP.h"
 
 #if (ACE_HAS_POSITION_INDEPENDENT_POINTERS == 1)
 
-#if defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/MEM_SAP.i"
-#endif
+#if !defined (__ACE_INLINE__)
+#include "ace/MEM_SAP.inl"
+#endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, MEM_SAP, "MEM_SAP.cpp,v 4.16 2003/07/27 20:48:25 dhinton Exp")
+ACE_RCSID(ace, MEM_SAP, "MEM_SAP.cpp,v 4.18 2004/06/16 07:57:20 jwillemsen Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_IPC_SAP)
 

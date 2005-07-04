@@ -4,7 +4,7 @@
 /**
  *  @file    Hash_Cache_Map_Manager_T.h
  *
- *  Hash_Cache_Map_Manager_T.h,v 4.16 2003/08/04 03:53:51 dhinton Exp
+ *  Hash_Cache_Map_Manager_T.h,v 4.18 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Kirthika Parameswaran <kirthika@cs.wustl.edu>
  */
@@ -27,7 +27,6 @@
 // Forward declaration.
 class ACE_Allocator;
 
-#if !defined (ACE_HAS_BROKEN_EXTENDED_TEMPLATES)
 #define ACE_CACHE_MAP_MANAGER \
         ACE_Cache_Map_Manager<KEY, \
                               VALUE, \
@@ -36,14 +35,6 @@ class ACE_Allocator;
                               ACE_Hash_Map_Reverse_Iterator_Ex<KEY, ACE_Pair<VALUE, ATTRIBUTES>, HASH_KEY, COMPARE_KEYS, ACE_Null_Mutex>, \
                               CACHING_STRATEGY, \
                               ATTRIBUTES>
-#else
-#define ACE_CACHE_MAP_MANAGER \
-        ACE_Cache_Map_Manager<KEY, \
-                              VALUE, \
-                              ACE_Hash_Map_Manager_Ex<KEY, ACE_Pair<VALUE, ATTRIBUTES>, HASH_KEY, COMPARE_KEYS, ACE_Null_Mutex>, \
-                              CACHING_STRATEGY, \
-                              ATTRIBUTES>
-#endif /* ACE_HAS_BROKEN_EXTENDED_TEMPLATES */
 
 // For linkers that cant grok long names.
 #define ACE_Hash_Cache_Map_Manager AHCMM
@@ -202,7 +193,7 @@ protected:
 
 
 #if defined (__ACE_INLINE__)
-#include "ace/Hash_Cache_Map_Manager_T.i"
+#include "ace/Hash_Cache_Map_Manager_T.inl"
 #endif /* __ACE_INLINE__ */
 
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)

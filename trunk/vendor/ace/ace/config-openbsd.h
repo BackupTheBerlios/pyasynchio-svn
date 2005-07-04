@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// config-openbsd.h,v 4.10 2003/11/03 17:09:43 dhinton Exp
+// config-openbsd.h,v 4.17 2004/08/31 06:18:01 jtc Exp
 
 // The following configuration file is designed to work for OpenBSD
 // platforms using GNU g++.
@@ -27,6 +27,8 @@
 
 // Platform specific directives
 // gcc defines __OpenBSD__ automatically for us.
+#include <sys/param.h>
+
 #if defined (ACE_HAS_THREADS)
 #if !defined (_THREAD_SAFE)
 #define _THREAD_SAFE
@@ -61,6 +63,11 @@
 #define ACE_USES_ASM_SYMBOL_IN_DLSYM
 
 #define ACE_LACKS_UCONTEXT_H
+
+// ucontext_t is in OpenBSD 3.5 and later.
+#if (OpenBSD >= 200405)
+# define ACE_HAS_UCONTEXT_T
+#endif /* OpenBSD >= 200405 */
 
 
 // OpenBSD has sigwait defined
@@ -104,7 +111,7 @@
 #define ACE_HAS_SYSV_IPC
 
 // Compiler/platform contains the <sys/syscall.h> file.
-#define ACE_HAS_SYSCALL_H
+#define ACE_HAS_SYS_SYSCALL_H
 
 // OpenBSD supports the getifaddrs interface
 #define ACE_HAS_GETIFADDRS
@@ -162,7 +169,7 @@
 #define ACE_HAS_STRERROR
 
 // Compiler/platform provides the sockio.h file.
-#define ACE_HAS_SOCKIO_H
+#define ACE_HAS_SYS_SOCKIO_H
 
 // Defines the page size of the system.
 #define ACE_PAGE_SIZE 4096
@@ -170,9 +177,8 @@
 // Platform provides <sys/filio.h> header.
 #define ACE_HAS_SYS_FILIO_H
 
-// Compiler/platform supports SVR4 gettimeofday() prototype
-#define ACE_HAS_SUNOS4_GETTIMEOFDAY
-// #define ACE_HAS_TIMEZONE_GETTIMEOFDAY
+// Platform/compiler supports timezone * as second parameter to gettimeofday().
+#define ACE_HAS_TIMEZONE_GETTIMEOFDAY
 
 //#define ACE_HAS_SIG_C_FUNC
 
@@ -180,11 +186,6 @@
 // It seems as if most other OSs detect this and just report an
 // error.
 #define ACE_HAS_DLSYM_SEGFAULT_ON_INVALID_HANDLE
-
-// Turns off the tracing feature.
-#if !defined (ACE_NTRACE)
-#define ACE_NTRACE 1
-#endif /* ACE_NTRACE */
 
 #define ACE_HAS_MSG
 #define ACE_HAS_4_4BSD_SENDMSG_RECVMSG
@@ -228,8 +229,6 @@
 // OpenBSD actually has the clearerr call, but it causes a
 // bogus compiler syntax error.
 #define ACE_LACKS_CLEARERR
-
-#define ACE_HAS_MKSTEMP
 
 #define ACE_HAS_SNPRINTF
 

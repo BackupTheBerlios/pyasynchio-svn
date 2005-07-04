@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// config-unixware-2.01-g++.h,v 4.24 2003/07/19 19:04:15 dhinton Exp
+// config-unixware-2.01-g++.h,v 4.28 2004/08/31 07:19:46 jtc Exp
 
 // The following configuration file is designed to work
 // for Unixware platforms running UnixWare 2.01.
@@ -40,13 +40,12 @@
 #define ACE_HAS_POSIX_TIME
 #define ACE_HAS_REENTRANT_FUNCTIONS
 #define ACE_HAS_REGEX
-#define ACE_HAS_LAZY_V
 #define ACE_HAS_SELECT_H
 #define ACE_HAS_SIGINFO_T
 #define ACE_HAS_UCONTEXT_T
 #define ACE_HAS_SIGWAIT
 #define ACE_HAS_SIG_ATOMIC_T
-#define ACE_HAS_SOCKIO_H
+#define ACE_HAS_SYS_SOCKIO_H
 #define ACE_HAS_SSIZE_T
 #define ACE_HAS_STHREADS
 #define ACE_HAS_THR_KEYDELETE
@@ -55,7 +54,7 @@
 #define ACE_HAS_STREAM_PIPES
 #define ACE_HAS_STRERROR
 #define ACE_HAS_SVR4_DYNAMIC_LINKING
-#define ACE_HAS_SYSCALL_H
+#define ACE_HAS_SYS_SYSCALL_H
 #define ACE_HAS_SYSINFO
 #define ACE_HAS_SYSV_IPC
 #define ACE_HAS_SYS_FILIO_H
@@ -103,11 +102,6 @@
 
 // Platform doesn't have get<blah>by... char *arg defined as const
 //#define ACE_GET_BLAH_BY_NO_CONST
-
-// Turns off the tracing feature.
-#if !defined (ACE_NTRACE)
-# define ACE_NTRACE 1
-#endif /* ACE_NTRACE */
 
 #include /**/ "ace/post.h"
 #endif /* ACE_CONFIG_H */

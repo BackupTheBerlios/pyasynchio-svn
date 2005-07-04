@@ -6,7 +6,7 @@
  *
  *  STREAMS interface (STREAMS)
  *
- *  os_stropts.h,v 1.4 2003/11/01 11:15:19 dhinton Exp
+ *  os_stropts.h,v 1.5 2004/08/24 01:26:55 jtc Exp
  *
  *  @author Don Hinton <dhinton@dresystems.com>
  *  @author This code was originally in various places including ace/OS.h.
@@ -46,7 +46,7 @@
 #  include /**/ <sys/filio.h>
 #endif /* ACE_HAS_SYS_FILIO_H */
 
-#if defined (ACE_HAS_SOCKIO_H)
+#if defined (ACE_HAS_SYS_SOCKIO_H)
 #  include /**/ <sys/sockio.h>
 #endif /* ACE_HAS_SOCKIO_ */
 

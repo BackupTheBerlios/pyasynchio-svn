@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// config-sunos5.6.h,v 4.37 2002/11/14 23:06:39 crodrigu Exp
+// config-sunos5.6.h,v 4.38 2004/05/01 01:22:15 ossama Exp
 
 // The following configuration file is designed to work for SunOS 5.6
 // platforms using the SunC++ 4.x or g++ compilers.
@@ -47,9 +47,6 @@
 #ifndef ACE_HAS_STD_TEMPLATE_SPECIALIZATION
 #define ACE_HAS_STD_TEMPLATE_SPECIALIZATION     1
 #endif /* ACE_HAS_STD_TEMPLATE_SPECIALIZATION */
-#ifndef ACE_HAS_ANSI_CASTS
-#define ACE_HAS_ANSI_CASTS                      1
-#endif /* ACE_HAS_ANSI_CASTS */
 #ifndef ACE_HAS_TEMPLATE_TYPEDEFS
 #define ACE_HAS_TEMPLATE_TYPEDEFS               1
 #endif /* ACE_HAS_TEMPLATE_TYPEDEFS */

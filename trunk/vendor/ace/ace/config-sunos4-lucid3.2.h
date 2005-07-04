@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// config-sunos4-lucid3.2.h,v 4.19 2003/07/19 19:04:15 dhinton Exp
+// config-sunos4-lucid3.2.h,v 4.23 2004/08/24 01:26:55 jtc Exp
 
 // The following configuration file is designed to work
 // for SunOS4 platforms using the Lucid 3.2 compiler.
@@ -24,7 +24,7 @@
 #define ACE_HAS_MSG
 
 // Compiler/platform contains the <sys/syscall.h> file.
-#define ACE_HAS_SYSCALL_H
+#define ACE_HAS_SYS_SYSCALL_H
 
 // Compiler/platform supports alloca()
 // Although ACE does have alloca() on this compiler/platform combination, it is
@@ -54,7 +54,7 @@
 #define ACE_HAS_SEMUN
 
 // Compiler/platform provides the sockio.h file.
-#define ACE_HAS_SOCKIO_H
+#define ACE_HAS_SYS_SOCKIO_H
 
 // Compiler/platform supports struct strbuf
 #define ACE_HAS_STRBUF_T
@@ -65,8 +65,8 @@
 // Compiler/platform supports strerror ().
 // #define ACE_HAS_STRERROR
 
-// SunOS 4 style prototype.
-#define ACE_HAS_SUNOS4_GETTIMEOFDAY
+// Platform/compiler supports timezone * as second parameter to gettimeofday().
+#define ACE_HAS_TIMEZONE_GETTIMEOFDAY
 
 // Compiler/platform supports SVR4 dynamic linking semantics.
 #define ACE_HAS_SVR4_DYNAMIC_LINKING
@@ -88,11 +88,6 @@
 #define ACE_LACKS_U_LONGLONG_T
 
 #define ACE_LACKS_DIFFTIME
-
-// Turns off the tracing feature.
-#if !defined (ACE_NTRACE)
-#define ACE_NTRACE 1
-#endif /* ACE_NTRACE */
 
 #include /**/ "ace/post.h"
 #endif /* ACE_CONFIG_H */

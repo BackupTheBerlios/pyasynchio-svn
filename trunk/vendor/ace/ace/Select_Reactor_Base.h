@@ -4,7 +4,7 @@
 /**
  *  @file    Select_Reactor_Base.h
  *
- *  Select_Reactor_Base.h,v 4.37 2003/11/04 23:34:49 ossama Exp
+ *  Select_Reactor_Base.h,v 4.41 2004/08/20 15:21:02 bala Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -87,10 +87,10 @@ public:
   ~ACE_Event_Tuple (void);
 
   /// Equality operator.
-  int operator== (const ACE_Event_Tuple &rhs) const;
+  bool operator== (const ACE_Event_Tuple &rhs) const;
 
   /// Inequality operator.
-  int operator!= (const ACE_Event_Tuple &rhs) const;
+  bool operator!= (const ACE_Event_Tuple &rhs) const;
 
   /// Handle.
   ACE_HANDLE handle_;
@@ -102,17 +102,17 @@ public:
 /**
  * @class ACE_Select_Reactor_Notify
  *
- * @brief Unblock the <ACE_Select_Reactor> from its event loop.
+ * @brief Unblock the ACE_Select_Reactor from its event loop.
  *
  * This implementation is necessary for cases where the
- * <ACE_Select_Reactor> is run in a multi-threaded program.  In
- * this case, we need to be able to unblock <select> or <poll>
+ * ACE_Select_Reactor is run in a multi-threaded program.  In
+ * this case, we need to be able to unblock @c select or @c poll
  * when updates occur other than in the main
- * <ACE_Select_Reactor> thread.  To do this, we signal an
- * auto-reset event the <ACE_Select_Reactor> is listening on.
- * If an <ACE_Event_Handler> and <ACE_Select_Reactor_Mask> is
- * passed to <notify>, the appropriate <handle_*> method is
- * dispatched in the context of the <ACE_Select_Reactor> thread.
+ * ACE_Select_Reactor thread.  To do this, we signal an
+ * auto-reset event the ACE_Select_Reactor is listening on.
+ * If an ACE_Event_Handler and ACE_Select_Reactor_Mask is
+ * passed to @c notify, the appropriate @c handle_* method is
+ * dispatched in the context of the ACE_Select_Reactor thread.
  */
 class ACE_Export ACE_Select_Reactor_Notify : public ACE_Reactor_Notify
 {
@@ -134,21 +134,21 @@ public:
 
   /**
    * Called by a thread when it wants to unblock the
-   * <ACE_Select_Reactor>.  This wakeups the <ACE_Select_Reactor> if
-   * currently blocked in <select>/<poll>.  Pass over both the
-   * <Event_Handler> *and* the <mask> to allow the caller to dictate
-   * which <Event_Handler> method the <ACE_Select_Reactor> will
-   * invoke.  The <ACE_Time_Value> indicates how long to blocking
-   * trying to notify the <ACE_Select_Reactor>.  If <timeout> == 0,
+   * ACE_Select_Reactor.  This wakeups the ACE_Select_Reactor if
+   * currently blocked in @c select/poll.  Pass over both the
+   * @c Event_Handler *and* the @c mask to allow the caller to dictate
+   * which @c Event_Handler method the ACE_Select_Reactor will
+   * invoke.  The ACE_Time_Value indicates how long to blocking
+   * trying to notify the ACE_Select_Reactor.  If @a timeout == 0,
    * the caller will block until action is possible, else will wait
-   * until the relative time specified in *<timeout> elapses).
+   * until the relative time specified in @c *timeout elapses).
    */
   virtual int notify (ACE_Event_Handler * = 0,
                       ACE_Reactor_Mask = ACE_Event_Handler::EXCEPT_MASK,
-                      ACE_Time_Value * = 0);
+                      ACE_Time_Value * timeout = 0);
 
   /// Handles pending threads (if any) that are waiting to unblock the
-  /// <ACE_Select_Reactor>.
+  /// ACE_Select_Reactor.
   virtual int dispatch_notifications (int &number_of_active_handles,
                                       ACE_Handle_Set &rd_mask);
 
@@ -157,7 +157,7 @@ public:
   /// the Select_Reactor
   virtual ACE_HANDLE notify_handle (void);
 
-  /// Handle one of the notify call on the <handle>. This could be
+  /// Handle one of the notify call on the @c handle. This could be
   /// because of a thread trying to unblock the <Reactor_Impl>
   virtual int dispatch_notify (ACE_Notification_Buffer &buffer);
 
@@ -201,8 +201,9 @@ public:
    * the reactor itself). Returns the number of notifications purged.
    * Returns -1 on error.
    */
-  virtual int purge_pending_notifications (ACE_Event_Handler *,
-                                           ACE_Reactor_Mask = ACE_Event_Handler::ALL_EVENTS_MASK);
+  virtual int purge_pending_notifications (
+      ACE_Event_Handler *,
+      ACE_Reactor_Mask = ACE_Event_Handler::ALL_EVENTS_MASK);
 
   /// Dump the state of an object.
   virtual void dump (void) const;
@@ -430,7 +431,7 @@ public:
   };
 
   /// Constructor.
-  ACE_Select_Reactor_Impl (void);
+  ACE_Select_Reactor_Impl (bool mask_signals = true);
 
   friend class ACE_Select_Reactor_Notify;
   friend class ACE_Select_Reactor_Handler_Repository;
@@ -464,8 +465,17 @@ protected:
   /// suspended. Returns 0 if not, 1 if so.
   virtual int is_suspended_i (ACE_HANDLE handle) = 0;
 
+  /// When register/unregister occur, then we need to re-eval our
+  /// wait/suspend/dispatch set.
+  virtual void clear_dispatch_mask (ACE_HANDLE handle,
+                                    ACE_Reactor_Mask mask);
+
   /// Table that maps <ACE_HANDLEs> to <ACE_Event_Handler *>'s.
   ACE_Select_Reactor_Handler_Repository handler_rep_;
+
+
+  /// Tracks handles that are ready for dispatch from <select>
+  ACE_Select_Reactor_Handle_Set dispatch_set_;
 
   /// Tracks handles that are waited for by <select>.
   ACE_Select_Reactor_Handle_Set wait_set_;
@@ -524,7 +534,15 @@ protected:
    * whether we need to make another trip through the
    * <Select_Reactor>'s <wait_for_multiple_events> loop.
    */
-  int state_changed_;
+  bool state_changed_;
+
+  /**
+   * If 0 then the Reactor will not mask the signals during the event
+   * dispatching.  This is useful for applications that do not
+   * register any signal handlers and want to reduce the overhead
+   * introduce by the kernel level locks required to change the mask.
+   */
+  bool mask_signals_;
 
   /// Controls/access whether the notify handler should renew the
   /// Select_Reactor's token or not.
@@ -542,7 +560,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Select_Reactor_Base.i"
+#include "ace/Select_Reactor_Base.inl"
 #endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"

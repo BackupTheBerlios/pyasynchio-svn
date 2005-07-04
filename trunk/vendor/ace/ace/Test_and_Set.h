@@ -3,7 +3,7 @@
 /**
  *  @file   Test_and_Set.h
  *
- *  Test_and_Set.h,v 4.5 2003/07/19 19:04:14 dhinton Exp
+ *  Test_and_Set.h,v 4.6 2004/06/14 13:58:42 jwillemsen Exp
  *
  *  @author Priyanka Gontla <pgontla@ece.uci.edu>
  */
@@ -59,10 +59,6 @@ private:
   /// Protect the state from race conditions.
   ACE_LOCK lock_;
 };
-
-#if defined (__ACE_INLINE__)
-#include "ace/Test_and_Set.i"
-#endif /* __ACE_INLINE__ */
 
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)
 #include "ace/Test_and_Set.cpp"

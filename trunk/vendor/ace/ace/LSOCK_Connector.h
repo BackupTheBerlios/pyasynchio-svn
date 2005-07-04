@@ -4,7 +4,7 @@
 /**
  *  @file    LSOCK_Connector.h
  *
- *  LSOCK_Connector.h,v 4.14 2003/07/19 19:04:11 dhinton Exp
+ *  LSOCK_Connector.h,v 4.16 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Doug Schmidt <schmidt@cs.wustl.edu>
  */
@@ -78,9 +78,9 @@ public:
   ACE_ALLOC_HOOK_DECLARE;
 };
 
-#if !defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/LSOCK_Connector.i"
-#endif
+#if defined (__ACE_INLINE__)
+#include "ace/LSOCK_Connector.inl"
+#endif /* __ACE_INLINE__ */
 
 #endif /* ACE_LACKS_UNIX_DOMAIN_SOCKETS */
 #include /**/ "ace/post.h"

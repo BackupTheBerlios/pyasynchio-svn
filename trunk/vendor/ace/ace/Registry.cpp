@@ -1,12 +1,15 @@
-// Registry.cpp,v 4.28 2003/11/01 11:15:16 dhinton Exp
+// Registry.cpp,v 4.31 2004/06/14 13:58:41 jwillemsen Exp
 
 #include "ace/Registry.h"
 
-ACE_RCSID(ace, Registry, "Registry.cpp,v 4.28 2003/11/01 11:15:16 dhinton Exp")
+ACE_RCSID (ace,
+           Registry,
+           "Registry.cpp,v 4.31 2004/06/14 13:58:41 jwillemsen Exp")
 
 #if defined (ACE_WIN32)
 
 #  include "ace/os_include/os_netdb.h"
+#  include "ace/OS_NS_unistd.h"
 
 // Funky macro to deal with strange error passing semantics
 // of Win32 Reg*() functions
@@ -26,7 +29,7 @@ ACE_RCSID(ace, Registry, "Registry.cpp,v 4.28 2003/11/01 11:15:16 dhinton Exp")
 /* static */
 const ACE_TCHAR *ACE_Registry::STRING_SEPARATOR = ACE_LIB_TEXT ("\\");
 
-int
+bool
 ACE_Registry::Name_Component::operator== (const Name_Component &rhs) const
 {
   return
@@ -34,7 +37,7 @@ ACE_Registry::Name_Component::operator== (const Name_Component &rhs) const
     rhs.kind_ == this->kind_;
 }
 
-int
+bool
 ACE_Registry::Name_Component::operator!= (const Name_Component &rhs) const
 {
   return !this->operator== (rhs);
@@ -68,7 +71,7 @@ ACE_Registry::Binding::Binding (const ACE_TString &name,
 }
 
 
-int
+bool
 ACE_Registry::Binding::operator== (const Binding &rhs) const
 {
   return
@@ -76,7 +79,7 @@ ACE_Registry::Binding::operator== (const Binding &rhs) const
     rhs.type_ == this->type_;
 }
 
-int
+bool
 ACE_Registry::Binding::operator!= (const Binding &rhs) const
 {
   return !this->operator== (rhs);
@@ -611,7 +614,7 @@ ACE_TString
 ACE_Registry::make_string (const Name &const_name)
 {
   ACE_TString string;
-  Name &name = ACE_const_cast (Name &, const_name);
+  Name &name = const_cast<Name &> (const_name);
 
   // Iterator through the components of name
   for (Name::iterator iterator = name.begin ();
@@ -1098,9 +1101,10 @@ ACE_Predefined_Naming_Contexts::connect (ACE_Registry::Naming_Context &naming_co
     machine_name = 0;
 
   if (predefined == HKEY_LOCAL_MACHINE || predefined == HKEY_USERS)
-    result = ACE_TEXT_RegConnectRegistry (ACE_const_cast(ACE_TCHAR *, machine_name),
-                                                          predefined,
-                                                          &naming_context.key_);
+    result =
+      ACE_TEXT_RegConnectRegistry (const_cast<ACE_TCHAR *> (machine_name),
+                                   predefined,
+                                   &naming_context.key_);
   if (predefined == HKEY_CURRENT_USER || predefined == HKEY_CLASSES_ROOT)
     // Make sure that for these types, the machine is local
     if (machine_name == 0 ||

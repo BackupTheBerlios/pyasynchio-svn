@@ -4,7 +4,7 @@
 /**
  *  @file    Hash_Map_Manager_T.h
  *
- *  Hash_Map_Manager_T.h,v 4.34 2003/09/25 16:38:58 schmidt Exp
+ *  Hash_Map_Manager_T.h,v 4.39 2004/10/02 06:31:16 ossama Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -21,7 +21,7 @@
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
 #include "ace/Default_Constants.h"
-#include "ace/Functor.h"
+#include "ace/Functor_T.h"
 #include "ace/Log_Msg.h"
 
 /**
@@ -120,6 +120,7 @@ public:
           KEY;
   typedef INT_ID
           VALUE;
+  typedef ACE_LOCK lock_type;
   typedef ACE_Hash_Map_Entry<EXT_ID, INT_ID>
           ENTRY;
 
@@ -446,6 +447,12 @@ protected:
                    ACE_Hash_Map_Entry<EXT_ID, INT_ID> *&entry,
                    size_t &loc);
 
+  /// Accessor of the underlying table
+  ACE_Hash_Map_Entry<EXT_ID, INT_ID> *table (void);
+
+  /// Accessor of the current size attribute
+  size_t cur_size (void) const;
+
 private:
   /**
    * Array of <ACE_Hash_Map_Entry> *s, each of which points to an
@@ -501,8 +508,8 @@ public:
   ACE_Hash_Map_Manager_Ex<EXT_ID, INT_ID, HASH_KEY, COMPARE_KEYS, ACE_LOCK>& map (void);
 
   /// Check if two iterators point to the same position
-  int operator== (const ACE_Hash_Map_Iterator_Base_Ex<EXT_ID, INT_ID, HASH_KEY, COMPARE_KEYS, ACE_LOCK> &) const;
-  int operator!= (const ACE_Hash_Map_Iterator_Base_Ex<EXT_ID, INT_ID, HASH_KEY, COMPARE_KEYS, ACE_LOCK> &) const;
+  bool operator== (const ACE_Hash_Map_Iterator_Base_Ex<EXT_ID, INT_ID, HASH_KEY, COMPARE_KEYS, ACE_LOCK> &) const;
+  bool operator!= (const ACE_Hash_Map_Iterator_Base_Ex<EXT_ID, INT_ID, HASH_KEY, COMPARE_KEYS, ACE_LOCK> &) const;
 
   /// Declare the dynamic allocation hooks.
   ACE_ALLOC_HOOK_DECLARE;
@@ -565,8 +572,8 @@ public:
   const ACE_Hash_Map_Manager_Ex<EXT_ID, INT_ID, HASH_KEY, COMPARE_KEYS, ACE_LOCK>& map (void);
 
   /// Check if two iterators point to the same position
-  int operator== (const ACE_Hash_Map_Const_Iterator_Base_Ex<EXT_ID, INT_ID, HASH_KEY, COMPARE_KEYS, ACE_LOCK> &) const;
-  int operator!= (const ACE_Hash_Map_Const_Iterator_Base_Ex<EXT_ID, INT_ID, HASH_KEY, COMPARE_KEYS, ACE_LOCK> &) const;
+  bool operator== (const ACE_Hash_Map_Const_Iterator_Base_Ex<EXT_ID, INT_ID, HASH_KEY, COMPARE_KEYS, ACE_LOCK> &) const;
+  bool operator!= (const ACE_Hash_Map_Const_Iterator_Base_Ex<EXT_ID, INT_ID, HASH_KEY, COMPARE_KEYS, ACE_LOCK> &) const;
 
   /// Declare the dynamic allocation hooks.
   ACE_ALLOC_HOOK_DECLARE;
@@ -736,8 +743,8 @@ public:
   ACE_Hash_Map_Manager_Ex<EXT_ID, INT_ID, HASH_KEY, COMPARE_KEYS, ACE_LOCK>& map (void);
 
   /// Check if two iterators point to the same position
-  int operator== (const ACE_Hash_Map_Bucket_Iterator<EXT_ID, INT_ID, HASH_KEY, COMPARE_KEYS, ACE_LOCK> &) const;
-  int operator!= (const ACE_Hash_Map_Bucket_Iterator<EXT_ID, INT_ID, HASH_KEY, COMPARE_KEYS, ACE_LOCK> &) const;
+  bool operator== (const ACE_Hash_Map_Bucket_Iterator<EXT_ID, INT_ID, HASH_KEY, COMPARE_KEYS, ACE_LOCK> &) const;
+  bool operator!= (const ACE_Hash_Map_Bucket_Iterator<EXT_ID, INT_ID, HASH_KEY, COMPARE_KEYS, ACE_LOCK> &) const;
 
 protected:
   /// Move forward by one element in the set.  Returns 0 when there's
@@ -932,7 +939,7 @@ public:
 // This nonsense is necessary since SunCC (version 4.2) cannot inline
 // the code in ace/Hash_Map_Manager_T.i (with the fast option).
 # if !(defined (__SUNPRO_CC) && (__SUNPRO_CC == 0x420))
-#  include "ace/Hash_Map_Manager_T.i"
+#  include "ace/Hash_Map_Manager_T.inl"
 # endif /* ! __SUNPRO_CC */
 #endif /* __ACE_INLINE__ */
 

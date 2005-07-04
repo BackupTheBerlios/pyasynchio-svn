@@ -8,13 +8,13 @@
 #include "ace/OS_NS_string.h"
 
 #if !defined (__ACE_INLINE__)
-#include "ace/String_Base.i"
+#include "ace/String_Base.inl"
 #endif /* __ACE_INLINE__ */
 
 
 ACE_RCSID (ace,
            String_Base,
-           "String_Base.cpp,v 4.9 2003/11/01 11:15:17 dhinton Exp")
+           "String_Base.cpp,v 4.14 2004/06/21 17:23:50 shuston Exp")
 
 
 ACE_ALLOC_HOOK_DEFINE(ACE_String_Base)
@@ -121,7 +121,7 @@ ACE_String_Base<CHAR>::operator+= (const ACE_String_Base<CHAR> &s)
 
   if (s.len_ > 0)
     {
-      size_t new_buf_len = this->len_ + s.len_ + 1;
+      const size_t new_buf_len = this->len_ + s.len_ + 1;
 
       // case 1. No memory allocation needed.
       if (this->buf_len_ >= new_buf_len)
@@ -166,10 +166,10 @@ ACE_String_Base<CHAR>::operator+= (const ACE_String_Base<CHAR> &s)
 template <class CHAR> u_long
 ACE_String_Base<CHAR>::hash (void) const
 {
-  return ACE::hash_pjw ((ACE_reinterpret_cast (char *,
-                                               ACE_const_cast (CHAR *,
-                                                               this->rep_))),
-                        this->len_ * sizeof (CHAR));
+  return
+    ACE::hash_pjw (reinterpret_cast<char *> (
+                      const_cast<CHAR *> (this->rep_)),
+                   this->len_ * sizeof (CHAR));
 }
 
 template <class CHAR> void
@@ -180,12 +180,13 @@ ACE_String_Base<CHAR>::resize (size_t len, CHAR c)
   // Only reallocate if we don't have enough space...
   if (this->buf_len_ <= len)
     {
-      if (this->buf_len_ != 0)
+      if (this->buf_len_ != 0 && this->release_)
         this->allocator_->free (this->rep_);
 
       this->rep_ = (CHAR *)
-        this->allocator_->malloc ((len + 1) * sizeof (CHAR));
+      this->allocator_->malloc ((len + 1) * sizeof (CHAR));
       this->buf_len_ = len + 1;
+      this->release_ = 1;
     }
 
   this->len_ = 0;

@@ -4,7 +4,7 @@
 /**
  *  @file    streams.h
  *
- *  streams.h,v 1.32 2003/07/19 19:04:15 dhinton Exp
+ *  streams.h,v 1.33 2004/09/23 19:52:34 jwillemsen Exp
  *
  *  @author Irfan Pyarali
  *
@@ -27,13 +27,13 @@
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
-
 #endif /* ACE_LACKS_PRAGMA_ONCE */
+
 // Do this so the #pragma warning in the MSVC headers do not
 // affect our #pragma warning settings
-#if defined (_MSC_VER) && (_MSC_VER >= 1200)
+#if defined (_MSC_VER)
 #pragma warning(push)
-#endif /* _MSC_VER >= 1200 */
+#endif /* _MSC_VER*/
 
 
 #if !defined (ACE_LACKS_IOSTREAM_TOTALLY)
@@ -132,9 +132,9 @@
 
 // Do this so the #pragma warning in the MSVC headers do not
 // affect our #pragma warning settings
-#if defined (_MSC_VER) && (_MSC_VER >= 1200)
+#if defined (_MSC_VER)
 #pragma warning(pop)
-#endif /* _MSC_VER >= 1200 */
+#endif /* _MSC_VER */
 
 #include /**/ "ace/post.h"
 #endif /* ACE_STREAMS_H */

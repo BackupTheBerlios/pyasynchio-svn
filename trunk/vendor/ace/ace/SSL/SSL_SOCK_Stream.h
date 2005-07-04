@@ -4,7 +4,7 @@
 /**
  *  @file    SSL_SOCK_Stream.h
  *
- *  SSL_SOCK_Stream.h,v 1.25 2003/07/19 19:04:15 dhinton Exp
+ *  SSL_SOCK_Stream.h,v 1.27 2004/07/10 17:19:34 ossama Exp
  *
  *  @author Ossama Othman <ossama@uci.edu>
  *  @author Carlos O'Ryan <coryan@uci.edu>
@@ -60,8 +60,15 @@ class ACE_SSL_Export ACE_SSL_SOCK_Stream : public ACE_SSL_SOCK
 public:
 
   /// Constructor
+  /**
+   * @param context Pointer to @c ACE_SSL_Context instance containing
+   *                the OpenSSL @c SSL data structure to be associated
+   *                with this @c ACE_SSL_SOCK_Stream.  The @c SSL data
+   *                structure will be copied to make it at least
+   *                logically independent of the supplied @a context.
+   */
   ACE_SSL_SOCK_Stream (ACE_SSL_Context *context =
-                         ACE_SSL_Context::instance ());
+                       ACE_SSL_Context::instance ());
 
   /// Destructor
   ~ACE_SSL_SOCK_Stream (void);
@@ -150,7 +157,7 @@ public:
   /**
    * Wait up to timeout amount of time to receive up to n bytes
    * into buf (uses the recv() call).  If recv() times
-   * out a -1 is returned with errno == ETIME.  If it succeeds the
+   * out a -1 is returned with @c errno == ETIME.  If it succeeds the
    * number of bytes received is returned.
    */
   ssize_t recv (void *buf,
@@ -299,9 +306,9 @@ protected:
 
 };
 
-#if !defined (ACE_LACKS_INLINE_FUNCTIONS)
+#if defined (__ACE_INLINE__)
 #include "SSL_SOCK_Stream.i"
-#endif /* ACE_LACKS_INLINE_FUNCTIONS */
+#endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"
 

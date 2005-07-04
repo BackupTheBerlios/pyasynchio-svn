@@ -4,7 +4,7 @@
 /**
  *  @file    SV_Message_Queue.h
  *
- *  SV_Message_Queue.h,v 4.18 2003/12/09 15:25:41 elliott_c Exp
+ *  SV_Message_Queue.h,v 4.20 2004/06/16 07:57:22 jwillemsen Exp
  *
  *  @author Douglas C. Schmidt <schmidt@uci.edu>
  */
@@ -92,9 +92,9 @@ protected:
   int internal_id_;
 };
 
-#if !defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/SV_Message_Queue.i"
-#endif
+#if defined (__ACE_INLINE__)
+#include "ace/SV_Message_Queue.inl"
+#endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"
 

@@ -4,7 +4,7 @@
 /**
  *  @file    ATM_Params.h
  *
- *  ATM_Params.h,v 4.13 2003/07/19 19:04:10 dhinton Exp
+ *  ATM_Params.h,v 4.14 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Joe Hoffert <joeh@cs.wustl.edu>
  */
@@ -202,7 +202,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/ATM_Params.i"
+#include "ace/ATM_Params.inl"
 #endif /* __ACE_INLINE__ */
 
 #endif /* ACE_HAS_ATM */

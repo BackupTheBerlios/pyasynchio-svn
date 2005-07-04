@@ -27,6 +27,7 @@ CFG=RMCast - Win32 Debug
 # PROP Scc_ProjName ""
 # PROP Scc_LocalPath ""
 CPP=cl.exe
+MTL=midl.exe
 RSC=rc.exe
 
 !IF  "$(CFG)" == "RMCast - Win32 Release"
@@ -39,11 +40,13 @@ RSC=rc.exe
 # PROP Target_Dir ""
 # ADD CPP /nologo /O2 /W3 /GX /MD /GR /I "..\.." /D NDEBUG /D WIN32 /D _WINDOWS /D ACE_RMCAST_BUILD_DLL /FD /c
 # SUBTRACT CPP /YX
+
+# ADD MTL /D "NDEBUG" /nologo /mktyplib203 /win32
 # ADD RSC /l 0x409 /d NDEBUG /i "..\.."
 BSC32=bscmake.exe
 # ADD BSC32 /nologo /o"..\..\lib\ACE_RMCast.bsc"
 LINK32=link.exe
-# ADD LINK32 advapi32.lib user32.lib /INCREMENTAL:NO ACE.lib /libpath:"..\..\lib" /nologo /version:5.4 /subsystem:windows /pdb:"..\..\lib\ACE_RMCast.pdb" /dll  /machine:I386 /out:"..\..\lib\ACE_RMCast.dll"
+# ADD LINK32 advapi32.lib user32.lib /INCREMENTAL:NO ACE.lib /libpath:"..\..\lib" /nologo /version:5.403 /subsystem:windows /pdb:"..\..\lib\ACE_RMCast.pdb" /dll  /machine:I386 /out:"..\..\lib\ACE_RMCast.dll"
 
 !ELSEIF  "$(CFG)" == "RMCast - Win32 Debug"
 
@@ -55,11 +58,13 @@ LINK32=link.exe
 # PROP Target_Dir ""
 # ADD CPP /nologo /Ob0 /W3 /Gm /GX /Zi /MDd /GR /Gy /I "..\.." /D _DEBUG /D WIN32 /D _WINDOWS /D ACE_RMCAST_BUILD_DLL /FD /c
 # SUBTRACT CPP /Fr /YX
+
+# ADD MTL /D "_DEBUG" /nologo /mktyplib203 /win32
 # ADD RSC /l 0x409 /d _DEBUG /i "..\.."
 BSC32=bscmake.exe
 # ADD BSC32 /nologo /o"..\..\lib\ACE_RMCast.bsc"
 LINK32=link.exe
-# ADD LINK32 advapi32.lib user32.lib /INCREMENTAL:NO ACEd.lib /libpath:"..\..\lib" /nologo /version:5.4 /subsystem:windows /pdb:"..\..\lib\ACE_RMCastd.pdb" /dll /debug /machine:I386 /out:"..\..\lib\ACE_RMCastd.dll"
+# ADD LINK32 advapi32.lib user32.lib /INCREMENTAL:NO ACEd.lib /libpath:"..\..\lib" /nologo /version:5.403 /subsystem:windows /pdb:"..\..\lib\ACE_RMCastd.pdb" /dll /debug /machine:I386 /out:"..\..\lib\ACE_RMCastd.dll"
 
 !ENDIF
 

@@ -4,7 +4,7 @@
 /**
  *  @file    ATM_Acceptor.h
  *
- *  ATM_Acceptor.h,v 4.12 2003/07/19 19:04:10 dhinton Exp
+ *  ATM_Acceptor.h,v 4.15 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Joe Hoffert
  */
@@ -23,7 +23,6 @@
 
 #if defined (ACE_HAS_ATM)
 
-#include "ace/Time_Value.h"
 #include "ace/ATM_Stream.h"
 #include "ace/ATM_Params.h"
 #include "ace/ATM_QoS.h"
@@ -33,12 +32,15 @@
 #endif /* ACE_HAS_LINUX_ATM */
 
 #if defined (ACE_HAS_FORE_ATM_WS2) || defined (ACE_HAS_LINUX_ATM)
-#include "SOCK_Acceptor.h"
+#include "ace/SOCK_Acceptor.h"
 typedef ACE_SOCK_Acceptor ATM_Acceptor;
 #elif defined (ACE_HAS_FORE_ATM_XTI)
-#include "TLI_Acceptor.h"
+#include "ace/TLI_Acceptor.h"
 typedef ACE_TLI_Acceptor ATM_Acceptor;
 #endif // ACE_HAS_FORE_ATM_WS2 || ACE_HAS_LINUX_ATM
+
+// Forward declarations.
+class ACE_Time_Value
 
 /**
  * @class ACE_ATM_Acceptor
@@ -102,7 +104,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/ATM_Acceptor.i"
+#include "ace/ATM_Acceptor.inl"
 #endif /* __ACE_INLINE__ */
 
 #endif /* ACE_HAS_ATM */

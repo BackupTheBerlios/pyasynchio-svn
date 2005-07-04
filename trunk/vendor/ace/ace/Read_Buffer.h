@@ -4,10 +4,10 @@
 /**
  *  @file    Read_Buffer.h
  *
- *  Read_Buffer.h,v 4.20 2003/07/19 19:04:13 dhinton Exp
+ *  Read_Buffer.h,v 4.21 2004/06/16 07:57:22 jwillemsen Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
- *  @author Seth Widoff 
+ *  @author Seth Widoff
  */
 //==========================================================================
 
@@ -115,7 +115,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-# include "ace/Read_Buffer.i"
+# include "ace/Read_Buffer.inl"
 #endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"

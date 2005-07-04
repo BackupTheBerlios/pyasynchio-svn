@@ -4,7 +4,7 @@
 /**
  *  @file    Time_Value.h
  *
- *  Time_Value.h,v 4.25 2004/01/01 23:03:38 shuston Exp
+ *  Time_Value.h,v 4.41 2004/12/20 14:57:10 olli Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -21,16 +21,8 @@
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
-
 # if !defined (ACE_HAS_WINCE) && !defined (ACE_PSOS_DIAB_MIPS)
 #   include "ace/os_include/sys/os_time.h"
-#   if defined (__Lynx__)
-#     include /**/ <st.h>
-#     include /**/ <sem.h>
-#   endif /* __Lynx__ */
-#   if defined (VXWORKS)
-#     include /**/ <sys/times.h>
-#   endif /* VXWORKS */
 # endif /* ACE_HAS_WINCE ACE_PSOS_DIAB_MIPS */
 
 // HP-UX 10.20 doesn't define timespec_t - it defined struct timespec.
@@ -44,23 +36,10 @@ typedef struct timespec timespec_t;
 #define ACE_ONE_SECOND_IN_USECS 1000000L
 #define ACE_ONE_SECOND_IN_NSECS 1000000000L
 
-// -------------------------------------------------------------------
-// These forward declarations are only used to circumvent a bug in
-// MSVC 6.0 compiler.  They shouldn't cause any problem for other
-// compilers and they can be removed once MS release a SP that contains
-// the fix.
-class ACE_Time_Value;
-ACE_Export ACE_Time_Value operator + (const ACE_Time_Value &tv1,
-                                         const ACE_Time_Value &tv2);
-
-ACE_Export ACE_Time_Value operator - (const ACE_Time_Value &tv1,
-                                         const ACE_Time_Value &tv2);
-
 // This forward declaration is needed by the set() and FILETIME() functions
 #if defined (ACE_LACKS_LONGLONG_T)
 class ACE_Export ACE_U_LongLong;
 #endif  /* ACE_LACKS_LONGLONG_T */
-// -------------------------------------------------------------------
 
 # if !defined (ACE_HAS_POSIX_TIME) && !defined (ACE_PSOS)
 // Definition per POSIX.
@@ -80,6 +59,9 @@ typedef struct timespec
 typedef struct timespec timespec_t;
 # endif /* ACE_LACKS_TIMESPEC_T */
 
+// needed for ACE_UINT64
+#include "ace/Basic_Types.h"
+
 // -------------------------------------------------------------------
 
 /**
@@ -92,6 +74,15 @@ typedef struct timespec timespec_t;
  * ACE.  These time values are typically used in conjunction with OS
  * mechanisms like <select>, <poll>, or <cond_timedwait>.
  */
+#if defined (ACE_WIN32) && defined (_WIN32_WCE)
+// Something is a bit brain-damaged here and I'm not sure what... this code
+// compiled before the OS reorg for ACE 5.4. Since then it hasn't - eVC
+// complains that the operators that return ACE_Time_Value are C-linkage
+// functions that can't return a C++ class. The only way I've found to
+// defeat this is to wrap the whole class in extern "C++".
+//    - Steve Huston, 23-Aug-2004
+extern "C++" {
+#endif
 class ACE_Export ACE_Time_Value
 {
 public:
@@ -151,13 +142,28 @@ public:
   /// Converts from ACE_Time_Value format into milli-seconds format.
   /**
    * @return Sum of second field (in milliseconds) and microsecond field
-   *         (in milliseconds).
+   *         (in milliseconds).  Note that this method can overflow if
+   *         the second and microsecond field values are large, so use
+   *         the msec (ACE_UINT64 &ms) method instead.
    *
    * @note The semantics of this method differs from the sec() and
    *       usec() methods.  There is no analogous "millisecond"
    *       component in an ACE_Time_Value.
    */
-  long msec (void) const;
+  unsigned long msec (void) const;
+
+#if !defined (ACE_LACKS_LONGLONG_T)
+  /**
+   * @return Sum of second field (in milliseconds) and microsecond field
+   *         (in milliseconds) and return them via the @param ms parameter.
+   *
+   * @note The semantics of this method differs from the sec() and
+   *       usec() methods.  There is no analogous "millisecond"
+   *       component in an ACE_Time_Value.
+   */
+  void msec (ACE_UINT64 &ms) const;
+
+#endif /*ACE_LACKS_LONGLONG_T */
 
   /// Converts from milli-seconds format into ACE_Time_Value format.
   /**
@@ -212,10 +218,18 @@ public:
   /// Add @a tv to this.
   ACE_Time_Value &operator += (const ACE_Time_Value &tv);
 
+  /// Assign @ tv to this
+  ACE_Time_Value &operator = (const ACE_Time_Value &tv);
+
   /// Subtract @a tv to this.
   ACE_Time_Value &operator -= (const ACE_Time_Value &tv);
 
-  /// Multiply the time value by the @a d factor, which must be >= 0.
+    /** \brief Multiply the time value by the @a d factor.
+
+    \note The result of the operator is valid for results from range
+    < (ACE_INT32_MIN, -999999), (ACE_INT32_MAX, 999999) >. Result
+    outside this range are saturated to a limit.
+     */
   ACE_Time_Value &operator *= (double d);
 
   /// Increment microseconds as postfix.
@@ -255,28 +269,28 @@ public:
                                                   const ACE_Time_Value &tv2);
 
   /// True if @a tv1 < @a tv2.
-  friend ACE_Export int operator < (const ACE_Time_Value &tv1,
-                                       const ACE_Time_Value &tv2);
+  friend ACE_Export bool operator < (const ACE_Time_Value &tv1,
+                                     const ACE_Time_Value &tv2);
 
   /// True if @a tv1 > @a tv2.
-  friend ACE_Export int operator > (const ACE_Time_Value &tv1,
-                                       const ACE_Time_Value &tv2);
+  friend ACE_Export bool operator > (const ACE_Time_Value &tv1,
+                                     const ACE_Time_Value &tv2);
 
   /// True if @a tv1 <= @a tv2.
-  friend ACE_Export int operator <= (const ACE_Time_Value &tv1,
-                                        const ACE_Time_Value &tv2);
+  friend ACE_Export bool operator <= (const ACE_Time_Value &tv1,
+                                      const ACE_Time_Value &tv2);
 
   /// True if @a tv1 >= @a tv2.
-  friend ACE_Export int operator >= (const ACE_Time_Value &tv1,
-                                        const ACE_Time_Value &tv2);
+  friend ACE_Export bool operator >= (const ACE_Time_Value &tv1,
+                                      const ACE_Time_Value &tv2);
 
   /// True if @a tv1 == @a tv2.
-  friend ACE_Export int operator == (const ACE_Time_Value &tv1,
-                                        const ACE_Time_Value &tv2);
+  friend ACE_Export bool operator == (const ACE_Time_Value &tv1,
+                                      const ACE_Time_Value &tv2);
 
   /// True if @a tv1 != @a tv2.
-  friend ACE_Export int operator != (const ACE_Time_Value &tv1,
-                                        const ACE_Time_Value &tv2);
+  friend ACE_Export bool operator != (const ACE_Time_Value &tv1,
+                                      const ACE_Time_Value &tv2);
 
   //@{
   /// Multiplies the time value by @a d
@@ -312,6 +326,9 @@ private:
   /// Store the values as a timeval.
   timeval tv_;
 };
+#if defined (ACE_WIN32) && defined (_WIN32_WCE)
+}
+#endif
 
 /**
  * @class ACE_Countdown_Time
@@ -360,6 +377,14 @@ private:
 #if defined (__ACE_INLINE__)
 #include "ace/Time_Value.inl"
 #endif /* __ACE_INLINE__ */
+
+#if defined (__MINGW32__)
+// The MingW linker has problems with the exported statics
+// zero and max_time with these two statics the linker will be able to
+// resolve the static exported symbols.
+static const ACE_Time_Value& __zero_time = ACE_Time_Value::zero;
+static const ACE_Time_Value& __max_time = ACE_Time_Value::max_time;
+#endif /* __MINGW32__ */
 
 #include /**/ "ace/post.h"
 

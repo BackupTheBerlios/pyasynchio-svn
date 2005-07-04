@@ -1,17 +1,20 @@
 // MEM_Acceptor.cpp
-// MEM_Acceptor.cpp,v 4.20 2003/11/01 11:15:13 dhinton Exp
+// MEM_Acceptor.cpp,v 4.26 2004/08/14 07:03:12 ossama Exp
 
 #include "ace/MEM_Acceptor.h"
 
 #if (ACE_HAS_POSITION_INDEPENDENT_POINTERS == 1)
 
-#if defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/MEM_Acceptor.i"
-#endif /* ACE_LACKS_INLINE_FUNCTIONS */
-
 #include "ace/OS_NS_stdio.h"
+#include "ace/OS_NS_string.h"
+#include "ace/OS_NS_sys_socket.h"
+#include "ace/OS_NS_unistd.h"
 
-ACE_RCSID(ace, MEM_Acceptor, "MEM_Acceptor.cpp,v 4.20 2003/11/01 11:15:13 dhinton Exp")
+#if !defined (__ACE_INLINE__)
+#include "ace/MEM_Acceptor.inl"
+#endif /* __ACE_INLINE__ */
+
+ACE_RCSID(ace, MEM_Acceptor, "MEM_Acceptor.cpp,v 4.26 2004/08/14 07:03:12 ossama Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_MEM_Acceptor)
 
@@ -97,7 +100,7 @@ ACE_MEM_Acceptor::accept (ACE_MEM_Stream &new_stream,
 
       if (remote_sap != 0)
         {
-          addr = ACE_reinterpret_cast (sockaddr *, &inet_addr);
+          addr = reinterpret_cast<sockaddr *> (&inet_addr);
           len = sizeof (inet_addr);
           len_ptr = &len;
         }
@@ -115,7 +118,7 @@ ACE_MEM_Acceptor::accept (ACE_MEM_Stream &new_stream,
 
       if (remote_sap != 0)
         {
-          ACE_INET_Addr temp (ACE_reinterpret_cast (sockaddr_in *, addr),
+          ACE_INET_Addr temp (reinterpret_cast<sockaddr_in *> (addr),
                               len);
           remote_sap->set_port_number(temp.get_port_number ());
         }
@@ -145,7 +148,7 @@ ACE_MEM_Acceptor::accept (ACE_MEM_Stream &new_stream,
     {
       ACE_TCHAR name[25];
       // - 24 is so we can append name to the end.
-      if (ACE_Lib_Find::get_temp_dir (buf, MAXPATHLEN - 24) == -1)
+      if (ACE::get_temp_dir (buf, MAXPATHLEN - 24) == -1)
         {
           ACE_ERROR ((LM_ERROR,
                       ACE_LIB_TEXT ("Temporary path too long, ")
@@ -189,20 +192,20 @@ ACE_MEM_Acceptor::accept (ACE_MEM_Stream &new_stream,
   if (ACE::recv (new_handle, &client_signaling,
                  sizeof (ACE_INT16)) == -1)
     ACE_ERROR_RETURN ((LM_DEBUG,
-                       ACE_LIB_TEXT ("ACE_MEM_Acceptor::%p error receiving strategy\n"), "accept"),
+                       ACE_LIB_TEXT ("ACE_MEM_Acceptor::%p error receiving strategy\n"), ACE_LIB_TEXT ("accept")),
                       -1);
 
   // Client will decide what signaling strategy to use.
 
   // Now set up the shared memory malloc pool.
-  if (new_stream.init (buf, ACE_static_cast (ACE_MEM_IO::Signal_Strategy, client_signaling),
+  if (new_stream.init (buf,
+                       static_cast<ACE_MEM_IO::Signal_Strategy> (client_signaling),
                        &this->malloc_options_) == -1)
     return -1;
 
   // @@ Need to handle timeout here.
-  ACE_UINT16 buf_len = ACE_static_cast (ACE_UINT16,
-                                        (ACE_OS::strlen (buf) + 1) *
-                                         sizeof (ACE_TCHAR));
+  ACE_UINT16 buf_len = static_cast<ACE_UINT16> ((ACE_OS::strlen (buf) + 1) *
+                                                sizeof (ACE_TCHAR));
 
   // No need to worry about byte-order because both parties should always
   // be on the same machine.
@@ -234,9 +237,9 @@ ACE_MEM_Acceptor::shared_accept_finish (ACE_MEM_Stream new_stream,
 
       // Only disable ACE_NONBLOCK if we weren't in non-blocking mode
       // originally.
-      ACE_Flag_Manip::clr_flags (this->get_handle (),
+      ACE::clr_flags (this->get_handle (),
                                  ACE_NONBLOCK);
-      ACE_Flag_Manip::clr_flags (new_handle,
+      ACE::clr_flags (new_handle,
                                  ACE_NONBLOCK);
     }
 

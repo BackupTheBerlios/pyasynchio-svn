@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// config-hpux-10.x-hpc++.h,v 4.34 2003/07/19 19:04:14 dhinton Exp
+// config-hpux-10.x-hpc++.h,v 4.35 2004/05/01 01:22:15 ossama Exp
 
 // The following configuration file is designed to work for HP
 // platforms running HP/UX 10.x with either of the HP C++ compilers.
@@ -61,9 +61,6 @@
 
 // Precompiler needs extra flags to ignore "invalid #pragma directive"
 #  define ACE_CC_PREPROCESSOR_ARGS "-E +W 67"
-
-// Compiler supports to-be-ANSI casts
-#  define ACE_HAS_ANSI_CASTS
 
 // Compiler can't handle calls like foo->operator T *()
 #  define ACE_HAS_BROKEN_CONVERSIONS

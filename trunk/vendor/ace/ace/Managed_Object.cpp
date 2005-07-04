@@ -1,4 +1,4 @@
-// Managed_Object.cpp,v 4.12 2000/04/19 02:49:34 brunsch Exp
+// Managed_Object.cpp,v 4.13 2004/06/16 07:57:20 jwillemsen Exp
 
 #ifndef ACE_MANAGED_OBJECT_CPP
 #define ACE_MANAGED_OBJECT_CPP
@@ -10,10 +10,10 @@
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Managed_Object.i"
+#include "ace/Managed_Object.inl"
 #endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, Managed_Object, "Managed_Object.cpp,v 4.12 2000/04/19 02:49:34 brunsch Exp")
+ACE_RCSID(ace, Managed_Object, "Managed_Object.cpp,v 4.13 2004/06/16 07:57:20 jwillemsen Exp")
 
 template <class TYPE>
 ACE_Cleanup_Adapter<TYPE>::~ACE_Cleanup_Adapter (void)

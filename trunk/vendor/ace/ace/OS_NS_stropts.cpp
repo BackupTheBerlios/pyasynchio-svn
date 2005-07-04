@@ -1,9 +1,9 @@
 // -*- C++ -*-
-// OS_NS_stropts.cpp,v 1.2 2003/11/01 11:15:15 dhinton Exp
+// OS_NS_stropts.cpp,v 1.3 2004/08/30 21:42:31 shuston Exp
 
 #include "ace/OS_NS_stropts.h"
 
-ACE_RCSID(ace, OS_NS_stropts, "OS_NS_stropts.cpp,v 1.2 2003/11/01 11:15:15 dhinton Exp")
+ACE_RCSID(ace, OS_NS_stropts, "OS_NS_stropts.cpp,v 1.3 2004/08/30 21:42:31 shuston Exp")
 
 #if !defined (ACE_HAS_INLINED_OSCALLS)
 # include "ace/OS_NS_stropts.inl"
@@ -46,7 +46,7 @@ ACE_OS::ioctl (ACE_HANDLE socket,
 # endif /* ACE_HAS_WINSOCK2 */
 }
 
-
+#if !defined (ACE_HAS_WINCE)
 int
 ACE_OS::ioctl (ACE_HANDLE socket,
                unsigned long io_control_code,
@@ -190,4 +190,4 @@ ACE_OS::ioctl (ACE_HANDLE socket,
   ACE_NOTSUP_RETURN (-1);
 # endif /* ACE_HAS_WINSOCK2 */
 }
-
+#endif /* ACE_HAS_WINCE */

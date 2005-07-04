@@ -4,7 +4,7 @@
 /**
  *  @file    Msg_WFMO_Reactor.h
  *
- *  Msg_WFMO_Reactor.h,v 4.16 2003/07/19 19:04:12 dhinton Exp
+ *  Msg_WFMO_Reactor.h,v 4.17 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Beskrovny Evgeny <evgeny_beskrovny@icomverse.com>
  *  @author Irfan Pyarali <irfan@cs.wustl.edu>
@@ -109,7 +109,7 @@ protected:
 #endif /* ACE_WIN32 && !ACE_LACKS_MSG_WFMO */
 
 #if defined (__ACE_INLINE__)
-#include "ace/Msg_WFMO_Reactor.i"
+#include "ace/Msg_WFMO_Reactor.inl"
 #endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"

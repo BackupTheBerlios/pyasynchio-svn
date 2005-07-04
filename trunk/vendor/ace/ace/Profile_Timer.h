@@ -4,7 +4,7 @@
 /**
  *  @file    Profile_Timer.h
  *
- *  Profile_Timer.h,v 4.25 2003/11/01 11:15:16 dhinton Exp
+ *  Profile_Timer.h,v 4.27 2004/06/16 07:57:22 jwillemsen Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -39,8 +39,8 @@ public:
    * @brief Keeps track of the various user, system, and elapsed (real)
    * times.
    *
-   * @note If @c ACE_HAS_FLOATING_POINT is enabled, these values are in
-   * microseconds; otherwise, they are in seconds.
+   * @note If @c ACE_LACKS_FLOATING_POINT is enabled, these values are
+   *       in microseconds; otherwise, they are in seconds.
    */
   class ACE_Elapsed_Time
   {
@@ -131,7 +131,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-# include "ace/Profile_Timer.i"
+# include "ace/Profile_Timer.inl"
 #endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"

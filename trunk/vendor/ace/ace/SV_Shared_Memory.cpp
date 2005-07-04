@@ -1,14 +1,14 @@
 // SV_Shared_Memory.cpp
-// SV_Shared_Memory.cpp,v 4.9 2003/07/27 20:48:27 dhinton Exp
+// SV_Shared_Memory.cpp,v 4.10 2004/06/16 07:57:21 jwillemsen Exp
 
 #include "ace/SV_Shared_Memory.h"
 #include "ace/Log_Msg.h"
 
 #if !defined (__ACE_INLINE__)
-#include "ace/SV_Shared_Memory.i"
+#include "ace/SV_Shared_Memory.inl"
 #endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, SV_Shared_Memory, "SV_Shared_Memory.cpp,v 4.9 2003/07/27 20:48:27 dhinton Exp")
+ACE_RCSID(ace, SV_Shared_Memory, "SV_Shared_Memory.cpp,v 4.10 2004/06/16 07:57:21 jwillemsen Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_SV_Shared_Memory)
 

@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// config-cray.h,v 4.9 2003/07/19 19:04:14 dhinton Exp
+// config-cray.h,v 4.11 2004/05/07 12:14:40 jwillemsen Exp
 
 #ifndef ACE_CONFIG_CRAY_H
 #define ACE_CONFIG_CRAY_H
@@ -34,11 +34,6 @@
 #define MAXPATHLEN 1023
 #endif /* _UNICOS */
 
-// Turns off the tracing feature.
-#if !defined (ACE_NTRACE)
-#define ACE_NTRACE 1
-#endif /* ACE_NTRACE */
-
 #define ACE_DEFAULT_CLOSE_ALL_HANDLES 0
 
 // Defines the page size of the system.
@@ -50,8 +45,6 @@
 #define ACE_HAS_EXPLICIT_TEMPLATE_INSTANTIATION
 
 #define ACE_HAS_TEMPLATE_SPECIALIZATION
-
-#define ACE_HAS_ANSI_CASTS
 
 #define ACE_HAS_USING_KEYWORD
 

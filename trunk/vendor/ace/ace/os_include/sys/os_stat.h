@@ -6,7 +6,7 @@
  *
  *  data returned by the stat() function
  *
- *  os_stat.h,v 1.4 2003/12/07 00:38:14 shuston Exp
+ *  os_stat.h,v 1.11 2004/10/22 21:03:37 shuston Exp
  *
  *  @author Don Hinton <dhinton@dresystems.com>
  *  @author This code was originally in various places including ace/OS.h.
@@ -18,7 +18,7 @@
 
 #include /**/ "ace/pre.h"
 
-#include "ace/config-all.h"
+#include "ace/config-lite.h"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
@@ -67,16 +67,32 @@ extern "C"
 #  define S_IWOTH 00002           /* write permission: other. */
 #  define S_IXOTH 00001           /* execute permission: other. */
 
-// eVC doesn't define these bits, but MSVC does. The bit settings are copied
-// from the MSVC defs.
-#  if defined (ACE_HAS_WINCE)
-#    define S_IFDIR 0040000
-#    define S_IFREG 0100000
-#  endif /* ACE_HAS_WINCE */
+// WinCE's S_IFLNK is defined with the other bits, below.
+#if !defined (S_IFLNK) && !defined (ACE_HAS_WINCE)
+#define S_IFLNK 0200000
+#endif /* S_IFLNK && !ACE_HAS_WINCE */
+
 #endif /* ACE_LACKS_MODE_MASKS */
+
+// Some systems (VxWorks) don't define S_ISLNK
+#if !defined (S_ISLNK)
+# if defined (S_IFLNK)
+#   define S_ISLNK(mode) (((mode)&S_IFLNK) == S_IFLNK)
+# else
+#   define S_ISLNK(mode) 0
+# endif /* S_IFLNK */
+#endif /* S_ISLNK */
 
 #if defined (ACE_HAS_WINCE)
 #  include "ace/Time_Value.h"
+
+// Translate the WinCE bits into names expected by our callers.
+// The dwFileAttributes parameter doesn't have protection info, so
+// S_IFMT is the whole thing. Since there are no symbolic links, S_IFLNK is 0.
+#  define S_IFMT 0xFFFF
+#  define S_IFDIR FILE_ATTRIBUTE_DIRECTORY
+#  define S_IFREG FILE_ATTRIBUTE_NORMAL
+#  define S_IFLNK 0
 
    struct stat
    {

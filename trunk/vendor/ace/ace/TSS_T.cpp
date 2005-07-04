@@ -1,4 +1,4 @@
-// TSS_T.cpp,v 4.9 2003/11/12 00:16:13 bala Exp
+// TSS_T.cpp,v 4.15 2004/09/13 20:53:16 wilson_d Exp
 
 #ifndef ACE_TSS_T_C
 #define ACE_TSS_T_C
@@ -9,7 +9,7 @@
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
-ACE_RCSID(ace, TSS_T, "TSS_T.cpp,v 4.9 2003/11/12 00:16:13 bala Exp")
+ACE_RCSID(ace, TSS_T, "TSS_T.cpp,v 4.15 2004/09/13 20:53:16 wilson_d Exp")
 
 #if !defined (__ACE_INLINE__)
 #include "ace/TSS_T.inl"
@@ -29,10 +29,15 @@ ACE_ALLOC_HOOK_DEFINE(ACE_TSS)
 template <class TYPE>
 ACE_TSS<TYPE>::~ACE_TSS (void)
 {
-  // We can't call <ACE_OS::thr_keyfree> until *all* of the threads
-  // that are using that key have done an <ACE_OS::thr_key_detach>.
-  // Otherwise, we'll end up with "dangling TSS pointers."
-  ACE_OS::thr_key_detach (this);
+#if defined (ACE_HAS_THREADS) && (defined (ACE_HAS_THREAD_SPECIFIC_STORAGE) || defined (ACE_HAS_TSS_EMULATION))
+  if (this->once_ != 0)
+  {
+    ACE_OS::thr_key_detach (this->key_, this);
+  }
+#else // defined (ACE_HAS_THREADS) && (defined (ACE_HAS_THREAD_SPECIFIC_STORAGE) || defined (ACE_HAS_TSS_EMULATION))
+  // We own it, we need to delete it.
+  delete type_;
+#endif // defined (ACE_HAS_THREADS) && (defined (ACE_HAS_THREAD_SPECIFIC_STORAGE) || defined (ACE_HAS_TSS_EMULATION))
 }
 
 template <class TYPE> TYPE *

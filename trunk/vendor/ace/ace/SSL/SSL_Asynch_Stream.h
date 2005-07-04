@@ -4,10 +4,9 @@
 /**
  *  @file   SSL_Asynch_Stream.h
  *
- *  SSL_Asynch_Stream.h,v 1.5 2003/07/19 19:04:15 dhinton Exp
+ *  SSL_Asynch_Stream.h,v 1.8 2004/07/10 17:19:34 ossama Exp
  *
  *  @author Alexander Libman <alibman@baltimore.com>
- *
  */
 //=============================================================================
 
@@ -23,10 +22,12 @@
 
 #if OPENSSL_VERSION_NUMBER > 0x0090581fL && ((defined (ACE_WIN32) && !defined (ACE_HAS_WINCE)) || (defined (ACE_HAS_AIO_CALLS)))
 
+#include "SSL_Asynch_BIO.h"
+
 #include "ace/Asynch_IO_Impl.h"
 #include "ace/Message_Block.h"
-
-#include "SSL_Asynch_BIO.h"
+#include "ace/Synch_Traits.h"
+#include "ace/Thread_Mutex.h"
 
 extern "C"
 {
@@ -70,8 +71,14 @@ public:
       ST_SERVER = 0x0002
     };
 
-
   /// The constructor.
+  /**
+   * @param context Pointer to @c ACE_SSL_Context instance containing
+   *                the OpenSSL @c SSL data structure to be associated
+   *                with this @c ACE_SSL_SOCK_Stream.  The @c SSL data
+   *                structure will be copied to make it at least
+   *                logically independent of the supplied @a context.
+   */
   ACE_SSL_Asynch_Stream (Stream_Type s_type = ST_SERVER,
                          ACE_SSL_Context * context = 0);
 
@@ -184,11 +191,16 @@ protected:
   /// Stream state/flags
   enum Stream_Flag
     {
-      SF_STREAM_OPEN    = 0x0001, /// istream_ open OK
-      SF_REQ_SHUTDOWN   = 0x0002, /// request to SSL shutdown
-      SF_SHUTDOWN_DONE  = 0x0004, /// SSL shutdown finished
-      SF_CLOSE_NTF_SENT = 0x0008, /// Close notification sent
-      SF_DELETE_ENABLE  = 0x0010  /// Stream can be safely destroyed
+      /// istream_ open OK
+      SF_STREAM_OPEN    = 0x0001,
+      /// request to SSL shutdown
+      SF_REQ_SHUTDOWN   = 0x0002,
+      /// SSL shutdown finished
+      SF_SHUTDOWN_DONE  = 0x0004,
+      /// Close notification sent
+      SF_CLOSE_NTF_SENT = 0x0008,
+      /// Stream can be safely destroyed
+      SF_DELETE_ENABLE  = 0x0010
     };
 
   int flags_;
@@ -201,11 +213,12 @@ protected:
 
   /// The real streams which work under the ssl connection.
   /// BIO performs I/O via this streams
-
   enum BIO_Flag  // internal IO flags
     {
-      BF_EOS   = 0x01,  // end of stream
-      BF_AIO   = 0x02   // real AIO in progress
+      /// End of stream
+      BF_EOS   = 0x01,
+      /// Real AIO in progress
+      BF_AIO   = 0x02
     };
 
   /**

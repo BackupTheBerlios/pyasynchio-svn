@@ -4,7 +4,7 @@
 /**
  *  @file    Multiplexor.h
  *
- *  Multiplexor.h,v 4.8 2003/07/19 19:04:12 dhinton Exp
+ *  Multiplexor.h,v 4.9 2004/06/16 07:57:21 jwillemsen Exp
  *
  *   Define the ACE_Driver and ACE_Multiplexor container classes.
  *   Note that these classes have never been implemented due to lack
@@ -71,7 +71,7 @@ public:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Multiplexor.i"
+#include "ace/Multiplexor.inl"
 #endif /* __ACE_INLINE__ */
 
 #endif /* 0 */

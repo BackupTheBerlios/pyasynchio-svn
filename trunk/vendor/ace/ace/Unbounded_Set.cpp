@@ -1,4 +1,4 @@
-// Unbounded_Set.cpp,v 4.11 2003/07/27 20:48:28 dhinton Exp
+// Unbounded_Set.cpp,v 4.12 2004/04/23 03:06:18 ossama Exp
 
 #ifndef ACE_UNBOUNDED_SET_C
 #define ACE_UNBOUNDED_SET_C
@@ -15,7 +15,7 @@
 #include "ace/Unbounded_Set.inl"
 #endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, Unbounded_Set, "Unbounded_Set.cpp,v 4.11 2003/07/27 20:48:28 dhinton Exp")
+ACE_RCSID(ace, Unbounded_Set, "Unbounded_Set.cpp,v 4.12 2004/04/23 03:06:18 ossama Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_Unbounded_Set)
 
@@ -341,14 +341,14 @@ ACE_Unbounded_Set_Iterator<T>::operator* (void)
   return *retv;
 }
 
-template <class T> int
+template <class T> bool
 ACE_Unbounded_Set_Iterator<T>::operator== (const ACE_Unbounded_Set_Iterator<T> &rhs) const
 {
   //ACE_TRACE ("ACE_Unbounded_Set_Iterator<T>::operator==");
   return (this->set_ == rhs.set_ && this->current_ == rhs.current_);
 }
 
-template <class T> int
+template <class T> bool
 ACE_Unbounded_Set_Iterator<T>::operator!= (const ACE_Unbounded_Set_Iterator<T> &rhs) const
 {
   //ACE_TRACE ("ACE_Unbounded_Set_Iterator<T>::operator!=");

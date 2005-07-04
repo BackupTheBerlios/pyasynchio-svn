@@ -4,7 +4,7 @@
 /**
  *  @file    Mem_Map.h
  *
- *  Mem_Map.h,v 4.26 2003/11/01 11:15:13 dhinton Exp
+ *  Mem_Map.h,v 4.29 2004/12/20 14:57:10 olli Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -188,10 +188,10 @@ private:
   /// HANDLE for the open mapping.
   ACE_HANDLE file_mapping_;
 
-#if defined (__Lynx__)
+#if defined (ACE_HAS_LYNXOS_BROKEN_MMAP)
   /// Flag to indicate that PROT_WRITE has been enabled.
   int write_enabled_;
-#endif /* __Lynx__ */
+#endif /* ACE_HAS_LYNXOS_BROKEN_MMAP */
 
   /// Keeps track of whether we need to close the handle.  This is set
   /// if we opened the file.
@@ -213,7 +213,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Mem_Map.i"
+#include "ace/Mem_Map.inl"
 #endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"

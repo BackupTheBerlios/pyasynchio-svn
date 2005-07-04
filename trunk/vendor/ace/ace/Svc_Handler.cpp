@@ -1,4 +1,4 @@
-// Svc_Handler.cpp,v 4.69 2004/01/05 22:57:06 shuston Exp
+// Svc_Handler.cpp,v 4.70 2004/08/03 20:03:06 jtc Exp
 
 #ifndef ACE_SVC_HANDLER_C
 #define ACE_SVC_HANDLER_C
@@ -15,7 +15,7 @@
 
 #include "ace/Dynamic.h"
 
-ACE_RCSID(ace, Svc_Handler, "Svc_Handler.cpp,v 4.69 2004/01/05 22:57:06 shuston Exp")
+ACE_RCSID(ace, Svc_Handler, "Svc_Handler.cpp,v 4.70 2004/08/03 20:03:06 jtc Exp")
 
 #define PR_ST_1 ACE_PEER_STREAM_1
 #define PR_ST_2 ACE_PEER_STREAM_2
@@ -67,7 +67,7 @@ ACE_Svc_Handler<PR_ST_2, ACE_SYNCH_USE>::operator new (size_t n)
 #if defined (ACE_HAS_NEW_NOTHROW)
 template <PR_ST_1, ACE_SYNCH_DECL> void *
 ACE_Svc_Handler<PR_ST_2, ACE_SYNCH_USE>::operator new (size_t n,
-                                                       const ACE_nothrow_t&)
+                                                       const ACE_nothrow_t&) throw()
 {
   ACE_TRACE ("ACE_Svc_Handler<PR_ST_2, ACE_SYNCH_USE>::operator new(nothrow)");
 

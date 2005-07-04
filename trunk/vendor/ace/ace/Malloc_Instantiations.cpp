@@ -1,6 +1,6 @@
 // Malloc_Instantiations.cpp,v 4.2 2003/08/09 00:59:29 dhinton Exp
 
-#include "ace/Malloc.h"
+#include "ace/Malloc_.h"
 #include "ace/Null_Mutex.h"
 
 #if defined (ACE_HAS_EXPLICIT_TEMPLATE_INSTANTIATION)

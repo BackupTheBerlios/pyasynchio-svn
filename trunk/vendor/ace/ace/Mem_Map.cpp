@@ -1,10 +1,10 @@
-// Mem_Map.cpp,v 4.39 2003/11/01 11:15:13 dhinton Exp
+// Mem_Map.cpp,v 4.45 2004/12/20 14:57:10 olli Exp
 
 // Defines the member functions for the memory mapping facility.
 
 #include "ace/Mem_Map.h"
 #if !defined (__ACE_INLINE__)
-#include "ace/Mem_Map.i"
+#include "ace/Mem_Map.inl"
 #endif /* __ACE_INLINE__ */
 
 #include "ace/OS_NS_sys_stat.h"
@@ -33,8 +33,8 @@ ACE_ALLOC_HOOK_DEFINE(ACE_Mem_Map)
 
 static void
 to_mapping_name (ACE_TCHAR *mapobjname,
-		 const ACE_TCHAR *filename,
-		 size_t len)
+    const ACE_TCHAR *filename,
+    size_t len)
 {
   --len;
   size_t i = 0;
@@ -127,7 +127,7 @@ ACE_Mem_Map::map_it (ACE_HANDLE handle,
 #endif /* CHORUS */
 
   // At this point we know <result> is not negative...
-  size_t current_file_length = ACE_static_cast (size_t, result);
+  size_t current_file_length = static_cast<size_t> (result);
 
   // Flag to indicate if we need to extend the back store
   int extend_backing_store = 0;
@@ -170,7 +170,7 @@ ACE_Mem_Map::map_it (ACE_HANDLE handle,
       if (requested_file_length > 0)
         // This will make the file size <requested_file_length>
         null_byte_position =
-          ACE_static_cast (off_t, requested_file_length - 1);
+          static_cast<off_t> (requested_file_length - 1);
       else
         // This will make the file size 1
         null_byte_position = 0;
@@ -196,10 +196,10 @@ ACE_Mem_Map::map_it (ACE_HANDLE handle,
 #endif /* !CHORUS */
     }
 
-#if defined (__Lynx__)
+#if defined (ACE_HAS_LYNXOS_BROKEN_MMAP)
   // Set flag that indicates whether PROT_WRITE has been enabled.
   write_enabled_ = ACE_BIT_ENABLED (prot, PROT_WRITE);
-#endif /* __Lynx__ */
+#endif /* ACE_HAS_LYNXOS_BROKEN_MMAP */
 
 #if defined (ACE_USE_MAPPING_NAME)
   if (ACE_BIT_ENABLED (share, MAP_SHARED))
@@ -215,14 +215,14 @@ ACE_Mem_Map::map_it (ACE_HANDLE handle,
                        max_mapping_name_length + 1);
 
       this->base_addr_ = ACE_OS::mmap (this->base_addr_,
-				       this->length_,
-				       prot,
-				       share,
-				       this->handle_,
-				       offset,
-				       &this->file_mapping_,
-				       sa,
-				       file_mapping_name);
+          this->length_,
+          prot,
+          share,
+          this->handle_,
+          offset,
+          &this->file_mapping_,
+          sa,
+          file_mapping_name);
     }
   else
 #endif /* ACE_USE_MAPPING_NAME */
@@ -250,8 +250,10 @@ ACE_Mem_Map::open (const ACE_TCHAR *file_name,
                     file_name,
                     MAXPATHLEN);
 
-#if defined (CHORUS) || defined(INTEGRITY)
+#if defined (CHORUS) || defined(INTEGRITY)  || defined (__QNXNTO__)
   this->handle_ = ACE_OS::shm_open (file_name, flags, mode, sa);
+#elif defined (ACE_OPENVMS)
+  ACE_OSCALL (::open (file_name, flags, mode, "shr=get,put,upd"), ACE_HANDLE, -1, this->handle_);
 #else
   this->handle_ = ACE_OS::open (file_name, flags, mode, sa);
 #endif /* CHORUS */
@@ -381,7 +383,7 @@ ACE_Mem_Map::remove (void)
   this->close ();
 
   if (this->filename_[0] != '\0')
-#if defined (CHORUS)
+#if defined (CHORUS) || defined (__QNXNTO__)
   return ACE_OS::shm_unlink (this->filename_);
 #else
   return ACE_OS::unlink (this->filename_);

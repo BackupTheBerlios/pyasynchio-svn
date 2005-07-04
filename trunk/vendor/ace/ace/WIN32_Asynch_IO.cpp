@@ -1,8 +1,10 @@
+// WIN32_Asynch_IO.cpp,v 4.44 2004/11/24 21:08:33 shuston Exp
+
 #include "ace/WIN32_Asynch_IO.h"
 
 ACE_RCSID (ace,
            Win32_Asynch_IO,
-           "WIN32_Asynch_IO.cpp,v 4.39 2003/11/01 11:15:18 dhinton Exp")
+           "WIN32_Asynch_IO.cpp,v 4.44 2004/11/24 21:08:33 shuston Exp")
 
 #if (defined (ACE_WIN32) && !defined (ACE_HAS_WINCE))
 
@@ -12,6 +14,8 @@ ACE_RCSID (ace,
 #include "ace/INET_Addr.h"
 #include "ace/Task_T.h"
 #include "ace/OS_NS_errno.h"
+#include "ace/OS_NS_unistd.h"
+#include "ace/OS_NS_sys_socket.h"
 
 size_t
 ACE_WIN32_Asynch_Result::bytes_transferred (void) const
@@ -578,7 +582,7 @@ ACE_WIN32_Asynch_Read_Stream::shared_read (ACE_WIN32_Asynch_Read_Stream_Result *
                                     result);
   if (initiate_result == 1)
     // Immediate success: the OVERLAPPED will still get queued.
-    return 1;
+    return 0;
 
   // If initiate failed, check for a bad error.
   ACE_OS::set_errno_to_last_error ();
@@ -852,17 +856,13 @@ ACE_WIN32_Asynch_Write_Stream::writev (ACE_Message_Block &message_block,
 
   for (const ACE_Message_Block* msg = &message_block;
        msg != 0 && bytes_to_write > 0 && iovcnt < ACE_IOV_MAX;
-       msg = msg->cont () , ++iovcnt)
+       msg = msg->cont ())
   {
     size_t msg_len = msg->length ();
 
-    // OS should process zero length block correctly
-    // if ( msg_len == 0 )
-    //   ACE_ERROR_RETURN ((LM_ERROR,
-    //                      ACE_LIB_TEXT ("ACE_WIN32_Asynch_Write_Stream::writev:")
-    //                      ACE_LIB_TEXT ("Zero-length message block\n")),
-    //                     -1);
-
+    // Skip 0-length blocks.
+    if (msg_len == 0)
+      continue;
     if (msg_len > bytes_to_write)
       msg_len = bytes_to_write;
     bytes_to_write -= msg_len;
@@ -891,6 +891,7 @@ ACE_WIN32_Asynch_Write_Stream::writev (ACE_Message_Block &message_block,
         errno = ERANGE;
         return -1;
       }
+    ++iovcnt;
   }
 
   // Re-calculate number bytes to write
@@ -999,7 +1000,7 @@ ACE_WIN32_Asynch_Write_Stream::shared_write (ACE_WIN32_Asynch_Write_Stream_Resul
                                      result);
   if (initiate_result == 1)
     // Immediate success: the OVERLAPPED will still get queued.
-    return 1;
+    return 0;
 
   // If initiate failed, check for a bad error.
   ACE_OS::set_errno_to_last_error ();
@@ -1015,11 +1016,9 @@ ACE_WIN32_Asynch_Write_Stream::shared_write (ACE_WIN32_Asynch_Write_Stream_Resul
       // queued.
 
       if (ACE::debug ())
-        {
-          ACE_DEBUG ((LM_ERROR,
-                      ACE_LIB_TEXT ("%p\n"),
-                      ACE_LIB_TEXT ("WriteFile")));
-        }
+        ACE_DEBUG ((LM_ERROR,
+                    ACE_LIB_TEXT ("%p\n"),
+                    ACE_LIB_TEXT ("WriteFile")));
       return -1;
     }
 }
@@ -2538,8 +2537,8 @@ ACE_WIN32_Asynch_Connect::connect_i (ACE_WIN32_Asynch_Connect_Result *result,
            result->set_error (errno);
 
            ACE_ERROR_RETURN ((LM_ERROR,
-                              ACE_LIB_TEXT ("%N:%l:ACE_WIN32_Asynch_Connect::connect_i: ")
-                              ACE_LIB_TEXT (" ACE_OS::bind failed\n")),
+                              ACE_LIB_TEXT ("%N:%l:ACE_WIN32_Asynch_Connect::connect_i: %p\n"),
+                              ACE_LIB_TEXT ("ACE_OS::bind")),
                              -1);
         }
     }
@@ -2745,18 +2744,17 @@ ACE_WIN32_Asynch_Connect::handle_output (ACE_HANDLE fd)
                       (char*) & sockerror,
                       & lsockerror);
 
+  // This previously just did a "return -1" and let handle_close() clean
+  // things up. However, this entire object may be gone as a result of
+  // the application's completion handler, so don't count on 'this' being
+  // legitimate on return from post_result().
+  // remove_io_handler() contains flag DONT_CALL
+  this->win32_proactor_->get_asynch_pseudo_task().remove_io_handler (fd);
+
   result->set_bytes_transferred (0);
   result->set_error (sockerror);
   this->post_result (result, this->flg_open_);
-
-  //ACE_Asynch_Pseudo_Task & task =
-  //       this->win32_proactor_->get_asynch_pseudo_task();
-
-  // remove_io_handler() contains flag DONT_CALL
-  //task.remove_io_handler ( fd );
-
-  //return 0;
-  return -1;
+  return 0;
 }
 
 

@@ -4,7 +4,7 @@
 
 ACE_RCSID (ACE_SSL,
            SSL_Asynch_Stream,
-           "SSL_Asynch_Stream.cpp,v 1.9 2003/04/16 07:16:40 ossama Exp")
+           "SSL_Asynch_Stream.cpp,v 1.10 2004/03/22 16:03:42 shuston Exp")
 
 // This only works on platforms with Asynchronous IO support.
 #if OPENSSL_VERSION_NUMBER > 0x0090581fL && ((defined (ACE_WIN32) && !defined (ACE_HAS_WINCE)) || (defined (ACE_HAS_AIO_CALLS)))
@@ -32,6 +32,7 @@ ACE_RCSID (ACE_SSL,
 
 #endif  /* ACE_WIN32 */
 
+#include "ace/OS_NS_string.h"
 #include "ace/Proactor.h"
 
 #include <openssl/err.h>

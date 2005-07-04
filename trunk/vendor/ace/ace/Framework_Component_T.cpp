@@ -1,15 +1,11 @@
 // Framework_Component_T.cpp
-// Framework_Component_T.cpp,v 1.5 2002/05/28 21:43:17 dhinton Exp
+// Framework_Component_T.cpp,v 1.6 2004/06/14 13:58:41 jwillemsen Exp
 #ifndef ACE_FRAMEWORK_COMPONENT_T_CPP
 #define ACE_FRAMEWORK_COMPONENT_T_CPP
 
 #include "ace/Framework_Component_T.h"
 
-#if !defined (__ACE_INLINE__)
-#include "ace/Framework_Component_T.inl"
-#endif /* __ACE_INLINE__ */
-
-ACE_RCSID(ace, Framework_Component_T, "Framework_Component_T.cpp,v 1.5 2002/05/28 21:43:17 dhinton Exp")
+ACE_RCSID(ace, Framework_Component_T, "Framework_Component_T.cpp,v 1.6 2004/06/14 13:58:41 jwillemsen Exp")
 
 template <class Concrete>
 ACE_Framework_Component_T<Concrete>::ACE_Framework_Component_T (Concrete *concrete)

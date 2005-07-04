@@ -6,7 +6,7 @@
  *
  *  spawn (ADVANCED REALTIME)
  *
- *  os_spawn.h,v 1.2 2003/07/19 19:04:15 dhinton Exp
+ *  os_spawn.h,v 1.3 2004/03/06 05:06:22 bala Exp
  *
  *  @author Don Hinton <dhinton@dresystems.com>
  *  @author This code was originally in various places including ace/OS.h.
@@ -25,7 +25,7 @@
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
 #include "ace/os_include/os_signal.h"
-#include "ace/os_include/os_sys/types.h"
+#include "ace/os_include/sys/os_types.h"
 #include "ace/os_include/os_sched.h"
 
 #if !defined (ACE_LACKS_SPAWN_H)

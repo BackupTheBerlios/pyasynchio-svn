@@ -4,7 +4,7 @@
 /**
  *  @file    Auto_IncDec_T.h
  *
- *  Auto_IncDec_T.h,v 4.8 2003/07/19 19:04:10 dhinton Exp
+ *  Auto_IncDec_T.h,v 4.9 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Edan Ayal <EdanA@cti2.com>
  */
@@ -63,7 +63,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Auto_IncDec_T.i"
+#include "ace/Auto_IncDec_T.inl"
 // On non-Win32 platforms, this code will be inlined
 #endif /* __ACE_INLINE__ */
 

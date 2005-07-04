@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// OS_NS_sys_time.inl,v 1.5 2003/11/12 16:31:27 dhinton Exp
+// OS_NS_sys_time.inl,v 1.6 2004/06/22 14:36:36 jtc Exp
 
 #include "ace/os_include/sys/os_time.h"
 #include "ace/os_include/os_errno.h"
@@ -52,6 +52,7 @@ ACE_OS::gettimeofday (void)
   tv.tv_usec = tb.tb_low / 1000L;
 #else
 # if defined (ACE_HAS_TIMEZONE_GETTIMEOFDAY) || \
+  defined(ACE_HAS_VOIDPTR_GETTIMEOFDAY) || \
   (defined (ACE_HAS_SVR4_GETTIMEOFDAY) && !defined (m88k) && !defined (SCO))
   ACE_OSCALL (::gettimeofday (&tv, 0), int, -1, result);
 # elif defined (VXWORKS) || defined (CHORUS) || defined (ACE_PSOS)

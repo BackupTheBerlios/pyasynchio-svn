@@ -4,7 +4,7 @@
 /**
  *  @file    Condition_Thread_Mutex.h
  *
- *  Condition_Thread_Mutex.h,v 4.1 2003/08/04 03:53:50 dhinton Exp
+ *  Condition_Thread_Mutex.h,v 4.2 2004/05/18 11:31:49 jwillemsen Exp
  *
  *   Moved from Synch.h.
  *
@@ -153,7 +153,7 @@ private:
 };
 
 #if 0
-// The following two classes are commented out since there doesn't
+// The following class is commented out since there doesn't
 // appear to be a portable and robust means of implementing this
 // functionality across platforms.  If you know of a portable and
 // robust way to implement this functionality please let us know.

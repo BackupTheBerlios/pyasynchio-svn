@@ -1,10 +1,11 @@
 /* -*- C++ -*- */
-// config-vxworks5.x.h,v 4.65 2003/12/24 09:53:13 jwillemsen Exp
+// config-vxworks5.x.h,v 4.88 2004/12/20 13:35:12 jwillemsen Exp
 
 // The following configuration file is designed to work for VxWorks
-// 5.2/5.3 platforms using one of these compilers:
-// 1) The GNU/Cygnus g++ compiler that is shipped with Tornado 1.0.1.
+// 5.5 platforms using one of these compilers:
+// 1) The GNU g++ compiler that is shipped with Tornado 2.2 or newer.
 // 2) The Green Hills 1.8.8 (not 1.8.7!!!!) and 1.8.9 compilers.
+// 3) The WindRiver Compiler (formerly known as Diab)
 
 #ifndef ACE_CONFIG_H
 #define ACE_CONFIG_H
@@ -14,6 +15,10 @@
 # define VXWORKS
 #endif /* ! VXWORKS */
 
+#if ! defined (ACE_VXWORKS)
+# define ACE_VXWORKS 0x551
+#endif /* ! ACE_VXWORKS */
+
 #if ! defined (__ACE_INLINE__)
 # define __ACE_INLINE__
 #endif /* ! __ACE_INLINE__ */
@@ -22,6 +27,8 @@
 #if defined (__GNUG__)
 # include "ace/config-g++-common.h"
 # undef ACE_HAS_TEMPLATE_SPECIALIZATION
+// We have to explicitly instantiate static template members
+# define ACE_HAS_EXPLICIT_STATIC_TEMPLATE_MEMBER_INSTANTIATION
 
 # define ACE_LACKS_IOSTREAM_FX
 # if !defined (ACE_MAIN)
@@ -34,7 +41,7 @@
 // An explicit check for Tornado 2.1, which had very limited release.
 // See include/makeinclude/platform_vxworks5.x_g++.GNU for details
 // on version conventions used by ACE for VxWorks.
-# if defined (ACE_VXWORKS) && ACE_VXWORKS == 0x542
+# if ACE_VXWORKS == 0x542
     // Older versions of Tornado accidentally omitted math routines from
     // the link library to support long long arithmetic. These could be
     // found and used from another library in the distro.
@@ -42,10 +49,16 @@
     // have a problem.
 #   define ACE_LACKS_LONGLONG_T
 #   define ACE_LACKS_CLEARERR
-    // This is for inofficial(!) gcc2.96 shipped with Tornado2.1.0 for
-    // Hitachi SuperH platform.
 #   define ACE_LACKS_AUTO_PTR
 # endif /* ACE_VXWORKS == 0x542 */
+
+# if (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 3))
+	// GNU 3.3+ toolchain supports long long types but fails to define this so STL
+	// skips some definitions
+#   if !defined (_GLIBCPP_USE_LONG_LONG)
+#     define _GLIBCPP_USE_LONG_LONG
+#   endif
+# endif /* (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 3)) */
 
 #elif defined (ghs)
   // Processor type, if necessary.  Green Hills defines "ppc".
@@ -72,7 +85,7 @@
 // with different parameters.
 # define __INCineth
 
-#elif defined (__DCPLUSPLUS__)
+#elif defined (__DCPLUSPLUS__) || defined (__DCC__)
   // Diab 4.2a or later.
 # if !defined (ACE_LACKS_PRAGMA_ONCE)
     // We define it with a -D with make depend.
@@ -81,28 +94,38 @@
 
   // Diab doesn't support VxWorks' iostream libraries.
 # define ACE_LACKS_IOSTREAM_TOTALLY
+# define ACE_LACKS_ACE_IOSTREAM
 
-  // #include <new.h> causes strange compilation errors in
-  // the system header files.
-# define ACE_LACKS_NEW_H
+# define ACE_HAS_STANDARD_CPP_LIBRARY 1
+# define ACE_USES_STD_NAMESPACE_FOR_STDCPP_LIB 0
 
-#else  /* ! __GNUG__ && ! ghs */
+# define ACE_HAS_USING_KEYWORD
+
+# define ACE_TEMPLATES_REQUIRE_SOURCE
+# define ACE_HAS_STD_TEMPLATE_SPECIALIZATION
+# define ACE_HAS_STD_TEMPLATE_CLASS_MEMBER_SPECIALIZATION
+
+#else  /* ! __GNUG__ && ! ghs && !__DCC__ */
 # error unsupported compiler on VxWorks
 #endif /* ! __GNUG__ && ! ghs */
 
-#if defined (ACE_VXWORKS) && ACE_VXWORKS <= 0x540
-#  define ACE_LACKS_ARPA_INET_H
-#endif /* ! (ACE_VXWORKS) && ACE_VXWORKS <= 0x540 */
-
 // OS-specific configuration
 
+#define ACE_MKDIR_LACKS_MODE
+#define ACE_HAS_NONCONST_STAT
+#define ACE_HAS_NONCONST_SWAB
+#define ACE_HAS_NONCONST_READV
+#define ACE_HAS_NONCONST_CHDIR
+#define ACE_HAS_NONCONST_RMDIR
+#define ACE_HAS_NONCONST_UNLINK
+#define ACE_HAS_NONCONST_OPENDIR
 #define ACE_LACKS_UNIX_SYSLOG
 #define ACE_HAS_MUTEX_TIMEOUTS
 #define ACE_DEFAULT_MAX_SOCKET_BUFSIZ 32768
 #define ACE_DEFAULT_THREAD_KEYS 16
 #define ACE_HAS_BROKEN_ACCEPT_ADDR
-#define ACE_HAS_BROKEN_SENDMSG
-#define ACE_HAS_BROKEN_WRITEV
+#define ACE_HAS_NONCONST_SENDMSG
+#define ACE_HAS_NONCONST_WRITEV
 #define ACE_HAS_CHARPTR_DL
 #define ACE_HAS_CHARPTR_SOCKOPT
 #define ACE_HAS_CLOCK_GETTIME
@@ -112,6 +135,7 @@
 #define ACE_HAS_DLL 0
 #define ACE_HAS_HANDLE_SET_OPTIMIZED_FOR_SELECT
 #define ACE_HAS_MSG
+#define ACE_HAS_NONCONST_READV
 #define ACE_HAS_NONCONST_SELECT_TIMEVAL
 #define ACE_HAS_NONSTATIC_OBJECT_MANAGER
 #define ACE_HAS_POSIX_NONBLOCK
@@ -146,10 +170,11 @@
 #define ACE_LACKS_MPROTECT
 #define ACE_LACKS_MSYNC
 #define ACE_LACKS_NETDB_REENTRANT_FUNCTIONS
-#define ACE_LACKS_PARAM_H
+#define ACE_LACKS_SYS_PARAM_H
 #define ACE_LACKS_PWD_FUNCTIONS
 #define ACE_LACKS_READDIR_R
 #define ACE_LACKS_READLINK
+#define ACE_LACKS_REALPATH
 #define ACE_LACKS_RLIMIT
 #define ACE_LACKS_RWLOCK_T
 #define ACE_LACKS_SBRK
@@ -162,7 +187,6 @@
 #define ACE_LACKS_STRRECVFD
 #define ACE_LACKS_SYSCALL
 #define ACE_LACKS_SYSTIME_H
-#define ACE_LACKS_SYSV_MSG_H
 #define ACE_LACKS_SYSV_SHMEM
 #define ACE_LACKS_SYS_NERR
 #define ACE_LACKS_TELLDIR
@@ -170,6 +194,7 @@
 #define ACE_LACKS_TIMESPEC_T
 #define ACE_LACKS_TRUNCATE
 #define ACE_LACKS_UCONTEXT_H
+#define ACE_LACKS_UMASK
 #define ACE_LACKS_UNIX_SIGNALS
 #define ACE_LACKS_UTSNAME_T
 #define ACE_LACKS_NATIVE_STRPTIME
@@ -222,6 +247,7 @@
 #define ACE_LACKS_WCSSTR
 #define ACE_LACKS_WCSTOK
 #define ACE_LACKS_TOWLOWER
+#define ACE_LACKS_TOWUPPER
 #define ACE_LACKS_ITOW
 #define ACE_LACKS_WCSICMP
 #define ACE_LACKS_WCSNICMP
@@ -229,6 +255,7 @@
 #define ACE_LACKS_WCSTOL
 #define ACE_LACKS_WCSTOUL
 #define ACE_LACKS_WCSDUP
+#define ACE_LACKS_SYMLINKS
 
 #if !defined (ACE_MT_SAFE)
 # define ACE_MT_SAFE 1

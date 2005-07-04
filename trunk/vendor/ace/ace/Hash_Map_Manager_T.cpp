@@ -1,4 +1,4 @@
-// Hash_Map_Manager_T.cpp,v 4.17 2003/08/01 22:26:38 bala Exp
+// Hash_Map_Manager_T.cpp,v 4.19 2004/06/16 07:57:20 jwillemsen Exp
 
 // ============================================================================
 //
@@ -23,7 +23,7 @@
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
 #if !defined (__ACE_INLINE__)
-# include "ace/Hash_Map_Manager_T.i"
+# include "ace/Hash_Map_Manager_T.inl"
 #elif defined (__SUNPRO_CC) && (__SUNPRO_CC == 0x420)
 // If ACE_INLINE is on and we are on SunCC, undefine ACE_INLINE,
 // include ace/Hash_Map_Manager_T.i, and then redefine ACE_INLINE.
@@ -31,14 +31,14 @@
 // the code in ace/Hash_Map_Manager_T.i (with the fast option).
 # undef ACE_INLINE
 # define ACE_INLINE
-# include "ace/Hash_Map_Manager_T.i"
+# include "ace/Hash_Map_Manager_T.inl"
 # undef ACE_INLINE
 # define ACE_INLINE inline
 #endif /* __ACE_INLINE__ */
 
 #include "ace/Malloc_Base.h"
 
-ACE_RCSID(ace, Hash_Map_Manager_T, "Hash_Map_Manager_T.cpp,v 4.17 2003/08/01 22:26:38 bala Exp")
+ACE_RCSID(ace, Hash_Map_Manager_T, "Hash_Map_Manager_T.cpp,v 4.19 2004/06/16 07:57:20 jwillemsen Exp")
 
 template <class EXT_ID, class INT_ID>
 ACE_Hash_Map_Entry<EXT_ID, INT_ID>::ACE_Hash_Map_Entry (ACE_Hash_Map_Entry<EXT_ID, INT_ID> *next,
@@ -398,14 +398,13 @@ ACE_Hash_Map_Iterator_Base_Ex<EXT_ID, INT_ID, HASH_KEY, COMPARE_KEYS, ACE_LOCK>:
       this->index_++;
       return this->forward_i ();
     }
-  else if (this->index_ >= ACE_static_cast (ssize_t, this->map_man_->total_size_))
+  else if (this->index_ >= static_cast<ssize_t> (this->map_man_->total_size_))
     return 0;
 
   this->next_ = this->next_->next_;
   if (this->next_ == &this->map_man_->table_[this->index_])
     {
-      while (++this->index_ < ACE_static_cast (ssize_t,
-                                               this->map_man_->total_size_))
+      while (++this->index_ < static_cast<ssize_t> (this->map_man_->total_size_))
         {
           this->next_ = this->map_man_->table_[this->index_].next_;
           if (this->next_ != &this->map_man_->table_[this->index_])
@@ -413,7 +412,7 @@ ACE_Hash_Map_Iterator_Base_Ex<EXT_ID, INT_ID, HASH_KEY, COMPARE_KEYS, ACE_LOCK>:
         }
     }
 
-  return this->index_ < ACE_static_cast (ssize_t, this->map_man_->total_size_);
+  return this->index_ < static_cast<ssize_t> (this->map_man_->total_size_);
 }
 
 template <class EXT_ID, class INT_ID, class HASH_KEY, class COMPARE_KEYS, class ACE_LOCK> int
@@ -423,7 +422,7 @@ ACE_Hash_Map_Iterator_Base_Ex<EXT_ID, INT_ID, HASH_KEY, COMPARE_KEYS, ACE_LOCK>:
 
   if (this->map_man_->table_ == 0)
     return -1;
-  else if (this->index_ == ACE_static_cast (ssize_t, this->map_man_->total_size_))
+  else if (this->index_ == static_cast<ssize_t> (this->map_man_->total_size_))
     {
       this->index_--;
       return this->reverse_i ();

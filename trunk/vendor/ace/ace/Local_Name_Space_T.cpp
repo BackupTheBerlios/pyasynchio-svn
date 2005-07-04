@@ -12,10 +12,11 @@
 #include "ace/Guard_T.h"
 #include "ace/OS_NS_regex.h"
 #include "ace/OS_NS_string.h"
+#include "ace/OS_NS_unistd.h"
 
 ACE_RCSID (ace,
            Local_Name_Space_T,
-           "Local_Name_Space_T.cpp,v 4.66 2003/11/07 20:27:28 shuston Exp")
+           "Local_Name_Space_T.cpp,v 4.68 2004/06/15 12:18:01 jwillemsen Exp")
 
 
 template <class ALLOCATOR>
@@ -817,7 +818,7 @@ ACE_Local_Name_Space<ACE_MEM_POOL_2, ACE_LOCK>::dump_i (void) const
 #endif /* ! ACE_NLOGGING */
 
       ACE_DEBUG ((LM_DEBUG,  ACE_LIB_TEXT ("key=%s\nvalue=%s\ntype=%s\n"),
-                  key, value, type));
+                  ACE_TEXT_CHAR_TO_TCHAR (key), ACE_TEXT_CHAR_TO_TCHAR (value), ACE_TEXT_CHAR_TO_TCHAR (type)));
       // We need to delete key and value since char_rep allocates
       // memory for them
       delete [] key;

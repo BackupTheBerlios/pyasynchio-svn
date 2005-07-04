@@ -1,5 +1,5 @@
 // Event_Handler_T.cpp
-// Event_Handler_T.cpp,v 4.5 2003/07/27 20:48:24 dhinton Exp
+// Event_Handler_T.cpp,v 4.6 2004/06/16 07:57:20 jwillemsen Exp
 
 #ifndef EVENT_HANDLER_T_C
 #define EVENT_HANDLER_T_C
@@ -10,12 +10,12 @@
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
-ACE_RCSID(ace, Event_Handler_T, "Event_Handler_T.cpp,v 4.5 2003/07/27 20:48:24 dhinton Exp")
+ACE_RCSID(ace, Event_Handler_T, "Event_Handler_T.cpp,v 4.6 2004/06/16 07:57:20 jwillemsen Exp")
 
 #if defined (ACE_HAS_TEMPLATE_TYPEDEFS)
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Event_Handler_T.i"
+#include "ace/Event_Handler_T.inl"
 #endif /* __ACE_INLINE__ */
 
 ACE_ALLOC_HOOK_DEFINE(ACE_Event_Handler_T)

@@ -4,7 +4,7 @@
 /**
  *  @file    MEM_Addr.h
  *
- *  MEM_Addr.h,v 4.10 2003/07/19 19:04:11 dhinton Exp
+ *  MEM_Addr.h,v 4.13 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Nanbor Wang <nanbor@cs.wustl.edu>
  */
@@ -46,7 +46,7 @@ public:
   ACE_MEM_Addr (u_short port_number);
 
   /// Creates an <ACE_INET_Addr> from a <port_name>.
-  ACE_EXPLICIT ACE_MEM_Addr (const ACE_TCHAR port_name[]);
+  explicit ACE_MEM_Addr (const ACE_TCHAR port_name[]);
 
   /// Default dtor.
   ~ACE_MEM_Addr (void);
@@ -119,12 +119,12 @@ public:
 
   /// Compare two addresses for equality.  The addresses are considered
   /// equal if they contain the same IP address and port number.
-  int operator == (const ACE_MEM_Addr &SAP) const;
-  int operator == (const ACE_INET_Addr &SAP) const;
+  bool operator == (const ACE_MEM_Addr &SAP) const;
+  bool operator == (const ACE_INET_Addr &SAP) const;
 
   /// Compare two addresses for inequality.
-  int operator != (const ACE_MEM_Addr &SAP) const;
-  int operator != (const ACE_INET_Addr &SAP) const;
+  bool operator != (const ACE_MEM_Addr &SAP) const;
+  bool operator != (const ACE_INET_Addr &SAP) const;
 
   /// Computes and returns hash value.
   virtual u_long hash (void) const;
@@ -144,7 +144,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/MEM_Addr.i"
+#include "ace/MEM_Addr.inl"
 #endif /* __ACE_INLINE__ */
 
 #endif /* ACE_HAS_POSITION_INDEPENDENT_POINTERS == 1 */

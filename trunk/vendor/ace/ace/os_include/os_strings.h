@@ -6,7 +6,7 @@
  *
  *  string operations
  *
- *  os_strings.h,v 1.4 2003/11/01 11:15:19 dhinton Exp
+ *  os_strings.h,v 1.6 2004/09/03 17:28:46 olli Exp
  *
  *  @author Don Hinton <dhinton@dresystems.com>
  *  @author This code was originally in various places including ace/OS.h.
@@ -36,6 +36,14 @@ extern "C"
 {
 #endif /* __cplusplus */
 
+#if defined (ACE_LACKS_STRCASECMP_PROTOTYPE)
+  int strcasecmp(const char *, const char *);
+#endif /* ACE_LACKS_STRCASECMP_PROTOTYPE */
+
+#if defined (ACE_LACKS_STRNCASECMP_PROTOTYPE)
+  int strncasecmp(const char *, const char *, size_t);
+#endif /* ACE_LACKS_STRNCASECMP_PROTOTYPE */
+    
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

@@ -4,7 +4,7 @@
 /**
  *  @file   config-win32-msvc-6.h
  *
- *  config-win32-msvc-6.h,v 4.12 2003/07/19 19:04:15 dhinton Exp
+ *  config-win32-msvc-6.h,v 4.17 2004/05/14 17:07:36 ossama Exp
  *
  *  @brief  Microsoft Visual C++ 6.0 configuration file.
  *
@@ -38,17 +38,8 @@
 #  define ACE_HAS_BROKEN_NESTED_TEMPLATES
 # endif /* ACE_HAS_BROKEN_NESTED_TEMPLATES */
 
-// By default, we disable the C++ casting because
-// it requires the RTTI support to be turned on which
-// is not something we usually do.
-# if !defined (ACE_HAS_ANSI_CASTS)
-#  define ACE_HAS_ANSI_CASTS 0
-# endif
-
 // Keywords
 
-# define ACE_HAS_EXPLICIT_KEYWORD
-# define ACE_HAS_MUTABLE_KEYWORD
 # define ACE_HAS_TYPENAME_KEYWORD
 # define ACE_HAS_USING_KEYWORD
 
@@ -72,10 +63,6 @@
 # define ACE_HAS_WORKING_EXPLICIT_TEMPLATE_DESTRUCTOR
 # define ACE_HAS_STD_TEMPLATE_SPECIALIZATION
 
-# if defined (ACE_HAS_ANSI_CASTS) && (ACE_HAS_ANSI_CASTS == 0)
-#  undef  ACE_HAS_ANSI_CASTS
-# endif /* ACE_HAS_ANSI_CASTS && ACE_HAS_ANSI_CASTS == 0 */
-
 # if !defined (ACE_HAS_WINCE)
 #   define ACE_HAS_SIG_ATOMIC_T
 # endif /* ACE_HAS_WINCE */
@@ -86,10 +73,6 @@
 
 # define ACE_LACKS_MODE_MASKS
 # define ACE_LACKS_STRRECVFD
-
-# if !defined (ACE_HAS_WINCE)
-# define ACE_HAS_LLSEEK
-# endif /* ACE_HAS_WINCE */
 
 // Compiler/platform has correctly prototyped header files.
 # define ACE_HAS_CPLUSPLUS_HEADERS
@@ -112,6 +95,7 @@
 
 // Template specialization is supported.
 # define ACE_HAS_TEMPLATE_SPECIALIZATION
+
 
 // At least for ACE_UNIMPLEMENTED_FUNC in class templates, this is needed to
 // explicitly instantiate a template that has ACE_UNIMPLEMENTED_FUNC.

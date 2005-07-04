@@ -44,6 +44,9 @@
 /* Uses ctime_r & asctime_r with only two parameters vs. three. */
 #undef ACE_HAS_2_PARAM_ASCTIME_R_AND_CTIME_R
 
+/* Platform's wcstok() takes 3 arguments */
+#undef ACE_HAS_3_PARAM_WCSTOK
+
 /* Platform has BSD 4.4 sendmsg()/recvmsg() APIs. */
 #undef ACE_HAS_4_4BSD_SENDMSG_RECVMSG
 
@@ -71,10 +74,6 @@
    ACE_LACKS_PWD_FUNCTIONS to be undefined and that the geteuid() system call
    exists. */
 #undef ACE_HAS_ALT_CUSERID
-
-/* Platform supports new C++ style casts (dynamic_cast, static_cast,
-   reinterpret_cast and const_cast) */
-#undef ACE_HAS_ANSI_CASTS
 
 /* Compiler/platform correctly calls init()/fini() for shared libraries. */
 #undef ACE_HAS_AUTOMATIC_INIT_FINI
@@ -132,21 +131,11 @@
    rand_r(). */
 #undef ACE_HAS_BROKEN_RANDR
 
-/* OS/Compiler's header files are not consistent with readv() definition. */
-#undef ACE_HAS_BROKEN_READV
-
 /* Platform defines ctime_r, asctime_r, rand_r and getpwnam_r as macros */
 #undef ACE_HAS_BROKEN_R_ROUTINES
 
 /* Compiler can't handle the static ACE_Addr::sap_any construct. */
 #undef ACE_HAS_BROKEN_SAP_ANY
-
-/* OS/compiler omits the const from the sendmsg() prototype. */
-#undef ACE_HAS_BROKEN_SENDMSG
-
-/* OS/compiler omits the const from the rlimit parameter in the setrlimit()
-   prototype. */
-#undef ACE_HAS_BROKEN_SETRLIMIT
 
 /* Platform defines struct timespec members as ts_sec and ts_nsec instead of
    tv_sec and tv_nsec. This is highly non-portable. Currently only FreeBSD
@@ -157,14 +146,10 @@
    *) rather than t_error(const char *). */
 #undef ACE_HAS_BROKEN_T_ERROR
 
-/* OS/compiler omits the const from the iovec parameter in the writev()
-   prototype. */
-#undef ACE_HAS_BROKEN_WRITEV
-
 /* Platform has <bstring.h> (which contains bzero() prototype) */
 #undef ACE_HAS_BSTRING
 
-/* Platform has <bytesex.h>. */
+/* Define to 1 if platform has the <bytesex.h> header file. */
 #undef ACE_HAS_BYTESEX_H
 
 /* Platform supports the Win32 CancelIO() function. (WinNT 4.0 and beyond) */
@@ -179,7 +164,7 @@
 /* sprintf() returns char * rather than int (e.g., SunOS 4.x) */
 #undef ACE_HAS_CHARPTR_SPRINTF
 
-/* Platform supports POSIX 1.b clock_gettime() */
+/* Define to 1 if platform has clock_gettime(). */
 #undef ACE_HAS_CLOCK_GETTIME
 
 /* OS header files have some problems with XTI (HP/UX 11). */
@@ -188,11 +173,14 @@
 /* Prototypes for both signal() and struct sigaction are consistent. */
 #undef ACE_HAS_CONSISTENT_SIGNAL_PROTOTYPES
 
+/* Platform has swab(const char*, char*, ssize_t) variant. */
+#undef ACE_HAS_CONST_CHAR_SWAB
+
 /* Compiler/platform has correctly prototyped header files. */
 #undef ACE_HAS_CPLUSPLUS_HEADERS
 
-/* Platform has cygwin32 socket.h. */
-#undef ACE_HAS_CYGWIN32_SOCKET_H
+/* Platform (Linux) supports /dev/poll character device. */
+#undef ACE_HAS_DEV_POLL
 
 /* Platform supports operations on directories via struct dirent, readdir_r,
    etc. */
@@ -205,14 +193,14 @@
 /* Build ACE using the frigging PC DLL nonsense... */
 #undef ACE_HAS_DLL
 
+/* Platform (Linux) supports event poll interface. */
+#undef ACE_HAS_EVENT_POLL
+
 /* Compiler supports C++ exception handling. */
 #undef ACE_HAS_EXCEPTIONS
 
-/* Platform provides C++ <exception.h> header */
+/* Define to 1 if platform has the <exception.h> header file. */
 #undef ACE_HAS_EXCEPTION_H
-
-/* Compiler supports explicit constructors. */
-#undef ACE_HAS_EXPLICIT_KEYWORD
 
 /* Compiler's template instantiation mechanism supports the use of explicit
    C++ specializations for all used templates. This is also used for GNU G++
@@ -222,24 +210,18 @@
 /* Platform has Fast-Light (FL) toolkit installed. */
 #undef ACE_HAS_FL
 
+/* Define to 1 if platform has getifaddrs(). */
+#undef ACE_HAS_GETIFADDRS
+
 /* Platform supports getpagesize() call (otherwise, ACE_PAGE_SIZE must be
    defined, except on Win32). */
 #undef ACE_HAS_GETPAGESIZE
 
-/* Platform supports the getrusage() system call. */
+/* Define to 1 if platform has getrusage(). */
 #undef ACE_HAS_GETRUSAGE
 
-/* Platform has a getrusage () prototype in sys/resource.h that differs from
-   the one in ace/OS.i. */
-#undef ACE_HAS_GETRUSAGE_PROTO
-
-/* GNUC 2.7.3 mistakenly takes the template definition as the place where an
-   inline function of an argument class is first used. */
-#undef ACE_HAS_GNUC_BROKEN_TEMPLATE_INLINE_FUNCTIONS
-
-/* Platform has "old" GNU compiler, i.e. does not completely support standard
-   C++. (compiling with g++ prior to version 2.8.0) */
-#undef ACE_HAS_GNUG_PRE_2_8
+/* Define to 1 if platform has the declaration of getrusage(). */
+#undef ACE_HAS_GETRUSAGE_PROTOTYPE
 
 /* Denotes that GNU has cstring.h as standard which redefines memchr() */
 #undef ACE_HAS_GNU_CSTRING_H
@@ -258,7 +240,7 @@
 /* Compiler/platform supports SunOS high resolution timers */
 #undef ACE_HAS_HI_RES_TIMER
 
-/* Compiler/platform supports idtype_t. */
+/* Define to 1 if the system has the type `idtype_t'. */
 #undef ACE_HAS_IDTYPE_T
 
 /* Inline all the static class OS methods to remove call overhead Note: This
@@ -277,8 +259,8 @@
 /* */
 #undef ACE_HAS_IRIX_53_SIGNALS
 
-/* */
-#undef ACE_HAS_LIBC_H
+/* Define to 1 if platform has itoa(). */
+#undef ACE_HAS_ITOA
 
 /* The rusage_t structure has only two fields. */
 #undef ACE_HAS_LIMITED_RUSAGE_T
@@ -300,18 +282,11 @@
 /* Enabled malloc statistics collection. */
 #undef ACE_HAS_MALLOC_STATS
 
-/* Use native implementation of memchr(). */
+/* Define to 1 if platform has memchr(). */
 #undef ACE_HAS_MEMCHR
 
 /* Platform supports Microsoft Foundation Classes */
 #undef ACE_HAS_MFC
-
-/* Avoid #including ace/streams.h in OS.h. Users must include ace/streams.h,
-   <iostream>, or <iostream.h> explicitly in their code. Some platforms, such
-   as g++/VxWorks, have trouble compiling templates and iostreams header
-   because of static variables in the stream headers. This flag will also
-   avoid extra compilation and runtime overheads on some platforms. */
-#undef ACE_HAS_MINIMUM_IOSTREAMH_INCLUSION
 
 /* Platform supports recvmsg and sendmsg */
 #undef ACE_HAS_MSG
@@ -322,15 +297,15 @@
 /* Sockets may be called in multi-threaded programs */
 #undef ACE_HAS_MT_SAFE_SOCKETS
 
-/* Compiler supports the C++ `mutable' keyword. */
-#undef ACE_HAS_MUTABLE_KEYWORD
-
 /* Compiler supports timed mutex acquisitions (e.g.
    pthread_mutex_timedlock()). */
 #undef ACE_HAS_MUTEX_TIMEOUTS
 
-/* Platform provides C++ <new.h> header */
+/* Define to 1 if platform has the <new.h> header file. */
 #undef ACE_HAS_NEW_H
+
+/* Compiler supports new (std::nothrow) */
+#undef ACE_HAS_NEW_NOTHROW
 
 /* Platform provides new style C++ <new> header */
 #undef ACE_HAS_NEW_NO_H
@@ -342,9 +317,28 @@
 /* Platform has a non-const parameter to msgsnd() (e.g., SCO). */
 #undef ACE_HAS_NONCONST_MSGSND
 
+/* Platform omits const qualifier from iovec parameter in readv() prototype.
+   */
+#undef ACE_HAS_NONCONST_READV
+
 /* Platform's select() uses non-const timeval* (only found on Linux right now)
    */
 #undef ACE_HAS_NONCONST_SELECT_TIMEVAL
+
+/* Platform omits const qualifier from msghdr parameter in sendmsg()
+   prototype. */
+#undef ACE_HAS_NONCONST_SENDMSG
+
+/* Platform omits const qualifier from rlimit parameter in setrlimit()
+   prototype. */
+#undef ACE_HAS_NONCONST_SETRLIMIT
+
+/* Platform has swab(char*, char*, ssize_t) variant. */
+#undef ACE_HAS_NONCONST_SWAB
+
+/* Platform omits const qualifier from iovec parameter in writev() prototype.
+   */
+#undef ACE_HAS_NONCONST_WRITEV
 
 /* Causes the ACE_Object_Manager instance to be created in main (int, char
    *[]), instead of as a static (global) instance. */
@@ -352,9 +346,6 @@
 
 /* Compiler/platform uses old malloc()/free() prototypes (ugh) */
 #undef ACE_HAS_OLD_MALLOC
-
-/* Compiler enforces C++ One Definition Rule */
-#undef ACE_HAS_ONE_DEFINITION_RULE
 
 /* Platform, e.g., Solaris 2.5, only supports SCHED_OTHER POSIX scheduling
    policy. */
@@ -366,9 +357,6 @@
 
 /* timezone* 2nd parameter & no prototype */
 #undef ACE_HAS_OSF1_GETTIMEOFDAY
-
-/* */
-#undef ACE_HAS_OSFCN_H
 
 /* Platform supports the OSF TLI timod STREAMS module */
 #undef ACE_HAS_OSF_TIMOD_H
@@ -389,6 +377,9 @@
 /* Platform supports POSIX O_NONBLOCK semantics */
 #undef ACE_HAS_POSIX_NONBLOCK
 
+/* Platform supports POSIX realtime signals */
+#undef ACE_HAS_POSIX_REALTIME_SIGNALS
+
 /* Platform supports POSIX real-time semaphores (e.g., VxWorks and Solaris) */
 #undef ACE_HAS_POSIX_SEM
 
@@ -408,7 +399,7 @@
 /* Platform supports the prusage_t struct */
 #undef ACE_HAS_PRUSAGE_T
 
-/* Platform supports POSIX Threads */
+/* Define to 1 if platform has POSIX threads */
 #undef ACE_HAS_PTHREADS
 
 /* Platform supports POSIX Threads .4a Draft 4 */
@@ -423,19 +414,33 @@
 /* Platform supports POSIX.1c-1995 threads */
 #undef ACE_HAS_PTHREADS_STD
 
-/* Platform has the UNIX98 extensions to Pthreads (suspend, continue, rwlocks)
-   */
+/* Platform has the UNIX98 extensions to Pthreads (rwlocks) */
 #undef ACE_HAS_PTHREADS_UNIX98_EXT
 
-/* Platform has pthread_condattr_setkind_np(). */
+/* Define to 1 if platform has pthread_condattr_setkind_np(). */
 #undef ACE_HAS_PTHREAD_CONDATTR_SETKIND_NP
 
-/* Platform has pthread_mutexattr_setkind_np(). */
+/* Define to 1 if platform has pthread_continue(). */
+#undef ACE_HAS_PTHREAD_CONTINUE
+
+/* Define to 1 if platform has pthread_continue_np(). */
+#undef ACE_HAS_PTHREAD_CONTINUE_NP
+
+/* Define to 1 if platform has pthread_mutexattr_setkind_np(). */
 #undef ACE_HAS_PTHREAD_MUTEXATTR_SETKIND_NP
 
 /* pthread.h declares an enum with PTHREAD_PROCESS_PRIVATE and
    PTHREAD_PROCESS_SHARED values */
 #undef ACE_HAS_PTHREAD_PROCESS_ENUM
+
+/* Define to 1 if platform has pthread_resume_np(). */
+#undef ACE_HAS_PTHREAD_RESUME_NP
+
+/* Define to 1 if platform has pthread_suspend(). */
+#undef ACE_HAS_PTHREAD_SUSPEND
+
+/* Define to 1 if platform has pthread_suspend_np(). */
+#undef ACE_HAS_PTHREAD_SUSPEND_NP
 
 /* Purify'ing. Defined on command line. */
 #undef ACE_HAS_PURIFY
@@ -446,10 +451,10 @@
 /* Quantify'ing. Defined on command line. */
 #undef ACE_HAS_QUANTIFY
 
-/* */
+/* Define to 1 if platform has readv_timedwait(). */
 #undef ACE_HAS_READV_TIMEDWAIT
 
-/* */
+/* Define to 1 if platform has read_timedwait(). */
 #undef ACE_HAS_READ_TIMEDWAIT
 
 /* Mutexes are inherently recursive (e.g., Win32) */
@@ -459,13 +464,13 @@
    (e.g., AIX) */
 #undef ACE_HAS_RECURSIVE_THR_EXIT_SEMANTICS
 
-/* */
+/* Define to 1 if platform has recvfrom_timedwait(). */
 #undef ACE_HAS_RECVFROM_TIMEDWAIT
 
-/* */
+/* Define to 1 if platform has recvmsg_timedwait(). */
 #undef ACE_HAS_RECVMSG_TIMEDWAIT
 
-/* */
+/* Define to 1 if platform has recv_timedwait(). */
 #undef ACE_HAS_RECV_TIMEDWAIT
 
 /* Platform supports reentrant functions (i.e., all the POSIX *_r functions).
@@ -485,22 +490,19 @@
    Linux glibc 2.0. */
 #undef ACE_HAS_RUSAGE_WHO_ENUM
 
-/* Platform supports the scandir() function. */
-#undef ACE_HAS_SCANDIR
-
-/* Platform has special header for select(). */
+/* Define to 1 if platform has the <select.h> header file. */
 #undef ACE_HAS_SELECT_H
 
 /* Compiler/platform defines a union semun for SysV shared memory */
 #undef ACE_HAS_SEMUN
 
-/* */
+/* Define to 1 if platform has sendmsg_timedwait(). */
 #undef ACE_HAS_SENDMSG_TIMEDWAIT
 
-/* */
+/* Define to 1 if platform has sendto_timedwait(). */
 #undef ACE_HAS_SENDTO_TIMEDWAIT
 
-/* */
+/* Define to 1 if platform has send_timedwait(). */
 #undef ACE_HAS_SEND_TIMEDWAIT
 
 /* Platform has a function to set t_errno (e.g., Tandem). */
@@ -522,19 +524,16 @@
    beyond). */
 #undef ACE_HAS_SIGNAL_OBJECT_AND_WAIT
 
-/* Automatically restart OS system calls when EINTR occurs */
-#undef ACE_HAS_SIGNAL_SAFE_OS_CALLS
-
-/* Platform has the sigsuspend() system call */
+/* Define to 1 if platform has sigsuspend(). */
 #undef ACE_HAS_SIGSUSPEND
 
-/* Platform has the sigtimedwait() system call */
+/* Define to 1 if platform has sigtimedwait(). */
 #undef ACE_HAS_SIGTIMEDWAIT
 
-/* Platform/compiler has the sigwait(2) prototype */
+/* Define to 1 if platform has sigwait(). */
 #undef ACE_HAS_SIGWAIT
 
-/* Compiler/platform defines the sig_atomic_t typedef */
+/* Define to 1 if the system has the type 'sig_atomic_t'. */
 #undef ACE_HAS_SIG_ATOMIC_T
 
 /* Compiler requires extern "C" functions for signals. */
@@ -550,15 +549,12 @@
 /* OS/compiler uses size_t * rather than int * for socket lengths */
 #undef ACE_HAS_SIZET_SOCKET_LEN
 
-/* Platform offers snprintf(). */
+/* Define to 1 if platform has snprintf(). */
 #undef ACE_HAS_SNPRINTF
 
 /* Platform requires (struct sockaddr *) for msg_name field of struct msghdr.
    */
 #undef ACE_HAS_SOCKADDR_MSG_NAME
-
-/* Compiler/platform provides the sys/sockio.h file */
-#undef ACE_HAS_SOCKIO_H
 
 /* Platform provides socklen_t type, such as Linux with glibc2. */
 #undef ACE_HAS_SOCKLEN_T
@@ -566,7 +562,7 @@
 /* Compiler has brain-damaged SPARCwork SunOS 4.x signal prototype... */
 #undef ACE_HAS_SPARCWORKS_401_SIGNALS
 
-/* Compiler supports the ssize_t typedef */
+/* Define to 1 if the system has the type `ssize_t'. */
 #undef ACE_HAS_SSIZE_T
 
 /* Platform/compiler supports Standard C++ Library */
@@ -582,15 +578,14 @@
 /* Platform provides C++ <stdexcept> header */
 #undef ACE_HAS_STDEXCEPT_NO_H
 
-/* Compiler supports standard C++ template method specializations (e.g.
-   "template <>" syntax.) */
-#undef ACE_HAS_STD_TEMPLATE_METHOD_SPECIALIZATION
+/* Compiler supports standard C++ template class member specializations */
+#undef ACE_HAS_STD_TEMPLATE_CLASS_MEMBER_SPECIALIZATION
 
 /* Compiler supports standard C++ template specializations (e.g. "template <>"
    syntax.) */
 #undef ACE_HAS_STD_TEMPLATE_SPECIALIZATION
 
-/* Platform supports UNIX International Threads */
+/* Define to 1 if platform has UNIX International Threads */
 #undef ACE_HAS_STHREADS
 
 /* Used when users want to compile ACE with STL and STL map class conflicts
@@ -613,7 +608,7 @@
 /* Platform supports STREAM pipes */
 #undef ACE_HAS_STREAM_PIPES
 
-/* Compiler/platform supports strerror() */
+/* Define to 1 if platform has strerror(). */
 #undef ACE_HAS_STRERROR
 
 /* Use the STRICT compilation mode on Win32. */
@@ -625,15 +620,14 @@
 /* Platform/Compiler supports a String class (e.g., GNU or Win32). */
 #undef ACE_HAS_STRING_CLASS
 
+/* Define to 1 if platform has strnlen(). */
+#undef ACE_HAS_STRNLEN
+
 /* Compile ACE_OS::strptime() wrapper into ACE. */
 #undef ACE_HAS_STRPTIME
 
 /* Compiler/platform has strange hostent API for socket *_r() calls */
 #undef ACE_HAS_STRUCT_NETDB_DATA
-
-/* Platform has void * as second parameter to gettimeofday and a has a
-   prototype */
-#undef ACE_HAS_SUNOS4_GETTIMEOFDAY
 
 /* Compiler has horrible SunOS 4.x signal handlers... */
 #undef ACE_HAS_SUNOS4_SIGNAL_T
@@ -657,7 +651,7 @@
 /* Compiler/platform contains the <sys/syscall.h> file. */
 #undef ACE_HAS_SYSCALL_H
 
-/* Platform provides <sysent.h> header */
+/* Define to 1 if platform has the <sysent.h> header file. */
 #undef ACE_HAS_SYSENT_H
 
 /* Platform supports system configuration information. */
@@ -669,14 +663,23 @@
 /* Platform/compiler supports _sys_errlist symbol */
 #undef ACE_HAS_SYS_ERRLIST
 
-/* Platform provides <sys/filio.h> header */
+/* Define to 1 if platform has the <sys/filio.h> header file. */
 #undef ACE_HAS_SYS_FILIO_H
 
-/* Platform provides <sys/ioctl.h> header. */
-#undef ACE_HAS_SYS_IOCTL_H
+/* Define to 1 if platform has the <sys/loadavg.h> header file. */
+#undef ACE_HAS_SYS_LOADAVG_H
+
+/* Define to 1 if platform has the <sys/pstat.h> header file. */
+#undef ACE_HAS_SYS_PSTAT_H
 
 /* Compiler/platform supports _sys_siglist array */
 #undef ACE_HAS_SYS_SIGLIST
+
+/* Define to 1 if platform has the <sys/sockio.h> header file. */
+#undef ACE_HAS_SYS_SOCKIO_H
+
+/* Define to 1 if platform has the <sys/syscall.h> header file. */
+#undef ACE_HAS_SYS_SYSCALL_H
 
 /* Platform provides <sys/xti.h> header */
 #undef ACE_HAS_SYS_XTI_H
@@ -729,6 +732,9 @@
 /* Platform has thr_yield() */
 #undef ACE_HAS_THR_YIELD
 
+/* Define to 1 if platform has global timezone variable */
+#undef ACE_HAS_TIMEZONE
+
 /* Platform/compiler supports timezone * as second parameter to gettimeofday()
    and has a prototype. */
 #undef ACE_HAS_TIMEZONE_GETTIMEOFDAY
@@ -754,10 +760,10 @@
 /* Compiler supports the C++ typename keyword */
 #undef ACE_HAS_TYPENAME_KEYWORD
 
-/* Platform supports ualarm() */
+/* Define to 1 if platform has ualarm(). */
 #undef ACE_HAS_UALARM
 
-/* Platform supports ucontext_t (which is used in the extended signal API). */
+/* Define to 1 if the system has the type `ucontext_t'. */
 #undef ACE_HAS_UCONTEXT_T
 
 /* The wait() system call takes a (union wait *) rather than int * */
@@ -770,18 +776,25 @@
 /* Compiler supports the new using keyword for C++ namespaces. */
 #undef ACE_HAS_USING_KEYWORD
 
-/* Platform has <utime.h> header file */
-#undef ACE_HAS_UTIME
-
 /* Prints out console message in ACE_NOTSUP. Useful for tracking down origin
    of ACE_NOTSUP. */
 #undef ACE_HAS_VERBOSE_NOTSUP
+
+/* Define to 1 if platform has vfwprintf(). */
+#undef ACE_HAS_VFWPRINTF
+
+/* Platform/compiler supports void * as second parameter to gettimeofday() and
+   has a prototype. */
+#undef ACE_HAS_VOIDPTR_GETTIMEOFDAY
 
 /* Platform requires void * for mmap(). */
 #undef ACE_HAS_VOIDPTR_MMAP
 
 /* OS/compiler uses void * arg 4 setsockopt() rather than const char * */
 #undef ACE_HAS_VOIDPTR_SOCKOPT
+
+/* Define to 1 if platform has vswprintf(). */
+#undef ACE_HAS_VSWPRINTF
 
 /* Platform/compiler supports wchar_t */
 #undef ACE_HAS_WCHAR
@@ -800,10 +813,10 @@
    `ace/OS.h' for details. */
 #undef ACE_HAS_WORKING_EXPLICIT_TEMPLATE_DESTRUCTOR
 
-/* */
+/* Define to 1 if platform has writev_timedwait(). */
 #undef ACE_HAS_WRITEV_TIMEDWAIT
 
-/* */
+/* Define to 1 if platform has write_timedwait(). */
 #undef ACE_HAS_WRITE_TIMEDWAIT
 
 /* Solaris for intel uses macros for fstat() and stat(), these are wrappers
@@ -825,7 +838,27 @@
    but uses a different header file. */
 #undef ACE_HAS_XTI
 
-/* Platform lacks access() (e.g., VxWorks and Chorus) */
+/* Define to the *printf format specifier (e.g. "%lld") for the 64 bit signed
+   integer type */
+#undef ACE_INT64_FORMAT_SPECIFIER
+
+
+/*
+   typedef for ACE_INT64
+
+   We only make the typedef if ACE_INT64_TYPEDEF is defined.  Otherwise,
+   let ace/Basic_Types.h do the work for us.
+*/
+#undef ACE_INT64_TYPEDEF
+#ifdef ACE_INT64_TYPEDEF
+   typedef ACE_INT64_TYPEDEF ACE_INT64;
+#endif /* ACE_INT64_TYPEDEF */
+
+
+/* Define to the type of arg 2 for `ioctl'. */
+#undef ACE_IOCTL_TYPE_ARG2
+
+/* Define to 1 if platform lacks access(). */
 #undef ACE_LACKS_ACCESS
 
 /* Do not compile support for the "Codecs" ACE features. */
@@ -845,13 +878,19 @@
 /* Do not compile support for the ACE Token feature. */
 #undef ACE_LACKS_ACE_TOKEN
 
+/* Do not compile support for the ACE UUID feature. */
+#undef ACE_LACKS_ACE_UUID
+
+/* Define to 1 if platform lacks the <arpa/inet.h> header file. */
+#undef ACE_LACKS_ARPA_INET_H
+
 /* No system support for replacing any previous mappings. */
 #undef ACE_LACKS_AUTO_MMAP_REPLACEMENT
 
 /* Platform lacks support for the standard C++ auto_ptr class */
 #undef ACE_LACKS_AUTO_PTR
 
-/* Compiler/platform lacks the standard C library bsearch() function */
+/* Define to 1 if platform lacks bsearch(). */
 #undef ACE_LACKS_BSEARCH
 
 /* Compiler does not have any istream operator>> for chars, u_chars, or signed
@@ -890,18 +929,33 @@
 /* Platform forgot const in cond_timewait (e.g., HP/UX). */
 #undef ACE_LACKS_CONST_TIMESPEC_PTR
 
-/* Platform lacks difftime() implementation */
+/* Define to 1 if platform lacks difftime(). */
 #undef ACE_LACKS_DIFFTIME
+
+/* Define to 1 if platform lacks the <dirent.h> header file. */
+#undef ACE_LACKS_DIRENT_H
+
+/* Define to 1 if platform lacks the <dlfcn.h> header file. */
+#undef ACE_LACKS_DLFCN_H
+
+/* Define to 1 if platform lacks the <errno.h> header file. */
+#undef ACE_LACKS_ERRNO_H
 
 /* Platform lacks the exec() family of system calls (e.g., Win32, VxWorks,
    Chorus) */
 #undef ACE_LACKS_EXEC
 
-/* Platform lacks POSIX-style fcntl () */
+/* Define to 1 if platform lacks fcntl(). */
 #undef ACE_LACKS_FCNTL
 
-/* Compiler/platform lacks the fgetwc() function */
+/* Define to 1 if platform lacks the <fcntl.h> header file. */
+#undef ACE_LACKS_FCNTL_H
+
+/* Define to 1 if platform lacks fgetwc(). */
 #undef ACE_LACKS_FGETWC
+
+/* Define to 1 if platform lacks fgetws(). */
+#undef ACE_LACKS_FGETWS
 
 /* Platform lacks file locking mechanism */
 #undef ACE_LACKS_FILELOCKS
@@ -909,22 +963,34 @@
 /* Platform does not support floating point operations */
 #undef ACE_LACKS_FLOATING_POINT
 
-/* Platform lacks the fork() system call (e.g., Win32, VxWorks, Chorus) */
+/* Define to 1 if platform lacks fork(). */
 #undef ACE_LACKS_FORK
 
-/* Platform lacks fsync() */
+/* Define to 1 if platform lacks fputws(). */
+#undef ACE_LACKS_FPUTWS
+
+/* Define to 1 if platform lacks fsync(). */
 #undef ACE_LACKS_FSYNC
 
-/* Platform lacks the getopt() prototype (e.g., LynxOS) */
-#undef ACE_LACKS_GETOPT_PROTO
+/* Define to 1 if platform lacks gethostent(). */
+#undef ACE_LACKS_GETHOSTENT
 
-/* Platform lacks getpgid() call (e.g., Win32, Chorus, and FreeBSD). */
+/* Define to 1 if platform lacks getipnodebyaddr(). */
+#undef ACE_LACKS_GETIPNODEBYADDR
+
+/* Define to 1 if platform lacks getipnodebyname(). */
+#undef ACE_LACKS_GETIPNODEBYNAME
+
+/* Define to 1 if platform lacks the declaration of getopt(). */
+#undef ACE_LACKS_GETOPT_PROTOTYPE
+
+/* Define to 1 if platform lacks getpgid(). */
 #undef ACE_LACKS_GETPGID
 
-/* Platform/compiler lacks the getpgid() prototype */
+/* Define to 1 if platform lacks getpgid() declaration in <unistd.h>. */
 #undef ACE_LACKS_GETPGID_PROTOTYPE
 
-/* Platform lacks getppid() call. */
+/* Define to 1 if platform lacks getppid(). */
 #undef ACE_LACKS_GETPPID
 
 /* Platforms lacks getservbyname() (e.g., VxWorks and Chorus). */
@@ -933,7 +999,7 @@
 /* Platform can't handle "inline" keyword correctly. */
 #undef ACE_LACKS_INLINE_FUNCTIONS
 
-/* Platform lacks inittypes.h (e.g. Unixware) */
+/* Define to 1 if platform lacks the <inttypes.h> header file. */
 #undef ACE_LACKS_INTTYPES_H
 
 /* iostream header does not declare ipfx (), opfx (), etc. */
@@ -942,7 +1008,10 @@
 /* iostreams are not supported adequately on the given platform. */
 #undef ACE_LACKS_IOSTREAM_TOTALLY
 
-/* Platform lacks key_t (e.g., Chorus, VxWorks, Win32) */
+/* Define to 1 if platform lacks itow(). */
+#undef ACE_LACKS_ITOW
+
+/* Define to 1 if the system lacks the type `key_t'. */
 #undef ACE_LACKS_KEY_T
 
 /* Platform lacks streambuf "linebuffered ()". */
@@ -959,22 +1028,25 @@
    if ACE_LACKS_LLSEEK_PROTOTYPE is defined. */
 #undef ACE_LACKS_LSEEK64_PROTOTYPE
 
-/* Platform lacks the lstat() function. */
+/* Define to 1 if platform lacks lstat(). */
 #undef ACE_LACKS_LSTAT
 
-/* Platform lacks madvise() (e.g., Linux) */
+/* Define to 1 if platform lacks madvise(). */
 #undef ACE_LACKS_MADVISE
 
-/* Platform lacks malloc.h */
+/* Define to 1 if platform lacks the <malloc.h> header file. */
 #undef ACE_LACKS_MALLOC_H
 
-/* Platform lacks memory.h (e.g., VxWorks and Chorus) */
+/* Define to 1 if platform lacks the <memory.h> header file. */
 #undef ACE_LACKS_MEMORY_H
 
-/* Platform lacks mkfifo(), e.g. VxWorks, Chorus, pSoS, and WinNT. */
+/* Define to 1 if platform lacks mkfifo(). */
 #undef ACE_LACKS_MKFIFO
 
-/* ACE has no mktemp() */
+/* Define to 1 if platform lacks mkstemp(). */
+#undef ACE_LACKS_MKSTEMP
+
+/* Define to 1 if platform lacks mktemp(). */
 #undef ACE_LACKS_MKTEMP
 
 /* The platform doesn't have mmap(2) (e.g., SCO UNIX). */
@@ -986,17 +1058,13 @@
 /* Platform does not have Motif X toolkit available */
 #undef ACE_LACKS_MOTIF
 
-/* The platform doesn't have mprotect(2) (e.g., EPLX real time OS from CDC
-   (based on LYNX)) */
+/* Define to 1 if platform lacks mprotect(). */
 #undef ACE_LACKS_MPROTECT
-
-/* Platform lacks struct msgbuf (e.g., NT and MSV). */
-#undef ACE_LACKS_MSGBUF_T
 
 /* Platform defines ACE_HAS_MSG, but lacks msg_accrights{len}. */
 #undef ACE_LACKS_MSG_ACCRIGHTS
 
-/* Platform lacks msync() */
+/* Define to 1 if platform lacks msync(). */
 #undef ACE_LACKS_MSYNC
 
 /* Platform lacks pthread_mutexattr_setpshared(). */
@@ -1008,15 +1076,30 @@
 /* Platform lacks native strptime() implementation. */
 #undef ACE_LACKS_NATIVE_STRPTIME
 
+/* Define to 1 if platform lacks the <netdb.h> header file. */
+#undef ACE_LACKS_NETDB_H
+
 /* Platform does not support reentrant netdb functions (getprotobyname_r,
    getprotobynumber_r, gethostbyaddr_r, gethostbyname_r, getservbyname_r). */
 #undef ACE_LACKS_NETDB_REENTRANT_FUNCTIONS
 
+/* Define to 1 if platform lacks the <netinet/in.h> header file. */
+#undef ACE_LACKS_NETINET_IN_H
+
+/* Define to 1 if platform lacks the <netinet/tcp.h> header file. */
+#undef ACE_LACKS_NETINET_TCP_H
+
+/* Define to 1 if platform lacks the <net/if.h> header file. */
+#undef ACE_LACKS_NET_IF_H
+
 /* OS requires non-null status pointer for pthread_join () */
 #undef ACE_LACKS_NULL_PTHREAD_STATUS
 
-/* Platform lacks <sys/param.h> (e.g., MVS) */
-#undef ACE_LACKS_PARAM_H
+/* Define to 1 if platform lacks IGMPv3 "perfect" filtering of multicast
+   datagrams at the socket level. If defined, ACE_SOCK_Dgram_Mcast will bind
+   the first joined multicast group to the socket, and all future joins on
+   that socket will fail with an error. */
+#undef ACE_LACKS_PERFECT_MULTICAST_FILTERING
 
 /* Compiler doesn't support placement operator delete(void *, void *). */
 #undef ACE_LACKS_PLACEMENT_OPERATOR_DELETE
@@ -1030,84 +1113,92 @@
 /* Platform/compiler lacks the pread() and pwrite() prototypes */
 #undef ACE_LACKS_PREAD_PROTOTYPE
 
-/* Platform lacks pri_t (e.g., Tandem NonStop UNIX). */
+/* Define to 1 if the system lacks the type 'pri_t'. */
 #undef ACE_LACKS_PRI_T
 
 /* Platform lacks pthread_cancel() */
 #undef ACE_LACKS_PTHREAD_CANCEL
 
-/* Platform lacks pthread_sigmask() */
+/* Define to 1 if platform lacks pthread_sigmask(). */
 #undef ACE_LACKS_PTHREAD_SIGMASK
 
-/* Platform lacks pthread_thr_sigsetmask (e.g., MVS, HP/UX, and OSF/1 3.2) */
+/* Define to 1 if platform lacks pthread_thr_sigsetmask(). */
 #undef ACE_LACKS_PTHREAD_THR_SIGSETMASK
 
-/* Platfrom lack pthread_yield() support. */
+/* Define to 1 if platform lacks pthread_yield(). */
 #undef ACE_LACKS_PTHREAD_YIELD
 
 /* Platform lacks, getpwnam(), etc. */
 #undef ACE_LACKS_PWD_FUNCTIONS
 
+/* Define to 1 if platform lacks the <pwd.h> header file. */
+#undef ACE_LACKS_PWD_H
+
 /* Platform lacks getpwnam_r() methods (e.g., SGI 6.2). */
 #undef ACE_LACKS_PWD_REENTRANT_FUNCTIONS
 
-/* Compiler/platform lacks the standard C library qsort() function */
+/* Define to 1 if platform lacks qsort(). */
 #undef ACE_LACKS_QSORT
 
-/* Platform lacks readdir_r() */
+/* Define to 1 if platform lacks readdir_r(). */
 #undef ACE_LACKS_READDIR_R
 
-/* Platform lacks the readlink() function. */
+/* Define to 1 if platform lacks readlink(). */
 #undef ACE_LACKS_READLINK
 
-/* Platform doesn't define readv, so use our own */
+/* Define to 1 if platform lacks readv(). */
 #undef ACE_LACKS_READV
 
-/* Platform lacks recvmsg() */
+/* Define to 1 if platform lacks recvmsg(). */
 #undef ACE_LACKS_RECVMSG
 
-/* Platform lacks the rename() function. */
+/* Define to 1 if platform lacks rename(). */
 #undef ACE_LACKS_RENAME
 
 /* Platform/compiler lacks {get,set}rlimit() function (e.g., VxWorks, Chorus,
    and SCO UNIX) */
 #undef ACE_LACKS_RLIMIT
 
-/* Platform/compiler lacks {get,set}rlimit() prototypes (e.g., Tandem) */
+/* Define to 1 if platform lacks the declaration of {get,set}rlimit(). */
 #undef ACE_LACKS_RLIMIT_PROTOTYPE
 
-/* Compiler does not support dynamic_cast. Usually used with
-   ACE_HAS_ANSI_CASTS */
-#undef ACE_LACKS_RTTI
+/* Platform lacks pthread_rwlockattr_setpshared(). */
+#undef ACE_LACKS_RWLOCKATTR_PSHARED
 
 /* Platform lacks readers/writer locks. */
 #undef ACE_LACKS_RWLOCK_T
 
-/* Platform lacks a working sbrk() (e.g., Win32 and VxWorks) */
+/* Define to 1 if platform lacks sbrk(). */
 #undef ACE_LACKS_SBRK
 
-/* Platform lacks seekdir() */
+/* Define to 1 if platform lacks the <search.h> header file. */
+#undef ACE_LACKS_SEARCH_H
+
+/* Define to 1 if platform lacks seekdir(). */
 #undef ACE_LACKS_SEEKDIR
+
+/* Define to 1 if platform lacks the <semaphore.h> header file. */
+#undef ACE_LACKS_SEMAPHORE_H
 
 /* Platform lacks struct sembuf (e.g., Win32 and VxWorks) */
 #undef ACE_LACKS_SEMBUF_T
 
-/* Platform lacks sendmsg() */
+/* Define to 1 if platform lacks sendmsg(). */
 #undef ACE_LACKS_SENDMSG
 
 /* Platform lacks pthread_attr_setdetachstate() (e.g., HP/UX 10.x) */
 #undef ACE_LACKS_SETDETACH
 
-/* Platform lacks setregid() call. */
+/* Define to 1 if platform lacks setregid(). */
 #undef ACE_LACKS_SETREGID
 
-/* Platform/compiler lacks the setregid() prototype */
+/* Define to 1 if platform lacks setregid() declaration in <unistd.h>. */
 #undef ACE_LACKS_SETREGID_PROTOTYPE
 
-/* Platform lacks setreuid() call. */
+/* Define to 1 if platform lacks setreuid(). */
 #undef ACE_LACKS_SETREUID
 
-/* Platform/compiler lacks the setreuid() prototype */
+/* Define to 1 if platform lacks setreuid() declaration in <unistd.h>. */
 #undef ACE_LACKS_SETREUID_PROTOTYPE
 
 /* Platform lacks pthread_attr_setsched() (e.g. MVS) */
@@ -1116,8 +1207,11 @@
 /* Platform lacks struct sigaction (e.g., Win32 and Chorus) */
 #undef ACE_LACKS_SIGACTION
 
-/* Platform lacks the siginfo.h include file (e.g., MVS) */
+/* Define to 1 if platform lacks the <siginfo.h> header file. */
 #undef ACE_LACKS_SIGINFO_H
+
+/* Define to 1 if platform lacks the <signal.h> header file. */
+#undef ACE_LACKS_SIGNAL_H
 
 /* Platform lacks "signed char" type (broken!) */
 #undef ACE_LACKS_SIGNED_CHAR
@@ -1129,7 +1223,7 @@
    10.x) */
 #undef ACE_LACKS_SI_ADDR
 
-/* Platform lacks the socketpair() call (e.g., SCO UNIX) */
+/* Define to 1 if platform lacks socketpair(). */
 #undef ACE_LACKS_SOCKETPAIR
 
 /* Platform doesn't support SO_SNDBUF/SO_RCVBUF (used in TAO) */
@@ -1138,28 +1232,67 @@
 /* Compiler doesn't support static data member templates */
 #undef ACE_LACKS_STATIC_DATA_MEMBER_TEMPLATES
 
-/* Platform lacks stdint.h (e.g., UnixWare) */
+/* Define to 1 if platform lacks the <stdint.h> header file. */
 #undef ACE_LACKS_STDINT_H
 
-/* Compiler/platform lacks strcasecmp() (e.g., DG/UX, UNIXWARE, VXWORKS) */
+/* Define to 1 if platform lacks the <stdlib.h> header file. */
+#undef ACE_LACKS_STDLIB_H
+
+/* Define to 1 if platform lacks strcasecmp(). */
 #undef ACE_LACKS_STRCASECMP
+
+/* Define to 1 if platform lacks strchr(). */
+#undef ACE_LACKS_STRCHR
+
+/* Define to 1 if platform lacks strcspn(). */
+#undef ACE_LACKS_STRCSPN
+
+/* Define to 1 if platform lacks strerror(). */
+#undef ACE_LACKS_STRERROR
+
+/* Define to 1 if platform lacks the <strings.h> header file. */
+#undef ACE_LACKS_STRINGS_H
+
+/* Define to 1 if platform lacks the <string.h> header file. */
+#undef ACE_LACKS_STRING_H
+
+/* Platform lacks stropts.h */
+#undef ACE_LACKS_STROPTS_H
+
+/* Define to 1 if platform lacks strpbrk(). */
+#undef ACE_LACKS_STRPBRK
 
 /* Platform/compiler lacks the strptime() prototype */
 #undef ACE_LACKS_STRPTIME_PROTOTYPE
 
-/* Platform/compiler lacks strrchr () function. */
+/* Define to 1 if platform lacks strrchr(). */
 #undef ACE_LACKS_STRRCHR
 
 /* Platform doesn't define struct strrecvfd. */
 #undef ACE_LACKS_STRRECVFD
 
+/* Define to 1 if platform lacks strspn(). */
+#undef ACE_LACKS_STRSPN
+
+/* Define to 1 if platform lacks strtod(). */
+#undef ACE_LACKS_STRTOD
+
 /* Platform/compiler lacks the strtok_r() prototype */
 #undef ACE_LACKS_STRTOK_R_PROTOTYPE
+
+/* Define to 1 if platform lacks strtol(). */
+#undef ACE_LACKS_STRTOL
+
+/* Define to 1 if platform lacks strtoul(). */
+#undef ACE_LACKS_STRTOUL
 
 /* Platform lacks dirent structure. */
 #undef ACE_LACKS_STRUCT_DIR
 
-/* Platform doesn't have syscall() prototype */
+/* Define to 1 if platform lacks swab(). */
+#undef ACE_LACKS_SWAB
+
+/* Define to 1 if platform lacks syscall(). */
 #undef ACE_LACKS_SYSCALL
 
 /* The `sys/times.h' header is unavailable */
@@ -1168,23 +1301,62 @@
 /* <time.h> doesn't automatically #include <sys/time.h> */
 #undef ACE_LACKS_SYSTIME_H
 
-/* Platform lacks sys/msg.h (e.g., Chorus and VxWorks) */
-#undef ACE_LACKS_SYSV_MSG_H
-
 /* Platform lacks SYSV message queue prototypes */
 #undef ACE_LACKS_SYSV_MSQ_PROTOS
 
 /* Platform lacks System V shared memory (e.g., Win32 and VxWorks) */
 #undef ACE_LACKS_SYSV_SHMEM
 
+/* Define to 1 if platform lacks the <sys/ioctl.h> header file. */
+#undef ACE_LACKS_SYS_IOCTL_H
+
+/* Define to 1 if platform lacks the <sys/ipc.h> header file. */
+#undef ACE_LACKS_SYS_IPC_H
+
+/* Define to 1 if platform lacks the <sys/mman.h> header file. */
+#undef ACE_LACKS_SYS_MMAN_H
+
+/* Platform lacks sys/msg.h (e.g., Chorus and VxWorks) */
+#undef ACE_LACKS_SYS_MSG_H
+
 /* Platforms/compiler lacks the sys_nerr variable (e.g., VxWorks and MVS). */
 #undef ACE_LACKS_SYS_NERR
 
-/* Platform lacks <sys/select.h> header file */
+/* Define to 1 if platform lacks the <sys/param.h> header file. */
+#undef ACE_LACKS_SYS_PARAM_H
+
+/* Define to 1 if platform lacks the <sys/resource.h> header file. */
+#undef ACE_LACKS_SYS_RESOURCE_H
+
+/* Define to 1 if platform lacks the <sys/select.h> header file. */
 #undef ACE_LACKS_SYS_SELECT_H
 
-/* Platform lacks <sys/types.h> header file */
+/* Define to 1 if platform lacks the <sys/sem.h> header file. */
+#undef ACE_LACKS_SYS_SEM_H
+
+/* Define to 1 if platform lacks the <sys/shm.h> header file. */
+#undef ACE_LACKS_SYS_SHM_H
+
+/* Define to 1 if platform lacks the <sys/socket.h> header file. */
+#undef ACE_LACKS_SYS_SOCKET_H
+
+/* Define to 1 if platform lacks the <sys/stat.h> header file. */
+#undef ACE_LACKS_SYS_STAT_H
+
+/* Define to 1 if platform lacks the <sys/time.h> header file. */
+#undef ACE_LACKS_SYS_TIME_H
+
+/* Define to 1 if platform lacks the <sys/types.h> header file. */
 #undef ACE_LACKS_SYS_TYPES_H
+
+/* Define to 1 if platform lacks the <sys/uio.h> header file. */
+#undef ACE_LACKS_SYS_UIO_H
+
+/* Define to 1 if platform lacks the <sys/un.h> header file. */
+#undef ACE_LACKS_SYS_UN_H
+
+/* Define to 1 if platform lacks the <sys/wait.h> header file. */
+#undef ACE_LACKS_SYS_WAIT_H
 
 /* Platform doesn't have netinet/tcp.h */
 #undef ACE_LACKS_TCP_H
@@ -1192,11 +1364,14 @@
 /* OS does not support TCP_NODELAY */
 #undef ACE_LACKS_TCP_NODELAY
 
-/* Platform lacks telldir() */
+/* Define to 1 if platform lacks telldir(). */
 #undef ACE_LACKS_TELLDIR
 
-/* Platform doesn't support tempnam */
+/* Define to 1 if platform lacks tempnam(). */
 #undef ACE_LACKS_TEMPNAM
+
+/* Define to 1 if platform lacks the <termios.h> header file. */
+#undef ACE_LACKS_TERMIOS_H
 
 /* Platform lacks pthread_attr_setscope() */
 #undef ACE_LACKS_THREAD_PROCESS_SCOPING
@@ -1207,28 +1382,41 @@
 /* Platform lacks pthread_attr_setstacksize() (e.g., Linux pthreads) */
 #undef ACE_LACKS_THREAD_STACK_SIZE
 
-/* MIT pthreads platform lacks the timedwait prototypes */
+/* Define to 1 if platform lacks the declarations of recv_timedwait,
+   send_timedwait, etc. */
 #undef ACE_LACKS_TIMEDWAIT_PROTOTYPES
 
 /* Platform does not define timepec_t as a typedef for struct timespec. */
 #undef ACE_LACKS_TIMESPEC_T
 
-/* Platform doesn't have truncate() (e.g., vxworks) */
+/* Define to 1 if platform lacks the <time.h> header file. */
+#undef ACE_LACKS_TIME_H
+
+/* Define to 1 if platform lacks towlower(). */
+#undef ACE_LACKS_TOWLOWER
+
+/* Define to 1 if platform lacks towupper(). */
+#undef ACE_LACKS_TOWUPPER
+
+/* Define to 1 if platform lacks truncate(). */
 #undef ACE_LACKS_TRUNCATE
 
 /* Header files lack t_errno for TLI */
 #undef ACE_LACKS_T_ERRNO
 
-/* Platform/compiler lacks the ualarm() prototype (e.g., Solaris) */
+/* Define to 1 if platform lacks the declaration of ualarm(). */
 #undef ACE_LACKS_UALARM_PROTOTYPE
 
-/* Platform lacks the ucontext.h file */
+/* Define to 1 if platform lacks the <ucontext.h> header file. */
 #undef ACE_LACKS_UCONTEXT_H
+
+/* Define to 1 if platform lacks umask(). */
+#undef ACE_LACKS_UMASK
 
 /* */
 #undef ACE_LACKS_UNBUFFERED_STREAMBUF
 
-/* Platform lacks the unistd.h file (e.g., VxWorks and Win32) */
+/* Define to 1 if platform lacks the <unistd.h> header file. */
 #undef ACE_LACKS_UNISTD_H
 
 /* ACE platform has no UNIX domain sockets */
@@ -1237,19 +1425,88 @@
 /* Platform lacks full signal support (e.g., Win32 and Chorus). */
 #undef ACE_LACKS_UNIX_SIGNALS
 
+/* Define to 1 if platform lacks the <utime.h> header file. */
+#undef ACE_LACKS_UTIME_H
+
 /* Platform lacks struct utsname (e.g., Win32 and VxWorks) */
 #undef ACE_LACKS_UTSNAME_T
 
-/* Platform does not have u_longlong_t typedef */
+/* Define to 1 if the system lacks the type `u_long_long'. */
 #undef ACE_LACKS_U_LONGLONG_T
 
-/* Platform lacks wchar_t typedef */
+/* Define to 1 if platform lacks the <wchar.h> header file. */
+#undef ACE_LACKS_WCHAR_H
+
+/* Define to 1 if the system lacks the type `wchar_t'. */
 #undef ACE_LACKS_WCHAR_T
+
+/* Define to 1 if platform lacks wcscat(). */
+#undef ACE_LACKS_WCSCAT
+
+/* Define to 1 if platform lacks wcschr(). */
+#undef ACE_LACKS_WCSCHR
+
+/* Define to 1 if platform lacks wcscmp(). */
+#undef ACE_LACKS_WCSCMP
+
+/* Define to 1 if platform lacks wcscpy(). */
+#undef ACE_LACKS_WCSCPY
+
+/* Define to 1 if platform lacks wcscspn(). */
+#undef ACE_LACKS_WCSCSPN
+
+/* Define to 1 if platform lacks wcsdup(). */
+#undef ACE_LACKS_WCSDUP
+
+/* Define to 1 if platform lacks wcsicmp(). */
+#undef ACE_LACKS_WCSICMP
+
+/* Define to 1 if platform lacks wcslen(). */
+#undef ACE_LACKS_WCSLEN
+
+/* Define to 1 if platform lacks wcsncat(). */
+#undef ACE_LACKS_WCSNCAT
+
+/* Define to 1 if platform lacks wcsncmp(). */
+#undef ACE_LACKS_WCSNCMP
+
+/* Define to 1 if platform lacks wcsncpy(). */
+#undef ACE_LACKS_WCSNCPY
+
+/* Define to 1 if platform lacks wcsnicmp(). */
+#undef ACE_LACKS_WCSNICMP
+
+/* Define to 1 if platform lacks wcspbrk(). */
+#undef ACE_LACKS_WCSPBRK
+
+/* Define to 1 if platform lacks wcsrchr(). */
+#undef ACE_LACKS_WCSRCHR
+
+/* Define to 1 if platform lacks wcsspn(). */
+#undef ACE_LACKS_WCSSPN
+
+/* Define to 1 if platform lacks wcsstr(). */
+#undef ACE_LACKS_WCSSTR
+
+/* Define to 1 if platform lacks wcstod(). */
+#undef ACE_LACKS_WCSTOD
+
+/* Define to 1 if platform lacks wcstok(). */
+#undef ACE_LACKS_WCSTOK
+
+/* Define to 1 if platform lacks wcstol(). */
+#undef ACE_LACKS_WCSTOL
+
+/* Define to 1 if platform lacks wcstoul(). */
+#undef ACE_LACKS_WCSTOUL
+
+/* Define to 1 if platform lacks the <wctype.h> header file. */
+#undef ACE_LACKS_WCTYPE_H
 
 /* The bind() call will not select the port if it's 0. */
 #undef ACE_LACKS_WILDCARD_BIND
 
-/* Platform doesn't define writev, so use our own */
+/* Define to 1 if platform lacks writev(). */
 #undef ACE_LACKS_WRITEV
 
 /* typedef for ACE_LOFF_T */
@@ -1293,9 +1550,6 @@
 
 /* Platform needs to #include <sched.h> to get thread scheduling defs. */
 #undef ACE_NEEDS_SCHED_H
-
-/* Configure for use on NetBSD */
-#undef ACE_NETBSD
 
 /* Compiler's 'new' throws exception on failure (ANSI C++ behavior). */
 #undef ACE_NEW_THROWS_EXCEPTIONS
@@ -1355,6 +1609,15 @@
 /* Size of the native "pointer to void" type */
 #undef ACE_SIZEOF_VOID_P
 
+/* Size of the native "wchar_t" type */
+#undef ACE_SIZEOF_WCHAR
+
+/* Define to the *printf format specifier (e.g. "%u") for size_t */
+#undef ACE_SIZE_T_FORMAT_SPECIFIER
+
+/* Define to the *printf format specifier (e.g. "%d") for ssize_t */
+#undef ACE_SSIZE_T_FORMAT_SPECIFIER
+
 /* Compiler's template mechanism must use a pragma. This is used for AIX's C++
    compiler. */
 #undef ACE_TEMPLATES_REQUIRE_PRAGMA
@@ -1376,7 +1639,8 @@
 /* Device the platform uses for TCP on TLI. Only needed if not /dev/tcp. */
 #undef ACE_TLI_TCP_DEVICE
 
-/* The format specifier (e.g. "%Lu") for the 64 bit unsigned integer type */
+/* Define to the *printf format specifier (e.g. "%llu") for the 64 bit signed
+   integer type */
 #undef ACE_UINT64_FORMAT_SPECIFIER
 
 
@@ -1395,6 +1659,10 @@
 /* Platform uses assembly symbols instead of C symbols in dlsym() */
 #undef ACE_USES_ASM_SYMBOL_IN_DLSYM
 
+/* Enable IPv6 support on platforms that don't have IPv6 turned on by default
+   */
+#undef ACE_USES_IPV4_IPV6_MIGRATION
+
 /* Some files, such as ace/streams.h, want to include new style C++ stream
    headers. These headers are iomanip, ios, iostream, istream, ostream,
    fstream and streambuf. If _all_ of these headers aren't available, then
@@ -1406,6 +1674,9 @@
 
 /* Platform has its standard c++ library in the namespace std. */
 #undef ACE_USES_STD_NAMESPACE_FOR_STDCPP_LIB
+
+/* ACE is built to use wide characters internally */
+#undef ACE_USES_WCHAR
 
 /* The OS/platform supports the poll() event demultiplexor */
 #undef ACE_USE_POLL
@@ -1461,15 +1732,6 @@
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
 
-/* Define to 1 if you have the `execv' function. */
-#undef HAVE_EXECV
-
-/* Define to 1 if you have the `execve' function. */
-#undef HAVE_EXECVE
-
-/* Define to 1 if you have the `execvp' function. */
-#undef HAVE_EXECVP
-
 /* Define to 1 if you have the <fstream> header file. */
 #undef HAVE_FSTREAM
 
@@ -1500,11 +1762,7 @@
 /* Define to 1 if you have the <ostream> header file. */
 #undef HAVE_OSTREAM
 
-/* Define to 1 if you have the <pwd.h> header file. */
-#undef HAVE_PWD_H
-
-/* Define to 1 if system calls automatically restart after interruption by a
-   signal. */
+/* */
 #undef HAVE_RESTARTABLE_SYSCALLS
 
 /* Define to 1 if you have the <stdint.h> header file. */
@@ -1626,6 +1884,9 @@
 /* The size of a `void *', as computed by sizeof. */
 #undef SIZEOF_VOID_P
 
+/* The size of a `wchar_t', as computed by sizeof. */
+#undef SIZEOF_WCHAR_T
+
 /* If using the C implementation of alloca, define if you know the
    direction of stack growth for your system; otherwise it will be
    automatically deduced at run-time.
@@ -1690,4 +1951,5 @@
 // Local Variables:
 // mode:C++
 // End:
+
 

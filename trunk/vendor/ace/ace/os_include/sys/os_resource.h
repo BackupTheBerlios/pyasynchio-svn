@@ -6,7 +6,7 @@
  *
  *  definitions for XSI resource operations
  *
- *  os_resource.h,v 1.4 2003/11/07 01:12:51 dhinton Exp
+ *  os_resource.h,v 1.8 2004/08/25 16:05:41 shuston Exp
  *
  *  @author Don Hinton <dhinton@dresystems.com>
  *  @author This code was originally in various places including ace/OS.h.
@@ -18,7 +18,7 @@
 
 #include /**/ "ace/pre.h"
 
-#include "ace/config-all.h"
+#include "ace/config-lite.h"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
@@ -35,9 +35,14 @@
 #  include /**/ <sys/systeminfo.h>
 #endif /* ACE_HAS_SYS_INFO */
 
-#if defined (ACE_HAS_SYSCALL_H)
+#if defined (ACE_HAS_SYS_SYSCALL_H)
 #  include /**/ <sys/syscall.h>
-#endif /* ACE_HAS_SYSCALL_H */
+#endif /* ACE_HAS_SYS_SYSCALL_H */
+
+// prusage_t is defined in <sys/procfs.h>
+#if defined (ACE_HAS_PROC_FS)
+#  include /**/ <sys/procfs.h>
+#endif  /* ACE_HAS_PROC_FS */
 
 // Place all additions (especially function declarations) within extern "C" {}
 #ifdef __cplusplus
@@ -55,12 +60,6 @@ extern "C"
 #    endif /* RLIMIT_OFILE */
 #  endif /* defined (linux) || defined (AIX) || defined (SCO) */
 #endif /* RLIMIT_NOFILE */
-
-#if defined (ACE_HAS_BROKEN_SETRLIMIT)
-   typedef struct rlimit ACE_SETRLIMIT_TYPE;
-#else
-   typedef const struct rlimit ACE_SETRLIMIT_TYPE;
-#endif /* ACE_HAS_BROKEN_SETRLIMIT */
 
 #if defined (ACE_WIN32)
 #  define RUSAGE_SELF 1
@@ -93,7 +92,7 @@ extern "C"
 #if !defined (ACE_WIN32)
 // These prototypes are chronically lacking from many versions of
 // UNIX.
-# if !defined (ACE_HAS_GETRUSAGE_PROTO)
+# if !defined (ACE_HAS_GETRUSAGE_PROTOTYPE)
   int getrusage (int who, struct rusage *rusage);
 # endif /* ! ACE_HAS_GETRUSAGE_PROTO */
 

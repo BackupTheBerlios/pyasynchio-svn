@@ -1,4 +1,4 @@
-// Obstack_T.cpp,v 4.9 2003/11/07 20:27:28 shuston Exp
+// Obstack_T.cpp,v 4.10 2004/06/16 07:57:20 jwillemsen Exp
 
 #ifndef ACE_OBSTACK_T_C
 #define ACE_OBSTACK_T_C
@@ -11,10 +11,10 @@
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Obstack_T.i"
+#include "ace/Obstack_T.inl"
 #endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, Obstack_T, "Obstack_T.cpp,v 4.9 2003/11/07 20:27:28 shuston Exp")
+ACE_RCSID(ace, Obstack_T, "Obstack_T.cpp,v 4.10 2004/06/16 07:57:20 jwillemsen Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_Obstack_T)
 

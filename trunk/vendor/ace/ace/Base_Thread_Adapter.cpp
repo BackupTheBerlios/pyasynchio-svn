@@ -1,8 +1,8 @@
-// Base_Thread_Adapter.cpp,v 4.8 2003/12/31 20:33:00 kobica Exp
+// Base_Thread_Adapter.cpp,v 4.9 2004/05/05 21:16:27 ossama Exp
 
 #include "ace/Base_Thread_Adapter.h"
 
-ACE_RCSID(ace, Base_Thread_Adapter, "Base_Thread_Adapter.cpp,v 4.8 2003/12/31 20:33:00 kobica Exp")
+ACE_RCSID(ace, Base_Thread_Adapter, "Base_Thread_Adapter.cpp,v 4.9 2004/05/05 21:16:27 ossama Exp")
 
 #if !defined (ACE_HAS_INLINED_OSCALLS)
 # include "ace/Base_Thread_Adapter.inl"
@@ -87,7 +87,7 @@ ACE_Base_Thread_Adapter::thr_desc_log_msg (void)
 // be an extern "C" to make certain compilers happy...
 
 #if defined (ACE_PSOS)
-extern "C" void 
+extern "C" void
 ace_thread_adapter (unsigned long args)
 {
   ACE_OS_TRACE ("ace_thread_adapter");
@@ -101,7 +101,7 @@ ace_thread_adapter (unsigned long args)
 #endif /* ACE_HAS_TSS_EMULATION */
 
   ACE_Base_Thread_Adapter *thread_args =
-    ACE_static_cast(ACE_Base_Thread_Adapter *, args);
+    static_cast<ACE_Base_Thread_Adapter *> (args);
 
   // Invoke the user-supplied function with the args.
   thread_args->invoke ();
@@ -121,9 +121,9 @@ ace_thread_adapter (void *args)
 #endif /* ACE_HAS_TSS_EMULATION */
 
   ACE_Base_Thread_Adapter *thread_args =
-    ACE_static_cast (ACE_Base_Thread_Adapter *, args);
+    static_cast<ACE_Base_Thread_Adapter *> (args);
 
-#ifdef ACE_USES_GPROF  
+#ifdef ACE_USES_GPROF
   setitimer (ITIMER_PROF, thread_args->timerval (), 0);
 #endif // ACE_USES_GPROF
 

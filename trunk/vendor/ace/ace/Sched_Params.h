@@ -4,7 +4,7 @@
 /**
  *  @file    Sched_Params.h
  *
- *  Sched_Params.h,v 4.23 2003/11/01 11:15:17 dhinton Exp
+ *  Sched_Params.h,v 4.24 2004/06/16 07:57:22 jwillemsen Exp
  *
  *  @author David Levine <levine@cs.wustl.edu>
  *  @author Carlos O'Ryan <coryan@uci.edu>
@@ -221,7 +221,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Sched_Params.i"
+#include "ace/Sched_Params.inl"
 #endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"

@@ -1,34 +1,42 @@
 // -*- C++ -*-
-// OS_NS_time.cpp,v 1.3 2003/11/05 07:46:11 jwillemsen Exp
+// OS_NS_time.cpp,v 1.6 2004/08/31 08:15:37 jwillemsen Exp
 
 #include "ace/OS_NS_time.h"
 
-ACE_RCSID(ace, OS_NS_time, "OS_NS_time.cpp,v 1.3 2003/11/05 07:46:11 jwillemsen Exp")
+ACE_RCSID(ace, OS_NS_time, "OS_NS_time.cpp,v 1.6 2004/08/31 08:15:37 jwillemsen Exp")
 
 #if !defined (ACE_HAS_INLINED_OSCALLS)
 # include "ace/OS_NS_time.inl"
 #endif /* ACE_HAS_INLINED_OS_CALLS */
 
+#if defined (ACE_LACKS_NATIVE_STRPTIME)
+# include "ace/os_include/os_ctype.h"
+#endif /* ACE_LACKS_NATIVE_STRPTIME */
+
 #include "ace/OS_NS_Thread.h"
 #include "ace/Object_Manager_Base.h"
 
-// hmmm, should this be only for ACE_MT_SAFE? dhinton
-#if defined (ACE_MT_SAFE) && (ACE_MT_SAFE != 0)
-# if defined (ACE_HAS_WINCE)
-const wchar_t *ACE_OS::day_of_week_name[] = {ACE_LIB_TEXT ("Sun"), ACE_LIB_TEXT ("Mon"),
-                                             ACE_LIB_TEXT ("Tue"), ACE_LIB_TEXT ("Wed"),
-                                             ACE_LIB_TEXT ("Thu"), ACE_LIB_TEXT ("Fri"),
-                                             ACE_LIB_TEXT ("Sat")};
-const wchar_t *ACE_OS::month_name[] = {ACE_LIB_TEXT ("Jan"), ACE_LIB_TEXT ("Feb"),
-                                       ACE_LIB_TEXT ("Mar"), ACE_LIB_TEXT ("Apr"),
-                                       ACE_LIB_TEXT ("May"), ACE_LIB_TEXT ("Jun"),
-                                       ACE_LIB_TEXT ("Jul"), ACE_LIB_TEXT ("Aug"),
-                                       ACE_LIB_TEXT ("Sep"), ACE_LIB_TEXT ("Oct"),
-                                       ACE_LIB_TEXT ("Nov"), ACE_LIB_TEXT ("Dec") };
+#if defined (ACE_HAS_WINCE)
+#  include "ace/OS_NS_stdio.h"     /* Need ACE_OS::sprintf() */
+const wchar_t *ACE_OS::day_of_week_name[7] =
+                                     {ACE_LIB_TEXT ("Sun"),
+                                      ACE_LIB_TEXT ("Mon"),
+                                      ACE_LIB_TEXT ("Tue"),
+                                      ACE_LIB_TEXT ("Wed"),
+                                      ACE_LIB_TEXT ("Thu"),
+                                      ACE_LIB_TEXT ("Fri"),
+                                      ACE_LIB_TEXT ("Sat")};
+
+const wchar_t *ACE_OS::month_name[12] =
+                                {ACE_LIB_TEXT ("Jan"), ACE_LIB_TEXT ("Feb"),
+                                 ACE_LIB_TEXT ("Mar"), ACE_LIB_TEXT ("Apr"),
+                                 ACE_LIB_TEXT ("May"), ACE_LIB_TEXT ("Jun"),
+                                 ACE_LIB_TEXT ("Jul"), ACE_LIB_TEXT ("Aug"),
+                                 ACE_LIB_TEXT ("Sep"), ACE_LIB_TEXT ("Oct"),
+                                 ACE_LIB_TEXT ("Nov"), ACE_LIB_TEXT ("Dec") };
 
 static const ACE_TCHAR *ACE_OS_CTIME_R_FMTSTR = ACE_LIB_TEXT ("%3s %3s %02d %02d:%02d:%02d %04d\n");
-# endif /* ACE_HAS_WINCE */
-#endif /* ACE_MT_SAFE && ACE_MT_SAFE != 0 */
+#endif /* ACE_HAS_WINCE */
 
 # if defined (ACE_PSOS)
 
@@ -509,29 +517,7 @@ ACE_OS::readPPCTimeBase (u_long &most, u_long &least)
   asm("stw r5, 0(r3)");
   asm("stw r6, 0(r4)");
 }
-#elif defined (ACE_HAS_POWERPC_TIMER) && defined (__GNUG__)
-void
-ACE_OS::readPPCTimeBase (u_long &most, u_long &least)
-{
-  ACE_OS_TRACE ("ACE_OS::readPPCTimeBase");
-
-  // This function can't be inline because it defines a symbol,
-  // aclock.  If there are multiple calls to the function in a
-  // compilation unit, then that symbol would be multiply defined if
-  // the function was inline.
-  asm volatile ("aclock:\n"
-                "mftbu 5\n"     /* upper time base register */
-                "mftb 6\n"      /* lower time base register */
-                "mftbu 7\n"     /* upper time base register */
-                "cmpw 5,7\n" /* check for rollover of upper */
-                "bne aclock\n"
-                "stw 5,%0\n"                        /* most */
-                "stw 6,%1"                         /* least */
-                : "=m" (most), "=m" (least)      /* outputs */
-                :                              /* no inputs */
-                : "5", "6", "7", "memory"    /* constraints */);
-}
-#endif /* ACE_HAS_POWERPC_TIMER  &&  (ghs or __GNUG__) */
+#endif /* ACE_HAS_POWERPC_TIMER && ghs */
 
 #if defined (ACE_HAS_STRPTIME)
 char *

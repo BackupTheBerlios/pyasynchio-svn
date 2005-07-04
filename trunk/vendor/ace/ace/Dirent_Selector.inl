@@ -1,6 +1,5 @@
 // -*- C++ -*-
-//
-// Dirent_Selector.inl,v 4.2 2001/07/09 23:48:07 othman Exp
+// Dirent_Selector.inl,v 4.3 2004/06/14 13:58:41 jwillemsen Exp
 
 ACE_INLINE int
 ACE_Dirent_Selector::length (void) const

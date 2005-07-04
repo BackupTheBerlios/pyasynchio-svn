@@ -1,9 +1,9 @@
 // -*- C++ -*-
-// Cleanup.cpp,v 1.2 2003/11/01 11:15:12 dhinton Exp
+// Cleanup.cpp,v 1.4 2004/05/05 21:16:27 ossama Exp
 
 #include "ace/Cleanup.h"
 
-ACE_RCSID(ace, Cleanup, "Cleanup.cpp,v 1.2 2003/11/01 11:15:12 dhinton Exp")
+ACE_RCSID(ace, Cleanup, "Cleanup.cpp,v 1.4 2004/05/05 21:16:27 ossama Exp")
 
 #if !defined (ACE_HAS_INLINED_OSCALLS)
 # include "ace/Cleanup.inl"
@@ -39,7 +39,7 @@ ACE_Cleanup_Info::ACE_Cleanup_Info (void)
 {
 }
 
-int
+bool
 ACE_Cleanup_Info::operator== (const ACE_Cleanup_Info &o) const
 {
   return o.object_ == this->object_
@@ -47,7 +47,7 @@ ACE_Cleanup_Info::operator== (const ACE_Cleanup_Info &o) const
     && o.param_ == this->param_;
 }
 
-int
+bool
 ACE_Cleanup_Info::operator!= (const ACE_Cleanup_Info &o) const
 {
   return !(*this == o);
@@ -172,18 +172,14 @@ ACE_OS_Exit_Info::call_hooks ()
        iter = iter->next_)
     {
       ACE_Cleanup_Info &info = iter->cleanup_info_;
-      if (info.cleanup_hook_ == ACE_reinterpret_cast (ACE_CLEANUP_FUNC,
-                                                      ace_cleanup_destroyer))
+      if (info.cleanup_hook_ == reinterpret_cast<ACE_CLEANUP_FUNC> (ace_cleanup_destroyer))
         // The object is an ACE_Cleanup.
-        ace_cleanup_destroyer (ACE_reinterpret_cast (ACE_Cleanup *,
-                                                     info.object_),
+        ace_cleanup_destroyer (reinterpret_cast<ACE_Cleanup *> (info.object_),
                                info.param_);
       else if (info.object_ == &ace_exit_hook_marker)
         // The hook is an ACE_EXIT_HOOK.
-        (* ACE_reinterpret_cast (ACE_EXIT_HOOK, info.cleanup_hook_)) ();
+        (* reinterpret_cast<ACE_EXIT_HOOK> (info.cleanup_hook_)) ();
       else
         (*info.cleanup_hook_) (info.object_, info.param_);
     }
 }
-
-

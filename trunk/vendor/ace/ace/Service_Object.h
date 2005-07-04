@@ -4,7 +4,7 @@
 /**
  *  @file    Service_Object.h
  *
- *  Service_Object.h,v 4.37 2003/11/22 21:40:36 bala Exp
+ *  Service_Object.h,v 4.39 2004/09/23 19:54:48 jwillemsen Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -60,7 +60,7 @@ class ACE_Service_Type_Impl;
  * @class ACE_Service_Type
  *
  * @brief Keeps track of information related to the various
- * <ACE_Service_Type_Impl> subclasses.
+ * ACE_Service_Type_Impl subclasses.
  *
  * This class acts as the interface of the "Bridge" pattern.
  */
@@ -168,7 +168,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Service_Object.i"
+#include "ace/Service_Object.inl"
 #endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"

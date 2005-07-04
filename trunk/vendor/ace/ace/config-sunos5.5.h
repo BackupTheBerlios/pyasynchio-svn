@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// config-sunos5.5.h,v 4.110 2003/11/04 04:06:36 bala Exp
+// config-sunos5.5.h,v 4.118 2004/10/15 22:28:57 shuston Exp
 
 // This configuration file is designed to work for SunOS 5.5 platforms
 // using the following compilers:
@@ -13,6 +13,9 @@
 
 #define ACE_LACKS_STDINT_H
 
+// SunOS 5.5 does not provide getloadavg()
+#define ACE_LACKS_GETLOADAVG
+
 // Before we do anything, we should include <sys/feature_tests.h> to
 // ensure that things are set up properly.
 #include <sys/feature_tests.h>
@@ -24,7 +27,6 @@
     // with Sun C++ 4.0.1 never completes.
 #   define ACE_NEEDS_DEV_IO_CONVERSION
 # elif (__SUNPRO_CC >= 0x420)
-# define ACE_HAS_ANSI_CASTS
 # if (__SUNPRO_CC >= 0x500)
     // string.h and memory.h conflict for memchr definitions
 #   define ACE_LACKS_MEMORY_H
@@ -37,13 +39,12 @@
 #     define ACE_HAS_STD_TEMPLATE_SPECIALIZATION
 #       define ACE_HAS_TEMPLATE_TYPEDEFS
     // Note that SunC++ 5.0 doesn't yet appear to support
-    // @@todo: is anyone using CC 5.0 at all?
     // ACE_HAS_STD_TEMPLATE_METHOD_SPECIALIZATION...
+    // @@todo: is anyone using CC 5.0 at all?
     // However, Forte 6 Update 1 does... if this needs to be backed up,
     // change this to an earlier version.
 #     if (__SUNPRO_CC >= 0x520)
 #       define ACE_HAS_STD_TEMPLATE_CLASS_MEMBER_SPECIALIZATION
-#       define ACE_HAS_STD_TEMPLATE_METHOD_SPECIALIZATION
 #     endif /* __SUNPRO_CC >= 0x530 */
 #     define ACE_HAS_STANDARD_CPP_LIBRARY 1
 #     define ACE_USES_STD_NAMESPACE_FOR_STDCPP_LIB 1
@@ -132,7 +133,6 @@
 
 #elif defined (__KCC) /* KAI compiler */
 
-# define ACE_HAS_ANSI_CASTS
 # include "ace/config-kcc-common.h"
 
 #else  /* ! __SUNPRO_CC && ! __GNUG__  && ! ghs */
@@ -175,7 +175,7 @@
 #define ACE_HAS_MSG
 
 // Compiler/platform contains the <sys/syscall.h> file.
-#define ACE_HAS_SYSCALL_H
+#define ACE_HAS_SYS_SYSCALL_H
 
 // Platform has terminal ioctl flags like TCGETS and TCSETS.
 #define ACE_HAS_TERM_IOCTLS
@@ -191,6 +191,11 @@
 
 // Platform supports IP multicast
 #define ACE_HAS_IP_MULTICAST
+
+// This setting was determined by running the autoconf tests. If it doesn't
+// work uniformly, will need some tweaking, possibly based on other
+// XPG feature-test macros.
+#define ACE_HAS_CONST_CHAR_SWAB
 
 // Compiler/platform supports alloca()
 // Although ACE does have alloca() on this compiler/platform combination, it is
@@ -224,7 +229,7 @@
 #define ACE_HAS_UCONTEXT_T
 
 // Compiler/platform provides the sockio.h file.
-#define ACE_HAS_SOCKIO_H
+#define ACE_HAS_SYS_SOCKIO_H
 
 // Compiler supports the ssize_t typedef.
 #define ACE_HAS_SSIZE_T
@@ -324,11 +329,6 @@
 #define ACE_HAS_TLI
 
 #define ACE_HAS_STRPTIME
-
-// Turns off the tracing feature.
-#if !defined (ACE_NTRACE)
-# define ACE_NTRACE 1
-#endif /* ACE_NTRACE */
 
 #define ACE_HAS_GETPAGESIZE 1
 

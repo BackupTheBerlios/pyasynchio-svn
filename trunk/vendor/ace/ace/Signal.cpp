@@ -1,17 +1,17 @@
-// Signal.cpp,v 4.51 2003/11/05 23:30:47 shuston Exp
+// Signal.cpp,v 4.55 2004/10/06 18:26:57 jtc Exp
 
 #include "ace/Recursive_Thread_Mutex.h"
-#include "ace/Signal.h"
+#include "ace/Signal_.h"
 #include "ace/Object_Manager.h"
 #include "ace/Log_Msg.h"
 #include "ace/Containers.h"
 #include "ace/Guard_T.h"
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Signal.i"
+#include "ace/Signal.inl"
 #endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, Signal, "Signal.cpp,v 4.51 2003/11/05 23:30:47 shuston Exp")
+ACE_RCSID(ace, Signal, "Signal.cpp,v 4.55 2004/10/06 18:26:57 jtc Exp")
 
 // Static definitions.
 
@@ -190,7 +190,7 @@ ACE_Sig_Action::ACE_Sig_Action (const ACE_Sig_Set &signals,
 
 #if (ACE_NSIG > 0)  &&  !defined (CHORUS)
   for (int s = 1; s < ACE_NSIG; s++)
-    if (signals.is_member (s))
+    if ((signals.is_member (s)) == 1)
       ACE_OS::sigaction (s, &this->sa_, 0);
 #else  /* ACE_NSIG <= 0  ||  CHORUS */
   ACE_UNUSED_ARG (signals);
@@ -218,7 +218,7 @@ ACE_Sig_Action::ACE_Sig_Action (const ACE_Sig_Set &signals,
 
 #if (ACE_NSIG > 0)  &&  !defined (CHORUS)
   for (int s = 1; s < ACE_NSIG; s++)
-    if (signals.is_member (s))
+    if ((signals.is_member (s)) == 1)
       ACE_OS::sigaction (s, &this->sa_, 0);
 #else  /* ACE_NSIG <= 0  ||  CHORUS */
   ACE_UNUSED_ARG (signals);
@@ -472,6 +472,10 @@ ACE_Sig_Adapter::ACE_Sig_Adapter (ACE_Sig_Handler_Ex sig_func,
     sig_func_ (sig_func)
 {
   // ACE_TRACE ("ACE_Sig_Adapter::ACE_Sig_Adapter");
+}
+
+ACE_Sig_Adapter::~ACE_Sig_Adapter ()
+{
 }
 
 int
@@ -858,6 +862,7 @@ ACE_MT (template class ACE_TSS_Guard<ACE_Recursive_Thread_Mutex>);
 ACE_MT (template class ACE_Guard<ACE_Recursive_Thread_Mutex>);
 template class ACE_Fixed_Set<ACE_Event_Handler *, ACE_MAX_SIGNAL_HANDLERS>;
 template class ACE_Fixed_Set_Iterator<ACE_Event_Handler *, ACE_MAX_SIGNAL_HANDLERS>;
+template class ACE_Fixed_Set_Iterator_Base<ACE_Event_Handler *, ACE_MAX_SIGNAL_HANDLERS>;
 #elif defined (ACE_HAS_TEMPLATE_INSTANTIATION_PRAGMA)
 #if defined (ACE_MT_SAFE) && (ACE_MT_SAFE != 0)
 #pragma instantiate ACE_TSS_Guard<ACE_Recursive_Thread_Mutex>
@@ -865,6 +870,7 @@ template class ACE_Fixed_Set_Iterator<ACE_Event_Handler *, ACE_MAX_SIGNAL_HANDLE
 #endif /* ACE_MT_SAFE */
 #pragma instantiate ACE_Fixed_Set<ACE_Event_Handler *, ACE_MAX_SIGNAL_HANDLERS>
 #pragma instantiate ACE_Fixed_Set_Iterator<ACE_Event_Handler *, ACE_MAX_SIGNAL_HANDLERS>
+#pragma instantiate ACE_Fixed_Set_Iterator_Base<ACE_Event_Handler *, ACE_MAX_SIGNAL_HANDLERS>
 #endif /* ACE_HAS_EXPLICIT_TEMPLATE_INSTANTIATION */
 
 #endif /* ACE_HAS_BROKEN_HPUX_TEMPLATES */

@@ -4,7 +4,7 @@
 /**
  *  @file    Pipe.h
  *
- *  Pipe.h,v 4.14 2003/11/01 11:15:16 dhinton Exp
+ *  Pipe.h,v 4.16 2004/06/16 07:57:22 jwillemsen Exp
  *
  *  @author Doug Schmidt
  */
@@ -81,9 +81,9 @@ private:
   ACE_HANDLE handles_[2];
 };
 
-#if !defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/Pipe.i"
-#endif /* ACE_LACKS_INLINE_FUNCTIONS */
+#if defined (__ACE_INLINE__)
+#include "ace/Pipe.inl"
+#endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"
 

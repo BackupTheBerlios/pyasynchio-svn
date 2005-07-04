@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// config-linux-common.h,v 4.112 2003/12/22 22:50:34 shuston Exp
+// config-linux-common.h,v 4.137 2004/12/13 18:55:09 ossama Exp
 
 // Do not use this configuration file directly since it's designed to
 // be included by another, specific configuration file, such as
@@ -29,16 +29,24 @@
 #  define ACE_HAS_PTHREADS_UNIX98_EXT
 #endif /* _XOPEN_SOURCE - 0 >= 500 */
 
+#if defined (__USE_POSIX199309)
+#  if !defined (ACE_HAS_CLOCK_GETTIME)
+#    define ACE_HAS_CLOCK_GETTIME
+#  endif
+#endif
+
 // First the machine specific part
 
 #if defined (__alpha)
+# if __GLIBC_MINOR__ < 2
   // This is necessary on Alphas with glibc 2.0.7-13.
 # define ACE_POLL_IS_BROKEN
+# endif
 #elif defined (__powerpc__)
 # if !defined (ACE_DEFAULT_BASE_ADDR)
 #   define ACE_DEFAULT_BASE_ADDR ((char *) 0x40000000)
 # endif /* ! ACE_DEFAULT_BASE_ADDR */
-#elif defined (__ia64)
+#elif defined (__ia64) || defined (__x86_64__)
 # if !defined (ACE_DEFAULT_BASE_ADDR)
 // Zero base address should work fine for Linux of IA-64: it just lets
 // the kernel to choose the right value.
@@ -49,7 +57,7 @@
 // Then glibc/libc5 specific parts
 
 #if defined(__GLIBC__)
-# define ACE_HAS_BROKEN_SETRLIMIT
+# define ACE_HAS_NONCONST_SETRLIMIT
 # define ACE_HAS_RUSAGE_WHO_ENUM enum __rusage_who
 # define ACE_HAS_RLIMIT_RESOURCE_ENUM enum __rlimit_resource
 # define ACE_HAS_SOCKLEN_T
@@ -59,6 +67,16 @@
 # if defined (_GNU_SOURCE)
 #   define ACE_HAS_STRNLEN
 #   define ACE_HAS_WCSNLEN
+
+  // This is probably not a 100%-sure-fire check... Red Hat Linux 9
+  // and Enterprise Linux 3 and up have a new kernel that can send signals
+  // across threads. This was not possible prior because there was no real
+  // difference between a process and a thread. With this, the
+  // ACE_POSIX_SIG_Proactor is the only chance of getting asynch I/O working.
+  // There are restrictions, such as all socket operations being silently
+  // converted to synchronous by the kernel, that make aio a non-starter
+  // for most Linux platforms at this time. But we'll start to crawl...
+#   define ACE_POSIX_SIG_PROACTOR
 # endif
 
   // To avoid the strangeness with Linux's ::select (), which modifies
@@ -126,6 +144,10 @@
 # define ACE_HAS_ALT_CUSERID
 #endif /* __GLIBC__ > 1 && __GLIBC_MINOR__ >= 0 */
 
+#if (__GLIBC__  > 2)  || (__GLIBC__ == 2 && __GLIBC_MINOR__ >= 3)
+# define ACE_HAS_ISASTREAM_PROTO
+# define ACE_HAS_PTHREAD_SIGMASK_PROTO
+#endif /* __GLIBC__ > 2 || __GLIBC__ === 2 && __GLIBC_MINOR__ >= 3) */
 
 // Then the compiler specific parts
 
@@ -156,7 +178,18 @@
 # undef ACE_LACKS_LLSEEK_PROTOTYPE
 # undef ACE_LACKS_LSEEK64_PROTOTYPE
 # include "ace/config-borland-common.h"
-#else  /* ! __GNUG__ && ! __KCC && !__DECCXX && !__INTEL_COMPILER && !__BORLANDC__*/
+#elif defined (__PGI)
+// Portable group compiler
+# define ACE_HAS_CPLUSPLUS_HEADERS
+# define ACE_HAS_STDCPP_STL_INCLUDES
+# define ACE_HAS_TEMPLATE_TYPEDEFS
+# define ACE_HAS_TYPENAME_KEYWORD
+# define ACE_HAS_STD_TEMPLATE_SPECIALIZATION
+# define ACE_HAS_STANDARD_CPP_LIBRARY 1
+# define ACE_USES_STD_NAMESPACE_FOR_STDCPP_LIB 1
+# define ACE_LACKS_SWAB
+# undef ACE_HAS_CLOCK_GETTIME
+#else  /* ! __GNUG__ && ! __KCC && !__DECCXX && !__INTEL_COMPILER && !__BORLANDC__ && !__PGI */
 # error unsupported compiler in ace/config-linux-common.h
 #endif /* ! __GNUG__ && ! __KCC */
 
@@ -166,13 +199,6 @@
 # define ACE_HAS_SIGWAIT
 
 # define ACE_HAS_SIGSUSPEND
-
-// However, sigqueue-ing things across threads does not work (at least
-// prior to the 2.4 kernel) so unless the user has specifically requested
-// the POSIX_SIG_PROACTOR, use the AIOCB version to avoid this problem.
-# if !defined (ACE_POSIX_SIG_PROACTOR)
-#   define ACE_POSIX_AIOCB_PROACTOR
-# endif  /* ACE_POSIX_SIG_PROACTOR */
 
 #if __GLIBC__ >= 2
 #ifndef ACE_HAS_POSIX_REALTIME_SIGNALS
@@ -198,7 +224,6 @@
 #define ACE_LACKS_ITOW
 #define ACE_LACKS_WCSICMP
 #define ACE_LACKS_WCSNICMP
-#define ACE_LACKS_TOWLOWER
 
 #if __GLIBC__ >= 2
 # define ACE_HAS_3_PARAM_WCSTOK
@@ -219,7 +244,7 @@
 
 // Compiler/platform has the getrusage() system call.
 #define ACE_HAS_GETRUSAGE
-#define ACE_HAS_GETRUSAGE_PROTO
+#define ACE_HAS_GETRUSAGE_PROTOTYPE
 
 #define ACE_HAS_CONSISTENT_SIGNAL_PROTOTYPES
 
@@ -257,11 +282,9 @@
 
 // glibc supports wchar, but lacks fgetwc and ungetwc
 #define ACE_LACKS_FGETWC
+#define ACE_HAS_NONCONST_MSGSND
 
 #endif
-
-// glibc supports the mkstemp() function.
-#define ACE_HAS_MKSTEMP
 
 // glibc requires _XOPEN_SOURCE_EXTENDED to make this prototype
 // visible, so force ACE to declare one.  Yuk!
@@ -269,6 +292,10 @@
 
 // Platform defines struct timespec but not timespec_t
 #define ACE_LACKS_TIMESPEC_T
+
+// Platform supplies scandir()
+#define ACE_HAS_SCANDIR
+#define ACE_SCANDIR_CMP_USES_VOIDPTR
 
 //#define ACE_LACKS_STRRECVFD
 #define ACE_HAS_STRBUF_T
@@ -283,9 +310,13 @@
 #define ACE_HAS_SYSV_IPC
 
 // Compiler/platform contains the <sys/syscall.h> file.
-#define ACE_HAS_SYSCALL_H
+#define ACE_HAS_SYS_SYSCALL_H
 
-#define ACE_HAS_SUNOS4_GETTIMEOFDAY
+// Platform/compiler supports global timezone variable.
+#define ACE_HAS_TIMEZONE
+
+// Platform/compiler supports void * as second parameter to gettimeofday().
+#define ACE_HAS_VOIDPTR_GETTIMEOFDAY
 
 // Compiler/platform supports strerror ().
 #define ACE_HAS_STRERROR
@@ -311,7 +342,7 @@
 
 #define ACE_HAS_DIRENT
 
-#if defined (__ia64)
+#if defined (__ia64) || defined(__alpha) || defined (__x86_64__)
 // On 64 bit platforms, the "long" type is 64-bits.  Override the
 // default 32-bit platform-specific format specifiers appropriately.
 # define ACE_UINT64_FORMAT_SPECIFIER ACE_LIB_TEXT ("%lu")
@@ -319,16 +350,26 @@
 # define ACE_SIZE_T_FORMAT_SPECIFIER ACE_LIB_TEXT ("%lu")
 #endif /* __ia64 */
 
-// Turns off the tracing feature.
-#if !defined (ACE_NTRACE)
-# define ACE_NTRACE 1
-#endif /* ACE_NTRACE */
-
 #define ACE_SIZEOF_WCHAR 4
 
-#include /**/ "ace/post.h"
+#define ACE_LACKS_GETIPNODEBYADDR
+#define ACE_LACKS_GETIPNODEBYNAME
 
 // Enables use of POSIX termios struct
 #define ACE_USES_NEW_TERMIOS
+
+#if !defined (ACE_GETNAME_RETURNS_RANDOM_SIN_ZERO) 
+// Detect if getsockname() and getpeername() returns random values in
+// the sockaddr_in::sin_zero field by evaluation of the kernel
+// version. Since version 2.5.47 this problem is fixed.
+#include <linux/version.h>
+#  if (LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,47))
+#    define ACE_GETNAME_RETURNS_RANDOM_SIN_ZERO 0
+#  else
+#    define ACE_GETNAME_RETURNS_RANDOM_SIN_ZERO 1
+#  endif  /* (LINUX_VERSION_CODE <= KERNEL_VERSION(2,5,47)) */
+#endif  /* ACE_GETNAME_RETURNS_RANDOM_SIN_ZERO */
+
+#include /**/ "ace/post.h"
 
 #endif /* ACE_LINUX_COMMON_H */

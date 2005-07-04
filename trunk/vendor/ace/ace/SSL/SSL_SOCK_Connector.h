@@ -4,7 +4,7 @@
 /**
  *  @file    SSL_SOCK_Connector.h
  *
- *  SSL_SOCK_Connector.h,v 1.24 2003/08/14 17:57:21 ossama Exp
+ *  SSL_SOCK_Connector.h,v 1.25 2004/06/19 07:18:01 jwillemsen Exp
  *
  *  @author Ossama Othman <ossama@uci.edu>
  *  @author Carlos O'Ryan <coryan@uci.edu>
@@ -305,9 +305,9 @@ private:
 
 };
 
-#if !defined (ACE_LACKS_INLINE_FUNCTIONS)
+#if defined (__ACE_INLINE__)
 #include "SSL_SOCK_Connector.i"
-#endif /* ACE_LACKS_INLINE_FUNCTIONS */
+#endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"
 

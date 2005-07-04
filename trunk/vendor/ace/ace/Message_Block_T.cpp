@@ -1,15 +1,15 @@
-// Message_Block_T.cpp,v 4.8 2003/06/22 04:11:16 dhinton Exp
+// Message_Block_T.cpp,v 4.10 2004/06/16 07:57:20 jwillemsen Exp
 
 #if !defined (ACE_MESSAGE_BLOCK_T_C)
 #define ACE_MESSAGE_BLOCK_T_C
 
 
-ACE_RCSID(ace, Message_Block_T, "Message_Block_T.cpp,v 4.8 2003/06/22 04:11:16 dhinton Exp")
+ACE_RCSID(ace, Message_Block_T, "Message_Block_T.cpp,v 4.10 2004/06/16 07:57:20 jwillemsen Exp")
 
 #include "ace/Malloc_Base.h"     /* Need ACE_Allocator */
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Message_Block_T.i"
+#include "ace/Message_Block_T.inl"
 #endif /* __ACE_INLINE__ */
 
 #include "ace/os_include/os_errno.h"
@@ -32,7 +32,7 @@ ACE_Locked_Data_Block<ACE_LOCK>::clone_nocopy (ACE_Message_Block::Message_Flags 
   ACE_Locked_Data_Block<ACE_LOCK> *nb;
 
   ACE_NEW_MALLOC_RETURN (nb,
-                         ACE_static_cast(ACE_Locked_Data_Block<ACE_LOCK>*,
+                         static_cast<ACE_Locked_Data_Block<ACE_LOCK>*> (
                                          this->data_block_allocator ()->malloc (sizeof (ACE_Locked_Data_Block<ACE_LOCK>))),
                          ACE_Locked_Data_Block<ACE_LOCK> (this->size (),
                                                    this->msg_type (),

@@ -1,22 +1,22 @@
-// Log_Record.cpp,v 4.68 2003/11/10 01:48:02 dhinton Exp
+// Log_Record.cpp,v 4.72 2004/08/24 18:13:29 shuston Exp
 
 #include "ace/Log_Record.h"
-
-#if defined (ACE_LACKS_INLINE_FUNCTIONS)
-# include "ace/Log_Record.i"
-#endif
 
 #include "ace/Log_Msg.h"
 #include "ace/ACE.h"
 #include "ace/OS_NS_stdio.h"
 #include "ace/OS_NS_time.h"
 
+#if !defined (__ACE_INLINE__)
+# include "ace/Log_Record.inl"
+#endif /* __ACE_INLINE__ */
+
 #if !defined (ACE_LACKS_IOSTREAM_TOTALLY)
 // FUZZ: disable check_for_streams_include
 # include "ace/streams.h"
 #endif /* ! ACE_LACKS_IOSTREAM_TOTALLY */
 
-ACE_RCSID(ace, Log_Record, "Log_Record.cpp,v 4.68 2003/11/10 01:48:02 dhinton Exp")
+ACE_RCSID(ace, Log_Record, "Log_Record.cpp,v 4.72 2004/08/24 18:13:29 shuston Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_Log_Record)
 
@@ -152,7 +152,7 @@ ACE_Log_Record::round_up (void)
   // Round up to the alignment.
   len = ((len + ACE_Log_Record::ALIGN_WORDB - 1)
          & ~(ACE_Log_Record::ALIGN_WORDB - 1));
-  this->length_ = ACE_static_cast (ACE_UINT32, len);
+  this->length_ = static_cast<ACE_UINT32> (len);
 }
 
 ACE_Log_Record::ACE_Log_Record (void)
@@ -174,6 +174,18 @@ ACE_Log_Record::format_msg (const ACE_TCHAR host_name[],
   /* Oct 18 14:25:36.000 1989<nul> */
   ACE_TCHAR timestamp[26]; // Only used by VERBOSE and VERBOSE_LITE.
 
+  // The sprintf format needs to be different for Windows and POSIX
+  // in the wide-char case.
+#if defined (ACE_WIN32) || !defined (ACE_USES_WCHAR)
+  const ACE_TCHAR *time_fmt =         ACE_LIB_TEXT ("%s.%03ld %s");
+  const ACE_TCHAR *verbose_fmt =      ACE_LIB_TEXT ("%s@%s@%u@%s@%s");
+  const ACE_TCHAR *verbose_lite_fmt = ACE_LIB_TEXT ("%s@%s@%s");
+#else
+  const ACE_TCHAR *time_fmt = ACE_LIB_TEXT ("%ls.%03ld %ls");
+  const ACE_TCHAR *verbose_fmt = ACE_LIB_TEXT ("%ls@%ls@%u@%ls@%ls");
+  const ACE_TCHAR *verbose_lite_fmt = ACE_LIB_TEXT ("%ls@%ls@%ls");
+#endif
+
   if (ACE_BIT_ENABLED (verbose_flag,
                        ACE_Log_Msg::VERBOSE)
       || ACE_BIT_ENABLED (verbose_flag,
@@ -192,7 +204,7 @@ ACE_Log_Record::format_msg (const ACE_TCHAR host_name[],
       ctp[24] = '\0'; // NUL-terminate after the date.
 
       ACE_OS::sprintf (timestamp,
-                       ACE_LIB_TEXT ("%s.%03ld %s"),
+                       time_fmt,
                        ctp + 4,
                        ((long) this->usecs_) / 1000,
                        ctp + 20);
@@ -211,7 +223,7 @@ ACE_Log_Record::format_msg (const ACE_TCHAR host_name[],
                                       : host_name);
 # endif /* ! defined (ACE_HAS_BROKEN_CONDITIONAL_STRING_CASTS) */
       ACE_OS::sprintf (verbose_msg,
-                       ACE_LIB_TEXT ("%s@%s@%u@%s@%s"),
+                       verbose_fmt,
                        timestamp,
                        lhost_name,
                        this->pid_,
@@ -220,14 +232,12 @@ ACE_Log_Record::format_msg (const ACE_TCHAR host_name[],
     }
   else if (ACE_BIT_ENABLED (verbose_flag, ACE_Log_Msg::VERBOSE_LITE))
     ACE_OS::sprintf (verbose_msg,
-                     ACE_LIB_TEXT ("%s@%s@%s"),
+                     verbose_lite_fmt,
                      timestamp,
                      ACE_Log_Record::priority_name (ACE_Log_Priority (this->type_)),
                      this->msg_data_);
   else
-    ACE_OS::sprintf (verbose_msg,
-                     ACE_LIB_TEXT ("%s"),
-                     this->msg_data_);
+    ACE_OS::strcpy (verbose_msg, this->msg_data_);
   return 0;
 }
 
@@ -245,8 +255,8 @@ ACE_Log_Record::print (const ACE_TCHAR host_name[],
     {
       if (fp != 0)
         {
-          int verbose_msg_len = ACE_static_cast (int,
-                                                 ACE_OS::strlen (verbose_msg));
+          int verbose_msg_len =
+            static_cast<int> (ACE_OS::strlen (verbose_msg));
           int fwrite_result = ACE_OS::fprintf (fp, ACE_LIB_TEXT ("%s"), verbose_msg);
 
           // We should have written everything

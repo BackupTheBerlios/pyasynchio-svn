@@ -1,4 +1,4 @@
-// Synch_T.cpp,v 4.61 2003/11/09 04:12:07 dhinton Exp
+// Synch_T.cpp,v 4.62 2004/06/14 13:58:42 jwillemsen Exp
 
 #ifndef ACE_SYNCH_T_C
 #define ACE_SYNCH_T_C
@@ -13,11 +13,7 @@
 #include "ace/Synch_T.h"
 #include "ace/Log_Msg.h"
 
-ACE_RCSID(ace, Synch_T, "Synch_T.cpp,v 4.61 2003/11/09 04:12:07 dhinton Exp")
-
-#if !defined (__ACE_INLINE__)
-#include "ace/Synch_T.i"
-#endif /* __ACE_INLINE__ */
+ACE_RCSID(ace, Synch_T, "Synch_T.cpp,v 4.62 2004/06/14 13:58:42 jwillemsen Exp")
 
 #include "ace/Lock_Adapter_T.cpp"
 #include "ace/Reverse_Lock_T.cpp"

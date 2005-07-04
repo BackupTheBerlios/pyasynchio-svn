@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// OS_NS_dirent.inl,v 1.3 2003/11/04 07:05:40 jwillemsen Exp
+// OS_NS_dirent.inl,v 1.8 2004/12/20 11:44:03 jwillemsen Exp
 
 #include "ace/OS_Memory.h"
 
@@ -16,13 +16,13 @@ ACE_OS::closedir (ACE_DIR *d)
 
 # else /* ! ACE_PSOS */
 
-#   if defined (ACE_WIN32)
+#   if defined (ACE_WIN32) && defined (ACE_LACKS_CLOSEDIR)
   ACE_OS::closedir_emulation (d);
   delete [] d->directory_name_;
   delete d;
-#   else /* ACE_WIN32 */
+#   else /* ACE_WIN32 && ACE_LACKS_CLOSEDIR */
   ::closedir (d);
-#   endif /* ACE_WIN32 */
+#   endif /* ACE_WIN32 && ACE_LACKS_CLOSEDIR */
 
 # endif /* ACE_PSOS */
 #else /* ACE_HAS_DIRENT */
@@ -40,9 +40,7 @@ ACE_OS::opendir (const ACE_TCHAR *filename)
   ACE_DIR *dir;
   u_long result;
   ACE_NEW_RETURN (dir, ACE_DIR, 0);
-  result = ::open_dir (ACE_const_cast (ACE_TCHAR *,
-                                       filename),
-                       &dir->xdir);
+  result = ::open_dir (const_cast<ACE_TCHAR *> (filename), &dir->xdir);
   if (result == 0)
     return dir;
   else
@@ -51,12 +49,13 @@ ACE_OS::opendir (const ACE_TCHAR *filename)
       return 0;
     }
 #  else /* ! ACE_PSOS */
-#    if defined (ACE_WIN32)
+#    if defined (ACE_WIN32) && defined (ACE_LACKS_OPENDIR)
   return ::ACE_OS::opendir_emulation (filename);
-#    else /* ! ACE_WIN32 */
-  // VxWorks' ::opendir () is declared with a non-const argument.
-  return ::opendir (ACE_const_cast (ACE_TCHAR *, filename));
-#    endif /* ACE_WIN32 */
+#    elif defined (ACE_HAS_NONCONST_OPENDIR)
+  return ::opendir (const_cast<char *> (filename));
+#    else /* ! ACE_WIN32 && ACE_LACKS_OPENDIR */
+  return ::opendir (ACE_TEXT_ALWAYS_CHAR (filename));
+#    endif /* ACE_WIN32 && ACE_LACKS_OPENDIR */
 #  endif /* ACE_PSOS */
 #else
   ACE_UNUSED_ARG (filename);
@@ -80,11 +79,11 @@ ACE_OS::readdir (ACE_DIR *d)
     }
 
 #  else /* ! ACE_PSOS */
-#    if defined (ACE_WIN32)
+#    if defined (ACE_WIN32) && defined (ACE_LACKS_READDIR)
   return ACE_OS::readdir_emulation (d);
-#    else /* defined (ACE_WIN32) */
+#    else /* ACE_WIN32 && ACE_LACKS_READDIR */
   return ::readdir (d);
-#    endif /* defined (ACE_WIN32) */
+#    endif /* ACE_WIN32 && ACE_LACKS_READDIR */
 #  endif /* ACE_PSOS */
 #else
   ACE_UNUSED_ARG (d);
@@ -122,6 +121,8 @@ ACE_OS::readdir_r (ACE_DIR *dirp,
 #    if defined (HPUX_10)   /* But HP 10.x doesn't follow the draft either */
     *result = entry;
     return ::readdir_r (dirp, entry);
+#elif defined(__GNUC__) && defined (_AIX)
+	return ::readdir_r (dirp, entry, result);
 #    else
     // <result> had better not be 0!
     *result = ::readdir_r (dirp, entry);
@@ -165,7 +166,14 @@ ACE_OS::scandir (const ACE_TCHAR *dirname,
                                     const struct dirent **f2))
 {
 #if defined (ACE_HAS_SCANDIR)
-  return ::scandir (dirname, namelist, selector, comparator);
+  return ::scandir (ACE_TEXT_ALWAYS_CHAR (dirname),
+                    namelist,
+                    selector,
+#  if defined (ACE_SCANDIR_CMP_USES_VOIDPTR)
+                    reinterpret_cast<int(*)(const void*, const void*)> (comparator));
+#  else
+                    comparator);
+#  endif /* ACE_SCANDIR_CMP_USES_VOIDPTR */
 #else /* ! defined ( ACE_HAS_SCANDIR) */
   return ACE_OS::scandir_emulation (dirname, namelist, selector, comparator);
 #endif /* ACE_HAS_SCANDIR */

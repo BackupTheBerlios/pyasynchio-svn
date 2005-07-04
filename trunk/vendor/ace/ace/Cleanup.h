@@ -4,7 +4,7 @@
 /**
  *  @file   Cleanup.h
  *
- *  Cleanup.h,v 1.3 2003/11/06 18:19:38 dhinton Exp
+ *  Cleanup.h,v 1.5 2004/08/24 18:13:29 shuston Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  *  @author Jesper S. M|ller<stophph@diku.dk>
@@ -19,7 +19,7 @@
 
 # include /**/ "ace/pre.h"
 
-# include "ace/config-all.h"
+# include "ace/config-lite.h"
 
 # if !defined (ACE_LACKS_PRAGMA_ONCE)
 #  pragma once
@@ -60,10 +60,10 @@ public:
   ACE_Cleanup_Info (void);
 
   /// Equality operator.
-  int operator== (const ACE_Cleanup_Info &o) const;
+  bool operator== (const ACE_Cleanup_Info &o) const;
 
   /// Inequality operator.
-  int operator!= (const ACE_Cleanup_Info &o) const;
+  bool operator!= (const ACE_Cleanup_Info &o) const;
 
   /// Point to object that gets passed into the <cleanup_hook_>.
   void *object_;

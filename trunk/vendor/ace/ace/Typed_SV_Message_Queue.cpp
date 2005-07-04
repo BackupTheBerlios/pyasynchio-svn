@@ -1,5 +1,5 @@
 // Typed_SV_Message_Queue.cpp
-// Typed_SV_Message_Queue.cpp,v 4.5 2003/07/27 20:48:28 dhinton Exp
+// Typed_SV_Message_Queue.cpp,v 4.6 2004/06/16 07:57:21 jwillemsen Exp
 
 #ifndef ACE_TYPED_SV_MESSAGE_QUEUE_C
 #define ACE_TYPED_SV_MESSAGE_QUEUE_C
@@ -14,10 +14,10 @@
 #include "ace/Log_Msg.h"
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Typed_SV_Message_Queue.i"
+#include "ace/Typed_SV_Message_Queue.inl"
 #endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, Typed_SV_Message_Queue, "Typed_SV_Message_Queue.cpp,v 4.5 2003/07/27 20:48:28 dhinton Exp")
+ACE_RCSID(ace, Typed_SV_Message_Queue, "Typed_SV_Message_Queue.cpp,v 4.6 2004/06/16 07:57:21 jwillemsen Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_Typed_SV_Message_Queue)
 

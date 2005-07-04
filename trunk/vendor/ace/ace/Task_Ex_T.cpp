@@ -1,5 +1,5 @@
 // Task_Ex_T.cpp
-// Task_Ex_T.cpp,v 1.2 2003/12/03 21:56:52 kobica Exp
+// Task_Ex_T.cpp,v 1.3 2004/06/16 07:57:21 jwillemsen Exp
 
 #ifndef ACE_TASK_EX_T_C
 #define ACE_TASK_EX_T_C
@@ -14,10 +14,10 @@
 #include "ace/Null_Condition.h"
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Task_Ex_T.i"
+#include "ace/Task_Ex_T.inl"
 #endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, Task_Ex_T, "Task_Ex_T.cpp,v 1.2 2003/12/03 21:56:52 kobica Exp")
+ACE_RCSID(ace, Task_Ex_T, "Task_Ex_T.cpp,v 1.3 2004/06/16 07:57:21 jwillemsen Exp")
 
 template <ACE_SYNCH_DECL, class ACE_MESSAGE_TYPE> void
 ACE_Task_Ex<ACE_SYNCH_USE, ACE_MESSAGE_TYPE>::dump (void) const
@@ -83,7 +83,7 @@ ACE_Task_Ex<ACE_SYNCH_USE, ACE_MESSAGE_TYPE>::sibling (void)
   ACE_TRACE ("ACE_Task_Ex<ACE_SYNCH_USE, ACE_MESSAGE_TYPE>::sibling");
   /// @todo FIXME Need to impl ACE_Moudle to support ACE_Task as well.
   /// Now always return 0 for sibling
-  return 0;  
+  return 0;
 /*
   if (this->mod_ == 0)
     return 0;

@@ -4,7 +4,7 @@
 /**
  *  @file    Malloc_T.h
  *
- *  Malloc_T.h,v 4.80 2004/01/05 20:01:43 schmidt Exp
+ *  Malloc_T.h,v 4.82 2004/09/14 15:32:21 shuston Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu> and
  *          Irfan Pyarali <irfan@cs.wustl.edu>
@@ -15,7 +15,7 @@
 #define ACE_MALLOC_T_H
 #include /**/ "ace/pre.h"
 
-#include "ace/Malloc.h"               /* Need ACE_Control_Block */
+#include "ace/Malloc_.h"               /* Need ACE_Control_Block */
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
@@ -72,9 +72,9 @@ private:
  * this to work properly.
  *
  * This class can be configured flexibly with different types of
- * ACE_LOCK strategies that support the @a ACE_Thread_Mutex, 
- * @a ACE_Thread_Semaphore, @a ACE_Process_Mutex, and @a 
- * ACE_Process_Semaphore constructor API.   
+ * ACE_LOCK strategies that support the @a ACE_Thread_Mutex,
+ * @a ACE_Thread_Semaphore, @a ACE_Process_Mutex, and @a
+ * ACE_Process_Semaphore constructor API.
  *
  * @sa ACE_Dynamic_Cached_Allocator
  */
@@ -115,6 +115,9 @@ public:
   /// Return a chunk of memory back to free list cache.
   void free (void *);
 
+  /// Return the number of chunks available in the cache.
+  size_t pool_depth (void);
+
 private:
   /// Remember how we allocate the memory in the first place so
   /// we can clear things up later.
@@ -135,8 +138,8 @@ private:
  * this to work properly.
  *
  * This class can be configured flexibly with different types of
- * ACE_LOCK strategies that support the @a ACE_Thread_Mutex and @a 
- * ACE_Process_Mutex constructor API.   
+ * ACE_LOCK strategies that support the @a ACE_Thread_Mutex and @a
+ * ACE_Process_Mutex constructor API.
  *
  * @sa ACE_Cached_Allocator
  */
@@ -176,6 +179,9 @@ public:
 
   /// Return a chunk of memory back to free list cache.
   void free (void *);
+
+  /// Return the number of chunks available in the cache.
+  size_t pool_depth (void);
 
 private:
   /// Remember how we allocate the memory in the first place so
@@ -410,7 +416,7 @@ class ACE_Malloc_FIFO_Iterator_T;
  * This class can be configured flexibly with different
  * MEMORY_POOL strategies and different types of ACE_LOCK
  * strategies that support the @a ACE_Thread_Mutex and @a
- * ACE_Process_Mutex constructor API.   
+ * ACE_Process_Mutex constructor API.
  */
 template <ACE_MEM_POOL_1, class ACE_LOCK, class ACE_CB>
 class ACE_Malloc_T
@@ -664,7 +670,7 @@ private:
  * specialization to create a version that matches the lock strategy's ctor
  * signature.  See ACE_Process_Semaphore and ACE_Thread_Semaphore for
  * examples.
- * 
+ *
  */
 template <class ACE_LOCK>
 class ACE_Malloc_Lock_Adapter_T
@@ -681,8 +687,8 @@ public:
  * @brief LIFO iterator for names stored in Malloc'd memory.
  *
  * This class can be configured flexibly with different types of
- * ACE_LOCK strategies that support the @a ACE_Thread_Mutex and @a 
- * ACE_Process_Mutex constructor API.   
+ * ACE_LOCK strategies that support the @a ACE_Thread_Mutex and @a
+ * ACE_Process_Mutex constructor API.
  *
  * Does not support deletions while iteration is occurring.
  */
@@ -749,8 +755,8 @@ private:
  * @brief FIFO iterator for names stored in Malloc'd memory.
  *
  * This class can be configured flexibly with different types of
- * ACE_LOCK strategies that support the @a ACE_Thread_Mutex and @a 
- * ACE_Process_Mutex constructor API.   
+ * ACE_LOCK strategies that support the @a ACE_Thread_Mutex and @a
+ * ACE_Process_Mutex constructor API.
  *
  * Does not support deletions while iteration is occurring.
  */
@@ -876,7 +882,7 @@ public:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Malloc_T.i"
+#include "ace/Malloc_T.inl"
 #endif /* __ACE_INLINE__ */
 
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)

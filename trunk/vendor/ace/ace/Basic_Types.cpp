@@ -1,13 +1,13 @@
 #include "ace/Basic_Types.h"
 
 #if !defined (__ACE_INLINE__)
-# include "ace/Basic_Types.i"
+# include "ace/Basic_Types.inl"
 #endif /* ! __ACE_INLINE__ */
 
 
 ACE_RCSID (ace,
            Basic_Types,
-           "Basic_Types.cpp,v 4.16 2003/12/04 19:59:16 parsons Exp")
+           "Basic_Types.cpp,v 4.18 2004/11/12 00:03:08 gmaxey Exp")
 
 
 #if defined (ACE_LACKS_LONGLONG_T)
@@ -114,7 +114,11 @@ ACE_U_LongLong::as_string (ACE_TCHAR *output,
 ostream&
 operator<< (ostream& os, const ACE_U_LongLong& ll)
 {
+#ifdef __TANDEM && (__CPLUSPLUS_VERSION >= 3)
+  unsigned long flags = os.flags();
+#else
   unsigned long flags = os.setf(0);
+#endif
   char buffer[32];
 
   if ((flags & ios::oct) != 0)

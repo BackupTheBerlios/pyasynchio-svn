@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// CLASSIX_Port.h,v 1.5 2003/07/19 19:04:15 dhinton Exp
+// CLASSIX_Port.h,v 1.6 2004/04/23 03:06:19 ossama Exp
 
 // ============================================================================
 //
@@ -118,11 +118,11 @@ public:
     /* -----------------------------------------------------*/
     // = Comparison
     //
-    int operator == (const ACE_CLASSIX_Port &) const;
+    bool operator == (const ACE_CLASSIX_Port &) const;
     // Compare two addresses for equality.  The addresses are considered
     // equal if they have the same content in the KnUniqueId address structure.
 
-    int operator != (const ACE_CLASSIX_Port &) const;
+    bool operator != (const ACE_CLASSIX_Port &) const;
     // Compare two addresses for inequality.
 
     /* -----------------------------------------------------*/

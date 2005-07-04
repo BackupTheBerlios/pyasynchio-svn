@@ -1,15 +1,15 @@
-// Service_Config.cpp,v 4.158 2003/11/25 19:37:27 bala Exp
+// Service_Config.cpp,v 4.166 2004/12/02 02:29:11 schmidt Exp
 
 #include "ace/Service_Config.h"
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Service_Config.i"
+#include "ace/Service_Config.inl"
 #endif /* __ACE_INLINE__ */
 
 #include "ace/Svc_Conf.h"
 #include "ace/Get_Opt.h"
 #include "ace/ARGV.h"
-#include "ace/Malloc.h"
+#include "ace/Malloc_.h"
 #include "ace/Service_Manager.h"
 #include "ace/Service_Repository.h"
 #include "ace/Service_Types.h"
@@ -21,10 +21,11 @@
 #include "ace/OS_NS_stdio.h"
 #include "ace/XML_Svc_Conf.h"
 #include "ace/OS_NS_time.h"
+#include "ace/OS_NS_sys_stat.h"
 
 ACE_RCSID (ace,
            Service_Config,
-           "Service_Config.cpp,v 4.158 2003/11/25 19:37:27 bala Exp")
+           "Service_Config.cpp,v 4.166 2004/12/02 02:29:11 schmidt Exp")
 
 ACE_ALLOC_HOOK_DEFINE (ACE_Service_Config)
 
@@ -131,7 +132,7 @@ ACE_Service_Config::ACE_Service_Config (int ignore_static_svcs,
   ACE_Service_Config::signum_ = signum;
 
   // Initialize the Service Repository.
-  ACE_Service_Repository::instance (ACE_static_cast (int, size));
+  ACE_Service_Repository::instance (static_cast<int> (size));
 
   // Initialize the ACE_Reactor (the ACE_Reactor should be the same
   // size as the ACE_Service_Repository).
@@ -177,7 +178,7 @@ ACE_Service_Config::parse_args (int argc, ACE_TCHAR *argv[])
             (ACE_TString (getopt.opt_arg ())) == -1)
           ACE_ERROR_RETURN ((LM_ERROR,
                              ACE_LIB_TEXT ("%p\n"),
-                             "enqueue_tail"),
+                             ACE_LIB_TEXT ("enqueue_tail")),
                             -1);
         break;
       case 'k':
@@ -215,7 +216,7 @@ ACE_Service_Config::parse_args (int argc, ACE_TCHAR *argv[])
             (ACE_TString (getopt.opt_arg ())) == -1)
           ACE_ERROR_RETURN ((LM_ERROR,
                              ACE_LIB_TEXT ("%p\n"),
-                             "enqueue_tail"),
+                             ACE_LIB_TEXT ("enqueue_tail")),
                             -1);
         break;
       default:
@@ -344,17 +345,18 @@ ACE_Service_Config::initialize (const ACE_Service_Type *sr,
       ACE_ERROR ((LM_ERROR,
                   ACE_LIB_TEXT ("dynamic initialization failed for %s\n"),
                   sr->name ()));
+      ACE_Service_Type *ps = 0;
+      ACE_Service_Repository::instance ()->remove (sr->name (), &ps);
+      // We just get ps to avoid having remove() delete it.
       return -1;
     }
-  else
-    {
-      if (ACE_Service_Repository::instance ()->insert (sr) == -1)
-        ACE_ERROR_RETURN ((LM_ERROR,
-                           ACE_LIB_TEXT ("insertion failed, %p\n"),
-                           sr->name ()),
-                          -1);
-      return 0;
-    }
+
+  if (ACE_Service_Repository::instance ()->insert (sr) == -1)
+    ACE_ERROR_RETURN ((LM_ERROR,
+                       ACE_LIB_TEXT ("insertion failed, %p\n"),
+                       sr->name ()),
+                      -1);
+  return 0;
 }
 
 #if (ACE_USES_CLASSIC_SVC_CONF == 1)
@@ -390,9 +392,9 @@ ACE_Service_Config::get_xml_svc_conf (ACE_DLL &xmldll)
   foo = xmldll.symbol (ACE_LIB_TEXT ("_ACEXML_create_XML_Svc_Conf_Object"));
 
   // Cast the void* to long first.
-  long tmp = ACE_reinterpret_cast (long, foo);
+  long tmp = reinterpret_cast<long> (foo);
   ACE_XML_Svc_Conf::Factory factory =
-    ACE_reinterpret_cast (ACE_XML_Svc_Conf::Factory, tmp);
+    reinterpret_cast<ACE_XML_Svc_Conf::Factory> (tmp);
   if (factory == 0)
     ACE_ERROR_RETURN ((LM_ERROR,
                        ACE_TEXT ("Unable to resolve factory: %p\n"),
@@ -423,7 +425,15 @@ ACE_Service_Config::process_file (const ACE_TCHAR file[])
                     ACE_LIB_TEXT ("%p\n"),
                     file));
 
-      errno = ENOENT;
+      // Use stat to find out if the file exists.  I didn't use access()
+      // because stat is better supported on most non-unix platforms.
+      ACE_stat exists;
+      if (ACE_OS::stat (file, &exists) == 0)
+        // If it exists, but we couldn't open it for reading then we
+        // must not have permission to read it.
+        errno = EPERM;
+      else
+        errno = ENOENT;
       result = -1;
     }
   else
@@ -644,7 +654,7 @@ ACE_Service_Config::open_i (const ACE_TCHAR program_name[],
            (ACE_TString (ACE_DEFAULT_SVC_CONF)) == -1)
     ACE_ERROR_RETURN ((LM_ERROR,
                        ACE_LIB_TEXT ("%p\n"),
-                       "enqueue_tail"),
+                       ACE_LIB_TEXT ("enqueue_tail")),
                       -1);
 
   if (ignore_debug_flag == 0)

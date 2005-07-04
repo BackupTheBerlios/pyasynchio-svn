@@ -1,4 +1,4 @@
-// Timeprobe_T.cpp,v 4.16 2003/11/01 11:15:18 dhinton Exp
+// Timeprobe_T.cpp,v 4.21 2004/12/16 16:51:14 jwillemsen Exp
 
 #ifndef ACE_TIMEPROBE_T_C
 #define ACE_TIMEPROBE_T_C
@@ -9,12 +9,13 @@
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
-ACE_RCSID(ace, Timeprobe_T, "Timeprobe_T.cpp,v 4.16 2003/11/01 11:15:18 dhinton Exp")
+ACE_RCSID(ace, Timeprobe_T, "Timeprobe_T.cpp,v 4.21 2004/12/16 16:51:14 jwillemsen Exp")
 
 #if defined (ACE_COMPILE_TIMEPROBES)
 
 #include "ace/Timeprobe.h"
 #include "ace/High_Res_Timer.h"
+#include "ace/OS_NS_string.h"
 
 template <class ACE_LOCK, class ALLOCATOR>
 ACE_Timeprobe_Ex<ACE_LOCK, ALLOCATOR>::ACE_Timeprobe_Ex (u_long size)
@@ -64,24 +65,17 @@ ACE_Timeprobe_Ex<ACE_LOCK, ALLOCATOR>::ACE_Timeprobe_Ex (const ACE_Timeprobe_Ex<
   //
 
   ACE_ERROR ((LM_ERROR,
-              ACE_LIB_TEXT ("ACE_NOTSUP: %s, line %d\n"), __FILE__, __LINE__));
+              ACE_LIB_TEXT ("ACE_NOTSUP: %N, line %l\n")));
   errno = ENOTSUP;
 }
 
 template <class ACE_LOCK, class ALLOCATOR>
 ACE_Timeprobe_Ex<ACE_LOCK, ALLOCATOR>::~ACE_Timeprobe_Ex (void)
 {
-#if defined (ACE_HAS_BROKEN_DES_ARRAY_FREE)
-  ACE_DES_ARRAY_FREE ( (this->timeprobes_),
-                      this->max_size_,
-                      this->allocator ()->free,
-                      ACE_timeprobe_t);
-#else
   ACE_DES_ARRAY_FREE ((ACE_timeprobe_t *) (this->timeprobes_),
                       this->max_size_,
                       this->allocator ()->free,
                       ACE_timeprobe_t);
-#endif
 }
 
 template <class ACE_LOCK, class ALLOCATOR> void
@@ -157,22 +151,10 @@ ACE_Timeprobe_Ex<ACE_LOCK, ALLOCATOR>::increase_size (u_long size)
          // Iterates over the array explicitly calling the destructor for
          // each probe instance, then deallocates the memory
 
-         // There is a compiler bug for VxWorks (gcc version 2.96-PentiumIII-991112 Tornado 2)
-         // which cannot handle the cast for timeprobes_addr()
-#if defined (ACE_HAS_BROKEN_DES_ARRAY_FREE)
-         ACE_DES_ARRAY_FREE (
-                             (this->timeprobes_),
+         ACE_DES_ARRAY_FREE ((ACE_timeprobe_t *)(this->timeprobes_),
                              this->max_size_,
                              this->allocator ()->free,
                              ACE_timeprobe_t);
-#else
-         ACE_DES_ARRAY_FREE ((ACE_timeprobe_t *)
-                             (this->timeprobes_),
-                             this->max_size_,
-                             this->allocator ()->free,
-                             ACE_timeprobe_t);
-#endif
-
       }
       this->timeprobes_ = temp;
       this->max_size_ = size;
@@ -329,14 +311,17 @@ ACE_Timeprobe_Ex<ACE_LOCK, ALLOCATOR>::print_absolute_times (void)
     i = this->current_size_;
   }
 
+  ACE_Time_Value tv; // to convert ACE_hrtime_t
   do
     {
+      ACE_High_Res_Timer::hrtime_to_tv (tv, this->timeprobes_ [i].time_);
+
       ACE_DEBUG ((LM_DEBUG,
                   "%-50.50s %8.8x %12.12u\n",
                   this->find_description_i (i),
                   this->timeprobes_ [i].thread_,
-                  this->timeprobes_ [i].time_.sec () * 1000000
-                   + this->timeprobes_[i].time_.usec ()));
+                  tv.sec () * 1000000
+                   + tv.usec ()));
       i = (i + 1) % this ->max_size_; // Modulus increment: loops around at the end.
 
     } while (i != this->current_size_);

@@ -4,7 +4,7 @@
 /**
  *  @file    SOCK_Dgram_Bcast.h
  *
- *  SOCK_Dgram_Bcast.h,v 4.20 2003/07/19 19:04:13 dhinton Exp
+ *  SOCK_Dgram_Bcast.h,v 4.23 2004/06/16 07:57:22 jwillemsen Exp
  *
  *  @author Doug Schmidt
  */
@@ -101,7 +101,7 @@ public:
                 int flags = 0) const;
 
   /**
-   * Broadcast an <iovec> of size <n> to <addr> as a datagram (note
+   * Broadcast an @a iovec of size @a n to @a addr as a datagram (note
    * that addr must be preassigned to the broadcast address of the
    * subnet...)
    */
@@ -127,9 +127,9 @@ private:
   int get_remote_addr (ACE_Addr &) const;
 };
 
-#if !defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/SOCK_Dgram_Bcast.i"
-#endif
+#if defined (__ACE_INLINE__)
+#include "ace/SOCK_Dgram_Bcast.inl"
+#endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"
 #endif /* ACE_SOCK_DGRAM_BCAST_H */

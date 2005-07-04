@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// config-unixware-7.1.0.h,v 4.3 2003/12/22 22:50:34 shuston Exp
+// config-unixware-7.1.0.h,v 4.8 2004/08/31 07:16:29 jtc Exp
 
 #ifndef ACE_CONFIG_H
 #define ACE_CONFIG_H
@@ -36,7 +36,6 @@
 
 #define ACE_HAS_NEW_NO_H 1
 #define ACE_HAS_STDEXCEPT_NO_H 1
-#define ACE_HAS_IOMANIP_NO_H 1
 
 /* Platform provides <sys/ioctl.h> header */
 #define ACE_HAS_SYS_IOCTL_H 1
@@ -119,7 +118,7 @@
 
 /* Platform has a getrusage () prototype in sys/resource.h that differs from
    the one in ace/OS.i. */
-#define ACE_HAS_GETRUSAGE_PROTO 1
+#define ACE_HAS_GETRUSAGE_PROTOTYPE 1
 
 /* Denotes that GNU has cstring.h as standard which redefines memchr() */
 #define ACE_HAS_GNU_CSTRING_H
@@ -229,7 +228,7 @@
 #define ACE_HAS_SIZET_SOCKET_LEN 1
 
 /* Compiler/platform provides the sys/sockio.h file */
-#define ACE_HAS_SOCKIO_H 1
+#define ACE_HAS_SYS_SOCKIO_H 1
 
 /* Compiler supports the ssize_t typedef */
 #define ACE_HAS_SSIZE_T 1
@@ -258,9 +257,8 @@
 /* Platform has <strings.h> (which contains bzero() prototype) */
 #define ACE_HAS_STRINGS 1
 
-/* Platform has void * as second parameter to gettimeofday and a has a
-   prototype */
-#define ACE_HAS_SUNOS4_GETTIMEOFDAY 1
+/* Platform/compiler supports void * as second parameter to gettimeofday(). */
+#define ACE_HAS_VOIDPTR_GETTIMEOFDAY 1
 
 /* Compiler/platform supports SVR4 dynamic linking semantics */
 #define ACE_HAS_SVR4_DYNAMIC_LINKING 1
@@ -269,7 +267,7 @@
 #define ACE_HAS_SVR4_TLI 1
 
 /* Compiler/platform contains the <sys/syscall.h> file. */
-#define ACE_HAS_SYSCALL_H 1
+#define ACE_HAS_SYS_SYSCALL_H 1
 
 /* Platform supports system configuration information */
 #define ACE_HAS_SYSINFO 1
@@ -359,9 +357,6 @@
 
 /* <time.h> doesn't automatically #include <sys/time.h> */
 #define ACE_LACKS_SYSTIME_H 1
-
-/* Turns off the tracing feature. */
-#define ACE_NTRACE 1
 
 /*********************************************************************/
 /* Compiler's template mechanim must see source code (i.e., .cpp files).  This

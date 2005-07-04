@@ -3,7 +3,7 @@
 /**
  *  @file    Obstack_T.h
  *
- *  Obstack_T.h,v 4.5 2003/07/19 19:04:12 dhinton Exp
+ *  Obstack_T.h,v 4.7 2004/06/25 11:46:38 jwillemsen Exp
  *
  *  @author Doug Schmidt <schmidt@cs.wustl.edu> and Nanbor Wang <nanbor@cs.wustl.edu>
  */
@@ -67,7 +67,7 @@ public:
   /// Return the maximum @a length or @a size of a string that can be put
   /// into this Obstack. @a size = @a length * sizeof (CHAR).
   ///
-  /// Deprecated : No need to use this function as you can put objects of
+  /// @deprecated No need to use this function as you can put objects of
   /// arbitrary lengths into the obstack now.
   size_t length (void) const;
   size_t size (void) const;
@@ -110,7 +110,7 @@ protected:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Obstack_T.i"
+#include "ace/Obstack_T.inl"
 #endif /* __ACE_INLINE__ */
 
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)

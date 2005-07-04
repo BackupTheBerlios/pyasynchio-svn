@@ -4,7 +4,7 @@
 /**
  *  @file    Event_Handler_T.h
  *
- *  Event_Handler_T.h,v 4.16 2003/07/19 19:04:11 dhinton Exp
+ *  Event_Handler_T.h,v 4.18 2004/08/06 08:40:14 jwillemsen Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -100,9 +100,9 @@ public:
   // These methods all delegate down to the <T> operations handler.
   virtual ACE_HANDLE get_handle (void) const;
   virtual void set_handle (ACE_HANDLE);
-  virtual int handle_input (ACE_HANDLE fd = -1);
-  virtual int handle_output (ACE_HANDLE fd = -1);
-  virtual int handle_exception (ACE_HANDLE fd = -1);
+  virtual int handle_input (ACE_HANDLE fd = ACE_INVALID_HANDLE);
+  virtual int handle_output (ACE_HANDLE fd = ACE_INVALID_HANDLE);
+  virtual int handle_exception (ACE_HANDLE fd = ACE_INVALID_HANDLE);
   virtual int handle_timeout (const ACE_Time_Value &tv, const void *arg = 0);
   virtual int handle_close (ACE_HANDLE fd, ACE_Reactor_Mask close_mask);
   virtual int handle_signal (int signum, siginfo_t * = 0, ucontext_t * = 0);
@@ -171,7 +171,7 @@ protected:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Event_Handler_T.i"
+#include "ace/Event_Handler_T.inl"
 #endif /* __ACE_INLINE__ */
 
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)

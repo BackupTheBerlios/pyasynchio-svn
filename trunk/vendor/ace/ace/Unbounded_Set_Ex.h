@@ -4,7 +4,7 @@
 /**
  *  @file Unbounded_Set_Ex.h
  *
- *  Unbounded_Set_Ex.h,v 4.3 2004/01/07 13:02:10 jwillemsen Exp
+ *  Unbounded_Set_Ex.h,v 4.4 2004/04/23 03:06:18 ossama Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  *  ACE_Unbounded_Set Extension by Rudolf Weber <rfweber@tesionmail.de>
@@ -82,8 +82,8 @@ public:
   T& operator* (void);
 
   /// Check if two iterators point to the same position
-  int operator== (const ACE_Unbounded_Set_Ex_Iterator<T> &) const;
-  int operator!= (const ACE_Unbounded_Set_Ex_Iterator<T> &) const;
+  bool operator== (const ACE_Unbounded_Set_Ex_Iterator<T> &) const;
+  bool operator!= (const ACE_Unbounded_Set_Ex_Iterator<T> &) const;
 
   /// Declare the dynamic allocation hooks.
   ACE_ALLOC_HOOK_DECLARE;
@@ -155,8 +155,8 @@ public:
   T& operator* (void);
 
   /// Check if two iterators point to the same position
-  int operator== (const ACE_Unbounded_Set_Ex_Const_Iterator<T> &) const;
-  int operator!= (const ACE_Unbounded_Set_Ex_Const_Iterator<T> &) const;
+  bool operator== (const ACE_Unbounded_Set_Ex_Const_Iterator<T> &) const;
+  bool operator!= (const ACE_Unbounded_Set_Ex_Const_Iterator<T> &) const;
 
   /// Declare the dynamic allocation hooks.
   ACE_ALLOC_HOOK_DECLARE;

@@ -4,7 +4,7 @@
 /**
  *  @file   OS_NS_sys_mman.h
  *
- *  OS_NS_sys_mman.h,v 1.3 2003/11/01 23:42:24 dhinton Exp
+ *  OS_NS_sys_mman.h,v 1.4 2004/09/16 08:18:31 jwillemsen Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  *  @author Jesper S. M|ller<stophph@diku.dk>
@@ -27,6 +27,7 @@
 
 #include "ace/Global_Macros.h"
 #include "ace/os_include/sys/os_types.h"
+#include "ace/os_include/sys/os_mman.h"
 #include "ace/ACE_export.h"
 
 #if defined (ACE_EXPORT_MACRO)

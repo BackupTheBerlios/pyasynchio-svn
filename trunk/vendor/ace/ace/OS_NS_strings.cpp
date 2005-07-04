@@ -1,9 +1,9 @@
 // -*- C++ -*-
-// OS_NS_strings.cpp,v 1.3 2003/11/13 20:20:14 dhinton Exp
+// OS_NS_strings.cpp,v 1.4 2004/08/10 06:30:50 jtc Exp
 
 #include "ace/OS_NS_strings.h"
 
-ACE_RCSID(ace, OS_NS_strings, "OS_NS_strings.cpp,v 1.3 2003/11/13 20:20:14 dhinton Exp")
+ACE_RCSID(ace, OS_NS_strings, "OS_NS_strings.cpp,v 1.4 2004/08/10 06:30:50 jtc Exp")
 
 #if !defined (ACE_HAS_INLINED_OSCALLS)
 # include "ace/OS_NS_strings.inl"
@@ -21,8 +21,8 @@ ACE_OS::strcasecmp_emulation (const char *s, const char *t)
   const char *scan2 = t;
 
   while (*scan1 != 0
-         && ACE_OS::to_lower (*scan1)
-            == ACE_OS::to_lower (*scan2))
+         && ACE_OS::ace_tolower (*scan1)
+            == ACE_OS::ace_tolower (*scan2))
     {
       ++scan1;
       ++scan2;
@@ -39,7 +39,7 @@ ACE_OS::strcasecmp_emulation (const char *s, const char *t)
   else if (*scan2 == '\0')
     return 1;
   else
-    return ACE_OS::to_lower (*scan1) - ACE_OS::to_lower (*scan2);
+    return ACE_OS::ace_tolower (*scan1) - ACE_OS::ace_tolower (*scan2);
 }
 #endif /* ACE_LACKS_STRCASECMP */
 
@@ -55,8 +55,8 @@ ACE_OS::strncasecmp_emulation (const char *s,
 
   while (count++ < len
          && *scan1 != 0
-         && ACE_OS::to_lower (*scan1)
-            == ACE_OS::to_lower (*scan2))
+         && ACE_OS::ace_tolower (*scan1)
+            == ACE_OS::ace_tolower (*scan2))
     {
       ++scan1;
       ++scan2;
@@ -76,6 +76,6 @@ ACE_OS::strncasecmp_emulation (const char *s,
   else if (*scan2 == '\0')
     return 1;
   else
-    return ACE_OS::to_lower (*scan1) - ACE_OS::to_lower (*scan2);
+    return ACE_OS::ace_tolower (*scan1) - ACE_OS::ace_tolower (*scan2);
 }
 #endif /* ACE_LACKS_STRCASECMP */

@@ -1,16 +1,17 @@
 // FILE_IO.cpp
-// FILE_IO.cpp,v 4.20 2003/11/01 11:15:12 dhinton Exp
+// FILE_IO.cpp,v 4.23 2004/06/16 07:57:20 jwillemsen Exp
 
 #include "ace/FILE_IO.h"
 
-#if defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/FILE_IO.i"
-#endif
-
 #include "ace/Log_Msg.h"
 #include "ace/OS_NS_sys_stat.h"
+#include "ace/OS_Memory.h"
 
-ACE_RCSID(ace, FILE_IO, "FILE_IO.cpp,v 4.20 2003/11/01 11:15:12 dhinton Exp")
+#if !defined (__ACE_INLINE__)
+#include "ace/FILE_IO.inl"
+#endif /* __ACE_INLINE__ */
+
+ACE_RCSID(ace, FILE_IO, "FILE_IO.cpp,v 4.23 2004/06/16 07:57:20 jwillemsen Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_FILE_IO)
 
@@ -42,8 +43,8 @@ ssize_t
 ACE_FILE_IO::send (size_t n, ...) const
 {
   ACE_TRACE ("ACE_FILE_IO::send");
-  va_list argp;  
-  int  total_tuples = (ACE_static_cast (int, n)) / 2;
+  va_list argp;
+  int total_tuples = (static_cast<int> (n)) / 2;
   iovec *iovp;
 #if defined (ACE_HAS_ALLOCA)
   iovp = (iovec *) alloca (total_tuples * sizeof (iovec));
@@ -61,7 +62,7 @@ ACE_FILE_IO::send (size_t n, ...) const
       iovp[i].iov_len  = va_arg (argp, int);
     }
 
-  ssize_t result = ACE_OS::writev (this->get_handle (), 
+  ssize_t result = ACE_OS::writev (this->get_handle (),
                                    iovp,
                                    total_tuples);
 #if !defined (ACE_HAS_ALLOCA)
@@ -81,8 +82,8 @@ ssize_t
 ACE_FILE_IO::recv (size_t n, ...) const
 {
   ACE_TRACE ("ACE_FILE_IO::recv");
-  va_list argp;  
-  int total_tuples = ACE_static_cast (int, (n / 2));
+  va_list argp;
+  int total_tuples = static_cast<int> (n / 2);
   iovec *iovp;
 #if defined (ACE_HAS_ALLOCA)
   iovp = (iovec *) alloca (total_tuples * sizeof (iovec));
@@ -101,7 +102,7 @@ ACE_FILE_IO::recv (size_t n, ...) const
     }
 
   ssize_t result = ACE_OS::readv (this->get_handle (),
-                                  iovp, 
+                                  iovp,
                                   total_tuples);
 #if !defined (ACE_HAS_ALLOCA)
   delete [] iovp;

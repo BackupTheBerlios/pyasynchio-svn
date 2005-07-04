@@ -4,7 +4,7 @@
 /**
  *  @file    Dynamic.h
  *
- *  Dynamic.h,v 4.16 2003/07/19 19:04:11 dhinton Exp
+ *  Dynamic.h,v 4.17 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Doug Schmidt
  *  @author Irfan Pyarali.
@@ -64,7 +64,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Dynamic.i"
+#include "ace/Dynamic.inl"
 #endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"

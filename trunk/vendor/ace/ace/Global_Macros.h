@@ -4,12 +4,13 @@
 /**
  *  @file   Global_Macros.h
  *
- *  Global_Macros.h,v 4.23 2003/11/06 18:19:38 dhinton Exp
+ *  Global_Macros.h,v 4.33 2004/10/26 01:22:10 mesnier_p Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  *  @author Jesper S. M|ller<stophph@diku.dk>
  *  @author and a cast of thousands...
- *  @This one is split from the famous OS.h
+ *
+ *  This one is split from the famous OS.h
  */
 //=============================================================================
 
@@ -25,6 +26,8 @@
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
+
+#include "ace/config-lite.h"
 
 // Start Global Macros
 # define ACE_BEGIN_DUMP ACE_LIB_TEXT ("\n====\n(%P|%t|%x)\n")
@@ -103,53 +106,47 @@ friend class ace_dewarn_gplusplus
 
 // ----------------------------------------------------------------
 
-#if defined (ACE_HAS_NO_THROW_SPEC)
+# if defined (ACE_HAS_NO_THROW_SPEC)
 #   define ACE_THROW_SPEC(X)
-#else
-# if defined (ACE_HAS_EXCEPTIONS)
-#   define ACE_THROW_SPEC(X) throw X
-#   if defined (ACE_WIN32) && defined(_MSC_VER) && !defined (ghs)
+# else
+#  if defined (ACE_HAS_EXCEPTIONS)
+#    define ACE_THROW_SPEC(X) throw X
+#    if defined (ACE_WIN32) && defined(_MSC_VER) && !defined (ghs)
 // @@ MSVC "supports" the keyword but doesn't implement it (Huh?).
 //    Therefore, we simply supress the warning for now.
-#     pragma warning( disable : 4290 )
-#   endif /* ACE_WIN32 */
-# else  /* ! ACE_HAS_EXCEPTIONS */
-#   define ACE_THROW_SPEC(X)
-# endif /* ! ACE_HAS_EXCEPTIONS */
-#endif /*ACE_HAS_NO_THROW_SPEC*/
+#      pragma warning( disable : 4290 )
+#    endif /* ACE_WIN32 */
+#  else  /* ! ACE_HAS_EXCEPTIONS */
+#    define ACE_THROW_SPEC(X)
+#  endif /* ! ACE_HAS_EXCEPTIONS */
+# endif /*ACE_HAS_NO_THROW_SPEC*/
 
 // ----------------------------------------------------------------
 
 // Deal with MSVC++ 6 (or less) insanity for CORBA...
-# if defined (ACE_HAS_BROKEN_NAMESPACES)
-#   define ACE_CORBA_1(NAME) CORBA_##NAME
-#   define ACE_CORBA_2(TYPE, NAME) CORBA_##TYPE##_##NAME
-#   define ACE_CORBA_3(TYPE, NAME) CORBA_##TYPE::NAME
-#   if !defined (ACE_NESTED_CLASS)
+# if !defined (ACE_NESTED_CLASS)
+#   if defined (ACE_HAS_BROKEN_NAMESPACES)
 #     define ACE_NESTED_CLASS(TYPE, NAME) NAME
-#   endif  /* !ACE_NESTED_CLASS */
-# else  /* ! ACE_HAS_BROKEN_NAMESPACES */
-#   define ACE_CORBA_1(NAME) CORBA::NAME
-#   define ACE_CORBA_2(TYPE, NAME) CORBA::TYPE::NAME
-#   define ACE_CORBA_3(TYPE, NAME) CORBA::TYPE::NAME
-#   if !defined (ACE_NESTED_CLASS)
+#   else  /* ! ACE_HAS_BROKEN_NAMESPACES */
 #     define ACE_NESTED_CLASS(TYPE, NAME) TYPE::NAME
-#   endif  /* !ACE_NESTED_CLASS */
-# endif /* ! ACE_HAS_BROKEN_NAMESPACES */
+#   endif /* ! ACE_HAS_BROKEN_NAMESPACES */
+# endif  /* !ACE_NESTED_CLASS */
 
-// ----------------------------------------------------------------
-
-# define ACE_TRACE_IMPL(X) ACE_Trace ____ (ACE_LIB_TEXT (X), __LINE__, ACE_LIB_TEXT (__FILE__))
-
-# if (ACE_NTRACE == 1)
-#   define ACE_TRACE(X)
-# else
-#   if !defined (ACE_HAS_TRACE)
-#     define ACE_HAS_TRACE
-#   endif /* ACE_HAS_TRACE */
-#   define ACE_TRACE(X) ACE_TRACE_IMPL(X)
-#   include "ace/Trace.h"
-# endif /* ACE_NTRACE */
+/**
+ * @name CORBA namespace macros.
+ *
+ * CORBA namespace macros.
+ *
+ * @deprecated These macros were formerly used by TAO but are now
+ *             deprecated, and only remain to retain some backward
+ *             compatibility.  They will be removed in a future ACE
+ *             release.
+ */
+//@{
+# define ACE_CORBA_1(NAME) CORBA::NAME
+# define ACE_CORBA_2(TYPE, NAME) CORBA::TYPE::NAME
+# define ACE_CORBA_3(TYPE, NAME) CORBA::TYPE::NAME
+//@}
 
 // ----------------------------------------------------------------
 
@@ -250,7 +247,8 @@ friend class ace_dewarn_gplusplus
             } \
         } \
      while (0)
-#if defined(__IBMCPP__) && (__IBMCPP__ >= 400)
+
+#if defined (ACE_EXPLICIT_TEMPLATE_DESTRUCTOR_TAKES_ARGS)
 #   define ACE_DES_FREE_TEMPLATE(POINTER,DEALLOCATOR,T_CLASS,T_PARAMETER) \
      do { \
           if (POINTER) \
@@ -270,7 +268,7 @@ friend class ace_dewarn_gplusplus
             } \
         } \
      while (0)
-#endif /* defined(__IBMCPP__) && (__IBMCPP__ >= 400) */
+#endif /* defined(ACE_EXPLICIT_TEMPLATE_DESTRUCTOR_TAKES_ARGS) */
 #   define ACE_DES_ARRAY_FREE_TEMPLATE(POINTER,SIZE,DEALLOCATOR,T_CLASS,T_PARAMETER) \
      do { \
           if (POINTER) \
@@ -285,7 +283,7 @@ friend class ace_dewarn_gplusplus
             } \
         } \
      while (0)
-#if defined(__IBMCPP__) && (__IBMCPP__ >= 400)
+#if defined(ACE_EXPLICIT_TEMPLATE_DESTRUCTOR_TAKES_ARGS)
 #   define ACE_DES_FREE_TEMPLATE2(POINTER,DEALLOCATOR,T_CLASS,T_PARAM1,T_PARAM2) \
      do { \
           if (POINTER) \
@@ -305,7 +303,7 @@ friend class ace_dewarn_gplusplus
             } \
         } \
      while (0)
-#endif /* defined(__IBMCPP__) && (__IBMCPP__ >= 400) */
+#endif /* defined(ACE_EXPLICIT_TEMPLATE_DESTRUCTOR_TAKES_ARGS) */
 #   define ACE_DES_FREE_TEMPLATE3(POINTER,DEALLOCATOR,T_CLASS,T_PARAM1,T_PARAM2,T_PARAM3) \
      do { \
           if (POINTER) \
@@ -360,15 +358,6 @@ friend class ace_dewarn_gplusplus
             } \
         } \
      while (0)
-#   if defined (__Lynx__) && __LYNXOS_SDK_VERSION == 199701L
-  // LynxOS 3.0.0's g++ has trouble with the real versions of these.
-#     define ACE_DES_FREE_TEMPLATE(POINTER,DEALLOCATOR,T_CLASS,T_PARAMETER)
-#     define ACE_DES_ARRAY_FREE_TEMPLATE(POINTER,DEALLOCATOR,T_CLASS,T_PARAMETER)
-#     define ACE_DES_FREE_TEMPLATE2(POINTER,DEALLOCATOR,T_CLASS,T_PARAM1,T_PARAM2)
-#     define ACE_DES_FREE_TEMPLATE3(POINTER,DEALLOCATOR,T_CLASS,T_PARAM1,T_PARAM2)
-#     define ACE_DES_FREE_TEMPLATE4(POINTER,DEALLOCATOR,T_CLASS,T_PARAM1,T_PARAM2)
-#     define ACE_DES_ARRAY_FREE_TEMPLATE2(POINTER,DEALLOCATOR,T_CLASS,T_PARAM1,T_PARAM2)
-#   else
 #     define ACE_DES_FREE_TEMPLATE(POINTER,DEALLOCATOR,T_CLASS,T_PARAMETER) \
        do { \
             if (POINTER) \
@@ -433,7 +422,6 @@ friend class ace_dewarn_gplusplus
               } \
           } \
        while (0)
-#   endif /* defined (__Lynx__) && __LYNXOS_SDK_VERSION == 199701L */
 # endif /* defined ! ACE_HAS_WORKING_EXPLICIT_TEMPLATE_DESTRUCTOR */
 
 
@@ -613,7 +601,7 @@ _make_##SERVICE_CLASS (ACE_Service_Object_Exterminator *);
 
 # define ACE_FACTORY_DEFINE(CLS,SERVICE_CLASS) \
 void _gobble_##SERVICE_CLASS (void *p) { \
-  ACE_Service_Object *_p = ACE_static_cast (ACE_Service_Object *, p); \
+  ACE_Service_Object *_p = static_cast<ACE_Service_Object *> (p); \
   ACE_ASSERT (_p != 0); \
   delete _p; } \
 extern "C" CLS##_Export ACE_Service_Object *\
@@ -623,6 +611,46 @@ _make_##SERVICE_CLASS (ACE_Service_Object_Exterminator *gobbler) \
   if (gobbler != 0) \
     *gobbler = (ACE_Service_Object_Exterminator) _gobble_##SERVICE_CLASS; \
   return new SERVICE_CLASS; \
+}
+
+/**
+ * For service classes scoped within namespaces, use this macro in
+ * place of ACE_FACTORY_DEFINE. The third argument in this case is
+ * the fully scoped name of the class as it is to be
+ * instantiated. For example, given:
+ * namespace ACE
+ * {
+ *   namespace Foo
+ *   {
+ *     class Bar : public ACE_Service_Object
+ *     {};
+ *   };
+ * };
+ *
+ * ACE_FACTORY_DECLARE(ACE,ACE_Foo_Bar)
+ *
+ * you would then use:
+ *
+ * ACE_FACTORY_NAMESPACE_DEFINE(ACE,ACE_Foo_Bar,ACE::Foo::Bar)
+ *
+ * Note that in this example, the ACE_FACTORY_DECLARE is done outside
+ * the namespace scope. Then, the SERVICE_CLASS name is the same as
+ * the fully scoped class name, but with '::' replaced with '_'. Doing
+ * this will ensure unique generated signatures for the various C
+ * style functions.
+ */
+# define ACE_FACTORY_NAMESPACE_DEFINE(CLS,SERVICE_CLASS,NAMESPACE_CLASS) \
+void _gobble_##SERVICE_CLASS (void *p) { \
+  ACE_Service_Object *_p = static_cast<ACE_Service_Object *> (p); \
+  ACE_ASSERT (_p != 0); \
+  delete _p; } \
+extern "C" CLS##_Export ACE_Service_Object *\
+_make_##SERVICE_CLASS (ACE_Service_Object_Exterminator *gobbler) \
+{ \
+  ACE_TRACE (#SERVICE_CLASS); \
+  if (gobbler != 0) \
+    *gobbler = (ACE_Service_Object_Exterminator) _gobble_##SERVICE_CLASS; \
+  return new NAMESPACE_CLASS; \
 }
 
 /// The canonical name for a service factory method
@@ -730,17 +758,17 @@ _make_##SERVICE_CLASS (ACE_Service_Object_Exterminator *gobbler) \
 # define ACE_NEW_MALLOC_RETURN(POINTER,ALLOCATOR,CONSTRUCTOR,RET_VAL) \
    do { POINTER = ALLOCATOR; \
      if (POINTER == 0) { errno = ENOMEM; return RET_VAL;} \
-     else { new (POINTER) CONSTRUCTOR; } \
+     else { (void) new (POINTER) CONSTRUCTOR; } \
    } while (0)
 # define ACE_NEW_MALLOC(POINTER,ALLOCATOR,CONSTRUCTOR) \
    do { POINTER = ALLOCATOR; \
      if (POINTER == 0) { errno = ENOMEM; return;} \
-     else { new (POINTER) CONSTRUCTOR; } \
+     else { (void) new (POINTER) CONSTRUCTOR; } \
    } while (0)
 # define ACE_NEW_MALLOC_NORETURN(POINTER,ALLOCATOR,CONSTRUCTOR) \
    do { POINTER = ALLOCATOR; \
      if (POINTER == 0) { errno = ENOMEM;} \
-     else { new (POINTER) CONSTRUCTOR; } \
+     else { (void) new (POINTER) CONSTRUCTOR; } \
    } while (0)
 
 /* ACE_Metrics */
@@ -749,26 +777,26 @@ _make_##SERVICE_CLASS (ACE_Service_Object_Exterminator *gobbler) \
    do { POINTER = ALLOCATOR; \
      if (POINTER == 0) { errno = ENOMEM; return RET_VAL;} \
      else { for (u_int i = 0; i < COUNT; ++i) \
-              {new (POINTER) CONSTRUCTOR; ++POINTER;} \
+              {(void) new (POINTER) CONSTRUCTOR; ++POINTER;} \
             POINTER -= COUNT;} \
    } while (0)
 # define ACE_NEW_MALLOC_ARRAY(POINTER,ALLOCATOR,CONSTRUCTOR,COUNT) \
    do { POINTER = ALLOCATOR; \
      if (POINTER == 0) { errno = ENOMEM; return;} \
      else { for (u_int i = 0; i < COUNT; ++i) \
-              {new (POINTER) CONSTRUCTOR; ++POINTER;} \
+              {(void) new (POINTER) CONSTRUCTOR; ++POINTER;} \
             POINTER -= COUNT;} \
    } while (0)
 #else /* ! defined ACE_LACKS_ARRAY_PLACEMENT_NEW */
 # define ACE_NEW_MALLOC_ARRAY_RETURN(POINTER,ALLOCATOR,CONSTRUCTOR,COUNT,RET_VAL) \
    do { POINTER = ALLOCATOR; \
      if (POINTER == 0) { errno = ENOMEM; return RET_VAL;} \
-     else { new (POINTER) CONSTRUCTOR [COUNT]; } \
+     else { (void) new (POINTER) CONSTRUCTOR [COUNT]; } \
    } while (0)
 # define ACE_NEW_MALLOC_ARRAY(POINTER,ALLOCATOR,CONSTRUCTOR,COUNT) \
    do { POINTER = ALLOCATOR; \
      if (POINTER == 0) { errno = ENOMEM; return;} \
-     else { new (POINTER) CONSTRUCTOR [COUNT]; } \
+     else { (void) new (POINTER) CONSTRUCTOR [COUNT]; } \
    } while (0)
 #endif /* defined ACE_LACKS_ARRAY_PLACEMENT_NEW */
 
@@ -888,6 +916,9 @@ _make_##SERVICE_CLASS (ACE_Service_Object_Exterminator *gobbler) \
 #   define ACE_SOCK_ACCEPTOR ACE_SOCK_Acceptor
 #   define ACE_SOCK_CONNECTOR ACE_SOCK_Connector
 #   define ACE_SOCK_STREAM ACE_SOCK_Stream
+#   define ACE_SOCK_DGRAM ACE_SOCK_Dgram
+#   define ACE_SOCK_DGRAM_BCAST ACE_SOCK_Dgram_Bcast
+#   define ACE_SOCK_DGRAM_MCAST ACE_SOCK_Dgram_Mcast
 
 // Handle ACE_SOCK_SEQPACK_*
 #   define ACE_SOCK_SEQPACK_ACCEPTOR ACE_SOCK_SEQPACK_Acceptor
@@ -974,6 +1005,9 @@ _make_##SERVICE_CLASS (ACE_Service_Object_Exterminator *gobbler) \
 #   define ACE_SOCK_ACCEPTOR ACE_SOCK_Acceptor, ACE_INET_Addr
 #   define ACE_SOCK_CONNECTOR ACE_SOCK_Connector, ACE_INET_Addr
 #   define ACE_SOCK_STREAM ACE_SOCK_Stream, ACE_INET_Addr
+#   define ACE_SOCK_DGRAM ACE_SOCK_Dgram, ACE_INET_Addr
+#   define ACE_SOCK_DGRAM_BCAST ACE_SOCK_Dgram_Bcast, ACE_INET_Addr
+#   define ACE_SOCK_DGRAM_MCAST ACE_SOCK_Dgram_Mcast, ACE_INET_Addr
 
 // Handle ACE_SOCK_SEQPACK_*
 #   define ACE_SOCK_SEQPACK_ACCEPTOR ACE_SOCK_SEQPACK_Acceptor, ACE_Multihomed_INET_Addr

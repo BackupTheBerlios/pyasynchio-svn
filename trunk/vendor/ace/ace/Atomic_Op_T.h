@@ -4,7 +4,7 @@
 /**
  *  @file    Atomic_Op_T.h
  *
- *  Atomic_Op_T.h,v 4.5 2003/08/04 03:53:50 dhinton Exp
+ *  Atomic_Op_T.h,v 4.10 2004/12/11 17:38:00 jwillemsen Exp
  *
  *  @author Douglas C. Schmidt <schmidt@uci.edu>
  */
@@ -71,28 +71,28 @@ public:
   TYPE operator-= (const TYPE &rhs);
 
   /// Atomically compare <value_> with rhs.
-  int operator== (const TYPE &rhs) const;
+  bool operator== (const TYPE &rhs) const;
 
   /// Atomically compare <value_> with rhs.
-  int operator!= (const TYPE &rhs) const;
+  bool operator!= (const TYPE &rhs) const;
 
   /// Atomically check if <value_> greater than or equal to rhs.
-  int operator>= (const TYPE &rhs) const;
+  bool operator>= (const TYPE &rhs) const;
 
   /// Atomically check if <value_> greater than rhs.
-  int operator> (const TYPE &rhs) const;
+  bool operator> (const TYPE &rhs) const;
 
   /// Atomically check if <value_> less than or equal to rhs.
-  int operator<= (const TYPE &rhs) const;
+  bool operator<= (const TYPE &rhs) const;
 
   /// Atomically check if <value_> less than rhs.
-  int operator< (const TYPE &rhs) const;
+  bool operator< (const TYPE &rhs) const;
 
   /// Atomically assign rhs to <value_>.
-  void operator= (const TYPE &rhs);
+  ACE_Atomic_Op_Ex<ACE_LOCK, TYPE> &operator= (const TYPE &rhs);
 
   /// Atomically assign <rhs> to <value_>.
-  void operator= (const ACE_Atomic_Op_Ex<ACE_LOCK, TYPE> &rhs);
+  ACE_Atomic_Op_Ex<ACE_LOCK, TYPE> &operator= (const ACE_Atomic_Op_Ex<ACE_LOCK, TYPE> &rhs);
 
   /// Explicitly return <value_>.
   TYPE value (void) const;
@@ -159,10 +159,10 @@ public:
   ACE_Atomic_Op (const ACE_Atomic_Op<ACE_LOCK, TYPE> &c);
 
   /// Atomically assign rhs to <value_>.
-  void operator= (const TYPE &rhs);
+  ACE_Atomic_Op<ACE_LOCK, TYPE> &operator= (const TYPE &rhs);
 
   /// Atomically assign <rhs> to <value_>.
-  void operator= (const ACE_Atomic_Op<ACE_LOCK, TYPE> &rhs);
+  ACE_Atomic_Op<ACE_LOCK, TYPE> &operator= (const ACE_Atomic_Op<ACE_LOCK, TYPE> &rhs);
 
   /// Atomically pre-increment <value_>.
   TYPE operator++ (void);
@@ -183,22 +183,22 @@ public:
   TYPE operator-= (const TYPE &rhs);
 
   /// Atomically compare <value_> with rhs.
-  int operator== (const TYPE &rhs) const;
+  bool operator== (const TYPE &rhs) const;
 
   /// Atomically compare <value_> with rhs.
-  int operator!= (const TYPE &rhs) const;
+  bool operator!= (const TYPE &rhs) const;
 
   /// Atomically check if <value_> greater than or equal to rhs.
-  int operator>= (const TYPE &rhs) const;
+  bool operator>= (const TYPE &rhs) const;
 
   /// Atomically check if <value_> greater than rhs.
-  int operator> (const TYPE &rhs) const;
+  bool operator> (const TYPE &rhs) const;
 
   /// Atomically check if <value_> less than or equal to rhs.
-  int operator<= (const TYPE &rhs) const;
+  bool operator<= (const TYPE &rhs) const;
 
   /// Atomically check if <value_> less than rhs.
-  int operator< (const TYPE &rhs) const;
+  bool operator< (const TYPE &rhs) const;
 
   /// Explicitly return <value_>.
   TYPE value (void) const;
@@ -236,11 +236,11 @@ private:
 
 
 #if defined (__ACE_INLINE__)
-#include "ace/Atomic_Op_T.i"
+#include "ace/Atomic_Op_T.inl"
 #endif /* __ACE_INLINE__ */
 
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)
-#include "Atomic_Op_T.cpp"
+#include "ace/Atomic_Op_T.cpp"
 #endif /* ACE_TEMPLATES_REQUIRE_SOURCE */
 
 #if defined (ACE_TEMPLATES_REQUIRE_PRAGMA)

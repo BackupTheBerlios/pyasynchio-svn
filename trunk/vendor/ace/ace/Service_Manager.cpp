@@ -1,7 +1,7 @@
 #include "ace/Service_Manager.h"
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Service_Manager.i"
+#include "ace/Service_Manager.inl"
 #endif /* __ACE_INLINE__ */
 
 #include "ace/Get_Opt.h"
@@ -16,7 +16,7 @@
 
 ACE_RCSID (ace,
            Service_Manager,
-           "Service_Manager.cpp,v 4.45 2003/11/07 20:27:28 shuston Exp")
+           "Service_Manager.cpp,v 4.48 2004/06/16 07:57:21 jwillemsen Exp")
 
 
 ACE_ALLOC_HOOK_DEFINE (ACE_Service_Manager)
@@ -84,7 +84,7 @@ ACE_Service_Manager::info (ACE_TCHAR **strp, size_t length) const
     return -1;
   else
     ACE_OS::strsncpy (*strp, buf, length);
-  return ACE_static_cast (int, ACE_OS::strlen (buf));
+  return static_cast<int> (ACE_OS::strlen (buf));
 }
 
 int
@@ -297,7 +297,7 @@ ACE_Service_Manager::handle_input (ACE_HANDLE)
 
       ACE_DEBUG ((LM_DEBUG,
                   ACE_LIB_TEXT ("accepted from host %s at port %d\n"),
-                  sa.get_host_name (),
+                  ACE_TEXT_CHAR_TO_TCHAR (sa.get_host_name ()),
                   sa.get_port_number ()));
     }
 
@@ -320,7 +320,7 @@ ACE_Service_Manager::handle_input (ACE_HANDLE)
     {
       result = client_stream_.recv (offset, remaining);
       error = errno;
-      if (result == 0 && error != EWOULDBLOCK) 
+      if (result == 0 && error != EWOULDBLOCK)
         remaining = 0;
 
       if (result >= 0)

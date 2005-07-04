@@ -4,13 +4,12 @@
 /**
  *  @file    DEV_IO.h
  *
- *  DEV_IO.h,v 4.19 2003/11/01 11:15:12 dhinton Exp
+ *  DEV_IO.h,v 4.25 2004/11/03 16:00:22 schmidt Exp
  *
  *  @author Gerhard Lenzer
  *  @author Douglas C. Schmidt
  */
 //=============================================================================
-
 
 #ifndef ACE_DEV_IO_H
 #define ACE_DEV_IO_H
@@ -21,6 +20,10 @@
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
+
+#if defined (ACE_HAS_STREAM_PIPES)
+#  include "ace/OS_NS_stropts.h"
+#endif /* ACE_HAS_STREAM_PIPES */
 
 #include "ace/os_include/os_stdio.h"
 #include "ace/os_include/sys/os_uio.h"
@@ -107,7 +110,7 @@ public:
                 int band,
                 int flags) const;
 
-  /// Recv <cntl> and <data> via STREAM pipes.
+  /// Recv @a cntl and @a data via STREAM pipes.
   ssize_t recv (ACE_Str_Buf *cntl,
                 ACE_Str_Buf *data,
                 int *flags) const;
@@ -170,9 +173,9 @@ private:
   ACE_DEV_Addr addr_;
 };
 
-#if !defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/DEV_IO.i"
-#endif
+#if defined (__ACE_INLINE__)
+#include "ace/DEV_IO.inl"
+#endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"
 #endif /* ACE_DEV_IO_H */

@@ -4,7 +4,7 @@
 /**
  *  @file    FIFO_Send.h
  *
- *  FIFO_Send.h,v 4.15 2003/07/19 19:04:11 dhinton Exp
+ *  FIFO_Send.h,v 4.17 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Doug Schmidt
  */
@@ -62,9 +62,9 @@ public:
   ACE_ALLOC_HOOK_DECLARE;
 };
 
-#if !defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/FIFO_Send.i"
-#endif
+#if defined (__ACE_INLINE__)
+#include "ace/FIFO_Send.inl"
+#endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"
 

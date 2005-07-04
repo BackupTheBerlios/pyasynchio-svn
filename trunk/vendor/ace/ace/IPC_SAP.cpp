@@ -1,17 +1,18 @@
-// IPC_SAP.cpp,v 4.33 2003/11/01 11:15:13 dhinton Exp
+// IPC_SAP.cpp,v 4.36 2004/08/14 07:03:12 ossama Exp
 
 #include "ace/IPC_SAP.h"
-
-#if defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/IPC_SAP.i"
-#endif
 
 #include "ace/Log_Msg.h"
 #include "ace/OS_NS_unistd.h"
 #include "ace/os_include/os_signal.h"
 #include "ace/OS_NS_errno.h"
+#include "ace/OS_NS_fcntl.h"
 
-ACE_RCSID(ace, IPC_SAP, "IPC_SAP.cpp,v 4.33 2003/11/01 11:15:13 dhinton Exp")
+#if !defined (__ACE_INLINE__)
+#include "ace/IPC_SAP.inl"
+#endif /* __ACE_INLINE__ */
+
+ACE_RCSID(ace, IPC_SAP, "IPC_SAP.cpp,v 4.36 2004/08/14 07:03:12 ossama Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_IPC_SAP)
 
@@ -85,7 +86,7 @@ ACE_IPC_SAP::enable (int value) const
       if (ACE_OS::fcntl (this->handle_,
                          F_SETOWN,
                          ACE_IPC_SAP::pid_) == -1
-          || ACE_Flag_Manip::set_flags (this->handle_,
+          || ACE::set_flags (this->handle_,
                                         FASYNC) == -1)
         return -1;
       break;
@@ -103,7 +104,7 @@ ACE_IPC_SAP::enable (int value) const
       break;
 #endif /* F_SETFD */
     case ACE_NONBLOCK:
-      if (ACE_Flag_Manip::set_flags (this->handle_,
+      if (ACE::set_flags (this->handle_,
                                      ACE_NONBLOCK) == ACE_INVALID_HANDLE)
         return -1;
       break;
@@ -157,7 +158,7 @@ ACE_IPC_SAP::disable (int value) const
       if (ACE_OS::fcntl (this->handle_,
                          F_SETOWN,
                          0) == -1
-          || ACE_Flag_Manip::clr_flags (this->handle_,
+          || ACE::clr_flags (this->handle_,
                                         FASYNC) == -1)
         return -1;
       break;
@@ -175,7 +176,7 @@ ACE_IPC_SAP::disable (int value) const
       break;
 #endif /* F_SETFD */
     case ACE_NONBLOCK:
-      if (ACE_Flag_Manip::clr_flags (this->handle_,
+      if (ACE::clr_flags (this->handle_,
                                      ACE_NONBLOCK) == -1)
         return -1;
       break;

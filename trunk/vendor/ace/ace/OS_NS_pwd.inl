@@ -1,5 +1,5 @@
 // -*- C++ -*-
-// OS_NS_pwd.inl,v 1.2 2003/11/01 11:15:15 dhinton Exp
+// OS_NS_pwd.inl,v 1.3 2004/11/19 09:34:49 jwillemsen Exp
 
 #include "ace/OS_NS_errno.h"
 
@@ -9,11 +9,7 @@ ACE_INLINE void
 ACE_OS::endpwent (void)
 {
 #if !defined (ACE_LACKS_PWD_FUNCTIONS)
-# if !defined (ACE_WIN32)
   ::endpwent ();
-# else
-# endif /* ACE_WIN32 */
-#else
 #endif /* ! ACE_LACKS_PWD_FUNCTIONS */
 }
 
@@ -21,11 +17,7 @@ ACE_INLINE struct passwd *
 ACE_OS::getpwent (void)
 {
 #if !defined (ACE_LACKS_PWD_FUNCTIONS)
-# if !defined (ACE_WIN32)
   return ::getpwent ();
-# else
-  ACE_NOTSUP_RETURN (0);
-# endif /* ACE_WIN32 */
 #else
   ACE_NOTSUP_RETURN (0);
 #endif /* ! ACE_LACKS_PWD_FUNCTIONS */
@@ -35,13 +27,8 @@ ACE_INLINE struct passwd *
 ACE_OS::getpwnam (const char *name)
 {
 #if !defined (ACE_LACKS_PWD_FUNCTIONS)
-# if !defined (ACE_WIN32)
   return ::getpwnam (name);
 # else
-  ACE_UNUSED_ARG (name);
-  ACE_NOTSUP_RETURN (0);
-# endif /* ACE_WIN32 */
-#else
   ACE_UNUSED_ARG (name);
   ACE_NOTSUP_RETURN (0);
 #endif /* ACE_LACKS_PWD_FUNCTIONS */
@@ -124,10 +111,6 @@ ACE_INLINE void
 ACE_OS::setpwent (void)
 {
 #if !defined (ACE_LACKS_PWD_FUNCTIONS)
-# if !defined (ACE_WIN32)
   ::setpwent ();
-# else
-# endif /* ACE_WIN32 */
-#else
 #endif /* ! ACE_LACKS_PWD_FUNCTIONS */
 }

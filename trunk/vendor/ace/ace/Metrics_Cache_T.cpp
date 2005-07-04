@@ -1,4 +1,4 @@
-// Metrics_Cache_T.cpp,v 4.1 2003/06/19 05:45:39 storri Exp
+// Metrics_Cache_T.cpp,v 4.2 2004/06/16 07:57:20 jwillemsen Exp
 
 #ifndef METRICS_CACHE_CPP
 #define METRICS_CACHE_CPP
@@ -228,7 +228,7 @@ flush_ACE_Metrics_Cache ()
 
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Metrics_Cache_T.i"
+#include "ace/Metrics_Cache_T.inl"
 #endif /* __ACE_INLINE__ */
 
 #endif /* defined (ACE_COMPILE_TIMEPROBES) */

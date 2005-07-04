@@ -3,7 +3,7 @@
 /**
  *  @file    Basic_Stats.h
  *
- *  Basic_Stats.h,v 4.5 2003/07/19 19:04:10 dhinton Exp
+ *  Basic_Stats.h,v 4.6 2004/09/29 21:51:48 irfan Exp
  *
  *  @author Carlos O'Ryan <coryan@uci.edu>
  */
@@ -56,7 +56,6 @@ public:
   void dump_results (const ACE_TCHAR *msg,
                      ACE_UINT32 scale_factor) const;
 
-private:
   /// The number of samples
   ACE_UINT32 samples_count_;
 
@@ -74,9 +73,6 @@ private:
 
   /// The sum of all the values
   ACE_UINT64 sum_;
-
-  /// The sum of the square of all the values
-  ACE_UINT64 sum2_;
 };
 
 #if defined (__ACE_INLINE__)

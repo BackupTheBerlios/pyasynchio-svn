@@ -4,7 +4,7 @@
 /**
  *  @file    Token_Collection.h
  *
- *  Token_Collection.h,v 4.16 2003/07/19 19:04:14 dhinton Exp
+ *  Token_Collection.h,v 4.19 2004/06/28 17:27:08 jwillemsen Exp
  *
  *  The ACE_Token class offers methods for acquiring, renewing,
  *  and releasing a synchronization token on a per-token basis.  The
@@ -30,10 +30,11 @@
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
+#if defined (ACE_HAS_TOKENS_LIBRARY)
+
 #include "ace/Local_Tokens.h"
 #include "ace/SString.h"
-
-#if defined (ACE_HAS_TOKENS_LIBRARY)
+#include "ace/Null_Mutex.h"
 
 /**
  * @class ACE_Token_Collection
@@ -60,7 +61,7 @@ class ACE_Export ACE_Token_Collection : public ACE_Token_Proxy
   //   returns zero for now.
 public:
   /**
-   * <debug> print out verbose debugging messages. <name> will give a
+   * @a debug print out verbose debugging messages. @a name will give a
    * name to the collection.  Collections don't really need names, but
    * are sometimes useful for debugging.
    */
@@ -134,7 +135,7 @@ public:
                        ACE_Synch_Options &options =
                        ACE_Synch_Options::defaults);
 
-  /// Acquire the token corresponding to <token_name>.  The other
+  /// Acquire the token corresponding to @a token_name.  The other
   /// parameters are passed to <token>::acquire.
   virtual int acquire (const ACE_TCHAR *token_name,
                        int notify = 0,
@@ -145,7 +146,7 @@ public:
   /// Try to acquire all tokens in collection.
   virtual int tryacquire (void (*sleep_hook)(void *) = 0);
 
-  /// Try to acquire <token_name>.
+  /// Try to acquire @a token_name.
   virtual int tryacquire (const ACE_TCHAR *token_name,
                           void (*sleep_hook)(void *) = 0);
 
@@ -161,7 +162,7 @@ public:
                      ACE_Synch_Options::defaults);
 
 
-  /// Renew the token corresponding to <token_name>.  The other
+  /// Renew the token corresponding to @a token_name.  The other
   /// parameters are passed to <token>::renew.
   virtual int renew (const ACE_TCHAR *token_name,
                      int requeue_position = 0,
@@ -232,7 +233,7 @@ protected:
 #endif /* ACE_HAS_TOKENS_LIBRARY */
 
 #if defined (__ACE_INLINE__)
-#include "ace/Token_Collection.i"
+#include "ace/Token_Collection.inl"
 #endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"

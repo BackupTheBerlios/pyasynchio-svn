@@ -1,12 +1,12 @@
-// Obchunk.cpp,v 4.3 2003/07/27 20:48:26 dhinton Exp
+// Obchunk.cpp,v 4.4 2004/06/16 07:57:20 jwillemsen Exp
 
 #include "ace/Obchunk.h"
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Obchunk.i"
+#include "ace/Obchunk.inl"
 #endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, Obchunk, "Obchunk.cpp,v 4.3 2003/07/27 20:48:26 dhinton Exp")
+ACE_RCSID(ace, Obchunk, "Obchunk.cpp,v 4.4 2004/06/16 07:57:20 jwillemsen Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_Obchunk)
 

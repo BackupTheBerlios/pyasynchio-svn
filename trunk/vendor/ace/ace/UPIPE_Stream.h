@@ -4,7 +4,7 @@
 /**
  *  @file    UPIPE_Stream.h
  *
- *  UPIPE_Stream.h,v 4.17 2003/08/04 03:53:54 dhinton Exp
+ *  UPIPE_Stream.h,v 4.18 2004/06/16 07:57:22 jwillemsen Exp
  *
  *  @author Gerhard Lenzer
  *  @author Douglas C. Schmidt
@@ -128,7 +128,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/UPIPE_Stream.i"
+#include "ace/UPIPE_Stream.inl"
 #endif /* __ACE_INLINE__ */
 
 #endif /* ACE_HAS_THREADS */

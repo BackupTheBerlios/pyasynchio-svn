@@ -1,5 +1,5 @@
 // Typed_SV_Message.cpp
-// Typed_SV_Message.cpp,v 4.4 2003/07/27 20:48:28 dhinton Exp
+// Typed_SV_Message.cpp,v 4.5 2004/06/16 07:57:21 jwillemsen Exp
 
 #ifndef ACE_TYPED_SV_MESSAGE_C
 #define ACE_TYPED_SV_MESSAGE_C
@@ -10,10 +10,10 @@
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Typed_SV_Message.i"
+#include "ace/Typed_SV_Message.inl"
 #endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, Typed_SV_Message, "Typed_SV_Message.cpp,v 4.4 2003/07/27 20:48:28 dhinton Exp")
+ACE_RCSID(ace, Typed_SV_Message, "Typed_SV_Message.cpp,v 4.5 2004/06/16 07:57:21 jwillemsen Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_Typed_SV_Message)
 

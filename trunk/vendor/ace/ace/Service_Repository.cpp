@@ -1,18 +1,21 @@
+// Service_Repository.cpp,v 4.50 2004/11/10 18:50:08 elliott_c Exp
+
 #include "ace/Service_Repository.h"
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Service_Repository.i"
+#include "ace/Service_Repository.inl"
 #endif /* __ACE_INLINE__ */
 
 #include "ace/Service_Types.h"
 #include "ace/Object_Manager.h"
 #include "ace/Log_Msg.h"
 #include "ace/ACE.h"
+#include "ace/OS_NS_errno.h"
 #include "ace/OS_NS_string.h"
 
 ACE_RCSID (ace,
            Service_Repository,
-           "Service_Repository.cpp,v 4.47 2003/11/01 11:15:17 dhinton Exp")
+           "Service_Repository.cpp,v 4.50 2004/11/10 18:50:08 elliott_c Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_Service_Repository)
 
@@ -132,7 +135,7 @@ int
 ACE_Service_Repository::fini (void)
 {
   ACE_TRACE ("ACE_Service_Repository::fini");
-  ACE_MT (ACE_GUARD_RETURN (ACE_Thread_Mutex, ace_mon, this->lock_, -1));
+  ACE_MT (ACE_GUARD_RETURN (ACE_Recursive_Thread_Mutex, ace_mon, this->lock_, -1));
   int retval = 0;
 
   if (this->service_vector_ != 0)
@@ -167,7 +170,7 @@ int
 ACE_Service_Repository::close (void)
 {
   ACE_TRACE ("ACE_Service_Repository::close");
-  ACE_MT (ACE_GUARD_RETURN (ACE_Thread_Mutex, ace_mon, this->lock_, -1));
+  ACE_MT (ACE_GUARD_RETURN (ACE_Recursive_Thread_Mutex, ace_mon, this->lock_, -1));
 
   if (this->service_vector_ != 0)
     {
@@ -245,7 +248,7 @@ ACE_Service_Repository::find (const ACE_TCHAR name[],
                               int ignore_suspended)
 {
   ACE_TRACE ("ACE_Service_Repository::find");
-  ACE_MT (ACE_GUARD_RETURN (ACE_Thread_Mutex, ace_mon, this->lock_, -1));
+  ACE_MT (ACE_GUARD_RETURN (ACE_Recursive_Thread_Mutex, ace_mon, this->lock_, -1));
 
   return this->find_i (name, srp, ignore_suspended);
 }
@@ -258,36 +261,56 @@ int
 ACE_Service_Repository::insert (const ACE_Service_Type *sr)
 {
   ACE_TRACE ("ACE_Service_Repository::insert");
-  ACE_MT (ACE_GUARD_RETURN (ACE_Thread_Mutex, ace_mon, this->lock_, -1));
-  int i;
+  int return_value = -1;
+  ACE_Service_Type *s = 0;
 
-  // Check to see if this is a duplicate.
-  for (i = 0; i < this->current_size_; i++)
-    if (ACE_OS::strcmp (sr->name (),
-                        this->service_vector_[i]->name ()) == 0)
-      break;
+  {
+    ACE_MT (ACE_GUARD_RETURN (ACE_Recursive_Thread_Mutex, ace_mon, this->lock_, -1));
+    int i;
 
-  // Replacing an existing entry
-  if (i < this->current_size_)
+    // Check to see if this is a duplicate.
+    for (i = 0; i < this->current_size_; i++)
+      if (ACE_OS::strcmp (sr->name (),
+                          this->service_vector_[i]->name ()) == 0)
+        break;
+
+    // Replacing an existing entry
+    if (i < this->current_size_)
+      {
+        // Check for self-assignment...
+        if (sr == this->service_vector_[i])
+          {
+            return_value = 0;
+          }
+        else
+          {
+            s = ACE_const_cast (ACE_Service_Type *,
+                                this->service_vector_[i]);
+            this->service_vector_[i] = sr;
+            return_value = 0;
+          }
+      }
+    // Adding a new entry.
+    else if (i < this->total_size_)
+      {
+        this->service_vector_[i] = sr;
+        this->current_size_++;
+        return_value = 0;
+      }
+  }
+
+  // delete outside the lock
+  if (s != 0)
     {
-      // Check for self-assignment...
-      if (sr == this->service_vector_[i])
-        return 0;
-      ACE_Service_Type *s = ACE_const_cast (ACE_Service_Type *,
-                                            this->service_vector_[i]);
       delete s;
-      this->service_vector_[i] = sr;
-      return 0;
-    }
-  // Adding a new entry.
-  else if (i < this->total_size_)
-    {
-      this->service_vector_[i] = sr;
-      this->current_size_++;
-      return 0;
     }
 
-  return -1;
+  if (return_value == -1)
+    {
+      ACE_OS::last_error (ENOSPC);
+    }
+
+  return return_value;
 }
 
 // Re-resume a service that was previously suspended.
@@ -297,7 +320,7 @@ ACE_Service_Repository::resume (const ACE_TCHAR name[],
                                 const ACE_Service_Type **srp)
 {
   ACE_TRACE ("ACE_Service_Repository::resume");
-  ACE_MT (ACE_GUARD_RETURN (ACE_Thread_Mutex, ace_mon, this->lock_, -1));
+  ACE_MT (ACE_GUARD_RETURN (ACE_Recursive_Thread_Mutex, ace_mon, this->lock_, -1));
 
   int i = this->find_i (name, srp, 0);
 
@@ -315,7 +338,7 @@ ACE_Service_Repository::suspend (const ACE_TCHAR name[],
                                  const ACE_Service_Type **srp)
 {
   ACE_TRACE ("ACE_Service_Repository::suspend");
-  ACE_MT (ACE_GUARD_RETURN (ACE_Thread_Mutex, ace_mon, this->lock_, -1));
+  ACE_MT (ACE_GUARD_RETURN (ACE_Recursive_Thread_Mutex, ace_mon, this->lock_, -1));
   int i = this->find_i (name, srp, 0);
 
   if (i == -1)
@@ -331,12 +354,12 @@ ACE_Service_Repository::suspend (const ACE_TCHAR name[],
 // the array and decrement the <current_size> by 1.
 
 int
-ACE_Service_Repository::remove (const ACE_TCHAR name[])
+ACE_Service_Repository::remove (const ACE_TCHAR name[], ACE_Service_Type **ps)
 {
   ACE_TRACE ("ACE_Service_Repository::remove");
   ACE_Service_Type *s = 0;
   {
-    ACE_MT (ACE_GUARD_RETURN (ACE_Thread_Mutex, ace_mon, this->lock_, -1));
+    ACE_MT (ACE_GUARD_RETURN (ACE_Recursive_Thread_Mutex, ace_mon, this->lock_, -1));
     int i = this->find_i (name, 0, 0);
 
     if (i == -1)
@@ -350,7 +373,10 @@ ACE_Service_Repository::remove (const ACE_TCHAR name[])
       this->service_vector_[i]
         = this->service_vector_[this->current_size_];
   }
-  delete s;
+  if (ps != 0)
+    *ps = s;
+  else
+    delete s;
   return 0;
 }
 

@@ -4,7 +4,7 @@
 /**
  *  @file   OS_Errno.h
  *
- *  OS_Errno.h,v 4.6 2003/11/06 18:19:38 dhinton Exp
+ *  OS_Errno.h,v 4.9 2004/11/10 18:50:08 elliott_c Exp
  *
  *  @author (Originally in OS.h)Doug Schmidt <schmidt@cs.wustl.edu>
  */
@@ -20,42 +20,7 @@
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
-#include "ace/os_include/os_errno.h"
-
-#if defined (ACE_HAS_WINCE_BROKEN_ERRNO)
-/**
- * @class ACE_CE_Errno
- *
- * Some versions of CE don't support <errno> and some versions'
- * implementations are busted.  So we implement our own.
- * Our implementation takes up one Tls key, however, it does not
- * allocate memory fromt the heap so there's no problem with cleanin
- * up the errno when a thread exit.
- */
-class ACE_Export ACE_CE_Errno
-{
-public:
-  ACE_CE_Errno () {}
-  static void init ();
-  static void fini ();
-  static ACE_CE_Errno *instance ();
-
-  operator int (void) const;
-  int operator= (int);
-
-private:
-  static ACE_CE_Errno *instance_;
-  static DWORD errno_key_;
-};
-
-# define errno (* (ACE_CE_Errno::instance ()))
-#endif /* ACE_HAS_WINCE_BROKEN_ERRNO */
-
-#if defined (ACE_HAS_WINCE_BROKEN_ERRNO)
-#  define ACE_ERRNO_TYPE ACE_CE_Errno
-#else
-#  define ACE_ERRNO_TYPE int
-#endif /* ACE_HAS_WINCE */
+#include "ace/OS_NS_errno.h"
 
 /**
  * @class ACE_Errno_Guard
@@ -100,10 +65,10 @@ public:
   int operator= (int error);
 
   /// Compare <error> with <error_> for equality.
-  int operator== (int error);
+  bool operator== (int error);
 
   /// Compare <error> with <error_> for inequality.
-  int operator!= (int error);
+  bool operator!= (int error);
 
 private:
 #if defined (ACE_MT_SAFE)
@@ -112,7 +77,10 @@ private:
   int error_;
 };
 
-#if defined (ACE_HAS_INLINED_OSCALLS)
+// Inlining this class on debug builds with gcc on Solaris can cause
+// deadlocks during static initialization.
+#if defined (ACE_HAS_INLINED_OSCALLS) && \
+    (!defined (__GNUG__) || !defined (__sun__) || defined (ACE_NDEBUG))
 # if defined (ACE_INLINE)
 #  undef ACE_INLINE
 # endif /* ACE_INLINE */

@@ -4,10 +4,9 @@
 /**
  *  @file   Handle_Ops.h
  *
- *  Handle_Ops.h,v 1.6 2003/07/19 19:04:11 dhinton Exp
+ *  Handle_Ops.h,v 1.8 2004/08/14 07:03:12 ossama Exp
  *
- * This class consolidates the operations on the Handles.
- *
+ *  This class consolidates the operations on the Handles.
  *
  *  @author Priyanka Gontla <pgontla@ece.uci.edu>
  */
@@ -28,26 +27,21 @@
 
 class ACE_Time_Value;
 
-class ACE_Export ACE_Handle_Ops
+// = Operations on HANDLEs.
+namespace ACE
 {
-public:
-  // = Operations on HANDLEs.
-
   /**
-   * Wait up to <timeout> amount of time to actively open a device.
-   * This method doesn't perform the <connect>, it just does the timed
-   * wait...
+   * Wait up to @a timeout> amount of time to actively open a device.
+   * This method doesn't perform the @c connect, it just does the
+   * timed wait.
    */
-  static ACE_HANDLE handle_timed_open (ACE_Time_Value *timeout,
-                                       const ACE_TCHAR *name,
-                                       int flags,
-                                       int perms,
-                                       LPSECURITY_ATTRIBUTES sa = 0);
-};
-
-#if !defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/Handle_Ops.i"
-#endif /* ACE_LACKS_INLINE_FUNCTIONS */
+  extern ACE_Export ACE_HANDLE handle_timed_open (
+    ACE_Time_Value *timeout,
+    const ACE_TCHAR *name,
+    int flags,
+    int perms,
+    LPSECURITY_ATTRIBUTES sa = 0);
+}
 
 #include /**/ "ace/post.h"
 

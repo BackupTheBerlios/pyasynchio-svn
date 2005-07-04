@@ -4,7 +4,7 @@
 /**
  *  @file   OS_main.h
  *
- *  OS_main.h,v 1.7 2003/11/08 04:15:52 dhinton Exp
+ *  OS_main.h,v 1.10 2004/10/20 18:55:12 shuston Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  *  @author Jesper S. M|ller<stophph@diku.dk>
@@ -36,7 +36,20 @@
 # if defined (ACE_WIN32) && defined (ACE_USES_WCHAR)
 #   define ACE_TMAIN wmain
 # else
-#   define ACE_TMAIN main
+#   if defined (ACE_USES_WCHAR)    /* Not Win32, but uses wchar */
+      // Replace main() with a version that converts the char** argv to
+      // ACE_TCHAR and calls the ACE_TMAIN entrypoint.
+#     include "ace/Argv_Type_Converter.h"
+#     define ACE_TMAIN \
+        ace_main_i (int, ACE_TCHAR *[]); /* forward declaration */ \
+        int main (int argc, char *argv[]) { \
+          ACE_Argv_Type_Converter wide_argv (argc, argv); \
+          return ace_main_i (argc, wide_argv.get_TCHAR_argv ()); \
+        } \
+        int ace_main_i
+#   else
+#     define ACE_TMAIN main
+#   endif /* ACE_USES_WCHAR */
 # endif
 
 # if defined (ACE_DOESNT_INSTANTIATE_NONSTATIC_OBJECT_MANAGER)
@@ -74,7 +87,7 @@ ACE_MAIN (int argc, char *argv[])    /* user's entry point, e.g., main */ \
 int \
 ace_main_i
 
-#   elif !defined (ACE_WINCE)
+#   elif !defined (ACE_HAS_WINCE)
 
 #     if defined (ACE_WIN32) && defined (ACE_USES_WCHAR)
 class ACE_Export ACE_Main_Base
@@ -142,16 +155,11 @@ public:
 #       undef ACE_TMAIN
 #     endif  // ACE_TMAIN
 
-// CE only gets a command line string;  no argv. So we need to convert it
-// when the main entrypoint expects argc/argv. ACE_ARGV supports this.
-#     include "ace/ARGV.h"
-
 // Support for ACE_TMAIN, which is a recommended way. It would be nice if
 // CE had CommandLineToArgvW()... but it's only on NT3.5 and up.
 
 #     define ACE_TMAIN \
 ace_tmain_i (int, ACE_TCHAR *[]); \
-ACE_Export int ace_os_wintmain_i (ACE_Main_Base&, HINSTANCE, HINSTANCE, LPWSTR, int);  /* forward declaration */ \
 class ACE_Main : public ACE_Main_Base {int run_i (int argc, ACE_TCHAR *argv[]);}; \
 inline int ACE_Main::run_i (int argc, ACE_TCHAR *argv[])  \
 { \
@@ -160,7 +168,7 @@ inline int ACE_Main::run_i (int argc, ACE_TCHAR *argv[])  \
 int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nCmdShow) \
 { \
   ACE_Main m; \
-  return ace_os_wintmain_i (m, hInstance, hPrevInstance, lpCmdLine, nCmdShow); \
+  return m.run (hInstance, hPrevInstance, lpCmdLine, nCmdShow); \
 } \
 int ace_tmain_i
 

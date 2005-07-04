@@ -4,7 +4,7 @@
 /**
  *  @file    FIFO_Recv.h
  *
- *  FIFO_Recv.h,v 4.16 2003/07/19 19:04:11 dhinton Exp
+ *  FIFO_Recv.h,v 4.18 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Doug Schmidt
  */
@@ -72,9 +72,9 @@ private:
   ACE_HANDLE aux_handle_;
 };
 
-#if !defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/FIFO_Recv.i"
-#endif
+#if defined (__ACE_INLINE__)
+#include "ace/FIFO_Recv.inl"
+#endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"
 

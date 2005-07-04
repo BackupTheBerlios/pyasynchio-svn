@@ -4,7 +4,7 @@
 /**
  *  @file    MEM_Acceptor.h
  *
- *  MEM_Acceptor.h,v 4.17 2003/07/19 19:04:11 dhinton Exp
+ *  MEM_Acceptor.h,v 4.19 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Nanbor Wang <nanbor@cs.wustl.edu>
  */
@@ -176,9 +176,9 @@ private:
   ACE_MEM_IO::Signal_Strategy preferred_strategy_;
 };
 
-#if !defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/MEM_Acceptor.i"
-#endif /* ACE_LACKS_INLINE_FUNCTIONS */
+#if defined (__ACE_INLINE__)
+#include "ace/MEM_Acceptor.inl"
+#endif /* __ACE_INLINE__ */
 
 #endif /* ACE_HAS_POSITION_INDEPENDENT_POINTERS == 1 */
 

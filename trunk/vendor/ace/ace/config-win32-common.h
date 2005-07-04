@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// config-win32-common.h,v 4.189 2003/10/25 10:48:44 jwillemsen Exp
+// config-win32-common.h,v 4.205 2004/12/20 11:01:31 jwillemsen Exp
 
 
 #ifndef ACE_CONFIG_WIN32_COMMON_H
@@ -88,7 +88,7 @@
 //  #endif
 
 // Define the special export macros needed to export symbols outside a dll
-#ifndef __BORLANDC__
+#if !defined(__BORLANDC__) && !defined(__IBMCPP__)
 #define ACE_HAS_CUSTOM_EXPORT_MACROS
 #define ACE_Proper_Export_Flag __declspec (dllexport)
 #define ACE_Proper_Import_Flag __declspec (dllimport)
@@ -158,7 +158,7 @@
 
 
 // Windows doesn't like 65536 ;-) If 65536 is specified, it is
-// listenly ignored by the OS, i.e., setsockopt does not fail, and you
+// silently ignored by the OS, i.e., setsockopt does not fail, and you
 // get stuck with the default size of 8k.
 #define ACE_DEFAULT_MAX_SOCKET_BUFSIZ 65535
 
@@ -200,6 +200,7 @@
 #define ACE_LACKS_SETPGID
 #define ACE_LACKS_SETREGID
 #define ACE_LACKS_SETREUID
+#define ACE_LACKS_SETSID
 #define ACE_HAS_THREAD_SAFE_ACCEPT
 #define ACE_LACKS_GETHOSTENT
 #define ACE_LACKS_SIGACTION
@@ -209,7 +210,6 @@
 #define ACE_LACKS_SBRK
 #define ACE_LACKS_UTSNAME_T
 #define ACE_LACKS_SEMBUF_T
-#define ACE_LACKS_MSGBUF_T
 #define ACE_LACKS_SYSV_SHMEM
 #define ACE_LACKS_UNISTD_H
 #define ACE_LACKS_RLIMIT
@@ -219,23 +219,30 @@
 #define ACE_LACKS_REWINDDIR
 #define ACE_LACKS_READDIR_R
 #define ACE_LACKS_INET_ATON
-#define ACE_LACKS_PARAM_H
+#define ACE_LACKS_SYS_PARAM_H
 #define ACE_LACKS_PTHREAD_H
 #define ACE_LACKS_ARPA_INET_H
+#define ACE_LACKS_MADVISE
+#define ACE_LACKS_READLINK
+#define ACE_LACKS_PWD_FUNCTIONS
 
 #define ACE_HAS_SNPRINTF
 #define ACE_HAS_VFWPRINTF
 #define ACE_HAS_VSWPRINTF
+
+#define ACE_MKDIR_LACKS_MODE
 
 #define ACE_SIZEOF_LONG_LONG 8
 // Green Hills Native x86 does not support __int64 keyword
 // Neither does mingw32.
 #if !defined (ACE_LACKS_LONGLONG_T) && !defined (__MINGW32__)
 typedef unsigned __int64 ACE_UINT64;
+typedef   signed __int64 ACE_INT64;
 #endif /* (ghs) */
 
 #if defined (__MINGW32__)
 typedef unsigned long long ACE_UINT64;
+typedef   signed long long ACE_INT64;
 #endif
 
 // Optimize ACE_Handle_Set for select().
@@ -298,12 +305,6 @@ typedef unsigned long long ACE_UINT64;
 
 // No system support for replacing any previous mappings.
 #define ACE_LACKS_AUTO_MMAP_REPLACEMENT
-
-// Turns off the tracing feature.
-#if !defined (ACE_NTRACE)
-# define ACE_NTRACE 1
-#endif /* ACE_NTRACE */
-// #define ACE_NLOGGING
 
 // MFC itself defines STRICT.
 #if defined( ACE_HAS_MFC ) && (ACE_HAS_MFC != 0)
@@ -516,11 +517,6 @@ typedef unsigned long long ACE_UINT64;
 # define ACE_WSOCK_VERSION 1, 1
 #endif /* ACE_HAS_WINSOCK2 */
 
-// mingw32 doesn't define this (yet...)
-#if defined(__MINGW32__) && !defined(MWMO_ALERTABLE)
-# define MWMO_ALERTABLE 0x0002
-#endif
-
 // Platform supports IP multicast on Winsock 2
 #if defined (ACE_HAS_WINSOCK2) && (ACE_HAS_WINSOCK2 != 0)
 # define ACE_HAS_IP_MULTICAST
@@ -545,9 +541,9 @@ typedef unsigned long long ACE_UINT64;
 # define ACE_SEH_DEFAULT_EXCEPTION_HANDLING_ACTION EXCEPTION_CONTINUE_SEARCH
 #endif /* ACE_SEH_DEFAULT_EXCEPTION_HANDLING_ACTION */
 
-// Try to make a good guess whether we are compiling with the newer version
-// of WinSock 2 that has GQOS support.
-#if !defined (ACE_HAS_WINSOCK2_GQOS)
+// ACE_HAS_QOS is defined in the qos.mpb base project.
+// If qos=1 in default.features, then this macro will be defined.
+#if defined (ACE_HAS_QOS) && !defined (ACE_HAS_WINSOCK2_GQOS)
 # if defined (WINSOCK_VERSION)
 #  define ACE_HAS_WINSOCK2_GQOS 1
 # endif /* WINSOCK_VERSION */
@@ -556,7 +552,13 @@ typedef unsigned long long ACE_UINT64;
 #define ACE_SIZEOF_WCHAR 2
 #define ACE_HAS_MUTEX_TIMEOUTS
 #define ACE_LACKS_STRUCT_DIR
+#define ACE_LACKS_OPENDIR
+#define ACE_LACKS_CLOSEDIR
+#define ACE_LACKS_READDIR
 #define ACE_LACKS_MKSTEMP
+#define ACE_LACKS_LSTAT
+// Looks like Win32 has a non-const swab function
+#define ACE_HAS_NONCONST_SWAB
 
 // If we are using winsock2 then the SO_REUSEADDR feature is broken
 // SO_REUSEADDR=1 behaves like SO_REUSEPORT=1. (SO_REUSEPORT is an
@@ -581,6 +583,10 @@ typedef unsigned long long ACE_UINT64;
 #if !defined (ACE_HAS_WINCE) && !defined (ACE_HAS_PHARLAP)
 #  define ACE_HAS_LOG_MSG_NT_EVENT_LOG
 #endif /* !ACE_HAS_WINCE && !ACE_HAS_PHARLAP */
+
+#if !defined (ACE_HAS_WINCE)
+# define ACE_HAS_LLSEEK
+#endif /* !ACE_HAS_WINCE */
 
 // Needed for obtaining the MAC address
 // I dont believe this will work under CE, notice the

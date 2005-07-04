@@ -4,7 +4,7 @@
 /**
  *  @file   OS_NS_sys_socket.h
  *
- *  OS_NS_sys_socket.h,v 1.5 2003/11/06 00:57:56 bala Exp
+ *  OS_NS_sys_socket.h,v 1.8 2004/08/06 14:11:57 mcorino Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  *  @author Jesper S. M|ller<stophph@diku.dk>
@@ -34,6 +34,31 @@
 #  undef ACE_EXPORT_MACRO
 #endif
 #define ACE_EXPORT_MACRO ACE_Export
+
+/// These are available values for the @a how argument to ACE_OS::shutdown().
+#if defined (SD_RECEIVE)
+#define ACE_SHUTDOWN_READ SD_RECEIVE
+#elif defined (SHUT_RD)
+#define ACE_SHUTDOWN_READ SHUT_RD
+#else
+#define ACE_SHUTDOWN_READ 0
+#endif /* SD_RECEIVE */
+
+#if defined (SD_SEND)
+#define ACE_SHUTDOWN_WRITE SD_SEND
+#elif defined (SHUT_WR)
+#define ACE_SHUTDOWN_WRITE SHUT_WR
+#else
+#define ACE_SHUTDOWN_WRITE 1
+#endif /* SD_SEND */
+
+#if defined (SD_BOTH)
+#define ACE_SHUTDOWN_BOTH SD_BOTH
+#elif defined (SHUT_RDWR)
+#define ACE_SHUTDOWN_BOTH SHUT_RDWR
+#else
+#define ACE_SHUTDOWN_BOTH 2
+#endif /* SD_BOTH */
 
 class ACE_Accept_QoS_Params;
 class ACE_QoS_Params;

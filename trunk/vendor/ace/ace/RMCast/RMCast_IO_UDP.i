@@ -1,4 +1,4 @@
-// RMCast_IO_UDP.i,v 1.5 2003/11/10 21:48:26 shuston Exp
+// RMCast_IO_UDP.i,v 1.6 2004/06/05 14:08:08 schmidt Exp
 
 #include "RMCast_UDP_Proxy.h"
 #include "RMCast_Module_Factory.h"
@@ -7,10 +7,10 @@
 ACE_INLINE
 ACE_RMCast_IO_UDP::
     ACE_RMCast_IO_UDP (ACE_RMCast_Module_Factory *factory)
-  :  factory_ (factory)
+  :  factory_ (factory),
+     dgram_ (ACE_SOCK_Dgram_Mcast::OPT_BINDADDR_NO)
 {
 }
-
 
 // Workaround failure in gcc for lynx hosted on solaris
 // see ACE_RMCast_IO_UDP::handle_input() for more details

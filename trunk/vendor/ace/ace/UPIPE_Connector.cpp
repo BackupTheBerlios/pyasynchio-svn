@@ -1,15 +1,17 @@
 // UPIPE_Connector.cpp
-// UPIPE_Connector.cpp,v 4.11 2003/07/27 20:48:28 dhinton Exp
+// UPIPE_Connector.cpp,v 4.15 2004/08/14 07:10:06 ossama Exp
 
 #include "ace/UPIPE_Connector.h"
 
-ACE_RCSID(ace, UPIPE_Connector, "UPIPE_Connector.cpp,v 4.11 2003/07/27 20:48:28 dhinton Exp")
+ACE_RCSID(ace, UPIPE_Connector, "UPIPE_Connector.cpp,v 4.15 2004/08/14 07:10:06 ossama Exp")
 
 #if defined (ACE_HAS_THREADS)
 
-#if defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/UPIPE_Connector.i"
-#endif
+#include "ace/OS_NS_unistd.h"
+
+#if !defined (__ACE_INLINE__)
+#include "ace/UPIPE_Connector.inl"
+#endif /* __ACE_INLINE__ */
 
 ACE_ALLOC_HOOK_DEFINE(ACE_UPIPE_Connector)
 
@@ -38,7 +40,7 @@ ACE_UPIPE_Connector::connect (ACE_UPIPE_Stream &new_stream,
   ACE_TRACE ("ACE_UPIPE_Connector::connect");
   ACE_ASSERT (new_stream.get_handle () == ACE_INVALID_HANDLE);
 
-  ACE_HANDLE handle = ACE_Handle_Ops::handle_timed_open (timeout,
+  ACE_HANDLE handle = ACE::handle_timed_open (timeout,
                                                          addr.get_path_name (),
                                                          flags, perms);
 
@@ -62,12 +64,12 @@ ACE_UPIPE_Connector::connect (ACE_UPIPE_Stream &new_stream,
       // to our corresponding ACE_UPIPE_Acceptor, so he may link the
       // two streams.
       ssize_t result = ACE_OS::write (handle,
-				      (const char *) &ustream,
-				      sizeof ustream);
+                                      (const char *) &ustream,
+                                      sizeof ustream);
       if (result == -1)
-	ACE_ERROR ((LM_ERROR,
-		    ACE_LIB_TEXT ("ACE_UPIPE_Connector %p\n"),
-		    ACE_LIB_TEXT ("write to pipe failed")));
+        ACE_ERROR ((LM_ERROR,
+                    ACE_LIB_TEXT ("ACE_UPIPE_Connector %p\n"),
+                    ACE_LIB_TEXT ("write to pipe failed")));
 
       // Wait for confirmation of stream linking.
       ACE_Message_Block *mb_p = 0;
@@ -78,15 +80,15 @@ ACE_UPIPE_Connector::connect (ACE_UPIPE_Stream &new_stream,
       // Do *not* coalesce the following two checks for result == -1.
       // They perform different checks and cannot be merged.
       if (result == -1)
-	  ACE_ERROR ((LM_ERROR,
+          ACE_ERROR ((LM_ERROR,
                       ACE_LIB_TEXT ("ACE_UPIPE_Connector %p\n"),
-		      ACE_LIB_TEXT ("no confirmation from server")));
+                      ACE_LIB_TEXT ("no confirmation from server")));
       else
-	// Close down the new_stream at this point in order to
-	// conserve handles.  Note that we don't need the SPIPE
-	// connection anymore since we're linked via the Message_Queue
-	// now.
-	new_stream.ACE_SPIPE::close ();
+        // Close down the new_stream at this point in order to
+        // conserve handles.  Note that we don't need the SPIPE
+        // connection anymore since we're linked via the Message_Queue
+        // now.
+        new_stream.ACE_SPIPE::close ();
       return result;
     }
 }

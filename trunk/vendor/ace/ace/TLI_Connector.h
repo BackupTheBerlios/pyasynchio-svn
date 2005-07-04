@@ -4,7 +4,7 @@
 /**
  *  @file    TLI_Connector.h
  *
- *  TLI_Connector.h,v 4.16 2003/07/19 19:04:14 dhinton Exp
+ *  TLI_Connector.h,v 4.17 2004/06/16 07:57:22 jwillemsen Exp
  *
  *  @author Doug Schmidt
  */
@@ -118,7 +118,7 @@ public:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/TLI_Connector.i"
+#include "ace/TLI_Connector.inl"
 #endif /* __ACE_INLINE__ */
 
 #endif /* ACE_HAS_TLI */

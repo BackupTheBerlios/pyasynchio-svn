@@ -4,7 +4,7 @@
 /**
  *  @file    Containers.h
  *
- *  Containers.h,v 4.60 2003/07/19 19:04:11 dhinton Exp
+ *  Containers.h,v 4.61 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Douglas C.  Schmidt <schmidt@cs.wustl.edu>
  */
@@ -63,7 +63,7 @@ protected:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Containers.i"
+#include "ace/Containers.inl"
 #endif /* __ACE_INLINE__ */
 
 #include "ace/Containers_T.h"

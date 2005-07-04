@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="7.10"
 	Name="TMCast"
-	ProjectGUID="{6954E1FE-FECA-1BAD-5646-8F6A0B75AEE5}"
+	ProjectGUID="{6954E1FE-FECA-1BAD-5646-8F6A9FE45BA4}"
 	SccProjectName=""
 	SccLocalPath="">
 	<Platforms>
@@ -14,10 +14,11 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="..\..\lib"
-			IntermediateDirectory="Release/TMCast"
+			IntermediateDirectory="Release\TMCast"
 			ConfigurationType="2"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE">
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="0">
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="3"
@@ -28,7 +29,7 @@
 				RuntimeLibrary="2"
 				BufferSecurityCheck="TRUE"
 				EnableFunctionLevelLinking="TRUE"
-				TreatWChar_tAsBuiltInType="TRUE"
+				TreatWChar_tAsBuiltInType="FALSE"
 				ForceConformanceInForLoopScope="TRUE"
 				RuntimeTypeInfo="TRUE"
 				WarningLevel="3"
@@ -40,20 +41,18 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ACE.lib"
-				OutputFile="$(OutDir)/TMCast.dll"
-				Version="5.4"
+				OutputFile="$(OutDir)\TMCast.dll"
+				Version="5.403"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="..\..\lib"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile="$(OutDir)/TMCast.pdb"
+				ProgramDatabaseFile="$(OutDir)\TMCast.pdb"
 				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				ImportLibrary="$(OutDir)/TMCast.lib"
-			/>
-			<Tool
-				Name="VCMIDLTool"/>
+				ImportLibrary="..\..\lib\TMCast.lib"
+				TargetMachine="1"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
@@ -73,10 +72,11 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="..\..\lib"
-			IntermediateDirectory="Debug/TMCast"
+			IntermediateDirectory="Debug\TMCast"
 			ConfigurationType="2"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE">
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="0">
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
@@ -88,7 +88,7 @@
 				RuntimeLibrary="3"
 				BufferSecurityCheck="TRUE"
 				EnableFunctionLevelLinking="TRUE"
-				TreatWChar_tAsBuiltInType="TRUE"
+				TreatWChar_tAsBuiltInType="FALSE"
 				ForceConformanceInForLoopScope="TRUE"
 				RuntimeTypeInfo="TRUE"
 				WarningLevel="3"
@@ -100,18 +100,16 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ACEd.lib"
-				OutputFile="$(OutDir)/TMCastd.dll"
-				Version="5.4"
+				OutputFile="$(OutDir)\TMCastd.dll"
+				Version="5.403"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="..\..\lib"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile="$(OutDir)/TMCastd.pdb"
+				ProgramDatabaseFile="$(OutDir)\TMCastd.pdb"
 				SubSystem="1"
-				ImportLibrary="$(OutDir)/TMCastd.lib"
-			/>
-			<Tool
-				Name="VCMIDLTool"/>
+				ImportLibrary="..\..\lib\TMCastd.lib"
+				TargetMachine="1"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
@@ -135,6 +133,9 @@
 			Filter="cpp;cxx;cc;C;c">
 			<File
 				RelativePath="Group.cpp">
+			</File>
+			<File
+				RelativePath="MTQueue.cpp">
 			</File>
 			<File
 				RelativePath="Protocol.cpp">

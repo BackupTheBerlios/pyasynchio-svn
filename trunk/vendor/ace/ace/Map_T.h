@@ -4,7 +4,7 @@
 /**
  *  @file    Map_T.h
  *
- *  Map_T.h,v 4.22 2003/07/19 19:04:12 dhinton Exp
+ *  Map_T.h,v 4.24 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Irfan Pyarali <irfan@cs.wustl.edu>
  */
@@ -161,8 +161,8 @@ public:
   ACE_Iterator<T> &operator= (const ACE_Iterator<T> &rhs);
 
   /// Comparison operators.
-  int operator== (const ACE_Iterator<T> &rhs) const;
-  int operator!= (const ACE_Iterator<T> &rhs) const;
+  bool operator== (const ACE_Iterator<T> &rhs) const;
+  bool operator!= (const ACE_Iterator<T> &rhs) const;
 
   /// Dereference operator.
   T operator *() const;
@@ -216,9 +216,15 @@ public:
   /// Assignment operator.
   ACE_Reverse_Iterator<T> &operator= (const ACE_Reverse_Iterator<T> &rhs);
 
-  /// Comparison operators.
-  int operator== (const ACE_Reverse_Iterator<T> &rhs) const;
-  int operator!= (const ACE_Reverse_Iterator<T> &rhs) const;
+  /**
+   * @name Comparison Operators
+   *
+   * The usual equality operators.
+   */
+  //@{
+  bool operator== (const ACE_Reverse_Iterator<T> &rhs) const;
+  bool operator!= (const ACE_Reverse_Iterator<T> &rhs) const;
+  //@}
 
   /// Dereference operator.
   T operator *() const;
@@ -1586,7 +1592,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Map_T.i"
+#include "ace/Map_T.inl"
 #endif /* __ACE_INLINE__ */
 
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)

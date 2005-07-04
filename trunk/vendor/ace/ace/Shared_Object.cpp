@@ -1,19 +1,20 @@
 // Shared_Object.cpp
-// Shared_Object.cpp,v 4.6 2003/08/17 23:08:19 ossama Exp
+// Shared_Object.cpp,v 4.8 2004/09/01 06:59:43 jwillemsen Exp
 
 #include "ace/Shared_Object.h"
 #include "ace/Global_Macros.h"
+#include "ace/config-all.h"
 
 /* Provide the abstract base class used to access dynamic linking
    facilities */
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Shared_Object.i"
+#include "ace/Shared_Object.inl"
 #endif /* __ACE_INLINE__ */
 
 ACE_RCSID (ace,
            Shared_Object,
-           "Shared_Object.cpp,v 4.6 2003/08/17 23:08:19 ossama Exp")
+           "Shared_Object.cpp,v 4.8 2004/09/01 06:59:43 jwillemsen Exp")
 
 // Initializes object when dynamic linking occurs.
 

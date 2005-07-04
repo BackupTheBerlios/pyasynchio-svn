@@ -6,7 +6,7 @@
  *
  *  semaphores (REALTIME)
  *
- *  os_semaphore.h,v 1.3 2003/07/19 19:04:15 dhinton Exp
+ *  os_semaphore.h,v 1.4 2004/12/20 13:25:38 jwillemsen Exp
  *
  *  @author Don Hinton <dhinton@dresystems.com>
  *  @author This code was originally in various places including ace/OS.h.
@@ -29,10 +29,6 @@
 #if !defined (ACE_LACKS_SEMAPHORE_H)
 # include /**/ <semaphore.h>
 #endif /* !ACE_LACKS_SEMAPHORE_H */
-
-#if defined (VXWORKS)
-#  include /**/ <semLib.h>
-#endif /* VXWORKS */
 
 // Place all additions (especially function declarations) within extern "C" {}
 #ifdef __cplusplus

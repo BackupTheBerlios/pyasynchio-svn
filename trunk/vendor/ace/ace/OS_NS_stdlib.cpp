@@ -1,9 +1,10 @@
-// -*- C++ -*-
-// OS_NS_stdlib.cpp,v 1.4 2004/01/08 15:49:42 pmorrison Exp
+// OS_NS_stdlib.cpp,v 1.20 2004/11/05 16:16:10 mcorino Exp
 
 #include "ace/OS_NS_stdlib.h"
 
-ACE_RCSID(ace, OS_NS_stdlib, "OS_NS_stdlib.cpp,v 1.4 2004/01/08 15:49:42 pmorrison Exp")
+ACE_RCSID (ace,
+           OS_NS_stdlib,
+           "OS_NS_stdlib.cpp,v 1.20 2004/11/05 16:16:10 mcorino Exp")
 
 #if !defined (ACE_HAS_INLINED_OSCALLS)
 # include "ace/OS_NS_stdlib.inl"
@@ -13,10 +14,22 @@ ACE_RCSID(ace, OS_NS_stdlib, "OS_NS_stdlib.cpp,v 1.4 2004/01/08 15:49:42 pmorris
 
 #include "ace/OS_NS_unistd.h"
 
-#if defined (ACE_LACKS_MKTEMP)
+#if defined (ACE_LACKS_MKTEMP) \
+    || defined (ACE_LACKS_MKSTEMP) \
+    || defined (ACE_LACKS_REALPATH)
 #  include "ace/OS_NS_stdio.h"
 #  include "ace/OS_NS_sys_stat.h"
-#endif /* ACE_LACKS_MKTEMP */
+#endif /* ACE_LACKS_MKTEMP || ACE_LACKS_MKSTEMP || ACE_LACKS_REALPATH */
+
+#if defined (ACE_LACKS_MKSTEMP)
+#  include "ace/OS_NS_fcntl.h"
+#  include "ace/OS_NS_ctype.h"
+#  include "ace/OS_NS_sys_time.h"
+
+#  if !defined (ACE_HAS_WINCE) && !defined (ACE_VXWORKS)
+#    include /**/ <limits>
+#  endif
+#endif  /* ACE_LACKS_MKSTEMP */
 
 ACE_EXIT_HOOK ACE_OS::exit_hook_ = 0;
 
@@ -259,6 +272,177 @@ ACE_OS::realloc (void *ptr, size_t nbytes)
   return ACE_REALLOC_FUNC (ACE_MALLOC_T (ptr), nbytes);
 }
 
+#if defined (ACE_LACKS_REALPATH) && !defined (ACE_HAS_WINCE)
+char *
+ACE_OS::realpath (const char *file_name,
+                  char *resolved_name)
+{
+  ACE_OS_TRACE ("ACE_OS::realpath");
+
+  if (file_name == 0)
+    {
+      // Single Unix Specification V3:
+      //   Return an error if parameter is a null pointer.
+      errno = EINVAL;
+      return 0;
+    }
+
+  if (*file_name == '\0')
+    {
+      // Single Unix Specification V3:
+      //   Return an error if the file_name argument points
+      //   to an empty string.
+      errno = ENOENT;
+      return 0;
+    }
+
+  char* rpath;
+
+  if (resolved_name == 0)
+    {
+      // Single Unix Specification V3:
+      //   Return an error if parameter is a null pointer.
+      //
+      // To match glibc realpath() and Win32 _fullpath() behavior,
+      // allocate room for the return value if resolved_name is
+      // a null pointer.
+      rpath = static_cast<char*>(ACE_OS::malloc (PATH_MAX));
+      if (rpath == 0)
+        {
+          errno = ENOMEM;
+          return 0;
+        }
+    }
+  else
+    {
+      rpath = resolved_name;
+    }
+
+  char* dest;
+
+  if (*file_name != '/')
+    {
+      // file_name is relative path so CWD needs to be added
+      if (ACE_OS::getcwd (rpath, PATH_MAX) == 0)
+        {
+          if (resolved_name == 0)
+            ACE_OS::free (rpath);
+          return 0;
+        }
+      dest = ACE_OS::strchr (rpath, '\0');
+    }
+  else
+    {
+      dest = rpath;
+    }
+
+  char expand_buf[PATH_MAX]; // Extra buffer needed to expand symbolic links
+  int nlinks = 0;
+
+  while (*file_name)
+    {
+      *dest++ = '/';
+
+      // Skip multiple separators
+      while (*file_name == '/')
+        ++file_name;
+
+      char* start = dest;
+
+      // Process one path component
+      while (*file_name && *file_name != '/')
+        {
+          *dest++ = *file_name++;
+          if (dest - rpath > PATH_MAX)
+            {
+              errno = ENAMETOOLONG;
+              if (resolved_name == 0)
+                ACE_OS::free (rpath);
+              return 0;
+            }
+        }
+
+      if (start == dest) // Are we done?
+        {
+          if (dest - rpath > 1)
+            --dest; // Remove trailing separator if not at root
+          break;
+        }
+      else if (dest - start == 1 && *start == '.')
+        {
+          dest -= 2; // Remove "./"
+        }
+      else if (dest - start == 2 && *start == '.' && *(start +1) == '.')
+        {
+          dest -= 3; // Remove "../"
+          if (dest > rpath) // Remove the last path component if not at root
+            while (*--dest != '/')
+              ;
+        }
+#  if !defined (ACE_LACKS_SYMLINKS)
+      else
+        {
+          ACE_stat st;
+
+          *dest = '\0';
+          if (ACE_OS::lstat(rpath, &st) < 0)
+            {
+              if (resolved_name == 0)
+              ACE_OS::free (rpath);
+                return 0;
+            }
+
+          // Check if current path is a link
+          if (S_ISLNK (st.st_mode))
+            {
+              if (++nlinks > MAXSYMLINKS)
+                {
+                  errno = ELOOP;
+                  if (resolved_name == 0)
+                    ACE_OS::free (rpath);
+                  return 0;
+                }
+
+              char link_buf[PATH_MAX];
+
+              int link_len = ACE_OS::readlink (rpath, link_buf, PATH_MAX);
+              int tail_len = ACE_OS::strlen (file_name) + 1;
+
+              // Check if there is room to expand link?
+              if (link_len + tail_len > PATH_MAX)
+                {
+                  errno = ENAMETOOLONG;
+                  if (resolved_name == 0)
+                    ACE_OS::free (rpath);
+                  return 0;
+                }
+
+              // Move tail and prefix it with expanded link
+              ACE_OS::memmove (expand_buf + link_len, file_name, tail_len);
+              ACE_OS::memcpy (expand_buf, link_buf, link_len);
+
+              if (*link_buf == '/') // Absolute link?
+                {
+                  dest = rpath;
+                }
+              else // Relative link, remove expanded link component
+                {
+                  --dest;
+                  while (*--dest != '/')
+                    ;
+                }
+              file_name = expand_buf; // Source path is now in expand_buf
+            }
+        }
+#  endif /* ACE_LACKS_SYMLINKS */
+    }
+
+  *dest = '\0';
+
+  return rpath;
+}
+#endif /* ACE_LACKS_REALPATH && !ACE_HAS_WINCE */
+
 #if defined (ACE_LACKS_STRTOL)
 long
 ACE_OS::strtol_emulation (const char *nptr, char **endptr, int base)
@@ -407,3 +591,98 @@ ACE_OS::strtoul_emulation (const char *nptr,
 }
 #endif /* ACE_LACKS_STRTOUL */
 
+
+#if defined (ACE_LACKS_MKSTEMP)
+ACE_HANDLE
+ACE_OS::mkstemp_emulation (ACE_TCHAR * s)
+{
+  if (s == 0)
+    {
+      errno = EINVAL;
+      return ACE_INVALID_HANDLE;
+    }
+
+  // The "XXXXXX" template to be filled in.
+  ACE_TCHAR * const t  = ACE_OS::strstr (s, ACE_TEXT ("XXXXXX"));
+
+  if (t == 0)
+    {
+      errno = EINVAL;
+      return ACE_INVALID_HANDLE;
+    }
+
+  static unsigned int const NUM_RETRIES = 50;
+  static unsigned int const NUM_CHARS   = 6;  // Do not change!
+
+  ACE_RANDR_TYPE seed =
+    static_cast<ACE_RANDR_TYPE> (ACE_OS::gettimeofday ().msec ());
+
+  // We only care about UTF-8 / ASCII characters in generated
+  // filenames.  A UTF-16 or UTF-32 character could potentially cause
+  // a very large space to be searched in the below do/while() loop,
+  // greatly slowing down this mkstemp() implementation.  It is more
+  // practical to limit the search space to UTF-8 / ASCII characters
+  // (i.e. 127 characters).
+#  if defined (ACE_HAS_WINCE) || defined (ACE_VXWORKS)
+  static float const MAX_VAL = static_cast<float> (127);
+#else
+  static float const MAX_VAL =
+    static_cast<float> (std::numeric_limits<char>::max ());
+#endif /* ACE_HAS_WINCE */
+
+  // Use high-order bits rather than low-order ones (e.g. rand() %
+  // MAX_VAL).  See Numerical Recipes in C: The Art of Scientific
+  // Computing (William  H. Press, Brian P. Flannery, Saul
+  // A. Teukolsky, William T. Vetterling; New York: Cambridge
+  // University Press, 1992 (2nd ed., p. 277).
+  //
+  // e.g.: MAX_VAL * rand() / (RAND_MAX + 1.0)
+
+  // Factor out the constant coefficient.
+  static float const coefficient =
+    static_cast<float> (MAX_VAL / (RAND_MAX + 1.0f));
+
+  // @@ These nested loops may be ineffecient.  Improvements are
+  //    welcome.
+  for (unsigned int i = 0; i < NUM_RETRIES; ++i)
+    {
+      for (unsigned int n = 0; n < NUM_CHARS; ++n)
+        {
+          ACE_TCHAR r;
+
+          // This do/while() loop allows this alphanumeric character
+          // selection to work for EBCDIC, as well.
+          do
+            {
+              r =
+                static_cast<ACE_TCHAR> (coefficient * ACE_OS::rand_r (seed));
+            }
+          while (!ACE_OS::ace_isalnum (r));
+
+          t[n] = r;
+        }
+
+      static int const perms =
+#if defined (ACE_WIN32)
+        0;      /* Do not share while open. */
+#else
+        0600;   /* S_IRUSR | S_IWUSR */
+#endif  /* ACE_WIN32 */
+
+      // Create the file with the O_EXCL bit set to ensure that we're
+      // not subject to a symbolic link attack.
+      //
+      // Note that O_EXCL is subject to a race condition over NFS
+      // filesystems.
+      ACE_HANDLE const handle = ACE_OS::open (s,
+                                              O_RDWR | O_CREAT | O_EXCL,
+                                              perms);
+
+      if (handle != ACE_INVALID_HANDLE)
+        return handle;
+    }
+
+  errno = EEXIST;  // Couldn't create a unique temporary file.
+  return ACE_INVALID_HANDLE;
+}
+#endif /* ACE_LACKS_MKSTEMP */

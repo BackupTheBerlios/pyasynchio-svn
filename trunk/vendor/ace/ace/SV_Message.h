@@ -4,7 +4,7 @@
 /**
  *  @file    SV_Message.h
  *
- *  SV_Message.h,v 4.12 2003/11/01 11:15:17 dhinton Exp
+ *  SV_Message.h,v 4.13 2004/06/16 07:57:22 jwillemsen Exp
  *
  *  @author Doug Schmidt
  */
@@ -54,7 +54,7 @@ protected:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/SV_Message.i"
+#include "ace/SV_Message.inl"
 #endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"

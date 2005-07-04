@@ -4,7 +4,7 @@
 /**
  *  @file    Based_Pointer_T.h
  *
- *  Based_Pointer_T.h,v 4.18 2003/07/30 21:15:58 dhinton Exp
+ *  Based_Pointer_T.h,v 4.21 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Dietrich Quehl <Dietrich.Quehl@med.siemens.de>
  *  @author Douglas C. Schmidt <schmidt@.cs.wustl.edu>
@@ -17,6 +17,7 @@
 #include /**/ "ace/pre.h"
 
 #include "ace/config-all.h"
+#include "ace/Basic_Types.h"
 
 #if defined (_MSC_VER)
 // Suppress warning e.g. "return type for
@@ -100,22 +101,22 @@ public:
   CONCRETE operator * (void) const;
 
   /// Less than operator.
-  int operator < (const ACE_Based_Pointer_Basic<CONCRETE> &) const;
+  bool operator < (const ACE_Based_Pointer_Basic<CONCRETE> &) const;
 
   /// Less than or equal operator.
-  int operator <= (const ACE_Based_Pointer_Basic<CONCRETE> &) const;
+  bool operator <= (const ACE_Based_Pointer_Basic<CONCRETE> &) const;
 
   /// Greater than operator.
-  int operator > (const ACE_Based_Pointer_Basic<CONCRETE> &) const;
+  bool operator > (const ACE_Based_Pointer_Basic<CONCRETE> &) const;
 
   /// Greater than or equal operator.
-  int operator >= (const ACE_Based_Pointer_Basic<CONCRETE> &) const;
+  bool operator >= (const ACE_Based_Pointer_Basic<CONCRETE> &) const;
 
   /// Equality operator.
-  int operator == (const ACE_Based_Pointer_Basic<CONCRETE> &) const;
+  bool operator == (const ACE_Based_Pointer_Basic<CONCRETE> &) const;
 
   /// Inequality operator.
-  int operator != (const ACE_Based_Pointer_Basic<CONCRETE> &) const;
+  bool operator != (const ACE_Based_Pointer_Basic<CONCRETE> &) const;
 
   /// Subscript operator.
   CONCRETE operator [](int index) const;
@@ -136,10 +137,10 @@ public:
   void dump (void) const;
 
 protected:
-  long target_;
+  ptrdiff_t target_;
 
   /// Keep track of our offset from the base pointer.
-  long base_offset_;
+  ptrdiff_t base_offset_;
 };
 
 /**
@@ -184,7 +185,7 @@ public:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Based_Pointer_T.i"
+#include "ace/Based_Pointer_T.inl"
 #endif /* __ACE_INLINE__ */
 
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)

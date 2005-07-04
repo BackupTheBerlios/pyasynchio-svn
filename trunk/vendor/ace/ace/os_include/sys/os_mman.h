@@ -6,7 +6,7 @@
  *
  *  memory management declarations
  *
- *  os_mman.h,v 1.5 2003/11/01 11:15:19 dhinton Exp
+ *  os_mman.h,v 1.6 2004/08/25 16:05:41 shuston Exp
  *
  *  @author Don Hinton <dhinton@dresystems.com>
  *  @author This code was originally in various places including ace/OS.h.
@@ -18,7 +18,7 @@
 
 #include /**/ "ace/pre.h"
 
-#include "ace/config-all.h"
+#include "ace/config-lite.h"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once

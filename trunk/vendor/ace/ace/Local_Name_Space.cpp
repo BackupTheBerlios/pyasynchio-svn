@@ -8,7 +8,7 @@
 
 ACE_RCSID (ace,
            Local_Name_Space,
-           "Local_Name_Space.cpp,v 4.30 2003/11/07 20:27:28 shuston Exp")
+           "Local_Name_Space.cpp,v 4.32 2004/05/05 21:16:27 ossama Exp")
 
 ACE_NS_String::~ACE_NS_String (void)
 {
@@ -89,14 +89,14 @@ ACE_NS_String::strstr (const ACE_NS_String &s) const
 
           if (j == pat_len)
             // Found a match!  Return the index.
-            return ACE_static_cast (int, i);
+            return static_cast<int> (i);
         }
 
       return -1;
     }
 }
 
-int
+bool
 ACE_NS_String::operator == (const ACE_NS_String &s) const
 {
   ACE_TRACE ("ACE_NS_String::operator ==");
@@ -105,7 +105,7 @@ ACE_NS_String::operator == (const ACE_NS_String &s) const
                        (void *) s.rep_, this->len_) == 0;
 }
 
-int
+bool
 ACE_NS_String::operator != (const ACE_NS_String &s) const
 {
   ACE_TRACE ("ACE_NS_String::operator !=");
@@ -127,8 +127,7 @@ u_long
 ACE_NS_String::hash (void) const
 {
   return ACE::hash_pjw
-    (ACE_reinterpret_cast (char *, ACE_const_cast (ACE_WCHAR_T *,
-                                                   this->rep_)),
+    (reinterpret_cast<char *> (const_cast<ACE_WCHAR_T *> (this->rep_)),
      this->len_);
 }
 
@@ -143,7 +142,7 @@ ACE_NS_Internal::ACE_NS_Internal (ACE_NS_String &value, const char *type)
   ACE_TRACE ("ACE_NS_Internal::ACE_NS_Internal");
 }
 
-int
+bool
 ACE_NS_Internal::operator == (const ACE_NS_Internal &s) const
 {
   ACE_TRACE ("ACE_NS_Internal::operator ==");

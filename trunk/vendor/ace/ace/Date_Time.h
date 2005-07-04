@@ -4,7 +4,7 @@
 /**
  *  @file    Date_Time.h
  *
- *  Date_Time.h,v 4.18 2003/07/19 19:04:11 dhinton Exp
+ *  Date_Time.h,v 4.21 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Tim Harrison (harrison@cs.wustl.edu) (and he's darn proud of this ;-))
  *
@@ -35,7 +35,7 @@ public:
   ACE_Date_Time (void);
 
   /// Constructor initializes with the given ACE_Time_Value
-  ACE_EXPLICIT ACE_Date_Time (const ACE_Time_Value& timevalue);
+  explicit ACE_Date_Time (const ACE_Time_Value& timevalue);
 
   /// Constructor with init values, no check for validy
   /// Set/get portions of ACE_Date_Time, no check for validity.
@@ -113,9 +113,9 @@ private:
   long wday_;
 };
 
-#if !defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/Date_Time.i"
-#endif
+#if defined (__ACE_INLINE__)
+#include "ace/Date_Time.inl"
+#endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"
 #endif /* ACE_DATE_TIME_H */

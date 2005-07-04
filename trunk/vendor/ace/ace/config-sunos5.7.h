@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// config-sunos5.7.h,v 4.25 2003/04/22 18:53:40 elliott_c Exp
+// config-sunos5.7.h,v 4.28 2004/03/22 19:32:57 shuston Exp
 
 // The following configuration file is designed to work for SunOS 5.7
 // (Solaris 7) platforms using the SunC++ 4.x, 5.x, or g++ compilers.
@@ -14,6 +14,9 @@
 
 // Sun began distributing <sys/loadavg.h> with SunOS 5.7
 #define ACE_HAS_SYS_LOADAVG_H
+
+// SunOS 5.7 has getloadavg()
+#undef ACE_LACKS_GETLOADAVG
 
 #if defined (__GNUG__)
 # if __GNUC__ <= 2  &&  __GNUC_MINOR__ < 8
@@ -57,13 +60,6 @@ typedef unsigned long long uint64_t;
 #if !defined (ACE_HAS_AIO_CALLS)
 #define ACE_HAS_AIO_CALLS
 #endif /* !ACE_HAS_AIO_CALLS */
-
-#if defined (ACE_POSIX_AIOCB_PROACTOR)
-#undef ACE_POSIX_AIOCB_PROACTOR
-#endif /* ACE_POSIX_AIOCB_PROACTOR */
-
-// This is anyway default.
-#define ACE_POSIX_SIG_PROACTOR
 
 #ifdef ACE_HAS_LIMITED_SELECT
 #undef ACE_HAS_LIMITED_SELECT

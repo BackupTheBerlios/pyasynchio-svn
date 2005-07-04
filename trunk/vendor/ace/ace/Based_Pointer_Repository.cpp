@@ -1,4 +1,4 @@
-// Based_Pointer_Repository.cpp,v 4.16 2003/11/05 23:30:46 shuston Exp
+// Based_Pointer_Repository.cpp,v 4.18 2004/06/25 08:02:31 jwillemsen Exp
 
 #include "ace/Map_Manager.h"
 #include "ace/Based_Pointer_Repository.h"
@@ -10,7 +10,7 @@
 /**
  * @class ACE_Based_Pointer_Repository_Rep
  *
- * @brief Implementation for the <ACE_Based_Pointer_Repository>.
+ * @brief Implementation for the ACE_Based_Pointer_Repository.
  *
  * Every memory pool in ACE binds it's mapping base address and
  * the mapped size to this repository every time it maps/remaps a
@@ -125,7 +125,7 @@ template class ACE_Map_Iterator_Base<void *, size_t, ACE_Null_Mutex>;
 #pragma instantiate ACE_Map_Iterator<void *, size_t, ACE_Null_Mutex>
 #pragma instantiate ACE_Map_Reverse_Iterator<void *, size_t, ACE_Null_Mutex>
 #pragma instantiate ACE_Map_Iterator_Base<void *, size_t, ACE_Null_Mutex>
-#elif defined (__GNUC__) && (defined (_AIX) || defined (__hpux) || defined (VXWORKS))
+#elif defined (ACE_HAS_EXPLICIT_STATIC_TEMPLATE_MEMBER_INSTANTIATION)
 template ACE_Singleton<ACE_Based_Pointer_Repository, ACE_SYNCH_RW_MUTEX> *
   ACE_Singleton<ACE_Based_Pointer_Repository, ACE_SYNCH_RW_MUTEX>::singleton_;
 #endif /* ACE_HAS_EXPLICIT_TEMPLATE_INSTANTIATION */

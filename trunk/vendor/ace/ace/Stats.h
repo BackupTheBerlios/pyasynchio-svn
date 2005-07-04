@@ -4,7 +4,7 @@
 /**
  *  @file    Stats.h
  *
- *  Stats.h,v 4.23 2003/11/01 11:15:17 dhinton Exp
+ *  Stats.h,v 4.24 2004/06/16 07:57:22 jwillemsen Exp
  *
  *  @author David L. Levine
  */
@@ -264,7 +264,7 @@ private:
 
 
 #if defined (__ACE_INLINE__)
-# include "ace/Stats.i"
+# include "ace/Stats.inl"
 #endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"

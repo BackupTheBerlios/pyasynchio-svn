@@ -3,10 +3,10 @@
 /**
  *  @file    Time_Request_Reply.h
  *
- *  Time_Request_Reply.h,v 4.14 2003/07/19 19:04:14 dhinton Exp
+ *  Time_Request_Reply.h,v 4.15 2004/08/04 16:26:08 schmidt Exp
  *
  *  Define the format used to exchange messages between the
- *  ACE_Time_Server and clerks.
+ *  ACE time server and clerks.
  *
  *  @author  Prashant Jain
  */

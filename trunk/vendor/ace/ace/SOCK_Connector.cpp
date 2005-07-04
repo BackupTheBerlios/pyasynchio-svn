@@ -1,19 +1,22 @@
 // SOCK_Connector.cpp
-// SOCK_Connector.cpp,v 4.40 2003/07/27 20:48:27 dhinton Exp
+// SOCK_Connector.cpp,v 4.43 2004/06/16 07:57:21 jwillemsen Exp
 
 #include "ace/SOCK_Connector.h"
 #include "ace/INET_Addr.h"
 #include "ace/Log_Msg.h"
+#include "ace/OS_NS_unistd.h"
+#include "ace/OS_NS_sys_socket.h"
+#include "ace/os_include/os_fcntl.h"
 
 #if !defined (ACE_HAS_WINCE)
 #include "ace/OS_QoS.h"
 #endif  // ACE_HAS_WINCE
 
-#if defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/SOCK_Connector.i"
-#endif /* ACE_LACKS_INLINE_FUNCTIONS */
+#if !defined (__ACE_INLINE__)
+#include "ace/SOCK_Connector.inl"
+#endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, SOCK_Connector, "SOCK_Connector.cpp,v 4.40 2003/07/27 20:48:27 dhinton Exp")
+ACE_RCSID(ace, SOCK_Connector, "SOCK_Connector.cpp,v 4.43 2004/06/16 07:57:21 jwillemsen Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_SOCK_Connector)
 

@@ -10,9 +10,12 @@
 #include "SSL_Context.inl"
 #endif /* __ACE_INLINE__ */
 
+#include "ace/Guard_T.h"
 #include "ace/Object_Manager.h"
 #include "ace/Log_Msg.h"
 #include "ace/Singleton.h"
+#include "ace/Synch_Traits.h"
+#include "ace/OS_NS_errno.h"
 
 #include <openssl/x509.h>
 #include <openssl/err.h>
@@ -20,7 +23,7 @@
 
 ACE_RCSID (ACE_SSL,
            SSL_Context,
-           "SSL_Context.cpp,v 1.44 2004/01/08 16:12:19 shuston Exp")
+           "SSL_Context.cpp,v 1.47 2004/06/14 13:58:59 jwillemsen Exp")
 
 #ifdef ACE_HAS_THREADS
 ACE_mutex_t * ACE_SSL_Context::lock_ = 0;
@@ -532,7 +535,7 @@ template class ACE_Singleton<ACE_SSL_Context, ACE_SYNCH_MUTEX>;
 
 #pragma instantiate ACE_Singleton<ACE_SSL_Context, ACE_SYNCH_MUTEX>
 
-#elif defined (__GNUC__) && (defined (_AIX) || defined (__hpux))
+#elif defined (ACE_HAS_EXPLICIT_STATIC_TEMPLATE_MEMBER_INSTANTIATION)
 
 template ACE_Singleton<ACE_SSL_Context, ACE_SYNCH_MUTEX> *
   ACE_Singleton<ACE_SSL_Context, ACE_SYNCH_MUTEX>::singleton_;

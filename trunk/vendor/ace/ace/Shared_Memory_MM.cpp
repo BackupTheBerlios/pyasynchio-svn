@@ -1,13 +1,13 @@
 // Shared_Memory_MM.cpp
-// Shared_Memory_MM.cpp,v 4.6 2003/07/27 20:48:27 dhinton Exp
+// Shared_Memory_MM.cpp,v 4.7 2004/06/16 07:57:21 jwillemsen Exp
 
 #include "ace/Shared_Memory_MM.h"
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Shared_Memory_MM.i"
+#include "ace/Shared_Memory_MM.inl"
 #endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, Shared_Memory_MM, "Shared_Memory_MM.cpp,v 4.6 2003/07/27 20:48:27 dhinton Exp")
+ACE_RCSID(ace, Shared_Memory_MM, "Shared_Memory_MM.cpp,v 4.7 2004/06/16 07:57:21 jwillemsen Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_Shared_Memory_MM)
 

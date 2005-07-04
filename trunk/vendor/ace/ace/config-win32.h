@@ -3,7 +3,7 @@
 /**
  *  @file   config-win32.h
  *
- *  config-win32.h,v 4.66 2003/11/05 07:46:11 jwillemsen Exp
+ *  config-win32.h,v 4.67 2004/09/23 14:32:52 jwillemsen Exp
  *
  *  @brief  Microsoft Windows configuration file.
  *
@@ -47,6 +47,8 @@
 #    include "ace/config-win32-ghs.h"
 #elif defined (__MINGW32__)
 #    include "ace/config-win32-mingw.h"
+#elif defined (__DMC__)
+#    include "ace/config-win32-dmc.h"
 #else
 #    error Compiler is not supported
 #endif

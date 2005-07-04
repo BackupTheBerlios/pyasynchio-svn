@@ -6,7 +6,7 @@
  *
  *  additional definitions for date and time
  *
- *  os_timeb.h,v 1.2 2003/07/19 19:04:15 dhinton Exp
+ *  os_timeb.h,v 1.3 2004/08/25 16:05:42 shuston Exp
  *
  *  @author Don Hinton <dhinton@dresystems.com>
  *  @author This code was originally in various places including ace/OS.h.
@@ -18,7 +18,7 @@
 
 #include /**/ "ace/pre.h"
 
-#include "ace/config-all.h"
+#include "ace/config-lite.h"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once

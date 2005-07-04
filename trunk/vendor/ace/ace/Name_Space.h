@@ -4,7 +4,7 @@
 /**
  *  @file    Name_Space.h
  *
- *  Name_Space.h,v 4.18 2004/01/01 23:03:38 shuston Exp
+ *  Name_Space.h,v 4.19 2004/04/23 03:06:18 ossama Exp
  *
  *  @author Prashant Jain
  */
@@ -54,7 +54,7 @@ public:
   ~ACE_Name_Binding (void);
 
   /// Test for equality.
-  int operator == (const ACE_Name_Binding &s) const;
+  bool operator == (const ACE_Name_Binding &s) const;
 
   /// Name of the binding.
   ACE_NS_WString name_;

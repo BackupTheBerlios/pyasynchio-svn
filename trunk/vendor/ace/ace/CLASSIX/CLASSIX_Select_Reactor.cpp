@@ -1,4 +1,4 @@
-// CLASSIX_Select_Reactor.cpp,v 1.3 2001/03/04 00:55:32 brunsch Exp
+// CLASSIX_Select_Reactor.cpp,v 1.4 2004/01/29 20:07:41 bala Exp
 /*
 // ============================================================================
 //
@@ -267,7 +267,7 @@ ACE_CLASSIX_Select_Reactor_Notify::handle_input (ACE_HANDLE handle)
 	// probably best just to return -1.
 	ACE_DEBUG((LM_DEBUG, 
 		   "ACE_CLASSIX_Select_Reactor_Notify:: "
-		   "read not expected by the reactor\n", n1));
+		   "read returned %d not expected by the reactor\n", n1));
 	return -1;
     }
 

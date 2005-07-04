@@ -1,13 +1,13 @@
 // SOCK_Stream.cpp
-// SOCK_Stream.cpp,v 4.9 2003/07/27 20:48:27 dhinton Exp
+// SOCK_Stream.cpp,v 4.11 2004/06/16 07:57:21 jwillemsen Exp
 
 #include "ace/SOCK_Stream.h"
 
-#if defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/SOCK_Stream.i"
-#endif
+#if !defined (__ACE_INLINE__)
+#include "ace/SOCK_Stream.inl"
+#endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, SOCK_Stream, "SOCK_Stream.cpp,v 4.9 2003/07/27 20:48:27 dhinton Exp")
+ACE_RCSID(ace, SOCK_Stream, "SOCK_Stream.cpp,v 4.11 2004/06/16 07:57:21 jwillemsen Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_SOCK_Stream)
 

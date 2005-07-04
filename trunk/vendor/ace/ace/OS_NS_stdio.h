@@ -4,7 +4,7 @@
 /**
  *  @file   OS_NS_stdio.h
  *
- *  OS_NS_stdio.h,v 1.6 2003/11/05 21:22:27 dhinton Exp
+ *  OS_NS_stdio.h,v 1.13 2004/12/20 14:17:30 jwillemsen Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  *  @author Jesper S. M|ller<stophph@diku.dk>
@@ -177,7 +177,12 @@ namespace ACE_OS {
   int fgetpos (FILE* fp, fpos_t* pos);
 
   ACE_NAMESPACE_INLINE_FUNCTION
-  ACE_TCHAR *fgets (ACE_TCHAR *buf, int size, FILE *fp);
+  char *fgets (char *buf, int size, FILE *fp);
+
+# if defined (ACE_HAS_WCHAR) && !defined(ACE_LACKS_FGETWS)
+  ACE_NAMESPACE_INLINE_FUNCTION
+  wchar_t *fgets (wchar_t *buf, int size, FILE *fp);
+# endif /* ACE_HAS_WCHAR && !ACE_LACKS_FGETWS */
 
   //@{ @name A set of wrappers for file locks.
 
@@ -236,13 +241,25 @@ namespace ACE_OS {
 #else
   ACE_NAMESPACE_INLINE_FUNCTION
 #endif /* ACE_WIN32 */
-  FILE *fopen (const ACE_TCHAR *filename, const ACE_TCHAR *mode);
+  FILE *fopen (const char *filename, const ACE_TCHAR *mode);
 
-#if defined (ACE_MT_SAFE) && (ACE_MT_SAFE != 0)
-# if defined (ACE_WIN32)
-  // = Default Win32 Security Attributes definition.
+#if defined (ACE_HAS_WCHAR)
+#if defined (ACE_WIN32)
+  extern ACE_Export
+#else
+  ACE_NAMESPACE_INLINE_FUNCTION
+#endif /* ACE_WIN32 */
+  FILE *fopen (const wchar_t *filename, const ACE_TCHAR *mode);
+#endif /* ACE_HAS_WCHAR */
+
+#if defined (ACE_WIN32)
+  /// Default Win32 Security Attributes definition.
   ACE_NAMESPACE_INLINE_FUNCTION
   LPSECURITY_ATTRIBUTES default_win32_security_attributes (LPSECURITY_ATTRIBUTES);
+  ACE_NAMESPACE_INLINE_FUNCTION
+  LPSECURITY_ATTRIBUTES default_win32_security_attributes_r (LPSECURITY_ATTRIBUTES,
+                                             LPSECURITY_ATTRIBUTES,
+                                             SECURITY_DESCRIPTOR*);
 
   // = Win32 OS version determination function.
   /// Return the win32 OSVERSIONINFO structure.
@@ -271,8 +288,7 @@ namespace ACE_OS {
 
   extern ACE_Export HINSTANCE win32_resource_module_;
 
-# endif /* ACE_WIN32 */
-#endif
+#endif /* ACE_WIN32 */
 
   extern ACE_Export
   int fprintf (FILE *fp, const char *format, ...);
@@ -283,8 +299,14 @@ namespace ACE_OS {
 # endif /* ACE_HAS_WCHAR */
 
   ACE_NAMESPACE_INLINE_FUNCTION
-  int fputs (const ACE_TCHAR *s,
+  int fputs (const char *s,
              FILE *stream);
+
+# if defined (ACE_HAS_WCHAR) && !defined(ACE_LACKS_FPUTWS)
+  ACE_NAMESPACE_INLINE_FUNCTION
+  int fputs (const wchar_t *s,
+             FILE *stream);
+# endif /* ACE_HAS_WCHAR && !ACE_LACKS_FPUTWS */
 
   ACE_NAMESPACE_INLINE_FUNCTION
   size_t fread (void *ptr,
@@ -314,31 +336,49 @@ namespace ACE_OS {
                  size_t nitems,
                  FILE *fp);
 
-  // The old gets () which directly maps to the evil, unprotected
-  // gets () has been deprecated.  If you really need gets (),
-  // consider the following one.
-
-  // A better gets ().
-  //   If n == 0, input is swallowed, but NULL is returned.
-  //   Otherwise, reads up to n-1 bytes (not including the newline),
-  //              then swallows rest up to newline
-  //              then swallows newline
+  /**
+   * The old gets () which directly maps to the evil, unprotected
+   * gets () has been deprecated.  If you really need gets (),
+   * consider the following one.
+   *
+   * A better gets ().
+   * If n == 0, input is swallowed, but NULL is returned.
+   * Otherwise, reads up to n-1 bytes (not including the newline),
+   * then swallows rest up to newline then swallows newline
+   */
   extern ACE_Export
   char *gets (char *str, int n = 0);
 
   ACE_NAMESPACE_INLINE_FUNCTION
-  void perror (const ACE_TCHAR *s);
+  void perror (const char *s);
+
+#if defined (ACE_HAS_WCHAR)
+  ACE_NAMESPACE_INLINE_FUNCTION
+  void perror (const wchar_t *s);
+#endif /* ACE_HAS_WCHAR */
 
   extern ACE_Export
   int printf (const char *format, ...);
 
   ACE_NAMESPACE_INLINE_FUNCTION
-  int puts (const ACE_TCHAR *s);
+  int puts (const char *s);
+
+#if defined (ACE_HAS_WCHAR)
+  ACE_NAMESPACE_INLINE_FUNCTION
+  int puts (const wchar_t *s);
+#endif /* ACE_HAS_WCHAR */
 
   ACE_NAMESPACE_INLINE_FUNCTION
-  int rename (const ACE_TCHAR *old_name,
-              const ACE_TCHAR *new_name,
+  int rename (const char *old_name,
+              const char *new_name,
               int flags = -1);
+
+#if defined (ACE_HAS_WCHAR)
+  ACE_NAMESPACE_INLINE_FUNCTION
+  int rename (const wchar_t *old_name,
+              const wchar_t *new_name,
+              int flags = -1);
+#endif /* ACE_HAS_WCHAR */
 
   ACE_NAMESPACE_INLINE_FUNCTION
   void rewind (FILE *fp);
@@ -360,8 +400,14 @@ namespace ACE_OS {
 # endif /* ACE_HAS_WCHAR */
 
   ACE_NAMESPACE_INLINE_FUNCTION
-  ACE_TCHAR *tempnam (const ACE_TCHAR *dir = 0,
-                      const ACE_TCHAR *pfx = 0);
+  char *tempnam (const char *dir = 0,
+                 const char *pfx = 0);
+
+#if defined (ACE_HAS_WCHAR)
+  ACE_NAMESPACE_INLINE_FUNCTION
+  wchar_t *tempnam (const wchar_t *dir,
+                    const wchar_t *pfx = 0);
+#endif /* ACE_HAS_WCHAR */
 
   ACE_NAMESPACE_INLINE_FUNCTION
   int vsprintf (char *buffer, const char *format, va_list argptr);

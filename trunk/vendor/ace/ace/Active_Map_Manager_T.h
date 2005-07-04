@@ -4,7 +4,7 @@
 /**
  *  @file    Active_Map_Manager_T.h
  *
- *  Active_Map_Manager_T.h,v 4.12 2003/08/04 03:53:50 dhinton Exp
+ *  Active_Map_Manager_T.h,v 4.13 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Irfan Pyarali
  */
@@ -192,7 +192,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Active_Map_Manager_T.i"
+#include "ace/Active_Map_Manager_T.inl"
 #endif /* __ACE_INLINE__ */
 
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)

@@ -1,14 +1,22 @@
-// SOCK_SEQPACK_Connector.cpp
-// SOCK_SEQPACK_Connector.cpp,v 4.4 2003/09/16 16:04:03 gthaker Exp
+// SOCK_SEQPACK_Connector.cpp,v 4.10 2004/06/16 19:03:46 shuston Exp
 
 #include "ace/SOCK_SEQPACK_Connector.h"
 
 #include "ace/INET_Addr.h"
 #include "ace/Log_Msg.h"
+#include "ace/Time_Value.h"
+#include "ace/OS_Memory.h"
+#include "ace/OS_NS_string.h"
+#include "ace/OS_NS_sys_socket.h"
+#include "ace/os_include/os_fcntl.h"
 
-#if defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/SOCK_SEQPACK_Connector.i"
-#endif /* ACE_LACKS_INLINE_FUNCTIONS */
+#if defined (ACE_WIN32)
+#include "ace/OS_NS_unistd.h"
+#endif /* ACE_WIN32 */
+
+#if !defined (__ACE_INLINE__)
+#include "ace/SOCK_SEQPACK_Connector.inl"
+#endif /* __ACE_INLINE__ */
 
 ACE_RCSID(ace, SOCK_SEQPACK_Connector, "SOCK_SEQPACK_Connector.cpp,v 4.35 2002/03/08 23:18:09 spark Exp")
 
@@ -36,9 +44,9 @@ ACE_SOCK_SEQPACK_Connector::shared_open (ACE_SOCK_SEQPACK_Association &new_assoc
   if (new_association.get_handle () == ACE_INVALID_HANDLE &&
 #if defined (ACE_HAS_LKSCTP)
          new_association.open (SOCK_STREAM,
-#else	  
+#else
          new_association.open (SOCK_SEQPACKET,
-#endif /* ACE_HAS_LKSCTP */				      
+#endif /* ACE_HAS_LKSCTP */
                                protocol_family,
                                protocol,
                                reuse_addr) == -1)
@@ -87,7 +95,7 @@ ACE_SOCK_SEQPACK_Connector::shared_connect_start (ACE_SOCK_SEQPACK_Association &
     {
       sockaddr *laddr = ACE_reinterpret_cast (sockaddr *,
                                               local_sap.get_addr ());
-      size_t size = local_sap.get_size ();
+      int size = local_sap.get_size ();
 
       if (ACE_OS::bind (new_association.get_handle (),
                         laddr,
@@ -126,8 +134,7 @@ ACE_SOCK_SEQPACK_Connector::shared_connect_start (ACE_SOCK_SEQPACK_Association &
       // representations of the primary and secondary
       // addresses.
       sockaddr_in*  local_inet_addrs = 0;
-      ACE_NEW_NORETURN(local_inet_addrs,
-                       sockaddr_in[num_addresses]);
+      ACE_NEW_NORETURN (local_inet_addrs, sockaddr_in[num_addresses]);
       if (!local_inet_addrs)
         return -1;
 
@@ -152,14 +159,14 @@ ACE_SOCK_SEQPACK_Connector::shared_connect_start (ACE_SOCK_SEQPACK_Association &
       }
 
       // do we need to bind multiple addrs
-      if (num_addresses > 1) 
-      {      
+      if (num_addresses > 1)
+      {
         // allocate enough memory to hold the number of secondary addrs
         ACE_NEW_NORETURN(local_sockaddr,
                          sockaddr_in[num_addresses - 1]);
 
         // get sockaddr_in for the local handle
-        if (ACE_OS::getsockname(new_association.get_handle (), 
+        if (ACE_OS::getsockname(new_association.get_handle (),
                                 ACE_reinterpret_cast(sockaddr *,
                                                      &portst),
 		                                     &sn))
@@ -168,7 +175,7 @@ ACE_SOCK_SEQPACK_Connector::shared_connect_start (ACE_SOCK_SEQPACK_Association &
 	  new_association.close ();
           return -1;
         }
-        
+
 	// set the local port # assigned by the os to every secondary addr
         for (size_t i = 1; i < num_addresses; i++)
         {
@@ -182,9 +189,9 @@ ACE_SOCK_SEQPACK_Connector::shared_connect_start (ACE_SOCK_SEQPACK_Association &
                          &(local_inet_addrs[i + 1]),
                          sizeof(sockaddr_in));
         }
-      
+
         // bind other ifaces
-        if (sctp_bindx(new_association.get_handle(), 
+        if (sctp_bindx(new_association.get_handle(),
                        ACE_reinterpret_cast(sockaddr *, local_sockaddr),
                        num_addresses - 1,
                        SCTP_BINDX_ADD_ADDR))
@@ -193,16 +200,17 @@ ACE_SOCK_SEQPACK_Connector::shared_connect_start (ACE_SOCK_SEQPACK_Association &
           new_association.close ();
           return -1;
         }
-      
+
       	delete [] local_sockaddr;
       }
 #else
 
       // Call bind
+      size_t name_len = (sizeof (sockaddr_in)) * num_addresses;
       if (ACE_OS::bind (new_association.get_handle (),
                         ACE_reinterpret_cast (sockaddr *,
                                               local_inet_addrs),
-                        (sizeof (sockaddr_in))*num_addresses) == -1)
+                        ACE_static_cast (int, name_len)) == -1)
         {
           // Save/restore errno.
           ACE_Errno_Guard error (errno);

@@ -1,20 +1,21 @@
 #include "ace/SOCK_Dgram.h"
 
-#if defined (ACE_LACKS_INLINE_FUNCTIONS)
-#  include "ace/SOCK_Dgram.i"
-#endif
-
 #include "ace/Handle_Set.h"
 #include "ace/Log_Msg.h"
 #include "ace/INET_Addr.h"
 #include "ace/ACE.h"
 #include "ace/OS_NS_string.h"
+#include "ace/OS_Memory.h"
 #include "ace/OS_NS_sys_select.h"
 #include "ace/os_include/net/os_if.h"
 
+#if !defined (__ACE_INLINE__)
+#  include "ace/SOCK_Dgram.inl"
+#endif /* __ACE_INLINE__ */
+
 ACE_RCSID (ace,
            SOCK_Dgram,
-           "SOCK_Dgram.cpp,v 4.60 2003/11/17 05:54:32 bala Exp")
+           "SOCK_Dgram.cpp,v 4.67 2004/12/06 09:27:56 jwillemsen Exp")
 
 ACE_ALLOC_HOOK_DEFINE (ACE_SOCK_Dgram)
 
@@ -122,15 +123,14 @@ ACE_SOCK_Dgram::shared_open (const ACE_Addr &local,
 #endif /* ACE_HAS_IPV6 */
           )
         {
-          if (ACE::bind_port (this->get_handle (), 
-			      INADDR_ANY, 
-			      protocol_family) == -1)
+          if (ACE::bind_port (this->get_handle (),
+                              INADDR_ANY,
+                              protocol_family) == -1)
             error = 1;
         }
     }
   else if (ACE_OS::bind (this->get_handle (),
-                         ACE_reinterpret_cast (sockaddr *,
-                                               local.get_addr ()),
+                         reinterpret_cast<sockaddr *> (local.get_addr ()),
                          local.get_size ()) == -1)
     error = 1;
 
@@ -179,7 +179,7 @@ ACE_SOCK_Dgram::open (const ACE_Addr &local,
   else if (protocol_family == PF_UNSPEC)
     {
 #if defined (ACE_HAS_IPV6)
-      protocol_family = ACE_Sock_Connect::ipv6_enabled () ? PF_INET6 : PF_INET;
+      protocol_family = ACE::ipv6_enabled () ? PF_INET6 : PF_INET;
 #else
       protocol_family = PF_INET;
 #endif /* ACE_HAS_IPV6 */
@@ -508,7 +508,7 @@ ACE_SOCK_Dgram::set_nic (const char *option_value)
      nic_name specified */
   ip_mreq multicast_address;
   ACE_INET_Addr mcast_addr;
-#if defined (ACE_WIN32)
+#if defined (ACE_WIN32) || defined(__INTERIX)
   // This port number is not necessary, just convenient
   ACE_INET_Addr interface_addr;
   if (interface_addr.set (mcast_addr.get_port_number (),
@@ -533,10 +533,9 @@ ACE_SOCK_Dgram::set_nic (const char *option_value)
 
   /* Cast this into the required format */
   sockaddr_in *socket_address;
-  socket_address = ACE_reinterpret_cast(sockaddr_in *,
-                                        &if_address.ifr_addr);
+  socket_address = reinterpret_cast<sockaddr_in *> (&if_address.ifr_addr);
   multicast_address.imr_interface.s_addr = socket_address->sin_addr.s_addr;
-#endif /* ACE_WIN32 */
+#endif /* ACE_WIN32 || __INTERIX */
 
   /*
    * Now. I got the interface address for the 'nic' specified.

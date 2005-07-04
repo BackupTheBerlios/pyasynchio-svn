@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// config-sunos4-sun4.x.h,v 4.24 2003/12/22 22:50:34 shuston Exp
+// config-sunos4-sun4.x.h,v 4.28 2004/08/24 01:26:55 jtc Exp
 
 // The following configuration file is designed to work
 // for SunOS4 platforms using the SunC++ 4.x compiler.
@@ -31,7 +31,7 @@
 #define ACE_HAS_MSG
 
 // Compiler/platform contains the <sys/syscall.h> file.
-#define ACE_HAS_SYSCALL_H
+#define ACE_HAS_SYS_SYSCALL_H
 
 // Compiler/platform has the getrusage() system call.
 #define ACE_HAS_GETRUSAGE
@@ -56,7 +56,7 @@
 #define ACE_HAS_SEMUN
 
 // Compiler/platform provides the sockio.h file.
-#define ACE_HAS_SOCKIO_H
+#define ACE_HAS_SYS_SOCKIO_H
 
 // Compiler has brain-damaged SPARCwork signal prototype...
 #define ACE_HAS_SPARCWORKS_401_SIGNALS
@@ -67,8 +67,8 @@
 // Platform supports STREAMS.
 #define ACE_HAS_STREAMS
 
-// SunOS 4 style prototype.
-#define ACE_HAS_SUNOS4_GETTIMEOFDAY
+// Platform/compiler supports timezone * as second parameter to gettimeofday().
+#define ACE_HAS_TIMEZONE_GETTIMEOFDAY
 
 // Compiler/platform supports SVR4 dynamic linking semantics.
 #define ACE_HAS_SVR4_DYNAMIC_LINKING
@@ -95,11 +95,6 @@
 #if !defined (ACE_TIMER_SKEW)
 #define ACE_TIMER_SKEW 1000 * 10
 #endif /* ACE_TIMER_SKEW */
-
-// Turns off the tracing feature.
-#if !defined (ACE_NTRACE)
-#define ACE_NTRACE 1
-#endif /* ACE_NTRACE */
 
 #include /**/ "ace/post.h"
 #endif /* ACE_CONFIG_H */

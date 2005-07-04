@@ -4,7 +4,7 @@
 /**
  *  @file   config-lite.h
  *
- *  config-lite.h,v 4.4 2004/01/10 16:20:52 shuston Exp
+ *  config-lite.h,v 4.21 2004/12/16 14:06:25 jwillemsen Exp
  *
  *  @author (Originally in OS.h)Doug Schmidt <schmidt@cs.wustl.edu>
  *  @author Jesper S. M|ller<stophph@diku.dk>
@@ -12,7 +12,7 @@
  *
  *  This file contains the contents of the old config-all.h in order to
  *  avoid a circular dependency problem caused by some of the new
- *  includes added to config-all.h, e.g., OS_main.h. 
+ *  includes added to config-all.h, e.g., OS_main.h.
  */
 //==========================================================================
 
@@ -36,13 +36,6 @@
 #    define ACE_HAS_TLI
 #  endif /* ACE_HAS_XTI */
 #endif /* ACE_HAS_TLI */
-
-// By default we perform no tracing on the OS layer, otherwise the
-// coupling between the OS layer and Log_Msg is too tight.  But the
-// application can override the default if they wish to.
-# if !defined(ACE_OS_TRACE)
-#  define ACE_OS_TRACE(X)
-# endif /* ACE_OS_TRACE */
 
 #define ACE_BITS_PER_ULONG (8 * sizeof (u_long))
 
@@ -81,6 +74,14 @@
 #   define ACE_MT(X)
 # endif /* ACE_MT_SAFE */
 
+# if defined (ACE_HAS_PURIFY)
+#   define ACE_INITIALIZE_MEMORY_BEFORE_USE
+# endif /* ACE_HAS_PURIFY */
+
+# if defined (ACE_HAS_VALGRIND)
+#   define ACE_INITIALIZE_MEMORY_BEFORE_USE
+# endif /* ACE_HAS_VALGRIND */
+
 # if defined (ACE_HAS_USING_KEYWORD)
 #   define ACE_USING using
 # else
@@ -97,12 +98,6 @@
 #   define ACE_TEMPLATE_SPECIALIZATION template<>
 # else
 #   define ACE_TEMPLATE_SPECIALIZATION
-# endif /* ACE_HAS_STD_TEMPLATE_SPECIALIZATION */
-
-# if defined (ACE_HAS_STD_TEMPLATE_METHOD_SPECIALIZATION)
-#   define ACE_TEMPLATE_METHOD_SPECIALIZATION template<>
-# else
-#   define ACE_TEMPLATE_METHOD_SPECIALIZATION
 # endif /* ACE_HAS_STD_TEMPLATE_SPECIALIZATION */
 
 # if defined (ACE_HAS_STD_TEMPLATE_CLASS_MEMBER_SPECIALIZATION)
@@ -129,6 +124,12 @@
 # if !defined (ACE_HAS_POSITION_INDEPENDENT_POINTERS)
 #   define ACE_HAS_POSITION_INDEPENDENT_POINTERS 1
 # endif /* ACE_HAS_POSITION_INDEPENDENT_POINTERS */
+
+# if !defined (ACE_HAS_PROCESS_SPAWN)
+#   if !defined (ACE_LACKS_FORK) || defined (ACE_WIN32) || defined (ACE_WINCE) || defined (ACE_OPENVMS) || defined (CHORUS)
+#     define ACE_HAS_PROCESS_SPAWN 1
+#   endif
+# endif /* ACE_HAS_PROCESS_SPAWN */
 
 // =========================================================================
 // RCSID Macros
@@ -194,48 +195,26 @@
 #  define ACE_INLINE
 #endif /* __ACE_INLINE__ */
 
-# if !defined (ACE_HAS_GNUC_BROKEN_TEMPLATE_INLINE_FUNCTIONS)
-#   define ACE_INLINE_FOR_GNUC ACE_INLINE
-# else
-#   define ACE_INLINE_FOR_GNUC
-# endif /* ACE_HAS_GNUC_BROKEN_TEMPLATE_INLINE_FUNCTIONS */
-
-// Some ACE classes always use inline functions to maintain high
-// performance, but some platforms have buggy inline function support.
-// In this case, we don't use inline with them.
-# if defined (ACE_LACKS_INLINE_FUNCTIONS)
-#   if defined (ASYS_INLINE)
-#     undef ASYS_INLINE
-#   endif /* ASYS_INLINE */
-#   define ASYS_INLINE
-#   if defined (ACE_HAS_INLINED_OSCALLS)
-#     undef ACE_HAS_INLINED_OSCALLS
-#   endif /* ACE_HAS_INLINED_OSCALLS */
-# else
-#   define ASYS_INLINE inline
-# endif /* ACE_LACKS_INLINE_FUNCTIONS */
-
 // =========================================================================
 // EXPLICIT macro
 // =========================================================================
 
-# if defined (ACE_HAS_EXPLICIT_KEYWORD)
-#   define ACE_EXPLICIT explicit
-# else  /* ! ACE_HAS_EXPLICIT_KEYWORD */
-#   define ACE_EXPLICIT
-# endif /* ! ACE_HAS_EXPLICIT_KEYWORD */
+/**
+ * @deprecated explicit is deprecated.  ACE requires C++
+ *             "explicit" keyword support.
+ */
+# define ACE_EXPLICIT explicit
 
 // =========================================================================
 // MUTABLE macro
 // =========================================================================
 
-# if defined (ACE_HAS_MUTABLE_KEYWORD)
-#   define ACE_MUTABLE mutable
-#   define ACE_CONST_WHEN_MUTABLE const // Addition #1
-# else  /* ! ACE_HAS_MUTABLE_KEYWORD */
-#   define ACE_MUTABLE
-#   define ACE_CONST_WHEN_MUTABLE       // Addition #2
-# endif /* ! ACE_HAS_MUTABLE_KEYWORD */
+/**
+ * @deprecated ACE_MUTABLE is deprecated.  ACE requires C++ "mutable"
+ *             keyword support.
+ */
+# define ACE_MUTABLE mutable
+# define ACE_CONST_WHEN_MUTABLE const
 
 // ============================================================================
 // EXPORT macros
@@ -274,10 +253,12 @@
 // *_cast<> operators
 // ============================================================================
 
-# if defined (ACE_HAS_ANSI_CASTS)
-
 #   define ACE_sap_any_cast(TYPE)                                      reinterpret_cast<TYPE> (const_cast<ACE_Addr &> (ACE_Addr::sap_any))
 
+/**
+ * @deprecated ACE_{static,reinterpret,dynamic,const}_cast@<@> is
+ *             deprecated.  Directly use standard C++ casts instead.
+ */
 #   define ACE_static_cast(TYPE, EXPR)                                 static_cast<TYPE> (EXPR)
 #   define ACE_static_cast_1_ptr(TYPE, T1, EXPR)                       static_cast<TYPE<T1> *> (EXPR)
 #   define ACE_static_cast_2_ptr(TYPE, T1, T2, EXPR)                   static_cast<TYPE<T1, T2> *> (EXPR)
@@ -340,59 +321,6 @@
 #     define ACE_dynamic_cast_5_ref(TYPE, T1, T2, T3, T4, T5, EXPR)    dynamic_cast<TYPE<T1, T2, T3, T4, T5> &> (EXPR)
 #   endif /* ! ACE_LACKS_RTTI */
 
-# else
-
-#   define ACE_sap_any_cast(TYPE)                                      ((TYPE) (ACE_Addr::sap_any))
-
-#   define ACE_static_cast(TYPE, EXPR)                                 ((TYPE) (EXPR))
-#   define ACE_static_cast_1_ptr(TYPE, T1, EXPR)                       ((TYPE<T1> *) (EXPR))
-#   define ACE_static_cast_2_ptr(TYPE, T1, T2, EXPR)                   ((TYPE<T1, T2> *) (EXPR))
-#   define ACE_static_cast_3_ptr(TYPE, T1, T2, T3, EXPR)               ((TYPE<T1, T2, T3> *) (EXPR))
-#   define ACE_static_cast_4_ptr(TYPE, T1, T2, T3, T4, EXPR)           ((TYPE<T1, T2, T3, T4> *) (EXPR))
-#   define ACE_static_cast_5_ptr(TYPE, T1, T2, T3, T4, T5, EXPR)       ((TYPE<T1, T2, T3, T4, T5> *) (EXPR))
-#   define ACE_static_cast_1_ref(TYPE, T1, EXPR)                       ((TYPE<T1> &) (EXPR))
-#   define ACE_static_cast_2_ref(TYPE, T1, T2, EXPR)                   ((TYPE<T1, T2> &) (EXPR))
-#   define ACE_static_cast_3_ref(TYPE, T1, T2, T3, EXPR)               ((TYPE<T1, T2, T3> &) (EXPR))
-#   define ACE_static_cast_4_ref(TYPE, T1, T2, T3, T4, EXPR)           ((TYPE<T1, T2, T3, T4> &) (EXPR))
-#   define ACE_static_cast_5_ref(TYPE, T1, T2, T3, T4, T5, EXPR)       ((TYPE<T1, T2, T3, T4, T5> &) (EXPR))
-
-#   define ACE_const_cast(TYPE, EXPR)                                  ((TYPE) (EXPR))
-#   define ACE_const_cast_1_ptr(TYPE, T1, EXPR)                        ((TYPE<T1> *) (EXPR))
-#   define ACE_const_cast_2_ptr(TYPE, T1, T2, EXPR)                    ((TYPE<T1, T2> *) (EXPR))
-#   define ACE_const_cast_3_ptr(TYPE, T1, T2, T3, EXPR)                ((TYPE<T1, T2, T3> *) (EXPR))
-#   define ACE_const_cast_4_ptr(TYPE, T1, T2, T3, T4, EXPR)            ((TYPE<T1, T2, T3, T4> *) (EXPR))
-#   define ACE_const_cast_5_ptr(TYPE, T1, T2, T3, T4, T5, EXPR)        ((TYPE<T1, T2, T3, T4, T5> *) (EXPR))
-#   define ACE_const_cast_1_ref(TYPE, T1, EXPR)                        ((TYPE<T1> &) (EXPR))
-#   define ACE_const_cast_2_ref(TYPE, T1, T2, EXPR)                    ((TYPE<T1, T2> &) (EXPR))
-#   define ACE_const_cast_3_ref(TYPE, T1, T2, T3, EXPR)                ((TYPE<T1, T2, T3> &) (EXPR))
-#   define ACE_const_cast_4_ref(TYPE, T1, T2, T3, T4, EXPR)            ((TYPE<T1, T2, T3, T4> &) (EXPR))
-#   define ACE_const_cast_5_ref(TYPE, T1, T2, T3, T4, T5, EXPR)        ((TYPE<T1, T2, T3, T4, T5> &) (EXPR))
-
-#   define ACE_reinterpret_cast(TYPE, EXPR)                            ((TYPE) (EXPR))
-#   define ACE_reinterpret_cast_1_ptr(TYPE, T1, EXPR)                  ((TYPE<T1> *) (EXPR))
-#   define ACE_reinterpret_cast_2_ptr(TYPE, T1, T2, EXPR)              ((TYPE<T1, T2> *) (EXPR))
-#   define ACE_reinterpret_cast_3_ptr(TYPE, T1, T2, T3, EXPR)          ((TYPE<T1, T2, T3> *) (EXPR))
-#   define ACE_reinterpret_cast_4_ptr(TYPE, T1, T2, T3, T4, EXPR)      ((TYPE<T1, T2, T3, T4> *) (EXPR))
-#   define ACE_reinterpret_cast_5_ptr(TYPE, T1, T2, T3, T4, T5, EXPR)  ((TYPE<T1, T2, T3, T4, T5> *) (EXPR))
-#   define ACE_reinterpret_cast_1_ref(TYPE, T1, EXPR)                  ((TYPE<T1> &) (EXPR))
-#   define ACE_reinterpret_cast_2_ref(TYPE, T1, T2, EXPR)              ((TYPE<T1, T2> &) (EXPR))
-#   define ACE_reinterpret_cast_3_ref(TYPE, T1, T2, T3, EXPR)          ((TYPE<T1, T2, T3> &) (EXPR))
-#   define ACE_reinterpret_cast_4_ref(TYPE, T1, T2, T3, T4, EXPR)      ((TYPE<T1, T2, T3, T4> &) (EXPR))
-#   define ACE_reinterpret_cast_5_ref(TYPE, T1, T2, T3, T4, T5, EXPR)  ((TYPE<T1, T2, T3, T4, T5> &) (EXPR))
-
-#   define ACE_dynamic_cast(TYPE, EXPR)                                ((TYPE) (EXPR))
-#   define ACE_dynamic_cast_1_ptr(TYPE, T1, EXPR)                      ((TYPE<T1> *) (EXPR))
-#   define ACE_dynamic_cast_2_ptr(TYPE, T1, T2, EXPR)                  ((TYPE<T1, T2> *) (EXPR))
-#   define ACE_dynamic_cast_3_ptr(TYPE, T1, T2, T3, EXPR)              ((TYPE<T1, T2, T3> *) (EXPR))
-#   define ACE_dynamic_cast_4_ptr(TYPE, T1, T2, T3, T4, EXPR)          ((TYPE<T1, T2, T3, T4> *) (EXPR))
-#   define ACE_dynamic_cast_5_ptr(TYPE, T1, T2, T3, T4, T5, EXPR)      ((TYPE<T1, T2, T3, T4, T5> *) (EXPR))
-#   define ACE_dynamic_cast_1_ref(TYPE, T1, EXPR)                      ((TYPE<T1> &) (EXPR))
-#   define ACE_dynamic_cast_2_ref(TYPE, T1, T2, EXPR)                  ((TYPE<T1, T2> &) (EXPR))
-#   define ACE_dynamic_cast_3_ref(TYPE, T1, T2, T3, EXPR)              ((TYPE<T1, T2, T3> &) (EXPR))
-#   define ACE_dynamic_cast_4_ref(TYPE, T1, T2, T3, T4, EXPR)          ((TYPE<T1, T2, T3, T4> &) (EXPR))
-#   define ACE_dynamic_cast_5_ref(TYPE, T1, T2, T3, T4, T5, EXPR)      ((TYPE<T1, T2, T3, T4, T5> &) (EXPR))
-# endif /* ACE_HAS_ANSI_CASTS */
-
 # if !defined (ACE_CAST_CONST)
     // Sun CC 4.2, for example, requires const in reinterpret casts of
     // data members in const member functions.  But, other compilers
@@ -418,17 +346,21 @@
 // should keep them quiet.
 // ============================================================================
 
-#if defined (ghs) || defined (__GNUC__) || defined (__hpux) || defined (__sgi) || defined (__DECCXX) || defined (__KCC) || defined (__rational__) || defined (__USLC__) || defined (ACE_RM544)
+#if defined (ghs) || defined (__GNUC__) || defined (__hpux) || defined (__sgi) || defined (__DECCXX) || defined (__KCC) || defined (__rational__) || defined (__USLC__) || defined (ACE_RM544) || defined (__DCC__) || defined (__PGI)
 // Some compilers complain about "statement with no effect" with (a).
 // This eliminates the warnings, and no code is generated for the null
 // conditional statement.  NOTE: that may only be true if -O is enabled,
 // such as with GreenHills (ghs) 1.8.8.
 # define ACE_UNUSED_ARG(a) do {/* null */} while (&a == 0)
+#elif defined (__DMC__)
+  #define ACE_UNUSED_ID(identifier)
+  template <class T>
+  inline void ACE_UNUSED_ARG(const T& ACE_UNUSED_ID(t)) { }
 #else /* ghs || __GNUC__ || ..... */
 # define ACE_UNUSED_ARG(a) (a)
 #endif /* ghs || __GNUC__ || ..... */
 
-#if defined (__sgi) || defined (ghs) || defined (__DECCXX) || defined(__BORLANDC__) || defined (__KCC) || defined (ACE_RM544) || defined (__USLC__)
+#if defined (__sgi) || defined (ghs) || defined (__DECCXX) || defined(__BORLANDC__) || defined (__KCC) || defined (ACE_RM544) || defined (__USLC__) || defined (__DCC__) || defined (__PGI)
 # define ACE_NOTREACHED(a)
 #else  /* __sgi || ghs || ..... */
 # define ACE_NOTREACHED(a) a
@@ -456,34 +388,36 @@
 # endif /* ACE_HAS_ALLOC_HOOKS */
 
 // ============================================================================
-// ACE_OSCALL_* macros
-//
-// The following two macros ensure that system calls are properly
-// restarted (if necessary) when interrupts occur.
+/**
+ * ACE_OSCALL* macros
+ *
+ * @deprecated ACE_OSCALL_RETURN and ACE_OSCALL should not be used.
+ *             Please restart system calls in your application code.
+ *             See the @c sigaction(2) man page for documentation
+ *             regarding enabling restartable system calls across
+ *             signals via the @c SA_RESTART flag.
+ *
+ * The following two macros used ensure that system calls are properly
+ * restarted (if necessary) when interrupts occur.  However, that
+ * capability was never enabled by any of our supported platforms.
+ * In fact, some parts of ACE would not function properly when that
+ * ability was enabled.  Furthermore, they assumed that ability to
+ * restart system calls was determined statically.  That assumption
+ * does not hold for modern platforms, where that ability is
+ * determined dynamically at run-time.
+ */
 // ============================================================================
 
-#if defined (ACE_HAS_SIGNAL_SAFE_OS_CALLS)
-#   define ACE_OSCALL(OP,TYPE,FAILVALUE,RESULT) \
+#define ACE_OSCALL_RETURN(X,TYPE,FAILVALUE) \
   do \
-    RESULT = (TYPE) OP; \
-  while (RESULT == FAILVALUE && errno == EINTR)
-#   define ACE_OSCALL_RETURN(OP,TYPE,FAILVALUE) \
-  do { \
-    TYPE ace_result_; \
-    do \
-      ace_result_ = (TYPE) OP; \
-    while (ace_result_ == FAILVALUE && errno == EINTR); \
-    return ace_result_; \
-  } while (0)
-# elif defined (ACE_WIN32)
-#   define ACE_OSCALL_RETURN(X,TYPE,FAILVALUE) \
-  do \
-    return (TYPE) X; \
+    return (TYPE) (X); \
   while (0)
-#   define ACE_OSCALL(X,TYPE,FAILVALUE,RESULT) \
+#define ACE_OSCALL(X,TYPE,FAILVALUE,RESULT) \
   do \
-    RESULT = (TYPE) X; \
+    RESULT = (TYPE) (X); \
   while (0)
+
+#if defined (ACE_WIN32)
 #   if defined (__BORLANDC__) && (__BORLANDC__ <= 0x550)
 #   define ACE_WIN32CALL_RETURN(X,TYPE,FAILVALUE) \
   do { \
@@ -497,8 +431,7 @@
 #   else
 #     define ACE_WIN32CALL_RETURN(X,TYPE,FAILVALUE) \
   do { \
-    TYPE ace_result_; \
-    ace_result_ = (TYPE) X; \
+    TYPE ace_result_ = (TYPE) X; \
     if (ace_result_ == FAILVALUE) \
       ACE_OS::set_errno_to_last_error (); \
     return ace_result_; \
@@ -510,10 +443,7 @@
     if (RESULT == FAILVALUE) \
       ACE_OS::set_errno_to_last_error (); \
   } while (0)
-#else /* ACE_HAS_SIGNAL_SAFE_OS_CALLS */
-#   define ACE_OSCALL_RETURN(OP,TYPE,FAILVALUE) do { TYPE ace_result_ = FAILVALUE; ace_result_ = ace_result_; return OP; } while (0)
-#   define ACE_OSCALL(OP,TYPE,FAILVALUE,RESULT) do { RESULT = (TYPE) OP; } while (0)
-#endif /* ACE_HAS_SIGNAL_SAFE_OS_CALLS */
+#endif  /* ACE_WIN32 */
 
 // ============================================================================
 // at_exit declarations
@@ -592,7 +522,6 @@ typedef ACE_HANDLE ACE_SOCKET;
 // rest of ACE uses a real type so there's no a ton of conditional code
 // everywhere to deal with the possibility of no return type.
 # if defined (VXWORKS)
-//typedef FUNCPTR ACE_THR_FUNC;  // where typedef int (*FUNCPTR) (...)
 # include /**/ <taskLib.h>
 typedef int ACE_THR_FUNC_RETURN;
 # elif defined (ACE_PSOS)

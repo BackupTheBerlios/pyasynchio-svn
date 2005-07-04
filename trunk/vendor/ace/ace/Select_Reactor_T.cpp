@@ -1,4 +1,4 @@
-// Select_Reactor_T.cpp,v 4.69 2003/11/05 23:30:47 shuston Exp
+// Select_Reactor_T.cpp,v 4.82 2004/12/05 22:48:21 bala Exp
 
 #ifndef ACE_SELECT_REACTOR_T_C
 #define ACE_SELECT_REACTOR_T_C
@@ -12,7 +12,7 @@
 #include "ace/ACE.h"
 #include "ace/Guard_T.h"
 #include "ace/Log_Msg.h"
-#include "ace/Signal.h"
+#include "ace/Signal_.h"
 #include "ace/Thread.h"
 #include "ace/Timer_Heap.h"
 #include "ace/OS_NS_sys_select.h"
@@ -25,12 +25,12 @@
 // function here.  Therefore, we temporarily disable the code here.
 // We shall turn this back on once we know the problem gets fixed.
 #if 1 // !defined (__ACE_INLINE__)
-#include "ace/Select_Reactor_T.i"
+#include "ace/Select_Reactor_T.inl"
 #endif /* __ACE_INLINE__ */
 
 ACE_RCSID (ace,
            Select_Reactor_T,
-           "Select_Reactor_T.cpp,v 4.69 2003/11/05 23:30:47 shuston Exp")
+           "Select_Reactor_T.cpp,v 4.82 2004/12/05 22:48:21 bala Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_Select_Reactor_T)
 
@@ -64,10 +64,16 @@ ACE_Select_Reactor_T<ACE_SELECT_REACTOR_TOKEN>::any_ready
 ACE_Select_Reactor_T<ACE_SELECT_REACTOR_TOKEN>::any_ready_i
   (ACE_Select_Reactor_Handle_Set &wait_set)
 {
+  ACE_TRACE ("ACE_Select_Reactor_T::any_ready_i");
+
   int number_ready = this->ready_set_.rd_mask_.num_set ()
     + this->ready_set_.wr_mask_.num_set ()
     + this->ready_set_.ex_mask_.num_set ();
 
+  // number_ready > 0 meaning there are handles in the ready_set
+  // &wait_set != &(this->ready_set_) means that we need to copy
+  // the handles from the ready_set to the wait set because the
+  // wait_set_ doesn't contain all the handles in the ready_set_
   if (number_ready > 0 && &wait_set != &(this->ready_set_))
     {
       wait_set.rd_mask_ = this->ready_set_.rd_mask_;
@@ -528,13 +534,6 @@ ACE_Select_Reactor_T<ACE_SELECT_REACTOR_TOKEN>::timer_queue
   return 0;
 }
 
-template <class ACE_SELECT_REACTOR_TOKEN> int
-ACE_Select_Reactor_T<ACE_SELECT_REACTOR_TOKEN>::set_timer_queue
-  (ACE_Timer_Queue *tq)
-{
-  return this->timer_queue (tq);
-}
-
 template <class ACE_SELECT_REACTOR_TOKEN>
 ACE_Select_Reactor_T<ACE_SELECT_REACTOR_TOKEN>::ACE_Select_Reactor_T
   (ACE_Sig_Handler *sh,
@@ -543,10 +542,10 @@ ACE_Select_Reactor_T<ACE_SELECT_REACTOR_TOKEN>::ACE_Select_Reactor_T
    ACE_Reactor_Notify *notify,
    int mask_signals,
    int s_queue)
-    : token_ (*this, s_queue),
-      lock_adapter_ (token_),
-      deactivated_ (0),
-      mask_signals_ (mask_signals)
+    : ACE_Select_Reactor_Impl (mask_signals)
+    , token_ (*this, s_queue)
+    , lock_adapter_ (token_)
+    , deactivated_ (0)
 {
   ACE_TRACE ("ACE_Select_Reactor_T::ACE_Select_Reactor_T");
 
@@ -595,10 +594,10 @@ ACE_Select_Reactor_T<ACE_SELECT_REACTOR_TOKEN>::ACE_Select_Reactor_T
    ACE_Reactor_Notify *notify,
    int mask_signals,
    int s_queue)
-    : token_ (*this, s_queue),
-      lock_adapter_ (token_),
-      deactivated_ (0),
-      mask_signals_ (mask_signals)
+    : ACE_Select_Reactor_Impl (mask_signals)
+    , token_ (*this, s_queue)
+    , lock_adapter_ (token_)
+    , deactivated_ (0)
 {
   ACE_TRACE ("ACE_Select_Reactor_T::ACE_Select_Reactor_T");
 
@@ -714,8 +713,8 @@ ACE_Select_Reactor_T<ACE_SELECT_REACTOR_TOKEN>::register_handler
   int result = 0;
 
 #if (ACE_NSIG > 0)  &&  !defined (CHORUS)
-  for (int s = 1; s < ACE_NSIG; s++)
-    if (sigset.is_member (s)
+  for (int s = 1; s < ACE_NSIG; ++s)
+    if ((sigset.is_member (s) == 1)
         && this->signal_handler_->register_handler (s,
                                                     new_sh,
                                                     new_disp) == -1)
@@ -736,8 +735,8 @@ ACE_Select_Reactor_T<ACE_SELECT_REACTOR_TOKEN>::remove_handler
   int result = 0;
 
 #if (ACE_NSIG > 0)  &&  !defined (CHORUS)
-  for (int s = 1; s < ACE_NSIG; s++)
-    if (sigset.is_member (s)
+  for (int s = 1; s < ACE_NSIG; ++s)
+    if ((sigset.is_member (s) == 1)
         && this->signal_handler_->remove_handler (s) == -1)
       result = -1;
 #else  /* ACE_NSIG <= 0  ||  CHORUS */
@@ -923,16 +922,7 @@ ACE_Select_Reactor_T<ACE_SELECT_REACTOR_TOKEN>::find_handler_i
     this->handler_rep_.find (handle);
 
   if (event_handler)
-    {
-      int requires_reference_counting =
-        event_handler->reference_counting_policy ().value () ==
-        ACE_Event_Handler::Reference_Counting_Policy::ENABLED;
-
-      if (requires_reference_counting)
-        {
-          event_handler->add_reference ();
-        }
-    }
+    event_handler->add_reference ();
 
   return event_handler;
 }
@@ -968,15 +958,7 @@ ACE_Select_Reactor_T<ACE_SELECT_REACTOR_TOKEN>::handler_i
   if (eh != 0)
     {
       *eh = event_handler;
-
-      int requires_reference_counting =
-        event_handler->reference_counting_policy ().value () ==
-        ACE_Event_Handler::Reference_Counting_Policy::ENABLED;
-
-      if (requires_reference_counting)
-        {
-          event_handler->add_reference ();
-        }
+      event_handler->add_reference ();
     }
 
   return 0;
@@ -1033,6 +1015,11 @@ ACE_Select_Reactor_T<ACE_SELECT_REACTOR_TOKEN>::suspend_i (ACE_HANDLE handle)
       this->suspend_set_.ex_mask_.set_bit (handle);
       this->wait_set_.ex_mask_.clr_bit (handle);
     }
+
+  // Kobi: we need to remove that handle from the
+  // dispatch set as well. We use that function with all the relevant
+  // masks - rd/wr/ex - all the mask. it is completely suspended
+  this->clear_dispatch_mask (handle, ACE_Event_Handler::RWE_MASK);
   return 0;
 }
 
@@ -1103,7 +1090,7 @@ ACE_Select_Reactor_T<ACE_SELECT_REACTOR_TOKEN>::work_pending
 
   // Check if we have timers to fire.
   int timers_pending =
-    (this_timeout != 0 && *this_timeout != max_wait_time ? 1 : 0);
+    (this_timeout != 0 && *this_timeout != mwt ? 1 : 0);
 
   u_long width = (u_long) this->handler_rep_.max_handlep1 ();
 
@@ -1197,10 +1184,8 @@ ACE_Select_Reactor_T<ACE_SELECT_REACTOR_TOKEN>::dispatch_timer_handlers
   (int &number_of_handlers_dispatched)
 {
   number_of_handlers_dispatched += this->timer_queue_->expire ();
-  if (this->state_changed_)
-    return -1;
-  else
-    return 0;
+
+  return 0;
 }
 
 template <class ACE_SELECT_REACTOR_TOKEN> int
@@ -1215,15 +1200,25 @@ ACE_Select_Reactor_T<ACE_SELECT_REACTOR_TOKEN>::dispatch_notification_handlers
   // ACE_Select_Reactor_T's internal tables or the notify pipe is
   // enabled.  We'll handle all these threads and notifications, and
   // then break out to continue the event loop.
+  int n =
+    this->notify_handler_->dispatch_notifications (number_of_active_handles,
+                                                   dispatch_set.rd_mask_);
 
-  int n = this->notify_handler_->dispatch_notifications (number_of_active_handles,
-                                                         dispatch_set.rd_mask_);
   if (n == -1)
     return -1;
   else
-    number_of_handlers_dispatched += n;
+    {
+      number_of_handlers_dispatched += n;
+      number_of_active_handles -= n;
+    }
 
-  return this->state_changed_ ? -1 : 0;
+  // Same as dispatch_timer_handlers
+  // No need to do anything with the state changed. That is because
+  // unbind already handles the case where someone unregister some
+  // kind of handle and unbind it. (::unbind calls the function
+  // state_changed ()  to reflect ant change with that)
+  //   return this->state_changed_ ? -1 : 0;
+  return 0;
 }
 
 template <class ACE_SELECT_REACTOR_TOKEN> int
@@ -1235,25 +1230,34 @@ ACE_Select_Reactor_T<ACE_SELECT_REACTOR_TOKEN>::dispatch_io_set
    ACE_Handle_Set &ready_mask,
    ACE_EH_PTMF callback)
 {
+  ACE_TRACE ("ACE_Select_Reactor_T::dispatch_io_set");
   ACE_HANDLE handle;
 
   ACE_Handle_Set_Iterator handle_iter (dispatch_mask);
 
-  while ((handle = handle_iter ()) != ACE_INVALID_HANDLE
-         && number_of_handlers_dispatched < number_of_active_handles
-         && this->state_changed_ == 0)
+  while ((handle = handle_iter ()) != ACE_INVALID_HANDLE &&
+         number_of_handlers_dispatched < number_of_active_handles)
     {
-      // ACE_DEBUG ((LM_DEBUG,  ACE_LIB_TEXT ("ACE_Select_Reactor_T::dispatching\n")));
-      number_of_handlers_dispatched++;
+      ++number_of_handlers_dispatched;
+
       this->notify_handle (handle,
                            mask,
                            ready_mask,
                            this->handler_rep_.find (handle),
                            callback);
-    }
 
-  if (number_of_handlers_dispatched > 0 && this->state_changed_)
-    return -1;
+      // clear the bit from that dispatch mask,
+      // so when we need to restart the iteration (rebuilding the iterator...)
+      // we will not dispatch the already dipatched handlers
+      this->clear_dispatch_mask (handle, mask);
+
+      if (this->state_changed_)
+        {
+
+          handle_iter.reset_state ();
+          this->state_changed_ = false;
+        }
+    }
 
   return 0;
 }
@@ -1264,11 +1268,12 @@ ACE_Select_Reactor_T<ACE_SELECT_REACTOR_TOKEN>::dispatch_io_handlers
    int &number_of_active_handles,
    int &number_of_handlers_dispatched)
 {
+  ACE_TRACE ("ACE_Select_Reactor_T::dispatch_io_handlers");
+
   // Handle output events (this code needs to come first to handle the
   // obscure case of piggy-backed data coming along with the final
   // handshake message of a nonblocking connection).
 
-  // ACE_DEBUG ((LM_DEBUG,  ACE_LIB_TEXT ("ACE_Select_Reactor_T::dispatch - WRITE\n")));
   if (this->dispatch_io_set (number_of_active_handles,
                              number_of_handlers_dispatched,
                              ACE_Event_Handler::WRITE_MASK,
@@ -1337,7 +1342,7 @@ ACE_Select_Reactor_T<ACE_SELECT_REACTOR_TOKEN>::dispatch
       // every iteration (i.e., due to signals), our state starts out
       // unchanged again.
 
-      this->state_changed_ = 0;
+      this->state_changed_ = false;
 
       // Perform the Template Method for dispatching all the handlers.
 
@@ -1450,14 +1455,21 @@ ACE_Select_Reactor_T<ACE_SELECT_REACTOR_TOKEN>::handle_events_i
 
   ACE_SEH_TRY
     {
-      ACE_Select_Reactor_Handle_Set dispatch_set;
+      // We use the data member dispatch_set_ as the current dispatch
+      // set.
+
+      // We need to start from a clean dispatch_set
+      this->dispatch_set_.rd_mask_.reset ();
+      this->dispatch_set_.wr_mask_.reset ();
+      this->dispatch_set_.ex_mask_.reset ();
 
       int number_of_active_handles =
-        this->wait_for_multiple_events (dispatch_set,
+        this->wait_for_multiple_events (this->dispatch_set_,
                                         max_wait_time);
 
-      result = this->dispatch (number_of_active_handles,
-                               dispatch_set);
+      result =
+        this->dispatch (number_of_active_handles,
+                        this->dispatch_set_);
     }
   ACE_SEH_EXCEPT (this->release_token ())
     {
@@ -1465,8 +1477,6 @@ ACE_Select_Reactor_T<ACE_SELECT_REACTOR_TOKEN>::handle_events_i
       // structured exceptions so that we can make sure to release the
       // <token_> lock correctly.
     }
-
-  this->state_changed_ = 1;
 
   return result;
 }
@@ -1481,19 +1491,27 @@ ACE_Select_Reactor_T<ACE_SELECT_REACTOR_TOKEN>::check_handles (void)
   ACE_Handle_Set rd_mask;
 #endif /* ACE_WIN32 || MVS || ACE_PSOS || VXWORKS */
 
-  ACE_Event_Handler *eh = 0;
   int result = 0;
 
-  for (ACE_Select_Reactor_Handler_Repository_Iterator iter (&this->handler_rep_);
-       iter.next (eh) != 0;
-       iter.advance ())
-    {
-      ACE_HANDLE handle = eh->get_handle ();
+  /*
+   * It's easier to run through the handler repository iterator, but that
+   * misses handles that are registered on a handler that doesn't implement
+   * get_handle(). So, build a handle set that's the union of the three
+   * wait_sets (rd, wrt, ex) and run through that. Bad handles get cleared
+   * out of all sets.
+   */
+  ACE_HANDLE h;
+  ACE_Handle_Set check_set (this->wait_set_.rd_mask_);
+  ACE_Handle_Set_Iterator wr_iter (this->wait_set_.wr_mask_);
+  while ((h = wr_iter ()) != ACE_INVALID_HANDLE)
+    check_set.set_bit (h);
+  ACE_Handle_Set_Iterator ex_iter (this->wait_set_.ex_mask_);
+  while ((h = ex_iter ()) != ACE_INVALID_HANDLE)
+    check_set.set_bit (h);
 
-      // Skip back to the beginning of the loop if the HANDLE is
-      // invalid.
-      if (handle == ACE_INVALID_HANDLE)
-        continue;
+  ACE_Handle_Set_Iterator check_iter (check_set);
+  while ((h = check_iter ()) != ACE_INVALID_HANDLE)
+    {
 
 #if defined (ACE_WIN32) || defined (__MVS__) || defined (ACE_PSOS) || defined (VXWORKS)
       // Win32 needs to do the check this way because fstat won't work on
@@ -1503,7 +1521,7 @@ ACE_Select_Reactor_T<ACE_SELECT_REACTOR_TOKEN>::check_handles (void)
       // pSOS needs to do it this way because file handles and socket handles
       // are maintained by separate pieces of the system.  VxWorks needs the select
       // variant since fstat always returns an error on socket FDs.
-      rd_mask.set_bit (handle);
+      rd_mask.set_bit (h);
 
       int select_width;
 #  if defined (ACE_WIN64)
@@ -1511,7 +1529,7 @@ ACE_Select_Reactor_T<ACE_SELECT_REACTOR_TOKEN>::check_handles (void)
       // warnings on 64-bit compiles.
       select_width = 0;
 #  else
-      select_width = int (handle) + 1;
+      select_width = int (h) + 1;
 #  endif /* ACE_WIN64 */
 
       if (ACE_OS::select (select_width,
@@ -1519,18 +1537,16 @@ ACE_Select_Reactor_T<ACE_SELECT_REACTOR_TOKEN>::check_handles (void)
                           &time_poll) < 0)
         {
           result = 1;
-          this->remove_handler_i (handle,
-                                  ACE_Event_Handler::ALL_EVENTS_MASK);
+          this->remove_handler_i (h, ACE_Event_Handler::ALL_EVENTS_MASK);
         }
-      rd_mask.clr_bit (handle);
+      rd_mask.clr_bit (h);
 #else /* !ACE_WIN32 && !MVS && !ACE_PSOS */
       struct stat temp;
 
-      if (ACE_OS::fstat (handle, &temp) == -1)
+      if (ACE_OS::fstat (h, &temp) == -1)
         {
           result = 1;
-          this->remove_handler_i (handle,
-                                  ACE_Event_Handler::ALL_EVENTS_MASK);
+          this->remove_handler_i (h, ACE_Event_Handler::ALL_EVENTS_MASK);
         }
 #endif /* ACE_WIN32 || MVS || ACE_PSOS */
     }

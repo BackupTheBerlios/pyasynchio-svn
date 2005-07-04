@@ -2,7 +2,7 @@
 /**
  * @file Metrics_Cache_T.h
  *
- * Metrics_Cache_T.h,v 4.3 2003/11/01 11:15:14 dhinton Exp
+ * Metrics_Cache_T.h,v 4.5 2004/06/16 07:57:21 jwillemsen Exp
  *
  * @author Chris Gill <cdgill@cse.wustl.edu>
  */
@@ -221,7 +221,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "Metrics_Cache_T.i"
+#include "ace/Metrics_Cache_T.inl"
 #endif /* __ACE_INLINE__ */
 
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)

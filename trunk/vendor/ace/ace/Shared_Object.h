@@ -4,7 +4,7 @@
 /**
  *  @file    Shared_Object.h
  *
- *  Shared_Object.h,v 4.14 2003/08/17 23:08:19 ossama Exp
+ *  Shared_Object.h,v 4.15 2004/06/16 07:57:22 jwillemsen Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -47,7 +47,7 @@ public:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Shared_Object.i"
+#include "ace/Shared_Object.inl"
 #endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"

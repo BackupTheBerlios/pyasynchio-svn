@@ -4,7 +4,7 @@
 /**
  *  @file    ATM_Connector.h
  *
- *  ATM_Connector.h,v 4.12 2003/07/19 19:04:10 dhinton Exp
+ *  ATM_Connector.h,v 4.14 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Joe Hoffert <joeh@cs.wustl.edu>
  */
@@ -27,10 +27,10 @@
 #include "ace/ATM_QoS.h"
 
 #if defined (ACE_WIN32) || defined (ACE_HAS_LINUX_ATM)
-#include "SOCK_Connector.h"
+#include "ace/SOCK_Connector.h"
 typedef ACE_SOCK_Connector ATM_Connector;
 #else
-#include "XTI_ATM_Mcast.h"
+#include "ace/XTI_ATM_Mcast.h"
 typedef ACE_XTI_ATM_Mcast ATM_Connector;
 #endif
 
@@ -150,7 +150,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/ATM_Connector.i"
+#include "ace/ATM_Connector.inl"
 #endif /* __ACE_INLINE__ */
 
 #endif /* ACE_HAS_ATM */

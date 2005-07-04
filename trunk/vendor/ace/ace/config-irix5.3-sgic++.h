@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// config-irix5.3-sgic++.h,v 4.19 2003/08/14 18:27:47 dhinton Exp
+// config-irix5.3-sgic++.h,v 4.21 2004/08/08 14:21:35 jtc Exp
 
 // The following configuration file is designed to work
 // for the SGI Indigo2EX running Irix 5.3 platform using
@@ -37,7 +37,7 @@
 #define ACE_HAS_MSG
 
 // Compiler/platform contains the <sys/syscall.h> file.
-#define ACE_HAS_SYSCALL_H
+#define ACE_HAS_SYS_SYSCALL_H
 
 // Compiler/platform supports alloca()
 // Although ACE does have alloca() on this compiler/platform combination, it is
@@ -117,11 +117,6 @@
 #define ACE_HAS_IP_MULTICAST
 
 #define ACE_NEEDS_DEV_IO_CONVERSION
-
-// Turns off the tracing feature.
-#if !defined (ACE_NTRACE)
-# define ACE_NTRACE 1
-#endif /* ACE_NTRACE */
 
 #include /**/ "ace/post.h"
 #endif /* ACE_CONFIG_H */

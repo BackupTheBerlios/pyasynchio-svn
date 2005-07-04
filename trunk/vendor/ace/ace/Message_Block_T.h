@@ -4,7 +4,7 @@
 /**
  *  @file    Message_Block_T.h
  *
- *  Message_Block_T.h,v 4.15 2003/07/19 19:04:12 dhinton Exp
+ *  Message_Block_T.h,v 4.16 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  *  @author Carlos O'Ryan <coryan@atdesk.com>
@@ -68,7 +68,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Message_Block_T.i"
+#include "ace/Message_Block_T.inl"
 #endif /* __ACE_INLINE__ */
 
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)

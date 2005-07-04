@@ -4,7 +4,7 @@
 /**
  *  @file    Select_Reactor_T.h
  *
- *  Select_Reactor_T.h,v 4.42 2003/08/04 03:53:53 dhinton Exp
+ *  Select_Reactor_T.h,v 4.45 2004/08/20 15:21:02 bala Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -186,10 +186,6 @@ public:
 
   /// Use a user specified signal handler instead.
   virtual int set_sig_handler (ACE_Sig_Handler *signal_handler);
-
-  /// @deprecated The following method is deprecated.  Use <timer_queue> instead.
-  /// Set a user specified timer queue.
-  virtual int set_timer_queue (ACE_Timer_Queue *tq);
 
   /// Set a user-specified timer queue.
   virtual int timer_queue (ACE_Timer_Queue *tq);
@@ -757,14 +753,6 @@ protected:
   /// events or not.
   sig_atomic_t deactivated_;
 
-  /**
-   * If 0 then the Reactor will not mask the signals during the event
-   * dispatching.  This is useful for applications that do not
-   * register any signal handlers and want to reduce the overhead
-   * introduce by the kernel level locks required to change the mask.
-   */
-  int mask_signals_;
-
 private:
   /// Deny access since member-wise won't work...
   ACE_UNIMPLEMENTED_FUNC (ACE_Select_Reactor_T (const ACE_Select_Reactor_T<ACE_SELECT_REACTOR_TOKEN> &))
@@ -775,7 +763,7 @@ private:
 // function here.  Therefore, we temporarily disable the code here.
 // We shall turn this back on once we know the problem gets fixed.
 #if 0 // defined (__ACE_INLINE__)
-#include "ace/Select_Reactor_T.i"
+#include "ace/Select_Reactor_T.inl"
 #endif /* __ACE_INLINE__ */
 
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)

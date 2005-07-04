@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// Functor.cpp,v 4.4 2000/04/19 02:49:34 brunsch Exp
+// Functor.cpp,v 4.6 2004/10/06 20:48:10 jtc Exp
 
 // ============================================================================
 //
@@ -36,10 +36,14 @@
 #include "ace/Functor.h"
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Functor.i"
+#include "ace/Functor.inl"
 #endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, Functor, "Functor.cpp,v 4.4 2000/04/19 02:49:34 brunsch Exp")
+ACE_RCSID(ace, Functor, "Functor.cpp,v 4.6 2004/10/06 20:48:10 jtc Exp")
+
+ACE_Command_Base::~ACE_Command_Base (void)
+{
+}
 
 #if defined (ACE_HAS_EXPLICIT_TEMPLATE_INSTANTIATION)
 #elif defined (ACE_HAS_TEMPLATE_INSTANTIATION_PRAGMA)

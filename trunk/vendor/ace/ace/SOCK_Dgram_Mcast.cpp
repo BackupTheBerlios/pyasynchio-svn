@@ -1,19 +1,19 @@
-// SOCK_Dgram_Mcast.cpp
+// SOCK_Dgram_Mcast.cpp,v 4.80 2004/12/06 09:27:56 jwillemsen Exp
 
 #include "ace/SOCK_Dgram_Mcast.h"
-
-#if defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/SOCK_Dgram_Mcast.i"
-#endif /* ACE_LACKS_INLINE_FUNCTIONS */
 
 #include "ace/OS_NS_string.h"
 #include "ace/OS_NS_errno.h"
 #include "ace/os_include/net/os_if.h"
 #include "ace/os_include/arpa/os_inet.h"
 
+#if !defined (__ACE_INLINE__)
+#include "ace/SOCK_Dgram_Mcast.inl"
+#endif /* __ACE_INLINE__ */
+
 ACE_RCSID (ace,
            SOCK_Dgram_Mcast,
-           "SOCK_Dgram_Mcast.cpp,v 4.75 2003/11/18 01:07:14 bala Exp")
+           "SOCK_Dgram_Mcast.cpp,v 4.80 2004/12/06 09:27:56 jwillemsen Exp")
 
 #include "ace/Log_Msg.h"
 
@@ -332,7 +332,7 @@ ACE_SOCK_Dgram_Mcast::subscribe_ifs (const ACE_INET_Addr &mcast_addr,
             ACE_INET_Addr *if_addrs = 0;
             size_t if_cnt;
 
-            if (ACE_Sock_Connect::get_ip_interfaces (if_cnt, if_addrs) != 0)
+            if (ACE::get_ip_interfaces (if_cnt, if_addrs) != 0)
               return -1;
 
             size_t nr_subscribed = 0;
@@ -383,7 +383,7 @@ ACE_SOCK_Dgram_Mcast::subscribe_ifs (const ACE_INET_Addr &mcast_addr,
       ACE_INET_Addr *if_addrs = 0;
       size_t if_cnt;
 
-      if (ACE_Sock_Connect::get_ip_interfaces (if_cnt, if_addrs) != 0)
+      if (ACE::get_ip_interfaces (if_cnt, if_addrs) != 0)
         return -1;
 
       size_t nr_subscribed = 0;
@@ -692,7 +692,7 @@ ACE_SOCK_Dgram_Mcast::unsubscribe_ifs (const ACE_INET_Addr &mcast_addr,
           // is a limitation of the way <get_ip_interfaces> works with
           // old versions of MSVC.  The reliable way of getting the interface
           // list is available only with MSVC 5 and newer.
-          if (ACE_Sock_Connect::get_ip_interfaces (if_cnt, if_addrs) != 0)
+          if (ACE::get_ip_interfaces (if_cnt, if_addrs) != 0)
             return -1;
 
           size_t nr_unsubscribed = 0;
@@ -741,7 +741,7 @@ ACE_SOCK_Dgram_Mcast::unsubscribe_ifs (const ACE_INET_Addr &mcast_addr,
       // is a limitation of the way <get_ip_interfaces> works with
       // old versions of MSVC.  The reliable way of getting the interface list
       // is available only with MSVC 5 and newer.
-      if (ACE_Sock_Connect::get_ip_interfaces (if_cnt, if_addrs) != 0)
+      if (ACE::get_ip_interfaces (if_cnt, if_addrs) != 0)
         return -1;
 
       size_t nr_unsubscribed = 0;
@@ -961,7 +961,7 @@ ACE_SOCK_Dgram_Mcast::make_multicast_ifaddr (ip_mreq *ret_mreq,
   ip_mreq  lmreq;       // Scratch copy.
   if (net_if != 0)
     {
-#if defined (ACE_WIN32)
+#if defined (ACE_WIN32) || defined(__INTERIX)
       // This port number is not necessary, just convenient
       ACE_INET_Addr interface_addr;
       if (interface_addr.set (mcast_addr.get_port_number (), net_if) == -1)
@@ -975,7 +975,7 @@ ACE_SOCK_Dgram_Mcast::make_multicast_ifaddr (ip_mreq *ret_mreq,
       // Look up the interface by number, not name.
       if_address.ifr_ifno = ACE_OS::atoi (net_if);
 #else
-      ACE_OS::strcpy (if_address.ifr_name, net_if);
+      ACE_OS::strcpy (if_address.ifr_name, ACE_TEXT_ALWAYS_CHAR (net_if));
 #endif /* defined (ACE_PSOS) */
 
       if (ACE_OS::ioctl (this->get_handle (),
@@ -987,7 +987,7 @@ ACE_SOCK_Dgram_Mcast::make_multicast_ifaddr (ip_mreq *ret_mreq,
       socket_address = ACE_reinterpret_cast (sockaddr_in*,
                                              &if_address.ifr_addr);
       lmreq.imr_interface.s_addr = socket_address->sin_addr.s_addr;
-#endif /* ACE_WIN32 */
+#endif /* ACE_WIN32 || __INTERIX */
     }
   else
     lmreq.imr_interface.s_addr = INADDR_ANY;

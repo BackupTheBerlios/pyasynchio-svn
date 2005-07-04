@@ -3,7 +3,7 @@
 /**
  *  @file    Handle_Gobbler.h
  *
- *  Handle_Gobbler.h,v 1.9 2003/11/01 11:15:12 dhinton Exp
+ *  Handle_Gobbler.h,v 1.10 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Kirthika Parameswaran <kirthika@cs.wustl.edu>
  *  @author Irfan Pyarali <irfan@cs.wustl.edu>
@@ -58,7 +58,7 @@ private:
   HANDLE_SET handle_set_;
 };
 
-#include "ace/Handle_Gobbler.i"
+#include "ace/Handle_Gobbler.inl"
 
 #include /**/ "ace/post.h"
 #endif /* ACE_HANDLE_GOBBLER_H */

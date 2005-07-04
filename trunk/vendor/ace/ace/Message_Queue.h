@@ -4,7 +4,7 @@
 /**
  *  @file    Message_Queue.h
  *
- *  Message_Queue.h,v 4.77 2003/12/28 11:38:00 jwillemsen Exp
+ *  Message_Queue.h,v 4.78 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -600,7 +600,7 @@ private:
 
 
 #if defined (__ACE_INLINE__)
-#include "ace/Message_Queue.i"
+#include "ace/Message_Queue.inl"
 #endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"

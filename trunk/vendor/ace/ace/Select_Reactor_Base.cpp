@@ -1,4 +1,4 @@
-// Select_Reactor_Base.cpp,v 4.57 2003/11/04 23:34:49 ossama Exp
+// Select_Reactor_Base.cpp,v 4.65 2004/09/14 01:37:40 schmidt Exp
 
 #include "ace/Select_Reactor_Base.h"
 #include "ace/Reactor.h"
@@ -7,15 +7,16 @@
 #include "ace/SOCK_Connector.h"
 #include "ace/Timer_Heap.h"
 #include "ace/Log_Msg.h"
-#include "ace/Signal.h"
+#include "ace/Signal_.h"
+#include "ace/OS_NS_fcntl.h"
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Select_Reactor_Base.i"
+#include "ace/Select_Reactor_Base.inl"
 #endif /* __ACE_INLINE__ */
 
 ACE_RCSID (ace,
            Select_Reactor_Base,
-           "Select_Reactor_Base.cpp,v 4.57 2003/11/04 23:34:49 ossama Exp")
+           "Select_Reactor_Base.cpp,v 4.65 2004/09/14 01:37:40 schmidt Exp")
 
 
 #if defined (ACE_WIN32)
@@ -90,7 +91,7 @@ ACE_Select_Reactor_Handler_Repository::open (size_t size)
                   -1);
 
   // Initialize the ACE_Event_Handler * to { ACE_INVALID_HANDLE, 0 }.
-  for (size_t h = 0; h < size; h++)
+  for (size_t h = 0; h < size; ++h)
     {
       ACE_SELECT_REACTOR_HANDLE (h) = ACE_INVALID_HANDLE;
       ACE_SELECT_REACTOR_EVENT_HANDLER (this, h) = 0;
@@ -102,13 +103,13 @@ ACE_Select_Reactor_Handler_Repository::open (size_t size)
                   -1);
 
   // Initialize the ACE_Event_Handler * to NULL.
-  for (size_t h = 0; h < size; h++)
+  for (size_t h = 0; h < size; ++h)
     ACE_SELECT_REACTOR_EVENT_HANDLER (this, h) = 0;
 #endif /* ACE_WIN32 */
 
   // Try to increase the number of handles if <size> is greater than
   // the current limit.
-  return ACE::set_handle_limit (ACE_static_cast (int, size));
+  return ACE::set_handle_limit (static_cast<int> (size), 1);
 }
 
 // Initialize a repository of the appropriate <size>.
@@ -128,7 +129,7 @@ ACE_Select_Reactor_Handler_Repository::unbind_all (void)
   // Unbind all of the <handle, ACE_Event_Handler>s.
   for (int slot = 0;
        slot < this->max_handlep1_;
-       slot++)
+       ++slot)
     this->unbind (ACE_SELECT_REACTOR_HANDLE (slot),
                   ACE_Event_Handler::ALL_EVENTS_MASK);
 
@@ -167,7 +168,7 @@ ACE_Select_Reactor_Handler_Repository::find (ACE_HANDLE handle,
 #if defined (ACE_WIN32)
       i = 0;
 
-      for (; i < this->max_handlep1_; i++)
+      for (; i < this->max_handlep1_; ++i)
         if (ACE_SELECT_REACTOR_HANDLE (i) == handle)
           {
             eh = ACE_SELECT_REACTOR_EVENT_HANDLER (this, i);
@@ -217,7 +218,7 @@ ACE_Select_Reactor_Handler_Repository::bind (ACE_HANDLE handle,
 
   int assigned_slot = -1;
 
-  for (ssize_t i = 0; i < this->max_handlep1_; i++)
+  for (ssize_t i = 0; i < this->max_handlep1_; ++i)
     {
       // If handle is already registered.
       if (ACE_SELECT_REACTOR_HANDLE (i) == handle)
@@ -257,7 +258,7 @@ ACE_Select_Reactor_Handler_Repository::bind (ACE_HANDLE handle,
       // Insert at the end of the active portion.
       ACE_SELECT_REACTOR_HANDLE (this->max_handlep1_) = handle;
       ACE_SELECT_REACTOR_EVENT_HANDLER (this, this->max_handlep1_) = event_handler;
-      this->max_handlep1_++;
+      ++this->max_handlep1_;
     }
   else
     {
@@ -307,21 +308,12 @@ ACE_Select_Reactor_Handler_Repository::bind (ACE_HANDLE handle,
       // Note the fact that we've changed the state of the <wait_set_>,
       // which is used by the dispatching loop to determine whether it can
       // keep going or if it needs to reconsult select().
-      this->select_reactor_.state_changed_ = 1;
+      // this->select_reactor_.state_changed_ = 1;
     }
 
   // If new entry, call add_reference() if needed.
   if (!existing_handle)
-    {
-      int requires_reference_counting =
-        event_handler->reference_counting_policy ().value () ==
-        ACE_Event_Handler::Reference_Counting_Policy::ENABLED;
-
-      if (requires_reference_counting)
-        {
-          event_handler->add_reference ();
-        }
-    }
+    event_handler->add_reference ();
 
   return 0;
 }
@@ -355,7 +347,7 @@ ACE_Select_Reactor_Handler_Repository::unbind (ACE_HANDLE handle,
   // Note the fact that we've changed the state of the <wait_set_>,
   // which is used by the dispatching loop to determine whether it can
   // keep going or if it needs to reconsult select().
-  this->select_reactor_.state_changed_ = 1;
+  // this->select_reactor_.state_changed_ = 1;
 
   // If there are no longer any outstanding events on this <handle>
   // then we can totally shut down the Event_Handler.
@@ -393,7 +385,7 @@ ACE_Select_Reactor_Handler_Repository::unbind (ACE_HANDLE handle,
 
           for (i = this->max_handlep1_ - 1;
                i >= 0 && ACE_SELECT_REACTOR_HANDLE (i) == ACE_INVALID_HANDLE;
-               i--)
+               --i)
             continue;
 
           this->max_handlep1_ = i + 1;
@@ -406,13 +398,19 @@ ACE_Select_Reactor_Handler_Repository::unbind (ACE_HANDLE handle,
           // We've deleted the last entry, so we need to figure out
           // the last valid place in the array that is worth looking
           // at.
-          ACE_HANDLE wait_rd_max = this->select_reactor_.wait_set_.rd_mask_.max_set ();
-          ACE_HANDLE wait_wr_max = this->select_reactor_.wait_set_.wr_mask_.max_set ();
-          ACE_HANDLE wait_ex_max = this->select_reactor_.wait_set_.ex_mask_.max_set ();
+          ACE_HANDLE wait_rd_max =
+            this->select_reactor_.wait_set_.rd_mask_.max_set ();
+          ACE_HANDLE wait_wr_max =
+            this->select_reactor_.wait_set_.wr_mask_.max_set ();
+          ACE_HANDLE wait_ex_max =
+            this->select_reactor_.wait_set_.ex_mask_.max_set ();
 
-          ACE_HANDLE suspend_rd_max = this->select_reactor_.suspend_set_.rd_mask_.max_set ();
-          ACE_HANDLE suspend_wr_max = this->select_reactor_.suspend_set_.wr_mask_.max_set ();
-          ACE_HANDLE suspend_ex_max = this->select_reactor_.suspend_set_.ex_mask_.max_set ();
+          ACE_HANDLE suspend_rd_max =
+            this->select_reactor_.suspend_set_.rd_mask_.max_set ();
+          ACE_HANDLE suspend_wr_max =
+            this->select_reactor_.suspend_set_.wr_mask_.max_set ();
+          ACE_HANDLE suspend_ex_max =
+            this->select_reactor_.suspend_set_.ex_mask_.max_set ();
 
           // Compute the maximum of six values.
           this->max_handlep1_ = wait_rd_max;
@@ -428,7 +426,7 @@ ACE_Select_Reactor_Handler_Repository::unbind (ACE_HANDLE handle,
           if (this->max_handlep1_ < suspend_ex_max)
             this->max_handlep1_ = suspend_ex_max;
 
-          this->max_handlep1_++;
+          ++this->max_handlep1_;
         }
 
 #endif /* ACE_WIN32 */
@@ -491,13 +489,13 @@ int
 ACE_Select_Reactor_Handler_Repository_Iterator::advance (void)
 {
   if (this->current_ < this->rep_->max_handlep1_)
-    this->current_++;
+    ++this->current_;
 
   while (this->current_ < this->rep_->max_handlep1_)
     if (ACE_SELECT_REACTOR_EVENT_HANDLER (this->rep_, this->current_) != 0)
       return 1;
     else
-      this->current_++;
+      ++this->current_;
 
   return this->current_ < this->rep_->max_handlep1_;
 }
@@ -614,16 +612,8 @@ ACE_Select_Reactor_Notify::purge_pending_notifications (ACE_Event_Handler *eh,
                              ACE_LIB_TEXT ("enqueue_head")),
                             -1);
 
-          ACE_Event_Handler *event_handler = temp->eh_;
-
-          int requires_reference_counting =
-            event_handler->reference_counting_policy ().value () ==
-            ACE_Event_Handler::Reference_Counting_Policy::ENABLED;
-
-          if (requires_reference_counting)
-            {
-              event_handler->remove_reference ();
-            }
+        ACE_Event_Handler *event_handler = temp->eh_;
+        event_handler->remove_reference ();
 
         ++number_purged;
       }
@@ -724,7 +714,7 @@ ACE_Select_Reactor_Notify::open (ACE_Reactor_Impl *r,
           return -1;
         }
 
-      for (size_t i = 0; i < ACE_REACTOR_NOTIFICATION_ARRAY_SIZE; i++)
+      for (size_t i = 0; i < ACE_REACTOR_NOTIFICATION_ARRAY_SIZE; ++i)
         if (free_queue_.enqueue_head (temp + i) == -1)
           return -1;
 
@@ -785,20 +775,10 @@ ACE_Select_Reactor_Notify::notify (ACE_Event_Handler *event_handler,
   if (this->select_reactor_ == 0)
     return 0;
 
-  ACE_Event_Handler_var safe_handler;
+  ACE_Event_Handler_var safe_handler (event_handler);
 
   if (event_handler)
-    {
-      int requires_reference_counting =
-        event_handler->reference_counting_policy ().value () ==
-        ACE_Event_Handler::Reference_Counting_Policy::ENABLED;
-
-      if (requires_reference_counting)
-        {
-          event_handler->add_reference ();
-          safe_handler = event_handler;
-        }
-    }
+    event_handler->add_reference ();
 
   ACE_Notification_Buffer buffer (event_handler, mask);
 
@@ -835,7 +815,7 @@ ACE_Select_Reactor_Notify::notify (ACE_Event_Handler *event_handler,
         // the first one will be used right now.
         for (size_t i = 1;
              i < ACE_REACTOR_NOTIFICATION_ARRAY_SIZE;
-             i++)
+             ++i)
           this->free_queue_.enqueue_head (temp1 + i);
 
         temp = temp1;
@@ -847,7 +827,7 @@ ACE_Select_Reactor_Notify::notify (ACE_Event_Handler *event_handler,
     if (notify_queue_.enqueue_tail (temp) == -1)
       return -1;
 
-    if(!notification_required)
+    if (!notification_required)
       {
         // No failures.
         safe_handler.release ();
@@ -885,7 +865,7 @@ ACE_Select_Reactor_Notify::dispatch_notifications (int &number_of_active_handles
   if (read_handle != ACE_INVALID_HANDLE
       && rd_mask.is_set (read_handle))
     {
-      number_of_active_handles--;
+      --number_of_active_handles;
       rd_mask.clr_bit (read_handle);
       return this->handle_input (read_handle);
     }
@@ -977,8 +957,8 @@ ACE_Select_Reactor_Notify::dispatch_notify (ACE_Notification_Buffer &buffer)
   // If eh == 0 then another thread is unblocking the
   // <ACE_Select_Reactor> to update the <ACE_Select_Reactor>'s
   // internal structures.  Otherwise, we need to dispatch the
-  // appropriate handle_* method on the <ACE_Event_Handler>
-  // pointer we've been passed.
+  // appropriate handle_* method on the <ACE_Event_Handler> pointer
+  // we've been passed.
   if (buffer.eh_ != 0)
     {
       ACE_Event_Handler *event_handler =
@@ -1079,7 +1059,7 @@ ACE_Select_Reactor_Notify::handle_input (ACE_HANDLE handle)
       // Dispatch the buffer
       // NOTE: We count only if we made any dispatches ie. upcalls.
       if (this->dispatch_notify (buffer) > 0)
-        number_dispatched++;
+        ++number_dispatched;
 
       // Bail out if we've reached the <notify_threshold_>.  Note that
       // by default <notify_threshold_> is -1, so we'll loop until all
@@ -1123,7 +1103,8 @@ ACE_Select_Reactor_Impl::bit_ops (ACE_HANDLE handle,
     return -1;
 
 #if !defined (ACE_WIN32)
-  ACE_Sig_Guard sb; // Block out all signals until method returns.
+  ACE_Sig_Guard sb (0,
+                    this->mask_signals_); // Block out all signals until method returns.
 #endif /* ACE_WIN32 */
 
   ACE_FDS_PTMF ptmf  = &ACE_Handle_Set::set_bit;
@@ -1146,6 +1127,11 @@ ACE_Select_Reactor_Impl::bit_ops (ACE_HANDLE handle,
       break;
     case ACE_Reactor::CLR_MASK:
       ptmf = &ACE_Handle_Set::clr_bit;
+      // State was changed. we need to reflect that change in the
+      // dispatch_mask I assume that only ACE_Reactor::CLR_MASK should
+      // be treated here  which means we need to clear the handle|mask
+      // from the current dispatch handler
+      this->clear_dispatch_mask (handle, mask);
       /* FALLTHRU */
     case ACE_Reactor::SET_MASK:
       /* FALLTHRU */
@@ -1198,6 +1184,51 @@ ACE_Select_Reactor_Impl::bit_ops (ACE_HANDLE handle,
     }
   return omask;
 }
+
+void
+ACE_Select_Reactor_Impl::clear_dispatch_mask (ACE_HANDLE handle,
+                                              ACE_Reactor_Mask mask)
+{
+  ACE_TRACE ("ACE_Select_Reactor_Impl::clear_dispatch_mask");
+
+  //  Use handle and mask in order to modify the sets
+  // (wait/suspend/ready/dispatch), that way, the dispatch_io_set loop
+  // will not be interrupt, and there will no reason to rescan the
+  // wait_set and re-calling select function, which is *very*
+  // expensive. It seems that wait/suspend/ready sets are getting
+  // updated in register/remove bind/unbind etc functions.  The only
+  // thing need to be updated is the dispatch_set (also can  be found
+  // in that file code as dispatch_mask).  Because of that, we need
+  // that dispatch_set to be member of the ACE_Select_Reactor_impl in
+  // Select_Reactor_Base.h file  That way we will have access to that
+  // member in that function.
+
+  // We kind of invalidate the iterator in dispatch_io_set because its
+  // an array and index built from the original dispatch-set. Take a
+  // look at dispatch_io_set for more details.
+
+  // We only need to clr_bit, because we are interested in clearing the
+  // handles that was removed, so no dispatching to these handles will
+  // occur.
+  if (ACE_BIT_ENABLED (mask, ACE_Event_Handler::READ_MASK) ||
+      ACE_BIT_ENABLED (mask, ACE_Event_Handler::ACCEPT_MASK))
+    {
+      this->dispatch_set_.rd_mask_.clr_bit (handle);
+    }
+  if (ACE_BIT_ENABLED (mask, ACE_Event_Handler::WRITE_MASK))
+    {
+      this->dispatch_set_.wr_mask_.clr_bit (handle);
+    }
+  if (ACE_BIT_ENABLED (mask, ACE_Event_Handler::EXCEPT_MASK))
+    {
+      this->dispatch_set_.ex_mask_.clr_bit (handle);
+    }
+
+  // That will make the dispatch_io_set iterator re-start and rescan
+  // the dispatch set.
+  this->state_changed_ = true;
+}
+
 
 int
 ACE_Select_Reactor_Impl::resumable_handler (void)

@@ -4,7 +4,7 @@
 /**
  *  @file    Active_Map_Manager.h
  *
- *  Active_Map_Manager.h,v 4.15 2003/11/01 11:15:11 dhinton Exp
+ *  Active_Map_Manager.h,v 4.17 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Irfan Pyarali
  */
@@ -70,8 +70,8 @@ public:
   void encode (void *data) const;
 
   /// Compare keys.
-  int operator== (const ACE_Active_Map_Manager_Key &rhs) const;
-  int operator!= (const ACE_Active_Map_Manager_Key &rhs) const;
+  bool operator== (const ACE_Active_Map_Manager_Key &rhs) const;
+  bool operator!= (const ACE_Active_Map_Manager_Key &rhs) const;
 
   // = This really should be protected but because of template
   // friends, they are not.
@@ -102,7 +102,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Active_Map_Manager.i"
+#include "ace/Active_Map_Manager.inl"
 #endif /* __ACE_INLINE__ */
 
 // Include the templates here.

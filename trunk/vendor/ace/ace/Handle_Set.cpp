@@ -1,15 +1,15 @@
 // Handle_Set.cpp
-// Handle_Set.cpp,v 4.47 2004/01/05 21:18:46 schmidt Exp
+// Handle_Set.cpp,v 4.48 2004/06/16 07:57:20 jwillemsen Exp
 
 #include "ace/Handle_Set.h"
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Handle_Set.i"
+#include "ace/Handle_Set.inl"
 #endif /* __ACE_INLINE__ */
 
 #include "ace/OS_NS_string.h"
 
-ACE_RCSID(ace, Handle_Set, "Handle_Set.cpp,v 4.47 2004/01/05 21:18:46 schmidt Exp")
+ACE_RCSID(ace, Handle_Set, "Handle_Set.cpp,v 4.48 2004/06/16 07:57:20 jwillemsen Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_Handle_Set)
 

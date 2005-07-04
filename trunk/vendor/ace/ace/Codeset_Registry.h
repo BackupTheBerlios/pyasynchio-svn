@@ -3,7 +3,7 @@
 /**
  *  @file   Codeset_Registry.h
  *
- *  Codeset_Registry.h,v 1.3 2003/07/19 19:04:11 dhinton Exp
+ *  Codeset_Registry.h,v 1.4 2004/05/21 02:23:19 mesnier_p Exp
  *
  * ACE wrapper around access functions for the OSF's DCE codeset registry
  * access functions
@@ -27,6 +27,7 @@
 #include /**/ "ace/pre.h"
 #include "ace/SString.h"
 #include "ace/CDR_Base.h"
+#include "ace/Codeset_Symbols.h"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once

@@ -4,7 +4,7 @@
 /**
  *  @file    ace_wchar.h
  *
- *  ace_wchar.h,v 4.31 2003/05/25 06:02:05 dhinton Exp
+ *  ace_wchar.h,v 4.33 2004/08/27 07:35:51 mcorino Exp
  *
  *  @author Darrell Brunsch <brunsch@uci.edu>
  */
@@ -50,6 +50,9 @@
 #endif /* ACE_LEGACY_MODE */
 
 #if defined (ACE_HAS_XPG4_MULTIBYTE_CHAR)
+#  if !defined (ACE_HAS_WCHAR)
+#    define ACE_HAS_WCHAR
+#  endif
 #  include /**/ <wchar.h>
 #endif /* ACE_HAS_XPG4_MULTIBYPTE_CHAR */
 
@@ -59,6 +62,9 @@
 #   include /**/ <stdlib.h>         /* For mbstowcs, etc. */
 #   include /**/ <string.h>         /* For strlen */
 #   define wint_t unsigned int      /* VxWorks has wchar_t but not wint_t */
+# elif defined (ACE_OPENVMS)
+#   include /**/ <wchar.h>
+#   include /**/ <wctype.h>
 # elif defined (ACE_HAS_STANDARD_CPP_LIBRARY) && \
     (ACE_HAS_STANDARD_CPP_LIBRARY != 0)
 #   include /**/ <cwchar>

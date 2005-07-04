@@ -4,7 +4,7 @@
 /**
  *  @file    Token_Invariants.h
  *
- *  Token_Invariants.h,v 4.22 2003/08/04 03:53:54 dhinton Exp
+ *  Token_Invariants.h,v 4.23 2004/04/24 05:14:30 ossama Exp
  *
  *  @author Tim Harrison (harrison@cs.wustl.edu)
  *
@@ -26,10 +26,12 @@
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
+#if defined (ACE_HAS_TOKENS_LIBRARY)
+
 #include "ace/Map_Manager.h"
 #include "ace/Local_Tokens.h"
+#include "ace/Null_Mutex.h"
 
-#if defined (ACE_HAS_TOKENS_LIBRARY)
 
 /**
  * @class ACE_Mutex_Invariants

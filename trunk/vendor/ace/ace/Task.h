@@ -4,7 +4,7 @@
 /**
  *  @file    Task.h
  *
- *  Task.h,v 4.60 2003/07/19 19:04:14 dhinton Exp
+ *  Task.h,v 4.66 2004/08/13 23:49:36 schmidt Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -77,8 +77,8 @@ public:
   // These methods should be overridden by subclasses if you'd like to
   // provide <Task>-specific initialization and termination behavior.
 
-  /// Hook called to open a Task.  <args> can be used to pass arbitrary
-  /// information into <open>.
+  /// Hook called to initialize a task and prepare it for execution.
+  /// <args> can be used to pass arbitrary information into <open>.
   virtual int open (void *args = 0);
 
   /**
@@ -139,6 +139,9 @@ public:
    * THR_SCHED_RR, THR_SCHED_DEFAULT, THR_EXPLICIT_SCHED,
    * THR_SCOPE_SYSTEM, THR_SCOPE_PROCESS
    * = END<INDENT>
+   * If THR_SCHED_INHERIT is not desirable, applications should
+   * specifically pass in THR_EXPLICIT_SCHED.
+   *
    *
    * By default, or if <{priority}> is set to
    * ACE_DEFAULT_THREAD_PRIORITY, an "appropriate" priority value for
@@ -168,8 +171,11 @@ public:
    * the base of the stacks to use for the threads being spawned.
    * Likewise, if <stack_size> != 0 it is assumed to be an array of
    * <n> values indicating how big each of the corresponding <stack>s
-   * are.  */
-  virtual int activate (long flags = THR_NEW_LWP | THR_JOINABLE,
+   * are.
+   *
+   *
+   */
+  virtual int activate (long flags = THR_NEW_LWP | THR_JOINABLE |THR_INHERIT_SCHED ,
                         int n_threads = 1,
                         int force_active = 0,
                         long priority = ACE_DEFAULT_THREAD_PRIORITY,
@@ -272,7 +278,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Task.i"
+#include "ace/Task.inl"
 #endif /* __ACE_INLINE__ */
 
 // Include the ACE_Task templates classes at this point.

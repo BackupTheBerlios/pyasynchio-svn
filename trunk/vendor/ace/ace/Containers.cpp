@@ -1,13 +1,13 @@
-// Containers.cpp,v 4.60 2002/04/10 17:44:15 ossama Exp
+// Containers.cpp,v 4.61 2004/06/16 07:57:20 jwillemsen Exp
 
 #include "ace/Containers.h"
 
 ACE_RCSID (ace,
            Containers,
-           "Containers.cpp,v 4.60 2002/04/10 17:44:15 ossama Exp")
+           "Containers.cpp,v 4.61 2004/06/16 07:57:20 jwillemsen Exp")
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Containers.i"
+#include "ace/Containers.inl"
 #endif /* __ACE_INLINE__ */
 
 #if defined (ACE_HAS_EXPLICIT_TEMPLATE_INSTANTIATION)

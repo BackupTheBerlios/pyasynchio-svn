@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="7.10"
 	Name="RMCast"
-	ProjectGUID="{6952E1FE-FECA-1BAD-5646-8D280B15AEE5}"
+	ProjectGUID="{6952E1FE-FECA-1BAD-5646-8D289F845BA4}"
 	SccProjectName=""
 	SccLocalPath="">
 	<Platforms>
@@ -14,10 +14,11 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="..\..\lib"
-			IntermediateDirectory="Release/RMCast"
+			IntermediateDirectory="Release\RMCast"
 			ConfigurationType="2"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE">
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="0">
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="3"
@@ -28,7 +29,7 @@
 				RuntimeLibrary="2"
 				BufferSecurityCheck="TRUE"
 				EnableFunctionLevelLinking="TRUE"
-				TreatWChar_tAsBuiltInType="TRUE"
+				TreatWChar_tAsBuiltInType="FALSE"
 				ForceConformanceInForLoopScope="TRUE"
 				RuntimeTypeInfo="TRUE"
 				WarningLevel="3"
@@ -40,20 +41,18 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ACE.lib"
-				OutputFile="$(OutDir)/ACE_RMCast.dll"
-				Version="5.4"
+				OutputFile="$(OutDir)\ACE_RMCast.dll"
+				Version="5.403"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="..\..\lib"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile="$(OutDir)/ACE_RMCast.pdb"
+				ProgramDatabaseFile="$(OutDir)\ACE_RMCast.pdb"
 				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				ImportLibrary="$(OutDir)/ACE_RMCast.lib"
-			/>
-			<Tool
-				Name="VCMIDLTool"/>
+				ImportLibrary="..\..\lib\ACE_RMCast.lib"
+				TargetMachine="1"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool
@@ -73,10 +72,11 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="..\..\lib"
-			IntermediateDirectory="Debug/RMCast"
+			IntermediateDirectory="Debug\RMCast"
 			ConfigurationType="2"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE">
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="0">
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
@@ -88,7 +88,7 @@
 				RuntimeLibrary="3"
 				BufferSecurityCheck="TRUE"
 				EnableFunctionLevelLinking="TRUE"
-				TreatWChar_tAsBuiltInType="TRUE"
+				TreatWChar_tAsBuiltInType="FALSE"
 				ForceConformanceInForLoopScope="TRUE"
 				RuntimeTypeInfo="TRUE"
 				WarningLevel="3"
@@ -100,18 +100,16 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ACEd.lib"
-				OutputFile="$(OutDir)/ACE_RMCastd.dll"
-				Version="5.4"
+				OutputFile="$(OutDir)\ACE_RMCastd.dll"
+				Version="5.403"
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="..\..\lib"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile="$(OutDir)/ACE_RMCastd.pdb"
+				ProgramDatabaseFile="$(OutDir)\ACE_RMCastd.pdb"
 				SubSystem="1"
-				ImportLibrary="$(OutDir)/ACE_RMCastd.lib"
-			/>
-			<Tool
-				Name="VCMIDLTool"/>
+				ImportLibrary="..\..\lib\ACE_RMCastd.lib"
+				TargetMachine="1"/>
 			<Tool
 				Name="VCPostBuildEventTool"/>
 			<Tool

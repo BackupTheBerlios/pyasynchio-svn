@@ -1,9 +1,9 @@
-// Service_Types.cpp,v 4.28 2003/11/07 20:27:28 shuston Exp
+// Service_Types.cpp,v 4.30 2004/06/16 07:57:21 jwillemsen Exp
 
 #include "ace/Service_Types.h"
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Service_Types.i"
+#include "ace/Service_Types.inl"
 #endif /* __ACE_INLINE__ */
 
 #include "ace/Stream_Modules.h"
@@ -11,7 +11,7 @@
 #include "ace/OS_NS_stdio.h"
 #include "ace/OS_NS_string.h"
 
-ACE_RCSID(ace, Service_Types, "Service_Types.cpp,v 4.28 2003/11/07 20:27:28 shuston Exp")
+ACE_RCSID(ace, Service_Types, "Service_Types.cpp,v 4.30 2004/06/16 07:57:21 jwillemsen Exp")
 
 typedef ACE_Stream<ACE_SYNCH> MT_Stream;
 typedef ACE_Module<ACE_SYNCH> MT_Module;
@@ -207,7 +207,7 @@ ACE_Module_Type::info (ACE_TCHAR **str, size_t len) const
     return -1;
   else
     ACE_OS::strsncpy (*str, buf, len);
-  return ACE_static_cast (int, ACE_OS::strlen (buf));
+  return static_cast<int> (ACE_OS::strlen (buf));
 }
 
 void
@@ -291,7 +291,7 @@ ACE_Stream_Type::info (ACE_TCHAR **str, size_t len) const
     return -1;
   else
     ACE_OS::strsncpy (*str, buf, len);
-  return ACE_static_cast (int, ACE_OS::strlen (buf));
+  return static_cast<int> (ACE_OS::strlen (buf));
 }
 
 int

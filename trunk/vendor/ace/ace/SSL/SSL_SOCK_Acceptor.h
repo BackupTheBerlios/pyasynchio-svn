@@ -4,7 +4,7 @@
 /**
  *  @file    SSL_SOCK_Acceptor.h
  *
- *  SSL_SOCK_Acceptor.h,v 1.18 2003/07/19 19:04:15 dhinton Exp
+ *  SSL_SOCK_Acceptor.h,v 1.19 2004/06/19 07:18:01 jwillemsen Exp
  *
  *  @author John Heitmann
  *  @author Chris Zimman
@@ -185,9 +185,9 @@ private:
 
 };
 
-#if !defined (ACE_LACKS_INLINE_FUNCTIONS)
+#if defined (__ACE_INLINE__)
 #include "SSL_SOCK_Acceptor.i"
-#endif /* ACE_LACKS_INLINE_FUNCTIONS */
+#endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"
 

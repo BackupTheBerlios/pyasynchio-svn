@@ -1,14 +1,10 @@
-// OS_Thread_Adapter.cpp,v 4.4 2003/11/01 11:15:16 dhinton Exp
+// OS_Thread_Adapter.cpp,v 4.5 2004/06/14 13:58:41 jwillemsen Exp
 
 #include "ace/OS_Thread_Adapter.h"
 
 ACE_RCSID (ace,
            OS_Thread_Adapter,
-           "OS_Thread_Adapter.cpp,v 4.4 2003/11/01 11:15:16 dhinton Exp")
-
-#if !defined (ACE_HAS_INLINED_OSCALLS)
-# include "ace/OS_Thread_Adapter.inl"
-#endif /* ACE_HAS_INLINED_OS_CALLS */
+           "OS_Thread_Adapter.cpp,v 4.5 2004/06/14 13:58:41 jwillemsen Exp")
 
 #include "ace/Thread_Hook.h"
 #include "ace/Object_Manager_Base.h"

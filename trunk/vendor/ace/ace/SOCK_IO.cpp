@@ -1,16 +1,18 @@
 // SOCK_IO.cpp
-// SOCK_IO.cpp,v 4.25 2003/11/01 11:15:17 dhinton Exp
+// SOCK_IO.cpp,v 4.29 2004/06/16 07:57:21 jwillemsen Exp
 
 #include "ace/SOCK_IO.h"
 
-#if defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/SOCK_IO.i"
-#endif /* ACE_LACKS_INLINE_FUNCTIONS */
-
 #include "ace/Handle_Set.h"
 #include "ace/OS_NS_sys_select.h"
+#include "ace/OS_NS_sys_socket.h"
+#include "ace/OS_Memory.h"
 
-ACE_RCSID(ace, SOCK_IO, "SOCK_IO.cpp,v 4.25 2003/11/01 11:15:17 dhinton Exp")
+#if !defined (__ACE_INLINE__)
+#include "ace/SOCK_IO.inl"
+#endif /* __ACE_INLINE__ */
+
+ACE_RCSID(ace, SOCK_IO, "SOCK_IO.cpp,v 4.29 2004/06/16 07:57:21 jwillemsen Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_SOCK_IO)
 
@@ -100,7 +102,7 @@ ACE_SOCK_IO::send (size_t n, ...) const
   ACE_TRACE ("ACE_SOCK_IO::send");
 
   va_list argp;
-  int total_tuples = ACE_static_cast (int, n) / 2;
+  int total_tuples = static_cast<int> (n) / 2;
   iovec *iovp;
 #if defined (ACE_HAS_ALLOCA)
   iovp = (iovec *) alloca (total_tuples * sizeof (iovec));
@@ -140,7 +142,7 @@ ACE_SOCK_IO::recv (size_t n, ...) const
   ACE_TRACE ("ACE_SOCK_IO::recv");
 
   va_list argp;
-  int total_tuples = ACE_static_cast (int, (n / 2));
+  int total_tuples = static_cast<int> (n / 2);
   iovec *iovp;
 #if defined (ACE_HAS_ALLOCA)
   iovp = (iovec *) alloca (total_tuples * sizeof (iovec));

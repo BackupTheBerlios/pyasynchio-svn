@@ -4,7 +4,7 @@
 /**
  *  @file    FIFO_Send_Msg.h
  *
- *  FIFO_Send_Msg.h,v 4.14 2003/07/19 19:04:11 dhinton Exp
+ *  FIFO_Send_Msg.h,v 4.19 2004/08/10 13:58:46 sma Exp
  *
  *  @author Doug Schmidt
  */
@@ -20,6 +20,10 @@
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
+
+#if defined (ACE_HAS_STREAM_PIPES)
+#  include "ace/OS_NS_stropts.h"
+#endif /* ACE_HAS_STREAM_PIPES */
 
 // Forward Decls
 class ACE_Str_Buf;
@@ -75,9 +79,9 @@ public:
   ACE_ALLOC_HOOK_DECLARE;
 };
 
-#if !defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/FIFO_Send_Msg.i"
-#endif
+#if defined (__ACE_INLINE__)
+#include "ace/FIFO_Send_Msg.inl"
+#endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"
 #endif /* ACE_FIFO_SEND_MSG_H */

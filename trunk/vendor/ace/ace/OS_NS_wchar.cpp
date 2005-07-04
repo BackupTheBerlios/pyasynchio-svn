@@ -1,9 +1,9 @@
 // -*- C++ -*-
-// OS_NS_wchar.cpp,v 1.3 2003/11/04 16:46:04 dhinton Exp
+// OS_NS_wchar.cpp,v 1.5 2004/10/06 20:35:32 shuston Exp
 
 #include "ace/OS_NS_wchar.h"
 
-ACE_RCSID(ace, OS_NS_wchar, "OS_NS_wchar.cpp,v 1.3 2003/11/04 16:46:04 dhinton Exp")
+ACE_RCSID(ace, OS_NS_wchar, "OS_NS_wchar.cpp,v 1.5 2004/10/06 20:35:32 shuston Exp")
 
 #if !defined (ACE_HAS_INLINED_OSCALLS)
 # include "ace/OS_NS_wchar.inl"
@@ -11,6 +11,7 @@ ACE_RCSID(ace, OS_NS_wchar, "OS_NS_wchar.cpp,v 1.3 2003/11/04 16:46:04 dhinton E
 
 #if defined (ACE_HAS_WCHAR)
 #  include "ace/OS_NS_ctype.h"
+#  include "ace/OS_NS_string.h"
 #endif /* ACE_HAS_WCHAR */
 
 // The following wcs*_emulation methods were created based on BSD code:
@@ -129,8 +130,8 @@ ACE_OS::wcsicmp_emulation (const wchar_t *s, const wchar_t *t)
   const wchar_t *scan2 = t;
 
   while (*scan1 != 0
-         && ACE_OS::to_lower (*scan1)
-            == ACE_OS::to_lower (*scan2))
+         && ACE_OS::ace_towlower (*scan1)
+            == ACE_OS::ace_towlower (*scan2))
     {
       ++scan1;
       ++scan2;
@@ -147,7 +148,7 @@ ACE_OS::wcsicmp_emulation (const wchar_t *s, const wchar_t *t)
   else if (*scan2 == '\0')
     return 1;
   else
-    return ACE_OS::to_lower (*scan1) - ACE_OS::to_lower (*scan2);
+    return ACE_OS::ace_tolower (*scan1) - ACE_OS::ace_towlower (*scan2);
 }
 #endif /* ACE_HAS_WCHAR && ACE_LACKS_WCSICMP */
 
@@ -253,8 +254,8 @@ ACE_OS::wcsnicmp_emulation (const wchar_t *s,
 
   while (count++ < len
          && *scan1 != 0
-         && ACE_OS::to_lower (*scan1)
-            == ACE_OS::to_lower (*scan2))
+         && ACE_OS::ace_towlower (*scan1)
+            == ACE_OS::ace_towlower (*scan2))
     {
       ++scan1;
       ++scan2;
@@ -274,7 +275,7 @@ ACE_OS::wcsnicmp_emulation (const wchar_t *s,
   else if (*scan2 == '\0')
     return 1;
   else
-    return ACE_OS::to_lower (*scan1) - ACE_OS::to_lower (*scan2);
+    return ACE_OS::ace_towlower (*scan1) - ACE_OS::ace_towlower (*scan2);
 }
 #endif /* ACE_HAS_WCHAR && ACE_LACKS_WCSNICMP */
 
@@ -356,7 +357,7 @@ ACE_OS::wcsstr_emulation (const wchar_t *string,
 
   if ((c = *charset++) != 0)
     {
-      len = strlen(charset);
+      len = ACE_OS::strlen (charset);
       do
         {
           do
@@ -364,7 +365,7 @@ ACE_OS::wcsstr_emulation (const wchar_t *string,
               if ((sc = *string++) == 0)
                 return 0;
             } while (sc != c);
-        } while (strncmp(string, charset, len) != 0);
+        } while (ACE_OS::strncmp (string, charset, len) != 0);
       string--;
     }
 

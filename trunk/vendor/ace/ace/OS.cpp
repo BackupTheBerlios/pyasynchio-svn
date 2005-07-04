@@ -1,4 +1,4 @@
-// OS.cpp,v 4.644 2003/11/10 01:48:02 dhinton Exp
+// OS.cpp,v 4.645 2004/06/16 07:57:20 jwillemsen Exp
 
 // FUZZ: disable check_for_OS_h_include
 #include "ace/OS.h"
@@ -10,10 +10,10 @@
 // Perhaps we should *always* include ace/OS.i in order to make sure
 // we can always link against the OS symbols?
 #if !defined (ACE_HAS_INLINED_OSCALLS)
-# include "ace/OS.i"
+# include "ace/OS.inl"
 #endif /* ACE_HAS_INLINED_OS_CALLS */
 
-ACE_RCSID(ace, OS, "OS.cpp,v 4.644 2003/11/10 01:48:02 dhinton Exp")
+ACE_RCSID(ace, OS, "OS.cpp,v 4.645 2004/06/16 07:57:20 jwillemsen Exp")
 
 // include new cpps
 #include "ace/Cleanup.cpp"

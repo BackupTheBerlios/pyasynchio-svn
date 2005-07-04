@@ -1,4 +1,4 @@
-// Object_Manager.cpp,v 4.142 2003/11/05 23:30:46 shuston Exp
+// Object_Manager.cpp,v 4.148 2004/09/16 21:32:36 olli Exp
 
 #include "ace/Object_Manager.h"
 #if !defined (ACE_LACKS_ACE_TOKEN)
@@ -9,16 +9,17 @@
 #  include "ace/Service_Manager.h"
 #  include "ace/Service_Config.h"
 #endif /* ! ACE_LACKS_ACE_SVCCONF */
-#include "ace/Signal.h"
+#include "ace/Signal_.h"
 #include "ace/Log_Msg.h"
 #include "ace/Containers.h"
-#include "ace/Malloc.h"
-#include "ace/Signal.h"
+#include "ace/Malloc_.h"
+#include "ace/Signal_.h"
 #include "ace/Framework_Component.h"
 #include "ace/Atomic_Op.h"
+#include "ace/OS_NS_sys_time.h"
 
 #if !defined (__ACE_INLINE__)
-# include "ace/Object_Manager.i"
+# include "ace/Object_Manager.inl"
 #endif /* __ACE_INLINE__ */
 
 #include "ace/Guard_T.h"
@@ -26,7 +27,7 @@
 #include "ace/Mutex.h"
 #include "ace/RW_Thread_Mutex.h"
 
-ACE_RCSID(ace, Object_Manager, "Object_Manager.cpp,v 4.142 2003/11/05 23:30:46 shuston Exp")
+ACE_RCSID(ace, Object_Manager, "Object_Manager.cpp,v 4.148 2004/09/16 21:32:36 olli Exp")
 
 #if ! defined (ACE_APPLICATION_PREALLOCATED_OBJECT_DEFINITIONS)
 # define ACE_APPLICATION_PREALLOCATED_OBJECT_DEFINITIONS
@@ -239,7 +240,7 @@ ACE_Object_Manager::init (void)
 #     endif /* ACE_HAS_TSS_EMULATION */
 
 #if defined (ACE_DISABLE_WIN32_ERROR_WINDOWS)
-#if defined (_DEBUG) && defined (_MSC_VER)
+#if defined (_DEBUG) && defined (_MSC_VER) && !defined (__BORLANDC__)
           // This will keep the ACE_Assert window
            _CrtSetReportMode( _CRT_ERROR, _CRTDBG_MODE_FILE );
           _CrtSetReportFile( _CRT_ERROR, _CRTDBG_FILE_STDERR );
@@ -258,7 +259,7 @@ ACE_Object_Manager::init (void)
 #     endif /* ! ACE_LACKS_ACE_SVCCONF */
 
           // Open the main thread's ACE_Log_Msg.
-          if (NULL == ACE_LOG_MSG)
+          if (0 == ACE_LOG_MSG)
             return -1;
         }
 
@@ -603,7 +604,7 @@ ACE_Object_Manager::fini (void)
   // No mutex here.  Only the main thread should destroy the singleton
   // ACE_Object_Manager instance.
 
-  // First, indicate that this ACE_Object_Manager instance is being
+  // Indicate that this ACE_Object_Manager instance is being
   // shut down.
   object_manager_state_ = OBJ_MAN_SHUTTING_DOWN;
 
@@ -731,7 +732,7 @@ ACE_Object_Manager::fini (void)
 /**
  * @class ACE_Object_Manager_Manager
  *
- * @brief Ensure that the <ACE_Object_Manager> gets initialized at program
+ * @brief Ensure that the ACE_Object_Manager gets initialized at program
  * startup, and destroyed at program termination.
  *
  * Without ACE_HAS_NONSTATIC_OBJECT_MANAGER, a static instance of this

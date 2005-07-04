@@ -4,7 +4,7 @@
 /**
  *  @file    Method_Request.h
  *
- *  Method_Request.h,v 4.14 2003/07/19 19:04:12 dhinton Exp
+ *  Method_Request.h,v 4.15 2004/03/29 09:05:20 jwillemsen Exp
  *
  *  @author Andres Kruse <Andres.Kruse@cern.ch>
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
@@ -23,7 +23,7 @@
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
-#include "Global_Macros.h"
+#include "ace/Global_Macros.h"
 
 /**
  * @class ACE_Method_Request

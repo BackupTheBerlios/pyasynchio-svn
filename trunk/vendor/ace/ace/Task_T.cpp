@@ -1,5 +1,5 @@
 // Task.cpp
-// Task_T.cpp,v 4.34 2003/08/04 03:53:53 dhinton Exp
+// Task_T.cpp,v 4.35 2004/06/16 07:57:21 jwillemsen Exp
 
 #ifndef ACE_TASK_T_C
 #define ACE_TASK_T_C
@@ -14,10 +14,10 @@
 #include "ace/Null_Condition.h"
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Task_T.i"
+#include "ace/Task_T.inl"
 #endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, Task_T, "Task_T.cpp,v 4.34 2003/08/04 03:53:53 dhinton Exp")
+ACE_RCSID(ace, Task_T, "Task_T.cpp,v 4.35 2004/06/16 07:57:21 jwillemsen Exp")
 
 template <ACE_SYNCH_DECL> void
 ACE_Task<ACE_SYNCH_USE>::dump (void) const

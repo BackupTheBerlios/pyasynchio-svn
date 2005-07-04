@@ -4,7 +4,7 @@
 /**
  *  @file    Typed_SV_Message.h
  *
- *  Typed_SV_Message.h,v 4.13 2003/07/19 19:04:14 dhinton Exp
+ *  Typed_SV_Message.h,v 4.14 2004/06/16 07:57:22 jwillemsen Exp
  *
  *  @author Doug Schmidt
  */
@@ -87,7 +87,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Typed_SV_Message.i"
+#include "ace/Typed_SV_Message.inl"
 #endif /* __ACE_INLINE__ */
 
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)

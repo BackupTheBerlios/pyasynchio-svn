@@ -1,5 +1,6 @@
-/* -*- C++ -*- */
-// CLASSIX_Port.i,v 1.1 1998/06/23 09:55:24 wchiang Exp
+// -*- C++ -*-
+//
+// CLASSIX_Port.i,v 1.2 2004/04/23 03:06:19 ossama Exp
 
 ACE_INLINE
 ACE_CLASSIX_Port::ACE_CLASSIX_Port(void)
@@ -94,10 +95,10 @@ ACE_CLASSIX_Port::disable(void) const
 
 // Compare two addresses for equality.
 ACE_INLINE
-int
+bool
 ACE_CLASSIX_Port::operator==(const ACE_CLASSIX_Port &theSrc) const
 {
-  return 
+  return
       this->ACE_Addr::operator == (theSrc) &&
       this->addr_.id.uiHead == theSrc.addr_.id.uiHead &&
       this->addr_.id.uiTail == theSrc.addr_.id.uiTail &&
@@ -105,7 +106,7 @@ ACE_CLASSIX_Port::operator==(const ACE_CLASSIX_Port &theSrc) const
 }
 
 ACE_INLINE
-int
+bool
 ACE_CLASSIX_Port::operator != (const ACE_CLASSIX_Port &sap) const
 {
   return !((*this) == sap);

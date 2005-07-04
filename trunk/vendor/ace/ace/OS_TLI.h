@@ -4,7 +4,7 @@
 /**
  *  @file   OS_TLI.h
  *
- *  OS_TLI.h,v 4.17 2003/12/22 22:50:34 shuston Exp
+ *  OS_TLI.h,v 4.18 2004/08/02 13:26:02 shuston Exp
  *
  *  @author Doug Schmidt <schmidt@cs.wustl.edu>
  */
@@ -131,7 +131,7 @@ extern "C" {
 #     if defined (ACE_HAS_TIUSER_H)
 #       include /**/ <tiuser.h>
 #     else
-#       /* What to do here??? Is there a tli.h? */
+       /* What to do here??? Is there a tli.h? */
 #     endif /* ACE_HAS_TIUSER_H */
 #     if defined (ACE_HAS_TIUSER_H_BROKEN_EXTERN_C)
 }

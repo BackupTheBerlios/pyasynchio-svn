@@ -1,9 +1,9 @@
 // -*- C++ -*-
-// OS_NS_sys_select.inl,v 1.3 2003/11/04 07:05:40 jwillemsen Exp
+// OS_NS_sys_select.inl,v 1.5 2004/11/12 00:03:08 gmaxey Exp
 
-#include "ace/os_include/os_errno.h"
-#include "ace/Time_Value.h"
+#include "ace/OS_NS_errno.h"
 #include "ace/OS_NS_macros.h"
+#include "ace/Time_Value.h"
 
 // It would be really cool to add another version of select that would
 // function like the one we're defending against below!
@@ -28,12 +28,21 @@ ACE_OS::select (int width,
 #else
   const timeval *timep = (timeout == 0 ? (const timeval *)0 : *timeout);
 #endif /* ACE_HAS_NONCONST_SELECT_TIMEVAL */
+#if defined(ACE_TANDEM_T1248_PTHREADS)
+  ACE_SOCKCALL_RETURN (::spt_select (width,
+                                 (ACE_FD_SET_TYPE *) rfds,
+                                 (ACE_FD_SET_TYPE *) wfds,
+                                 (ACE_FD_SET_TYPE *) efds,
+                                 timep),
+                       int, -1);
+#else
   ACE_SOCKCALL_RETURN (::select (width,
                                  (ACE_FD_SET_TYPE *) rfds,
                                  (ACE_FD_SET_TYPE *) wfds,
                                  (ACE_FD_SET_TYPE *) efds,
                                  timep),
                        int, -1);
+#endif
 }
 
 ACE_INLINE int
@@ -49,12 +58,21 @@ ACE_OS::select (int width,
 # define ___ACE_TIMEOUT timep
   const timeval *timep = timeout;
 #endif /* ACE_HAS_NONCONST_SELECT_TIMEVAL */
+#if defined(ACE_TANDEM_T1248_PTHREADS)
+  ACE_SOCKCALL_RETURN (::spt_select (width,
+                                 (ACE_FD_SET_TYPE *) rfds,
+                                 (ACE_FD_SET_TYPE *) wfds,
+                                 (ACE_FD_SET_TYPE *) efds,
+                                 ___ACE_TIMEOUT),
+                       int, -1);
+#else
   ACE_SOCKCALL_RETURN (::select (width,
                                  (ACE_FD_SET_TYPE *) rfds,
                                  (ACE_FD_SET_TYPE *) wfds,
                                  (ACE_FD_SET_TYPE *) efds,
                                  ___ACE_TIMEOUT),
                        int, -1);
+#endif
 #undef ___ACE_TIMEOUT
 }
 

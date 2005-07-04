@@ -1,4 +1,4 @@
-// Mutex.cpp,v 4.3 2003/11/01 11:15:14 dhinton Exp
+// Mutex.cpp,v 4.5 2004/05/07 16:40:36 ossama Exp
 
 #include "ace/Mutex.h"
 
@@ -6,10 +6,15 @@
 #include "ace/Mutex.inl"
 #endif /* __ACE_INLINE__ */
 
+#include "ace/Log_Msg.h"
 #include "ace/OS_NS_string.h"
 #include "ace/os_include/sys/os_mman.h"
 
-ACE_RCSID(ace, Mutex, "Mutex.cpp,v 4.3 2003/11/01 11:15:14 dhinton Exp")
+
+ACE_RCSID (ace,
+           Mutex,
+           "Mutex.cpp,v 4.5 2004/05/07 16:40:36 ossama Exp")
+
 
 ACE_ALLOC_HOOK_DEFINE(ACE_Mutex)
 
@@ -19,10 +24,10 @@ ACE_Mutex::dump (void) const
 // ACE_TRACE ("ACE_Mutex::dump");
 
   ACE_DEBUG ((LM_DEBUG, ACE_BEGIN_DUMP, this));
-#if defined (CHORUS)
+#if defined (CHORUS) || defined (ACE_HAS_PTHREADS) || defined(ACE_HAS_STHREADS)
   ACE_DEBUG ((LM_DEBUG, ACE_LIB_TEXT ("lockname_ = %s\n"), this->lockname_));
   ACE_DEBUG ((LM_DEBUG, ACE_LIB_TEXT ("process_lock_ = %x\n"), this->process_lock_));
-#endif /* CHORUS */
+#endif /* CHORUS || ACE_HAS_PTHREADS || ACE_HAS_STHREADS */
   ACE_DEBUG ((LM_DEBUG, ACE_LIB_TEXT ("\n")));
   ACE_DEBUG ((LM_DEBUG, ACE_END_DUMP));
 }
@@ -33,7 +38,7 @@ ACE_Mutex::ACE_Mutex (int type, const ACE_TCHAR *name,
 #if defined (CHORUS) || defined (ACE_HAS_PTHREADS) || defined(ACE_HAS_STHREADS)
     process_lock_ (0),
     lockname_ (0),
-#endif /* CHORUS */
+#endif /* CHORUS || ACE_HAS_PTHREADS || ACE_HAS_STHREADS */
     removed_ (0)
 {
   // ACE_TRACE ("ACE_Mutex::ACE_Mutex");
@@ -84,21 +89,30 @@ ACE_Mutex::ACE_Mutex (int type, const ACE_TCHAR *name,
                                  type,
                                  name,
                                  arg) != 0)
-        return;
+        {
+          ACE_ERROR ((LM_ERROR,
+                      ACE_LIB_TEXT ("%p\n"),
+                      ACE_LIB_TEXT ("ACE_Mutex::ACE_Mutex")));
+          return;
+        }
     }
-   // It is ok to fall through into the <mutex_init> below if the
-   // USYNC_PROCESS flag is not enabled.
+  else
+    {
+      // local mutex init if USYNC_PROCESS flag is not enabled.
 #else
-  ACE_UNUSED_ARG (mode);
-#endif /* CHORUS */
+      ACE_UNUSED_ARG (mode);
+#endif /* CHORUS || ACE_HAS_PTHREADS || ACE_HAS_STHREADS */
 
-  if (ACE_OS::mutex_init (&this->lock_,
-                          type,
-                          name,
-                          arg) != 0)
-    ACE_ERROR ((LM_ERROR,
-                ACE_LIB_TEXT ("%p\n"),
-                ACE_LIB_TEXT ("ACE_Mutex::ACE_Mutex")));
+      if (ACE_OS::mutex_init (&this->lock_,
+                              type,
+                              name,
+                              arg) != 0)
+        ACE_ERROR ((LM_ERROR,
+                    ACE_LIB_TEXT ("%p\n"),
+                    ACE_LIB_TEXT ("ACE_Mutex::ACE_Mutex")));
+#if defined (CHORUS) || defined(ACE_HAS_PTHREADS) || defined (ACE_HAS_STHREADS)
+    }
+#endif /* CHORUS || ACE_HAS_PTHREADS || ACE_HAS_STHREADS */
 }
 
 ACE_Mutex::~ACE_Mutex (void)

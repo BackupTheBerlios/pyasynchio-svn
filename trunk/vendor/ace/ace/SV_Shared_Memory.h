@@ -4,7 +4,7 @@
 /**
  *  @file    SV_Shared_Memory.h
  *
- *  SV_Shared_Memory.h,v 4.15 2003/12/09 15:25:41 elliott_c Exp
+ *  SV_Shared_Memory.h,v 4.16 2004/06/16 07:57:22 jwillemsen Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -110,7 +110,7 @@ protected:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/SV_Shared_Memory.i"
+#include "ace/SV_Shared_Memory.inl"
 #endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"

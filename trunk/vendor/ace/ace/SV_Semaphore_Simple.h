@@ -4,7 +4,7 @@
 /**
  *  @file    SV_Semaphore_Simple.h
  *
- *  SV_Semaphore_Simple.h,v 4.28 2003/12/09 15:25:41 elliott_c Exp
+ *  SV_Semaphore_Simple.h,v 4.32 2004/08/24 18:13:29 shuston Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -67,6 +67,14 @@ public:
                            int initial_value = 1,
                            u_short nsems = 1,
                            int perms = ACE_DEFAULT_FILE_PERMS);
+#if defined (ACE_HAS_WCHAR)
+  ACE_SV_Semaphore_Simple (const wchar_t *name,
+                           int flags = ACE_SV_Semaphore_Simple::ACE_CREATE,
+                           int initial_value = 1,
+                           u_short nsems = 1,
+                           int perms = ACE_DEFAULT_FILE_PERMS);
+#endif /* ACE_HAS_WCHAR */
+
   ~ACE_SV_Semaphore_Simple (void);
 
   int open (const char *name,
@@ -74,6 +82,14 @@ public:
             int initial_value = 1,
             u_short nsems = 1,
             int perms = ACE_DEFAULT_FILE_PERMS);
+
+#if defined (ACE_HAS_WCHAR)
+  int open (const wchar_t *name,
+            int flags = ACE_SV_Semaphore_Simple::ACE_CREATE,
+            int initial_value = 1,
+            u_short nsems = 1,
+            int perms = ACE_DEFAULT_FILE_PERMS);
+#endif /* ACE_HAS_WCHAR */
 
   /// Open or create one or more SV_Semaphores.  We return 0 if all is
   /// OK, else -1.
@@ -163,14 +179,14 @@ protected:
    * caller should not pass strings which match each other for the first
    * LUSED characters when he wants to get a different key.
    */
-  int init (key_t k = ACE_static_cast (key_t, ACE_INVALID_SEM_KEY),
+  int init (key_t k = static_cast<key_t> (ACE_INVALID_SEM_KEY),
             int i = -1);
   key_t name_2_key (const char *name);
 };
 
-#if !defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/SV_Semaphore_Simple.i"
-#endif
+#if defined (__ACE_INLINE__)
+#include "ace/SV_Semaphore_Simple.inl"
+#endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"
 

@@ -6,7 +6,7 @@
  *
  *  select types
  *
- *  os_select.h,v 1.6 2003/11/14 15:48:31 dhinton Exp
+ *  os_select.h,v 1.8 2004/08/25 16:05:41 shuston Exp
  *
  *  @author Don Hinton <dhinton@dresystems.com>
  *  @author This code was originally in various places including ace/OS.h.
@@ -18,7 +18,7 @@
 
 #include /**/ "ace/pre.h"
 
-#include "ace/config-all.h"
+#include "ace/config-lite.h"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
@@ -26,6 +26,7 @@
 
 #include "ace/os_include/sys/os_time.h"
 #include "ace/os_include/os_signal.h"
+#include "ace/os_include/os_unistd.h"
 
 #if !defined (ACE_LACKS_SYS_SELECT_H)
 #  include /**/ <sys/select.h>

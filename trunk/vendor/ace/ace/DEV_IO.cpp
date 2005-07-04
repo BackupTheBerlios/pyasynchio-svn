@@ -1,20 +1,20 @@
 // DEV_IO.cpp
-// DEV_IO.cpp,v 4.12 2003/07/27 20:48:24 dhinton Exp
+// DEV_IO.cpp,v 4.15 2004/06/16 07:57:20 jwillemsen Exp
 
 #include "ace/DEV_IO.h"
 #include "ace/Log_Msg.h"
 
-#if defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/DEV_IO.i"
-#endif
+#if !defined (__ACE_INLINE__)
+#include "ace/DEV_IO.inl"
+#endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, DEV_IO, "DEV_IO.cpp,v 4.12 2003/07/27 20:48:24 dhinton Exp")
+ACE_RCSID(ace, DEV_IO, "DEV_IO.cpp,v 4.15 2004/06/16 07:57:20 jwillemsen Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_DEV_IO)
 
 // Return the local endpoint address.
 
-int 
+int
 ACE_DEV_IO::get_local_addr (ACE_DEV_Addr &addr) const
 {
   ACE_TRACE ("ACE_DEV_IO::get_local_addr");
@@ -26,7 +26,7 @@ ACE_DEV_IO::get_local_addr (ACE_DEV_Addr &addr) const
 // Return the address of the remotely connected peer (if there is
 // one).
 
-int 
+int
 ACE_DEV_IO::get_remote_addr (ACE_DEV_Addr &addr) const
 {
   ACE_TRACE ("ACE_DEV_IO::get_remote_addr");
@@ -46,7 +46,7 @@ ACE_DEV_IO::dump (void) const
 #endif /* ACE_HAS_DUMP */
 }
 
-// Simple-minded do nothing constructor. 
+// Simple-minded do nothing constructor.
 
 ACE_DEV_IO::ACE_DEV_IO (void)
 {
@@ -62,8 +62,8 @@ ssize_t
 ACE_DEV_IO::send (size_t n, ...) const
 {
   ACE_TRACE ("ACE_DEV_IO::send");
-  va_list argp;  
-  int total_tuples = ACE_static_cast (int, (n / 2));
+  va_list argp;
+  int total_tuples = static_cast<int> (n / 2);
   iovec *iovp;
 #if defined (ACE_HAS_ALLOCA)
   iovp = (iovec *) alloca (total_tuples * sizeof (iovec));
@@ -99,12 +99,12 @@ ssize_t
 ACE_DEV_IO::recv (size_t n, ...) const
 {
   ACE_TRACE ("ACE_DEV_IO::recv");
-  va_list argp;  
-  int total_tuples = ACE_static_cast (int, (n / 2));
+  va_list argp;
+  int total_tuples = static_cast<int> (n / 2);
   iovec *iovp;
 #if defined (ACE_HAS_ALLOCA)
   iovp = (iovec *) alloca (total_tuples * sizeof (iovec));
-#else 
+#else
   ACE_NEW_RETURN (iovp,
                   iovec[total_tuples],
                   -1);
@@ -125,4 +125,3 @@ ACE_DEV_IO::recv (size_t n, ...) const
   va_end (argp);
   return result;
 }
-

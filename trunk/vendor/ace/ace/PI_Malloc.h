@@ -4,7 +4,7 @@
 /**
  *  @file   PI_Malloc.h
  *
- *  PI_Malloc.h,v 4.7 2003/07/19 19:04:12 dhinton Exp
+ *  PI_Malloc.h,v 4.8 2004/06/16 07:57:22 jwillemsen Exp
  *
  *  @author Priyanka Gontla <pgontla@ece.uci.edu>
  *  @author Based on code that existed in other ACE files.
@@ -24,7 +24,7 @@
 
 #if (ACE_HAS_POSITION_INDEPENDENT_POINTERS == 1)
 
-#include "ace/Malloc.h"
+#include "ace/Malloc_.h"
 #include "ace/Based_Pointer_T.h"
 
 // prepare for position independent malloc
@@ -191,7 +191,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/PI_Malloc.i"
+#include "ace/PI_Malloc.inl"
 #endif /* __ACE_INLINE__ */
 
 #endif /* ACE_HAS_POSITION_INDEPENDENT_POINTERS == 1 */

@@ -4,7 +4,7 @@
 /**
  *  @file    Handle_Set.h
  *
- *  Handle_Set.h,v 4.33 2003/07/19 19:04:11 dhinton Exp
+ *  Handle_Set.h,v 4.34 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -237,7 +237,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Handle_Set.i"
+#include "ace/Handle_Set.inl"
 #endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"

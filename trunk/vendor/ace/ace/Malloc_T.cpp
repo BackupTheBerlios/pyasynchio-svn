@@ -1,5 +1,5 @@
 // Malloc_T.cpp
-// Malloc_T.cpp,v 4.95 2003/12/19 15:29:11 schmidt Exp
+// Malloc_T.cpp,v 4.97 2004/06/16 07:57:20 jwillemsen Exp
 
 #ifndef ACE_MALLOC_T_C
 #define ACE_MALLOC_T_C
@@ -11,13 +11,13 @@
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Malloc_T.i"
+#include "ace/Malloc_T.inl"
 #endif /* __ACE_INLINE__ */
 
 #include "ace/ACE.h"
 #include "ace/OS_NS_string.h"
 
-ACE_RCSID(ace, Malloc_T, "Malloc_T.cpp,v 4.95 2003/12/19 15:29:11 schmidt Exp")
+ACE_RCSID(ace, Malloc_T, "Malloc_T.cpp,v 4.97 2004/06/16 07:57:20 jwillemsen Exp")
 
 template <class T, class ACE_LOCK>
 ACE_Cached_Allocator<T, ACE_LOCK>::ACE_Cached_Allocator (size_t n_chunks)
@@ -688,8 +688,7 @@ ACE_Malloc_T<ACE_MEM_POOL_2, ACE_LOCK, ACE_CB>::shared_bind (const char *name,
   NAME_NODE *result =
     new (new_node) NAME_NODE (name,
                               name_ptr,
-                              ACE_reinterpret_cast (char *,
-                                                    pointer),
+                              reinterpret_cast<char *> (pointer),
                               this->cb_ptr_->name_head_);
   this->cb_ptr_->name_head_ = result;
   return 0;

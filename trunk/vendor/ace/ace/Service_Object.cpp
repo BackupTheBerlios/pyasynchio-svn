@@ -1,9 +1,9 @@
-// Service_Object.cpp,v 4.26 2003/11/23 17:08:58 bala Exp
+// Service_Object.cpp,v 4.28 2004/06/16 07:57:21 jwillemsen Exp
 
 #include "ace/Service_Object.h"
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Service_Object.i"
+#include "ace/Service_Object.inl"
 #endif /* __ACE_INLINE__ */
 
 #include "ace/Service_Types.h"
@@ -13,7 +13,7 @@
 
 ACE_RCSID (ace,
 	   Service_Object,
-	   "Service_Object.cpp,v 4.26 2003/11/23 17:08:58 bala Exp")
+	   "Service_Object.cpp,v 4.28 2004/06/16 07:57:21 jwillemsen Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_Service_Object)
 ACE_ALLOC_HOOK_DEFINE(ACE_Service_Type)
@@ -50,8 +50,7 @@ ACE_Service_Type::ACE_Service_Type (const ACE_TCHAR *n,
     fini_already_called_ (0)
 {
   ACE_TRACE ("ACE_Service_Type::ACE_Service_Type");
-  ACE_DLL &dll = ACE_const_cast (ACE_DLL &,
-		                 this->dll_);
+  ACE_DLL &dll = const_cast<ACE_DLL &> (this->dll_);
   dll.set_handle (handle);
   this->name (n);
 }

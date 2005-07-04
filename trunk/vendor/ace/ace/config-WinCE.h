@@ -1,4 +1,4 @@
-// config-WinCE.h,v 1.57 2003/12/07 00:39:04 shuston Exp
+// config-WinCE.h,v 1.62 2004/12/20 14:18:04 jwillemsen Exp
 
 // Note: For WinCE build, simply use: #include "ace/config-win32.h"
 //       It is same as config.h for Windows NT/2k so that you can
@@ -23,11 +23,15 @@
 # error ACE requires Windows CE 3.0 and later.
 #endif  // UNDER_CE
 
-// CE 3 doesn't have Winsock 2, but CE 4 does.
 #if (UNDER_CE < 400)
+// CE 3 doesn't have Winsock 2, but CE 4 does.
 # if !defined (ACE_HAS_WINSOCK2)
 #  define ACE_HAS_WINSOCK2 0
 # endif
+# define ACE_LACKS_ASSERT_H
+# define ACE_LACKS_SEARCH_H
+# define ACE_LACKS_WCHAR_H
+# define ACE_LACKS_WCTYPE_H
 #endif /* UNDER_CE < 400 */
 
 #if !defined (ACE_HAS_WINCE)
@@ -69,6 +73,7 @@
 #define ACE_LACKS_ACE_TOKEN
 #define ACE_LACKS_ACE_OTHER
 #define ACE_LACKS_MSG_WFMO
+#define ACE_LACKS_UMASK
 
 #define ACE_HAS_WCHAR
 
@@ -190,6 +195,10 @@
 #define ACE_LACKS_CHDIR
 #define ACE_LACKS_ENV
 #define ACE_LACKS_HOSTNAME
+#define ACE_LACKS_REALPATH
+#define ACE_LACKS_READLINK
+#define ACE_LACKS_SWAB
+#define ACE_LACKS_TEMPNAM
 
 #if defined (_WIN32_WCE_EMULATION)
 // @@ For some reason, qsort isn't defined correctly (_stdcall vs _cdecl)

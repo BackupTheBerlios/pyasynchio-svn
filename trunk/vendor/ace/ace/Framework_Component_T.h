@@ -3,7 +3,7 @@
 /**
  *  @file    Framework_Component_T.h
  *
- *  Framework_Component_T.h,v 1.4 2003/07/19 19:04:11 dhinton Exp
+ *  Framework_Component_T.h,v 1.5 2004/06/14 13:58:41 jwillemsen Exp
  *
  *  @author Don Hinton <dhinton@ieee.org>
  */
@@ -21,14 +21,14 @@
 /**
  * @class ACE_Framework_Component_T
  *
- * @brief This class inherits the interface of the abstract 
- * ACE_Framework_Component class and is instantiated with the 
+ * @brief This class inherits the interface of the abstract
+ * ACE_Framework_Component class and is instantiated with the
  * implementation of the concrete component class <class Concrete>.
  *
  * This design is similar to the Adapter and Decorator patterns
  * from the ``Gang of Four'' book.  Note that <class Concrete>
  * need not inherit from a common class since ACE_Framework_Component
- * provides the uniform virtual interface!  (implementation based on 
+ * provides the uniform virtual interface!  (implementation based on
  * ACE_Dumpable_Adapter in <ace/Dump_T.h>.
  */
 template <class Concrete>
@@ -53,10 +53,6 @@ public:
 #define ACE_REGISTER_FRAMEWORK_COMPONENT(CLASS, INSTANCE) \
         ACE_Framework_Repository::instance ()->register_component \
           (new ACE_Framework_Component_T<CLASS> (INSTANCE));
-
-#if defined (__ACE_INLINE__)
-#include "ace/Framework_Component_T.inl"
-#endif /* __ACE_INLINE__ */
 
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)
 #include "ace/Framework_Component_T.cpp"

@@ -4,7 +4,7 @@
 /**
  *  @file    Reactor.h
  *
- *  Reactor.h,v 4.93 2003/11/04 23:34:49 ossama Exp
+ *  Reactor.h,v 4.95 2004/06/16 07:57:22 jwillemsen Exp
  *
  *  @author Irfan Pyarali <irfan@cs.wustl.edu>
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
@@ -232,11 +232,6 @@ public:
 
   /// Use a user specified signal handler instead.
   virtual int set_sig_handler (ACE_Sig_Handler *signal_handler);
-
-  // = The following method is deprecated.
-  /// @deprecated Use <timer_queue> instead.
-  /// Set a user specified timer queue.
-  virtual int set_timer_queue (ACE_Timer_Queue *tq);
 
   /// Set a user-specified timer queue.
   virtual int timer_queue (ACE_Timer_Queue *tq);
@@ -851,7 +846,7 @@ protected:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Reactor.i"
+#include "ace/Reactor.inl"
 #endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"

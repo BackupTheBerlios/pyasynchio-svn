@@ -4,7 +4,7 @@
 /**
  *  @file Dynamic_Service_Base.h
  *
- *  Dynamic_Service_Base.h,v 4.4 2003/07/19 19:04:11 dhinton Exp
+ *  Dynamic_Service_Base.h,v 4.5 2004/09/22 17:36:47 jwillemsen Exp
  *
  *  @author Prashant Jain <pjain@cs.wustl.edu>
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
@@ -38,7 +38,7 @@ public:
   void dump (void) const;
 
 protected:
-  /// Return instance using <name> to search the Service_Repository.
+  /// Return instance using @a name to search the Service_Repository.
   static void* instance (const ACE_TCHAR *name);
 };
 

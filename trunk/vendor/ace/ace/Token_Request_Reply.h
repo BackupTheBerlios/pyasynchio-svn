@@ -4,7 +4,7 @@
 /**
  *  @file    Token_Request_Reply.h
  *
- *  Token_Request_Reply.h,v 4.16 2003/07/19 19:04:14 dhinton Exp
+ *  Token_Request_Reply.h,v 4.18 2004/06/16 07:57:22 jwillemsen Exp
  *
  *   Define the format used to exchange messages between the
  *   ACE_Token Server and its clients.
@@ -25,8 +25,6 @@
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
-
-#include "ace/Time_Value.h"
 
 #if defined (ACE_HAS_TOKENS_LIBRARY)
 
@@ -259,7 +257,7 @@ private:
 #endif /* ACE_HAS_TOKENS_LIBRARY */
 
 #if defined (__ACE_INLINE__)
-#include "ace/Token_Request_Reply.i"
+#include "ace/Token_Request_Reply.inl"
 #endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"

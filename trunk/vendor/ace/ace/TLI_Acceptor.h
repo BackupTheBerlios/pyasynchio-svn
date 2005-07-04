@@ -4,7 +4,7 @@
 /**
  *  @file    TLI_Acceptor.h
  *
- *  TLI_Acceptor.h,v 4.14 2003/11/01 11:15:18 dhinton Exp
+ *  TLI_Acceptor.h,v 4.16 2004/06/14 20:15:52 jwillemsen Exp
  *
  *  @author Doug Schmidt
  */
@@ -21,7 +21,6 @@
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
-#include "ace/Time_Value.h"
 #include "ace/TLI_Stream.h"
 #include "ace/Default_Constants.h"
 
@@ -29,6 +28,7 @@
 
 // Forward reference...
 class ACE_TLI_Request_Queue;
+class ACE_Time_Value;
 
 /**
  * @class ACE_TLI_Acceptor

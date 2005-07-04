@@ -1,10 +1,9 @@
 // -*- C++ -*-
-
 //==========================================================================
 /**
  *  @file    SPIPE_Addr.h
  *
- *  SPIPE_Addr.h,v 4.18 2003/11/01 11:15:17 dhinton Exp
+ *  SPIPE_Addr.h,v 4.22 2004/06/16 07:57:22 jwillemsen Exp
  *
  *  @author Doug Schmidt
  */
@@ -66,10 +65,10 @@ public:
 
   // = Equality/inequality tests
   /// Check for equality.
-  int operator == (const ACE_SPIPE_Addr &SAP) const;
+  bool operator == (const ACE_SPIPE_Addr &SAP) const;
 
   /// Check for inequality
-  int operator != (const ACE_SPIPE_Addr &SAP) const;
+  bool operator != (const ACE_SPIPE_Addr &SAP) const;
 
   // = SPIPE-specific address operations
   /// Pathname of rendezvous point in file system.
@@ -104,14 +103,14 @@ private:
     uid_t uid_;
 
     /// Pathname in the file system.
-    ACE_TCHAR rendezvous_[MAXNAMLEN + 1];
+    ACE_TCHAR rendezvous_[MAXPATHLEN + 1];
 
   } SPIPE_addr_;
   // Contents of an SPIPE address.
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/SPIPE_Addr.i"
+#include "ace/SPIPE_Addr.inl"
 #endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"

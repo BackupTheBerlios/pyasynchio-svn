@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// config-osf1-3.2.h,v 4.26 2003/12/19 11:44:34 jwillemsen Exp
+// config-osf1-3.2.h,v 4.29 2004/08/08 14:21:35 jtc Exp
 
 // The following configuration file is designed to work for OSF1 3.2
 // platforms with the DEC 5.1 C++ compiler.
@@ -61,13 +61,13 @@ extern "C" pid_t getpgid (pid_t);
 #define ACE_HAS_LONG_MAP_FAILED
 
 // Platform's implementation of sendmsg() has a non-const msgheader parameter.
-#define ACE_HAS_BROKEN_SENDMSG
+#define ACE_HAS_NONCONST_SENDMSG
 
 // Platform's implementation of writev() has a non-const iovec parameter.
-#define ACE_HAS_BROKEN_WRITEV
+#define ACE_HAS_NONCONST_WRITEV
 
 // Platform's implementation of setlrmit() has a non-const rlimit parameter.
-#define ACE_HAS_BROKEN_SETRLIMIT
+#define ACE_HAS_NONCONST_SETRLIMIT
 
 // Platform supports System V IPC (most versions of UNIX, but not Win32)
 #define ACE_HAS_SYSV_IPC
@@ -76,7 +76,7 @@ extern "C" pid_t getpgid (pid_t);
 #define ACE_HAS_MSG
 
 // Compiler/platform contains the <sys/syscall.h> file.
-#define ACE_HAS_SYSCALL_H
+#define ACE_HAS_SYS_SYSCALL_H
 
 // Compiler/platform correctly calls init()/fini().
 #define ACE_HAS_AUTOMATIC_INIT_FINI
@@ -173,11 +173,6 @@ extern "C" pid_t getpgid (pid_t);
 #endif
 
 #define ACE_NEEDS_DEV_IO_CONVERSION
-
-// Turns off the tracing feature.
-#if !defined (ACE_NTRACE)
-# define ACE_NTRACE 1
-#endif /* ACE_NTRACE */
 
 // Defines the page size of the system.
 #define ACE_PAGE_SIZE 8192

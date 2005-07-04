@@ -4,7 +4,7 @@
 /**
  *  @file    Map_Manager.h
  *
- *  Map_Manager.h,v 4.68 2003/08/04 03:53:51 dhinton Exp
+ *  Map_Manager.h,v 4.72 2004/10/02 06:31:16 ossama Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -133,6 +133,7 @@ public:
   // = Traits.
   typedef EXT_ID KEY;
   typedef INT_ID VALUE;
+  typedef ACE_LOCK lock_type;
   typedef ACE_Map_Entry<EXT_ID, INT_ID> ENTRY;
   typedef ACE_Map_Iterator<EXT_ID, INT_ID, ACE_LOCK> ITERATOR;
   typedef ACE_Map_Const_Iterator<EXT_ID, INT_ID, ACE_LOCK> CONST_ITERATOR;
@@ -404,7 +405,7 @@ protected:
   ACE_Allocator *allocator_;
 
   /// Synchronization variable for the MT_SAFE <ACE_Map_Manager>.
-  ACE_LOCK lock_;
+  mutable ACE_LOCK lock_;
 
   /// Implement the Map as a resizeable array of <ACE_Map_Entry>.
   ACE_Map_Entry<EXT_ID, INT_ID> *search_structure_;
@@ -470,8 +471,8 @@ public:
   ACE_Map_Manager<EXT_ID, INT_ID, ACE_LOCK>& map (void);
 
   /// Check if two iterators point to the same position
-  int operator== (const ACE_Map_Iterator_Base<EXT_ID, INT_ID, ACE_LOCK> &) const;
-  int operator!= (const ACE_Map_Iterator_Base<EXT_ID, INT_ID, ACE_LOCK> &) const;
+  bool operator== (const ACE_Map_Iterator_Base<EXT_ID, INT_ID, ACE_LOCK> &) const;
+  bool operator!= (const ACE_Map_Iterator_Base<EXT_ID, INT_ID, ACE_LOCK> &) const;
 
   /// Declare the dynamic allocation hooks.
   ACE_ALLOC_HOOK_DECLARE;
@@ -529,8 +530,8 @@ public:
   const ACE_Map_Manager<EXT_ID, INT_ID, ACE_LOCK>& map (void) const;
 
   /// Check if two iterators point to the same position
-  int operator== (const ACE_Map_Const_Iterator_Base<EXT_ID, INT_ID, ACE_LOCK> &) const;
-  int operator!= (const ACE_Map_Const_Iterator_Base<EXT_ID, INT_ID, ACE_LOCK> &) const;
+  bool operator== (const ACE_Map_Const_Iterator_Base<EXT_ID, INT_ID, ACE_LOCK> &) const;
+  bool operator!= (const ACE_Map_Const_Iterator_Base<EXT_ID, INT_ID, ACE_LOCK> &) const;
 
   /// Declare the dynamic allocation hooks.
   ACE_ALLOC_HOOK_DECLARE;
@@ -696,7 +697,7 @@ public:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Map_Manager.i"
+#include "ace/Map_Manager.inl"
 #endif /* __ACE_INLINE__ */
 
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)

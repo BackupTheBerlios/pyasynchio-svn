@@ -4,7 +4,7 @@
 /**
  *  @file    FIFO_Recv_Msg.h
  *
- *  FIFO_Recv_Msg.h,v 4.16 2003/07/19 19:04:11 dhinton Exp
+ *  FIFO_Recv_Msg.h,v 4.18 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Doug Schmidt
  */
@@ -126,9 +126,9 @@ public:
   ACE_ALLOC_HOOK_DECLARE;
 };
 
-#if !defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/FIFO_Recv_Msg.i"
-#endif
+#if defined (__ACE_INLINE__)
+#include "ace/FIFO_Recv_Msg.inl"
+#endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"
 #endif /* ACE_FIFO_RECV_MSG_H */

@@ -1,4 +1,4 @@
-// Local_Tokens.cpp,v 4.38 2003/07/27 20:48:25 dhinton Exp
+// Local_Tokens.cpp,v 4.42 2004/06/16 07:57:20 jwillemsen Exp
 
 #include "ace/Local_Tokens.h"
 
@@ -6,13 +6,16 @@
 
 #include "ace/Thread.h"
 #include "ace/Token_Manager.h"
+#include "ace/OS_NS_unistd.h"
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Local_Tokens.i"
+#include "ace/Local_Tokens.inl"
 #endif /* __ACE_INLINE__ */
 
 
-ACE_RCSID(ace, Local_Tokens, "Local_Tokens.cpp,v 4.38 2003/07/27 20:48:25 dhinton Exp")
+ACE_RCSID (ace,
+           Local_Tokens,
+           "Local_Tokens.cpp,v 4.42 2004/06/16 07:57:20 jwillemsen Exp")
 
 void
 ACE_Tokens::dump (void) const
@@ -105,8 +108,8 @@ ACE_TPQ_Entry::ACE_TPQ_Entry (const ACE_Token_Proxy *new_proxy,
       ACE_OS::sprintf (name,
                        ACE_LIB_TEXT ("/%s/%u/%lu"),
                        host_name,
-                       ACE_static_cast (u_int, ACE_OS::getpid ()),
-                       *ACE_reinterpret_cast (u_long *, &thread_id));
+                       static_cast<u_int> (ACE_OS::getpid ()),
+                       *reinterpret_cast<u_long *> (&thread_id));
 
       this->client_id (name);
     }
@@ -165,8 +168,8 @@ ACE_TSS_TPQ_Entry::dump (void) const
   ACE_TRACE ("ACE_TSS_TPQ_Entry::dump");
   ACE_DEBUG ((LM_DEBUG, ACE_BEGIN_DUMP, this));
 #if defined (ACE_HAS_BROKEN_CONDITIONAL_STRING_CASTS)
-  ACE_DEBUG ((LM_DEBUG,  (char *) "ACE_TSS_TPQ_Entry::dump:\n",
-                        (char *) " client_id_ = %s\n",
+  ACE_DEBUG ((LM_DEBUG,  (char *) "ACE_TSS_TPQ_Entry::dump:\n"
+                        " client_id_ = %s\n",
                         (char *) client_id_ == 0 ? (char *) "0" : (char *) client_id_));
 #else /* ! defined (ACE_HAS_BROKEN_CONDITIONAL_STRING_CASTS) */
   ACE_DEBUG ((LM_DEBUG,  ACE_LIB_TEXT ("ACE_TSS_TPQ_Entry::dump:\n")
@@ -1074,10 +1077,7 @@ ACE_Token_Proxy::client_id (void) const
 {
   ACE_TRACE ("ACE_Token_Proxy::client_id");
   // Thread-specific.
-  ACE_Token_Proxy *nc_this =
-    ACE_const_cast (ACE_Token_Proxy *, this);
-  const ACE_TPQ_Entry *temp =
-    nc_this->waiter_.operator->();
+  const ACE_TPQ_Entry *temp = this->waiter_.operator->();
   const ACE_TCHAR *id = temp->client_id ();
 
   if (id == 0)
@@ -1154,7 +1154,7 @@ ACE_Token_Proxy::open (const ACE_TCHAR *token_name,
   if (token_name == 0)
     {
       ACE_OS::sprintf (name, ACE_LIB_TEXT ("token %lx"),
-                       ACE_reinterpret_cast (long, this));
+                       reinterpret_cast<long> (this));
       token_name = name;
     }
 
@@ -1343,7 +1343,7 @@ ACE_Token_Proxy::handle_options (ACE_Synch_Options &options,
         }
 
       if (this->debug_)
-        ACE_DEBUG ((LM_DEBUG,  ACE_LIB_TEXT ("(%t) unblocking.\n"),
+        ACE_DEBUG ((LM_DEBUG,  ACE_LIB_TEXT ("(%t) unblocking %s.\n"),
                     this->client_id ()));
       cv.mutex ().release ();
       return 0;       // operation succeeded
@@ -1436,8 +1436,8 @@ ACE_Token_Name::dump (void) const
   ACE_TRACE ("ACE_Token_Name::dump");
   ACE_DEBUG ((LM_DEBUG, ACE_BEGIN_DUMP, this));
 #if defined (ACE_HAS_BROKEN_CONDITIONAL_STRING_CASTS)
-  ACE_DEBUG ((LM_DEBUG,  (char *) "ACE_Token_Name::dump:\n",
-                        (char *) " token_name_ = %s\n",
+  ACE_DEBUG ((LM_DEBUG,  (char *) "ACE_Token_Name::dump:\n"
+                        " token_name_ = %s\n",
               (char *) token_name_ == 0 ? (char *) "no name" : (char *) token_name_));
 #else /* ! defined (ACE_HAS_BROKEN_CONDITIONAL_STRING_CASTS) */
   ACE_DEBUG ((LM_DEBUG,  ACE_LIB_TEXT ("ACE_Token_Name::dump:\n")

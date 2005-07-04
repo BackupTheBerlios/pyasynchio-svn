@@ -4,7 +4,7 @@
 /**
  *  @file    Object_Manager_Base.h
  *
- *  Object_Manager_Base.h,v 1.5 2003/11/06 18:19:39 dhinton Exp
+ *  Object_Manager_Base.h,v 1.7 2004/08/24 18:13:29 shuston Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  *  @author Jesper S. M|ller<stophph@diku.dk>
@@ -18,7 +18,7 @@
 #define ACE_OBJECT_MANAGER_BASE_H
 #include /**/ "ace/pre.h"
 
-#include "ace/config-all.h"
+#include "ace/config-lite.h"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
@@ -247,14 +247,6 @@ public:
   friend class ACE_Log_Msg;
   friend void ACE_OS_Object_Manager_Internal_Exit_Hook ();
 };
-
-# if defined (ACE_HAS_INLINED_OSCALLS)
-#   if defined (ACE_INLINE)
-#     undef ACE_INLINE
-#   endif /* ACE_INLINE */
-#   define ACE_INLINE inline
-#   include "ace/Object_Manager_Base.inl"
-# endif /* ACE_HAS_INLINED_OSCALLS */
 
 #include /**/ "ace/post.h"
 #endif /* ACE_OBJECT_MANAGER_BASE_H */

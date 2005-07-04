@@ -4,7 +4,7 @@
 /**
  *  @file    Parse_Node.h
  *
- *  Parse_Node.h,v 4.27 2003/07/19 19:04:13 dhinton Exp
+ *  Parse_Node.h,v 4.29 2004/06/16 07:57:22 jwillemsen Exp
  *
  *  @author Doug Schmidt
  */
@@ -43,7 +43,7 @@ class ACE_Parse_Node
 {
 public:
   ACE_Parse_Node (void);
-  ACE_EXPLICIT ACE_Parse_Node (const ACE_TCHAR *name);
+  explicit ACE_Parse_Node (const ACE_TCHAR *name);
   virtual ~ACE_Parse_Node (void);
 
   ACE_Parse_Node *link (void) const;
@@ -349,7 +349,7 @@ private:
 class ACE_Static_Function_Node : public ACE_Location_Node
 {
 public:
-  ACE_EXPLICIT ACE_Static_Function_Node (const ACE_TCHAR *func_name);
+  explicit ACE_Static_Function_Node (const ACE_TCHAR *func_name);
   virtual void *symbol (int & yyerrno,
                         ACE_Service_Object_Exterminator * = 0);
   virtual ~ACE_Static_Function_Node (void);
@@ -367,7 +367,7 @@ private:
 
 
 #if defined (__ACE_INLINE__)
-#include "ace/Parse_Node.i"
+#include "ace/Parse_Node.inl"
 #endif /* __ACE_INLINE__ */
 
 /// Global variable used to communicate between the parser and the main

@@ -4,7 +4,7 @@
 /**
  *  @file    SPIPE.h
  *
- *  SPIPE.h,v 4.15 2003/07/19 19:04:13 dhinton Exp
+ *  SPIPE.h,v 4.18 2004/10/07 16:36:25 john_c Exp
  *
  *  @author Doug Schmidt
  */
@@ -81,8 +81,20 @@ public:
   /// Dump the state of an object.
   void dump (void) const;
 
+#if defined (ACE_HAS_STREAM_PIPES)
+  /// Temporary store of duplex pipe handle.
+  void set_duplex_handle (ACE_HANDLE handle);
+#endif /* ACE_HAS_STREAM_PIPES */
+
   /// Declare the dynamic allocation hooks.
   ACE_ALLOC_HOOK_DECLARE;
+
+private:
+#if defined (ACE_HAS_STREAM_PIPES)
+  /// Duplex to the pipe I/O handle.
+  /// Stored here for latter cleaning.
+  ACE_HANDLE duplex_pipe_handle_;
+#endif /* ACE_HAS_STREAM_PIPES */
 
 protected:
   /// Ensure that this class is an abstract base class
@@ -92,9 +104,9 @@ protected:
   ACE_SPIPE_Addr local_addr_;
 };
 
-#if !defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/SPIPE.i"
-#endif
+#if defined (__ACE_INLINE__)
+#include "ace/SPIPE.inl"
+#endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"
 #endif /* ACE_SPIPE_H */

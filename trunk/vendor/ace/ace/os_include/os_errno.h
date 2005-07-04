@@ -6,7 +6,7 @@
  *
  *  system error numbers
  *
- *  os_errno.h,v 1.8 2003/12/23 23:04:27 shuston Exp
+ *  os_errno.h,v 1.10 2004/11/19 23:20:59 shuston Exp
  *
  *  @author Don Hinton <dhinton@dresystems.com>
  *  @author This code was originally in various places including ace/OS.h.
@@ -18,7 +18,7 @@
 
 #include /**/ "ace/pre.h"
 
-#include "ace/config-all.h"
+#include "ace/config-lite.h"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
@@ -156,6 +156,11 @@ extern "C"
 #    define ENOTEMPTY               WSAENOTEMPTY
 #  endif /* __BORLANDC__  && __BORLANDC__ <= 0x540*/
 #  define EADDRINUSE WSAEADDRINUSE
+
+  // CE needs this...
+#  if !defined (EPERM)
+#    define EPERM                 ERROR_ACCESS_DENIED
+#  endif
 #endif /* ACE_WIN32 */
 
 #if defined (ACE_HAS_H_ERRNO)

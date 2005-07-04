@@ -1,19 +1,19 @@
-// TP_Reactor.cpp,v 4.64 2003/11/05 23:30:47 shuston Exp
+// TP_Reactor.cpp,v 4.67 2004/11/01 18:25:13 gmaxey Exp
 
 #include "ace/TP_Reactor.h"
 #include "ace/Thread.h"
 #include "ace/Timer_Queue.h"
-#include "ace/Signal.h"
+#include "ace/Signal_.h"
 #include "ace/Log_Msg.h"
 #include "ace/OS_NS_sys_time.h"
 
 #if !defined (__ACE_INLINE__)
-#include "ace/TP_Reactor.i"
+#include "ace/TP_Reactor.inl"
 #endif /* __ACE_INLINE__ */
 
 ACE_RCSID (ace,
            TP_Reactor,
-           "TP_Reactor.cpp,v 4.64 2003/11/05 23:30:47 shuston Exp")
+           "TP_Reactor.cpp,v 4.67 2004/11/01 18:25:13 gmaxey Exp")
 
 ACE_ALLOC_HOOK_DEFINE (ACE_TP_Reactor)
 
@@ -358,6 +358,11 @@ int
 ACE_TP_Reactor::handle_timer_events (int & /*event_count*/,
                                      ACE_TP_Token_Guard &guard)
 {
+  if (this->timer_queue_->is_empty())
+    { // Empty timer queue so cannot have any expired timers.
+      return 0;
+    }
+
   // Get the current time
   ACE_Time_Value cur_time (this->timer_queue_->gettimeofday () +
                            this->timer_queue_->timer_skew ());
@@ -516,7 +521,6 @@ ACE_TP_Reactor::handle_socket_events (int &event_count,
 int
 ACE_TP_Reactor::get_event_for_dispatching (ACE_Time_Value *max_wait_time)
 {
-
   // If the reactor handler state has changed, clear any remembered
   // ready bits and re-scan from the master wait_set.
   if (this->state_changed_)
@@ -524,7 +528,8 @@ ACE_TP_Reactor::get_event_for_dispatching (ACE_Time_Value *max_wait_time)
       this->ready_set_.rd_mask_.reset ();
       this->ready_set_.wr_mask_.reset ();
       this->ready_set_.ex_mask_.reset ();
-      this->state_changed_ = 0;
+
+      this->state_changed_ = false;
     }
   else
     {

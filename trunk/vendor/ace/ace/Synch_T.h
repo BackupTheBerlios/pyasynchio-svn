@@ -4,7 +4,7 @@
 /**
  *  @file    Synch_T.h
  *
- *  Synch_T.h,v 4.99 2003/11/09 04:12:07 dhinton Exp
+ *  Synch_T.h,v 4.100 2004/06/14 13:58:42 jwillemsen Exp
  *
  *  @author Douglas C. Schmidt <schmidt@uci.edu>
  */
@@ -29,10 +29,6 @@
 #include "ace/TSS_T.h"
 #include "ace/Condition_T.h"
 #include "ace/Synch_Traits.h"
-
-#if defined (__ACE_INLINE__)
-#include "ace/Synch_T.i"
-#endif /* __ACE_INLINE__ */
 
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)
 #include "ace/Synch_T.cpp"

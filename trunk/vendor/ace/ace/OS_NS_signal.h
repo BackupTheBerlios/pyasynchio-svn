@@ -4,7 +4,7 @@
 /**
  *  @file   OS_NS_signal.h
  *
- *  OS_NS_signal.h,v 1.8 2003/11/26 21:11:36 schmidt Exp
+ *  OS_NS_signal.h,v 1.9 2004/10/15 21:34:25 shuston Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  *  @author Jesper S. M|ller<stophph@diku.dk>
@@ -19,7 +19,7 @@
 
 # include /**/ "ace/pre.h"
 
-# include "ace/config-all.h"
+# include "ace/config-lite.h"
 
 # if !defined (ACE_LACKS_PRAGMA_ONCE)
 #  pragma once

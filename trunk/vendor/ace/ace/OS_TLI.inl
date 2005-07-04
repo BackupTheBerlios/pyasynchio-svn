@@ -1,10 +1,10 @@
 /* -*- C++ -*- */
-// OS_TLI.inl,v 4.8 2003/12/30 23:18:58 shuston Exp
+// OS_TLI.inl,v 4.9 2004/05/05 21:16:28 ossama Exp
 
 #include "ace/OS_NS_errno.h"
 
 ACE_INLINE int
-ACE_OS::t_accept (ACE_HANDLE handle, 
+ACE_OS::t_accept (ACE_HANDLE handle,
                   ACE_HANDLE reshandle,
                   struct t_call *call)
 {
@@ -91,7 +91,7 @@ ACE_OS::t_error (const char *errmsg)
 {
 #if defined (ACE_HAS_TLI)
 #if defined (ACE_HAS_BROKEN_T_ERROR)
-  ::t_error (ACE_const_cast (char *, errmsg));
+  ::t_error (const_cast<char *> (errmsg));
 #else
   ::t_error (errmsg);
 #endif /* ACE_HAS_BROKEN_T_ERROR */

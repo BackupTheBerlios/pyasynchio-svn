@@ -1,9 +1,9 @@
 // -*- C++ -*-
-// OS_NS_dirent.cpp,v 1.2 2003/11/01 11:15:15 dhinton Exp
+// OS_NS_dirent.cpp,v 1.4 2004/05/18 21:09:56 shuston Exp
 
 #include "ace/OS_NS_dirent.h"
 
-ACE_RCSID(ace, OS_NS_dirent, "OS_NS_dirent.cpp,v 1.2 2003/11/01 11:15:15 dhinton Exp")
+ACE_RCSID(ace, OS_NS_dirent, "OS_NS_dirent.cpp,v 1.4 2004/05/18 21:09:56 shuston Exp")
 
 #if !defined (ACE_HAS_INLINED_OSCALLS)
 # include "ace/OS_NS_dirent.inl"
@@ -14,10 +14,19 @@ ACE_RCSID(ace, OS_NS_dirent, "OS_NS_dirent.cpp,v 1.2 2003/11/01 11:15:15 dhinton
 #include "ace/Log_Msg.h"
 #include "ace/OS_NS_stdlib.h"
 
+// On Windows, we explicitly set this up as __cdecl so it's correct even
+// if building with another calling convention, such as __stdcall.
+#if defined (ACE_WIN32) && defined (_MSC_VER)
+extern "C"
+{
+  typedef int (__cdecl *ACE_SCANDIR_COMPARATOR) (const void *, const void *);
+}
+#else
 extern "C"
 {
   typedef int (*ACE_SCANDIR_COMPARATOR) (const void *, const void *);
 }
+#endif /* ACE_WIN32 && _MSC_VER */
 
 /*
    These definitions are missing on the original VC6 distribution.  The new
@@ -36,7 +45,7 @@ extern "C"
 void
 ACE_OS::closedir_emulation (ACE_DIR *d)
 {
-#if defined (ACE_WIN32)
+#if defined (ACE_WIN32) && defined (ACE_LACKS_CLOSEDIR)
   if (d->current_handle_ != INVALID_HANDLE_VALUE)
     ::FindClose (d->current_handle_);
 
@@ -47,15 +56,15 @@ ACE_OS::closedir_emulation (ACE_DIR *d)
       ACE_OS::free (d->dirent_->d_name);
       ACE_OS::free (d->dirent_);
     }
-#else /* ACE_WIN32 */
+#else /* ACE_WIN32 && ACE_LACKS_CLOSEDIR */
   ACE_UNUSED_ARG (d);
-#endif /* ACE_WIN32 */
+#endif /* ACE_WIN32 && ACE_LACKS_CLOSEDIR */
 }
 
 ACE_DIR *
 ACE_OS::opendir_emulation (const ACE_TCHAR *filename)
 {
-#if defined (ACE_WIN32)
+#if defined (ACE_WIN32) && defined (ACE_LACKS_OPENDIR)
   ACE_DIR *dir;
   ACE_TCHAR extra[3] = {0,0,0};
 
@@ -106,16 +115,16 @@ ACE_OS::opendir_emulation (const ACE_TCHAR *filename)
   dir->started_reading_ = 0;
   dir->dirent_ = 0;
   return dir;
-#else /* ACE_WIN32 */
+#else /* WIN32 && ACE_LACKS_OPENDIR */
   ACE_UNUSED_ARG (filename);
   ACE_NOTSUP_RETURN (0);
-#endif /* ACE_WIN32 */
+#endif /* WIN32 && ACE_LACKS_OPENDIR */
 }
 
 dirent *
 ACE_OS::readdir_emulation (ACE_DIR *d)
 {
-#if defined (ACE_WIN32)
+#if defined (ACE_WIN32) && defined (ACE_LACKS_READDIR)
   if (d->dirent_ != 0)
     {
       ACE_OS::free (d->dirent_->d_name);
@@ -159,10 +168,10 @@ ACE_OS::readdir_emulation (ACE_DIR *d)
     }
   else
     return 0;
-#else /* ACE_WIN32 */
+#else /* ACE_WIN32 && ACE_LACKS_READDIR */
   ACE_UNUSED_ARG (d);
   ACE_NOTSUP_RETURN (0);
-#endif /* ACE_WIN32 */
+#endif /* ACE_WIN32 && ACE_LACKS_READDIR */
 }
 
 int

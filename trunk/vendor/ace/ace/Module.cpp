@@ -1,5 +1,5 @@
 // Module.cpp
-// Module.cpp,v 4.26 2003/07/27 20:48:25 dhinton Exp
+// Module.cpp,v 4.27 2004/06/16 07:57:20 jwillemsen Exp
 
 #ifndef ACE_MODULE_C
 #define ACE_MODULE_C
@@ -13,10 +13,10 @@
 #include "ace/Stream_Modules.h"
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Module.i"
+#include "ace/Module.inl"
 #endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, Module, "Module.cpp,v 4.26 2003/07/27 20:48:25 dhinton Exp")
+ACE_RCSID(ace, Module, "Module.cpp,v 4.27 2004/06/16 07:57:20 jwillemsen Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_Module)
 

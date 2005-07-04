@@ -4,7 +4,7 @@
 /**
  *  @file    FILE_IO.h
  *
- *  FILE_IO.h,v 4.22 2003/07/19 19:04:11 dhinton Exp
+ *  FILE_IO.h,v 4.27 2004/08/10 13:58:46 sma Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -25,6 +25,10 @@
 // Used in the FILE_IO.h file...
 #include "ace/os_include/os_stdio.h"
 #include "ace/os_include/sys/os_uio.h"
+
+#if defined (ACE_HAS_STREAM_PIPES)
+#  include "ace/OS_NS_stropts.h"
+#endif /* ACE_HAS_STREAM_PIPES */
 
 // Forward decl.
 class ACE_Message_Block;
@@ -154,9 +158,9 @@ public:
   typedef ACE_FILE_Addr PEER_ADDR;
 };
 
-#if !defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/FILE_IO.i"
-#endif /* !defined (ACE_LACKS_INLINE_FUNCTIONS) */
+#if defined (__ACE_INLINE__)
+#include "ace/FILE_IO.inl"
+#endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"
 #endif /* ACE_FILE_IO_H */

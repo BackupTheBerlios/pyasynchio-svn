@@ -1,5 +1,5 @@
 /* -*- C++ -*- */
-// config-aix-4.x.h,v 1.49 2003/12/29 22:14:48 shuston Exp
+// config-aix-4.x.h,v 1.55 2004/09/13 16:59:45 shuston Exp
 
 // The following configuration file is designed to work for OS
 // platforms running AIX 4.x using the IBM C++ compiler (xlC),
@@ -55,6 +55,7 @@
    // These are for Visual Age C++ only
 #  if defined (__IBMCPP__) && (__IBMCPP__ >= 400)
 #    define ACE_HAS_STD_TEMPLATE_SPECIALIZATION
+#    define ACE_EXPLICIT_TEMPLATE_DESTRUCTOR_TAKES_ARGS
 #    define ACE_HAS_TYPENAME_KEYWORD
 #    undef WIFEXITED
 #    undef WEXITSTATUS
@@ -77,6 +78,9 @@
   // Denotes that GNU has cstring.h as standard, to redefine memchr().
 # define ACE_HAS_GNU_CSTRING_H
 # define ACE_HAS_SSIZE_T
+
+// We have to explicitly instantiate static template members
+# define ACE_HAS_EXPLICIT_STATIC_TEMPLATE_MEMBER_INSTANTIATION
 
 # if !defined (ACE_MT_SAFE) || ACE_MT_SAFE != 0
     // ACE_MT_SAFE is #defined below, for all compilers.
@@ -248,8 +252,15 @@
 
 #define ACE_HAS_UTIME
 
-// Platform has XPG4 wide character type and functions
+// Platform has XPG4 wide character type and functions. However, the size
+// of wchar_t changes for 32- vs. 64-bit builds (unsigned short vs. unsigned
+// int, respectively).
 #define ACE_HAS_XPG4_MULTIBYTE_CHAR
+#ifdef __64BIT__
+#  define ACE_SIZEOF_WCHAR 4
+#else
+#  define ACE_SIZEOF_WCHAR 2
+#endif /* __64BIT__ */
 
 #define ACE_LACKS_NETINET_TCP_H
 
@@ -282,6 +293,7 @@
 #    define ACE_HAS_PTHREADS_UNIX98_EXT
 #    define ACE_HAS_PTHREAD_CONTINUE
 #    define ACE_HAS_PTHREAD_SUSPEND
+#    define ACE_HAS_RECURSIVE_MUTEXES
 #  else
 #    define ACE_HAS_PTHREADS_DRAFT7
 #    define ACE_LACKS_RWLOCK_T
@@ -304,13 +316,7 @@
 
 #define ACE_MALLOC_ALIGN 8
 
-// By default, tracing code is not compiled.  To compile it in, cause
-// ACE_NTRACE to not be defined, and rebuild ACE.
-#if !defined (ACE_NTRACE)
-#define ACE_NTRACE 1
-#endif /* ACE_NTRACE */
-
-#if (_XOPEN_SOURCE == 500) && !defined(_UNIX95)
+#if (_XOPEN_SOURCE >= 500) && !defined(_UNIX95)
 # define ACE_HAS_3_PARAM_WCSTOK
 #endif /* _XOPEN_SOURCE == 500 && !_UNIX95 */
 

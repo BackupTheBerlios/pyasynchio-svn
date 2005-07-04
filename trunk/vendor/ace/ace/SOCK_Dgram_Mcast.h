@@ -4,7 +4,7 @@
 /**
  *  @file    SOCK_Dgram_Mcast.h
  *
- *  SOCK_Dgram_Mcast.h,v 4.49 2003/12/27 12:54:46 jwillemsen Exp
+ *  SOCK_Dgram_Mcast.h,v 4.53 2004/08/15 15:37:12 schmidt Exp
  *
  *  @author Irfan Pyrali <irfan@cs.wustl.edu>
  *  @author Tim Harrison <harrison@cs.wustl.edu>
@@ -13,7 +13,6 @@
  *  @author Don Hinton <dhinton@objectsciences.com>
  */
 //=============================================================================
-
 
 #ifndef ACE_SOCK_DGRAM_MCAST_H
 #define ACE_SOCK_DGRAM_MCAST_H
@@ -101,7 +100,7 @@ public:
    * comments in source file for environment-specific restrictions).  Default
    * values are always valid values for the compilation environment.
    */
-  enum  options
+  enum options
   {
   // Define whether a specific (multicast) address (in addition to the port#)
   // is bound to the socket.
@@ -422,17 +421,17 @@ private:
  typedef ACE_DLList<ip_mreq>  subscription_list_t;
  typedef ACE_DLList_Iterator<ip_mreq>  subscription_list_iter_t;
  /// List of currently subscribed addr/iface pairs (and assc. types).
- ACE_MUTABLE subscription_list_t  subscription_list_;
+ mutable subscription_list_t  subscription_list_;
  /// Lock used to protect subscription list.
- ACE_MUTABLE ACE_SDM_LOCK subscription_list_lock_;
+ mutable ACE_SDM_LOCK subscription_list_lock_;
      // (Lock type does not need to support recursive locking.)
 #endif /* ACE_SOCK_DGRAM_MCAST_DUMPABLE */
 
 };
 
-#if !defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/SOCK_Dgram_Mcast.i"
-#endif /* ACE_LACKS_INLINE_FUNCTIONS */
+#if defined (__ACE_INLINE__)
+#include "ace/SOCK_Dgram_Mcast.inl"
+#endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"
 #endif /* ACE_SOCK_DGRAM_MCAST_H */

@@ -4,7 +4,7 @@
 /**
  *  @file   OS_NS_stdlib.h
  *
- *  OS_NS_stdlib.h,v 1.3 2003/11/01 23:42:24 dhinton Exp
+ *  OS_NS_stdlib.h,v 1.11 2004/10/02 06:31:16 ossama Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  *  @author Jesper S. M|ller<stophph@diku.dk>
@@ -38,9 +38,17 @@
 # endif /* ACE_HAS_BROKEN_R_ROUTINES */
 
 // We need this for MVS... as well as Linux, etc...
+// On Windows, we explicitly set this up as __cdecl so it's correct even
+// if building with another calling convention, such as __stdcall.
+#if defined (ACE_WIN32) && defined (_MSC_VER)
+extern "C" {
+  typedef int (__cdecl *ACE_COMPARE_FUNC)(const void *, const void *);
+}
+#else
 extern "C" {
   typedef int (*ACE_COMPARE_FUNC)(const void *, const void *);
 }
+#endif /* ACE_WIN32 && _MSC_VER */
 
 namespace ACE_OS {
 
@@ -89,13 +97,13 @@ namespace ACE_OS {
                  size_t size,
                  ACE_COMPARE_FUNC);
 
-  extern ACE_Export 
+  extern ACE_Export
   void *calloc (size_t elements, size_t sizeof_elements);
 
-  extern ACE_Export 
+  extern ACE_Export
   void exit (int status = 0);
 
-  extern ACE_Export 
+  extern ACE_Export
   void free (void *);
 
   ACE_NAMESPACE_INLINE_FUNCTION
@@ -107,7 +115,7 @@ namespace ACE_OS {
 #   endif /* ACE_HAS_WCHAR && ACE_WIN32 */
 
   // not in spec
-  extern ACE_Export 
+  extern ACE_Export
   ACE_TCHAR *getenvstrings (void);
 
   // itoa not in spec
@@ -123,35 +131,56 @@ namespace ACE_OS {
 
 #if !defined (ACE_HAS_ITOA)
   /// Emulated itoa - Converts an integer to a string.
-  extern ACE_Export 
+  extern ACE_Export
   char *itoa_emulation (int value, char *string, int radix);
 #endif /* !ACE_HAS_ITOA */
 
 #if defined (ACE_HAS_WCHAR) && defined (ACE_LACKS_ITOW)
   /// Emulated itow - Converts an integer to a string.
-  extern ACE_Export 
+  extern ACE_Export
   wchar_t *itow_emulation (int value, wchar_t *string, int radix);
 #endif /* ACE_HAS_WCHAR && ACE_LACKS_ITOW */
 
-  extern ACE_Export 
+  extern ACE_Export
   void *malloc (size_t);
 
-#if !defined (ACE_LACKS_MKSTEMP)
   ACE_NAMESPACE_INLINE_FUNCTION
-#else
-  extern ACE_Export 
-#endif /* !ACE_LACKS_MKSTEMP */
-  ACE_HANDLE mkstemp (ACE_TCHAR *t);
+  ACE_HANDLE mkstemp (char *s);
+
+#  if defined (ACE_HAS_WCHAR)
+  ACE_NAMESPACE_INLINE_FUNCTION
+  ACE_HANDLE mkstemp (wchar_t *s);
+#  endif /* ACE_HAS_WCHAR */
+
+#if defined (ACE_LACKS_MKSTEMP)
+  extern ACE_Export
+  ACE_HANDLE mkstemp_emulation (ACE_TCHAR * s);
+#endif /* ACE_LACKS_MKSTEMP */
 
 #if !defined (ACE_LACKS_MKTEMP)
   ACE_NAMESPACE_INLINE_FUNCTION
+  char *mktemp (char *s);
+
+#  if defined (ACE_HAS_WCHAR)
+  ACE_NAMESPACE_INLINE_FUNCTION
+  wchar_t *mktemp (wchar_t *s);
+#  endif /* ACE_HAS_WCHAR */
 #else
-  extern ACE_Export 
+  extern ACE_Export
+  ACE_TCHAR *mktemp (ACE_TCHAR *s);
 #endif /* !ACE_LACKS_MSTEMP */
-  ACE_TCHAR *mktemp (ACE_TCHAR *t);
 
   ACE_NAMESPACE_INLINE_FUNCTION
-  int putenv (const ACE_TCHAR *string);
+  int putenv (const char *string);
+
+#if defined (ACE_HAS_WCHAR) && defined (ACE_WIN32)
+  // Windows is the only platform that supports a wchar_t environment.
+  // Since other platforms make @a string part of the environment, it's
+  // a certain memory leak to copy and transform wchar_t to char for
+  // emulating this, so it's not attempted.
+  ACE_NAMESPACE_INLINE_FUNCTION
+  int putenv (const wchar_t *string);
+#endif /* ACE_HAS_WCHAR && ACE_WIN32 */
 
   ACE_NAMESPACE_INLINE_FUNCTION
   void qsort (void *base,
@@ -165,8 +194,22 @@ namespace ACE_OS {
   ACE_NAMESPACE_INLINE_FUNCTION
   int rand_r (ACE_RANDR_TYPE &seed);
 
-  extern ACE_Export 
+  extern ACE_Export
   void *realloc (void *, size_t);
+
+#if !defined (ACE_HAS_WINCE)
+#  if !defined (ACE_LACKS_REALPATH)
+  ACE_NAMESPACE_INLINE_FUNCTION
+#  else
+  extern ACE_Export
+#  endif /* !ACE_LACKS_REALPATH */
+  char *realpath (const char *file_name, char *resolved_name);
+
+#  if defined (ACE_HAS_WCHAR)
+  ACE_NAMESPACE_INLINE_FUNCTION
+  wchar_t *realpath (const wchar_t *file_name, wchar_t *resolved_name);
+#  endif /* ACE_HAS_WCHAR */
+#endif /* ACE_HAS_WINCE */
 
   // exit_hook and set_exit_hook not in spec
   /// Function that is called by <ACE_OS::exit>, if non-null.
@@ -206,7 +249,7 @@ namespace ACE_OS {
 #endif /* ACE_HAS_WCHAR && !ACE_LACKS_WCSTOL */
 
 #if defined (ACE_LACKS_STRTOL)
-  extern ACE_Export 
+  extern ACE_Export
   long strtol_emulation (const char *nptr, char **endptr, int base);
 #endif /* ACE_LACKS_STRTOL */
 
@@ -221,7 +264,7 @@ namespace ACE_OS {
 #endif /* ACE_HAS_WCHAR && !ACE_LACKS_WCSTOUL */
 
 #if defined (ACE_LACKS_STRTOUL)
-  extern ACE_Export 
+  extern ACE_Export
   unsigned long strtoul_emulation (const char *nptr,
                                    char **endptr,
                                    int base);

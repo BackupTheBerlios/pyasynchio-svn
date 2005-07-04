@@ -3,13 +3,13 @@
 #include "ace/ACE.h"
 #include "ace/os_include/sys/os_sem.h"
 
-#if defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/SV_Semaphore_Simple.i"
-#endif
+#if !defined (__ACE_INLINE__)
+#include "ace/SV_Semaphore_Simple.inl"
+#endif /* !__ACE_INLINE__ */
 
 ACE_RCSID (ace,
            SV_Semaphore_Simple,
-           "SV_Semaphore_Simple.cpp,v 4.23 2003/07/27 20:48:27 dhinton Exp")
+           "SV_Semaphore_Simple.cpp,v 4.27 2004/08/24 18:13:29 shuston Exp")
 
 ACE_ALLOC_HOOK_DEFINE (ACE_SV_Semaphore_Simple)
 
@@ -84,7 +84,7 @@ ACE_SV_Semaphore_Simple::open (key_t k,
   ACE_TRACE ("ACE_SV_Semaphore_Simple::open");
   union semun ivalue;
 
-  if (k == IPC_PRIVATE || k == ACE_static_cast (key_t, ACE_INVALID_SEM_KEY))
+  if (k == IPC_PRIVATE || k == static_cast<key_t> (ACE_INVALID_SEM_KEY))
     return -1;
 
   ivalue.val = initial_value;
@@ -131,7 +131,7 @@ ACE_SV_Semaphore_Simple::name_2_key (const char *name)
   if (name == 0)
     {
       errno = EINVAL;
-      return ACE_static_cast (key_t, ACE_INVALID_SEM_KEY);
+      return static_cast<key_t> (ACE_INVALID_SEM_KEY);
     }
 
   // Basically "hash" the values in the <name>.  This won't
@@ -186,6 +186,25 @@ ACE_SV_Semaphore_Simple::ACE_SV_Semaphore_Simple (const char *name,
                 ACE_LIB_TEXT ("%p\n"),
                 ACE_LIB_TEXT ("ACE_SV_Semaphore_Simple::ACE_SV_Semaphore_Simple")));
 }
+
+#if defined (ACE_HAS_WCHAR)
+ACE_SV_Semaphore_Simple::ACE_SV_Semaphore_Simple (const wchar_t *name,
+                                                  int flags,
+                                                  int initial_value,
+                                                  u_short nsems,
+                                                  int perms)
+{
+  ACE_TRACE ("ACE_SV_Semaphore_Simple::ACE_SV_Semaphore_Simple(wchar_t)");
+  if (this->open (ACE_Wide_To_Ascii (name).char_rep (),
+                  flags,
+                  initial_value,
+                  nsems,
+                  perms) == -1)
+    ACE_ERROR ((LM_ERROR,
+                ACE_LIB_TEXT ("%p\n"),
+                ACE_LIB_TEXT ("ACE_SV_Semaphore_Simple::ACE_SV_Semaphore_Simple")));
+}
+#endif /* ACE_HAS_WCHAR */
 
 ACE_SV_Semaphore_Simple::~ACE_SV_Semaphore_Simple (void)
 {

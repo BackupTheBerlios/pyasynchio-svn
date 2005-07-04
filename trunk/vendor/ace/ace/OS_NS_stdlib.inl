@@ -1,6 +1,7 @@
 // -*- C++ -*-
-// OS_NS_stdlib.inl,v 1.4 2003/11/11 15:43:08 jwillemsen Exp
+// OS_NS_stdlib.inl,v 1.13 2004/10/02 06:32:06 ossama Exp
 
+#include "ace/config-all.h"           /* Need ACE_TRACE */
 #include "ace/Object_Manager_Base.h"
 #include "ace/OS_NS_string.h"
 #include "ace/Global_Macros.h"
@@ -84,7 +85,7 @@ ACE_OS::atop (const char *s)
 #else
   int ip = ::atoi (s);
 #endif /* ACE_WIN64 */
-  void *p = ACE_reinterpret_cast (void *, ip);
+  void *p = reinterpret_cast<void *> (ip);
   return p;
 }
 
@@ -97,7 +98,7 @@ ACE_OS::atop (const wchar_t *s)
 #  else
   int ip = ACE_OS::atoi (s);
 #  endif /* ACE_WIN64 */
-  void *p = ACE_reinterpret_cast (void *, ip);
+  void *p = reinterpret_cast<void *> (ip);
   return p;
 }
 #endif /* ACE_HAS_WCHAR */
@@ -173,26 +174,59 @@ ACE_OS::itoa (int value, wchar_t *string, int radix)
 }
 #endif /* ACE_HAS_WCHAR */
 
-#if !defined (ACE_LACKS_MKSTEMP)
 ACE_INLINE ACE_HANDLE
-ACE_OS::mkstemp (ACE_TCHAR *s)
+ACE_OS::mkstemp (char *s)
 {
+#if !defined (ACE_LACKS_MKSTEMP)
   return ::mkstemp (s);
+#else
+  return ACE_OS::mkstemp_emulation (ACE_TEXT_CHAR_TO_TCHAR (s));
+#endif  /* !ACE_LACKS_MKSTEMP */
 }
-#endif /* !ACE_LACKS_MKSTEMP */
+
+#if defined (ACE_HAS_WCHAR)
+ACE_INLINE ACE_HANDLE
+ACE_OS::mkstemp (wchar_t *s)
+{
+#  if !defined (ACE_LACKS_MKSTEMP)
+  return ::mkstemp (ACE_TEXT_WCHAR_TO_TCHAR (ACE_TEXT_ALWAYS_CHAR (s)));
+#  else
+  return ACE_OS::mkstemp_emulation (ACE_TEXT_WCHAR_TO_TCHAR (s));
+#  endif  /* !ACE_LACKS_MKSTEMP */
+}
+#endif /* ACE_HAS_WCHAR */
 
 #if !defined (ACE_LACKS_MKTEMP)
-ACE_INLINE ACE_TCHAR *
-ACE_OS::mktemp (ACE_TCHAR *s)
+ACE_INLINE char *
+ACE_OS::mktemp (char *s)
 {
-# if defined (ACE_WIN32) && defined (ACE_USES_WCHAR)
-  return ::_wmktemp (s);
-# elif defined (ACE_WIN32)
+# if defined (ACE_WIN32)
   return ::_mktemp (s);
 # else /* ACE_WIN32 */
   return ::mktemp (s);
 # endif /* ACE_WIN32 */
 }
+
+#  if defined (ACE_HAS_WCHAR)
+ACE_INLINE wchar_t *
+ACE_OS::mktemp (wchar_t *s)
+{
+#    if defined (ACE_WIN32)
+  return ::_wmktemp (s);
+#    else
+  // For narrow-char filesystems, we must convert the wide-char input to
+  // a narrow-char string for mktemp(), then convert the name back to
+  // wide-char for the caller.
+  ACE_Wide_To_Ascii narrow_s (s);
+  if (::mktemp (narrow_s.char_rep ()) == 0)
+    return 0;
+  ACE_Ascii_To_Wide wide_s (narrow_s.char_rep ());
+  ACE_OS::strcpy (s, wide_s.wchar_rep ());
+  return s;
+#    endif
+}
+#  endif /* ACE_HAS_WCHAR */
+
 #endif /* !ACE_LACKS_MKTEMP */
 
 #if defined(INTEGRITY)
@@ -202,7 +236,7 @@ extern "C" {
 #endif
 
 ACE_INLINE int
-ACE_OS::putenv (const ACE_TCHAR *string)
+ACE_OS::putenv (const char *string)
 {
   ACE_OS_TRACE ("ACE_OS::putenv");
 #if defined (ACE_HAS_WINCE) || defined (ACE_PSOS)
@@ -212,13 +246,26 @@ ACE_OS::putenv (const ACE_TCHAR *string)
 #elif defined (ACE_LACKS_ENV)
   ACE_UNUSED_ARG (string);
   ACE_NOTSUP_RETURN (0);
-#elif defined (ACE_WIN32) && defined (ACE_USES_WCHAR)
-  ACE_OSCALL_RETURN (::_wputenv (string), int, -1);
 #else /* ! ACE_HAS_WINCE && ! ACE_PSOS */
   // VxWorks declares ::putenv with a non-const arg.
-  ACE_OSCALL_RETURN (::putenv ((char *) string), int, -1);
+  ACE_OSCALL_RETURN (ACE_STD_NAMESPACE::putenv ((char *) string), int, -1);
 #endif /* ACE_HAS_WINCE */
 }
+
+#if defined (ACE_HAS_WCHAR) && defined (ACE_WIN32)
+ACE_INLINE int
+ACE_OS::putenv (const wchar_t *string)
+{
+  ACE_OS_TRACE ("ACE_OS::putenv");
+#if defined (ACE_HAS_WINCE)
+  // WinCE doesn't have the concept of environment variables.
+  ACE_UNUSED_ARG (string);
+  ACE_NOTSUP_RETURN (-1);
+#else
+  ACE_OSCALL_RETURN (::_wputenv (string), int, -1);
+#endif /* ACE_HAS_WINCE */
+}
+#endif /* ACE_HAS_WCHAR && ACE_WIN32 */
 
 ACE_INLINE void
 ACE_OS::qsort (void *base,
@@ -291,6 +338,42 @@ ACE_OS::rand_r (ACE_RANDR_TYPE& seed)
 
 #endif /* !ACE_WIN32 */
 
+#if !defined (ACE_HAS_WINCE)
+#  if !defined (ACE_LACKS_REALPATH)
+ACE_INLINE char *
+ACE_OS::realpath (const char *file_name,
+                  char *resolved_name)
+{
+#    if defined (ACE_WIN32)
+  return ::_fullpath (resolved_name, file_name, PATH_MAX);
+#    else /* ACE_WIN32 */
+  return ::realpath (file_name, resolved_name);
+#    endif /* ! ACE_WIN32 */
+}
+#  endif /* !ACE_LACKS_REALPATH */
+
+#  if defined (ACE_HAS_WCHAR)
+ACE_INLINE wchar_t *
+ACE_OS::realpath (const wchar_t *file_name,
+                  wchar_t *resolved_name)
+{
+#    if defined (ACE_WIN32)
+  return ::_wfullpath (resolved_name, file_name, PATH_MAX);
+#    else /* ACE_WIN32 */
+  ACE_Wide_To_Ascii n_file_name (file_name);
+  char n_resolved[PATH_MAX];
+  if (0 != ACE_OS::realpath (n_file_name.char_rep (), n_resolved))
+    {
+      ACE_Ascii_To_Wide w_resolved (n_resolved);
+      ACE_OS::strcpy (resolved_name, w_resolved.wchar_rep ());
+      return resolved_name;
+    }
+  return 0;
+#    endif /* ! ACE_WIN32 */
+}
+#  endif /* ACE_HAS_WCHAR */
+#endif /* ACE_HAS_WINCE */
+
 ACE_INLINE ACE_EXIT_HOOK
 ACE_OS::set_exit_hook (ACE_EXIT_HOOK exit_hook)
 {
@@ -321,11 +404,21 @@ ACE_OS::strenvdup (const ACE_TCHAR *str)
   ACE_UNUSED_ARG (str);
   ACE_NOTSUP_RETURN (0);
 #else
-  ACE_TCHAR *temp = 0;
-
-  if (str[0] == ACE_LIB_TEXT ('$')
-      && (temp = ACE_OS::getenv (&str[1])) != 0)
-    return ACE_OS::strdup (temp);
+  if (str[0] == ACE_LIB_TEXT ('$'))
+    {
+#  if defined (ACE_WIN32)
+      // Always use the ACE_TCHAR for Windows.
+      ACE_TCHAR *temp = 0;
+      if ((temp = ACE_OS::getenv (&str[1])) != 0)
+        return ACE_OS::strdup (temp);
+#  else
+      // Use char * for environment on non-Windows.
+      char *temp = 0;
+      if ((temp = ACE_OS::getenv (ACE_TEXT_ALWAYS_CHAR (&str[1]))) != 0)
+        return ACE_OS::strdup (ACE_TEXT_CHAR_TO_TCHAR (temp));
+#  endif /* ACE_WIN32 */
+      return ACE_OS::strdup (str);
+    }
   else
     return ACE_OS::strdup (str);
 #endif /* ACE_HAS_WINCE */
@@ -343,7 +436,7 @@ ACE_OS::strtod (const char *s, char **endptr)
 ACE_INLINE double
 ACE_OS::strtod (const wchar_t *s, wchar_t **endptr)
 {
-  return ::wcstod (s, endptr);
+  return ACE_STD_NAMESPACE::wcstod (s, endptr);
 }
 #endif /* ACE_HAS_WCHAR && !ACE_LACKS_WCSTOD */
 
@@ -361,7 +454,7 @@ ACE_OS::strtol (const char *s, char **ptr, int base)
 ACE_INLINE long
 ACE_OS::strtol (const wchar_t *s, wchar_t **ptr, int base)
 {
-  return ::wcstol (s, ptr, base);
+  return ACE_STD_NAMESPACE::wcstol (s, ptr, base);
 }
 #endif /* ACE_HAS_WCHAR && !ACE_LACKS_WCSTOL */
 
@@ -379,7 +472,7 @@ ACE_OS::strtoul (const char *s, char **ptr, int base)
 ACE_INLINE unsigned long
 ACE_OS::strtoul (const wchar_t *s, wchar_t **ptr, int base)
 {
-  return ::wcstoul (s, ptr, base);
+  return ACE_STD_NAMESPACE::wcstoul (s, ptr, base);
 }
 #endif /* ACE_HAS_WCHAR && !ACE_LACKS_WCSTOUL */
 
@@ -392,7 +485,9 @@ ACE_OS::system (const ACE_TCHAR *s)
   ACE_NOTSUP_RETURN (-1);
 #elif defined (ACE_WIN32) && defined (ACE_USES_WCHAR)
   ACE_OSCALL_RETURN (::_wsystem (s), int, -1);
+#elif defined(ACE_TANDEM_T1248_PTHREADS)
+  ACE_OSCALL_RETURN (::spt_system (s), int, -1);
 #else
-  ACE_OSCALL_RETURN (::system (s), int, -1);
+  ACE_OSCALL_RETURN (::system (ACE_TEXT_ALWAYS_CHAR (s)), int, -1);
 #endif /* !CHORUS */
 }

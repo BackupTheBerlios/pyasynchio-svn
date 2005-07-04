@@ -4,7 +4,7 @@
 /**
  *  @file    DEV_Connector.h
  *
- *  DEV_Connector.h,v 4.16 2003/07/19 19:04:11 dhinton Exp
+ *  DEV_Connector.h,v 4.18 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Gerhard Lenzer and Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -16,6 +16,7 @@
 
 #include "ace/DEV_IO.h"
 #include "ace/Log_Msg.h"
+#include "ace/os_include/os_fcntl.h"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
@@ -96,9 +97,9 @@ public:
   typedef ACE_DEV_IO   PEER_STREAM;
 };
 
-#if !defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/DEV_Connector.i"
-#endif
+#if defined (__ACE_INLINE__)
+#include "ace/DEV_Connector.inl"
+#endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"
 #endif /* ACE_DEV_CONNECTOR_H */

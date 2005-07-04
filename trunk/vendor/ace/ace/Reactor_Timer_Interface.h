@@ -4,7 +4,7 @@
 /**
  *  @file    Reactor_Timer_Interface.h
  *
- *  Reactor_Timer_Interface.h,v 4.4 2003/11/04 23:34:49 ossama Exp
+ *  Reactor_Timer_Interface.h,v 4.5 2004/06/14 13:58:41 jwillemsen Exp
  *
  *  @author Irfan Pyarali <irfan@oomworks.com>
  */
@@ -14,8 +14,6 @@
 #define ACE_REACTOR_TIMER_INTERFACE_H
 
 #include /**/ "ace/pre.h"
-
-#include "ace/Time_Value.h"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once

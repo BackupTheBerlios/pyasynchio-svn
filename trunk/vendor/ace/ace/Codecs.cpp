@@ -5,7 +5,7 @@
 
 ACE_RCSID (ace,
            Codecs,
-           "Codecs.cpp,v 4.5 2003/11/01 11:15:12 dhinton Exp")
+           "Codecs.cpp,v 4.6 2004/05/05 21:16:27 ossama Exp")
 
 const ACE_Byte ACE_Base64::alphabet_[] =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -97,7 +97,7 @@ ACE_Base64::length (const ACE_Byte* input)
   if (!ACE_Base64::init_)
     ACE_Base64::init();
 
-  ACE_Byte* ptr = ACE_const_cast (ACE_Byte*, input);
+  ACE_Byte* ptr = const_cast<ACE_Byte*> (input);
   while (*ptr != 0 &&
          (member_[*(ptr)] == 1 || *ptr == pad_
           || ACE_OS::ace_isspace (*ptr)))
@@ -120,7 +120,7 @@ ACE_Base64::decode (const ACE_Byte* input, size_t* output_len)
   ACE_Byte* result = 0;
   ACE_NEW_RETURN (result, ACE_Byte[result_len], 0);
 
-  ACE_Byte* ptr = ACE_const_cast (ACE_Byte*, input);
+  ACE_Byte* ptr = const_cast<ACE_Byte*> (input);
   while (*ptr != 0 &&
          (member_[*(ptr)] == 1 || *ptr == pad_
           || ACE_OS::ace_isspace (*ptr)))

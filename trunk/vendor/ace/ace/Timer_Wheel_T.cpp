@@ -1,4 +1,4 @@
-// Timer_Wheel_T.cpp,v 1.62 2003/12/26 21:59:35 shuston Exp
+// Timer_Wheel_T.cpp,v 1.66 2004/11/24 22:28:53 irfan Exp
 
 #ifndef ACE_TIMER_WHEEL_T_C
 #define ACE_TIMER_WHEEL_T_C
@@ -12,7 +12,7 @@
 #include "ace/Timer_Wheel_T.h"
 #include "ace/Log_Msg.h"
 
-ACE_RCSID(ace, Timer_Wheel_T, "Timer_Wheel_T.cpp,v 1.62 2003/12/26 21:59:35 shuston Exp")
+ACE_RCSID(ace, Timer_Wheel_T, "Timer_Wheel_T.cpp,v 1.66 2004/11/24 22:28:53 irfan Exp")
 
 
 // Design/implementation notes for ACE_Timer_Wheel_T.
@@ -653,7 +653,7 @@ ACE_Timer_Wheel_T<TYPE, FUNCTOR, ACE_LOCK>::recalc_earliest
     return;
 
   ACE_Time_Value et = ACE_Time_Value::zero;
-
+  u_int es = 0;
   u_int spoke = this->earliest_spoke_;
 
   // We will have to go around the wheel at most one time.
@@ -672,11 +672,14 @@ ACE_Timer_Wheel_T<TYPE, FUNCTOR, ACE_LOCK>::recalc_earliest
           else if (et == ACE_Time_Value::zero || t < et)
             {
               et = t;
+              es = spoke;
             }
         }
       if (++spoke >= this->spoke_count_)
         spoke = 0;
     }
+
+  this->earliest_spoke_ = es;
   //ACE_ERROR((LM_ERROR, "We had to search the whole wheel.\n"));
 }
 
@@ -825,14 +828,6 @@ ACE_Timer_Wheel_T<TYPE, FUNCTOR, ACE_LOCK>::expire (const ACE_Time_Value& cur_ti
       // Get the dispatch info
       n->get_dispatch_info (info);
 
-      const void *upcall_act = 0;
-
-      this->preinvoke (info, cur_time, upcall_act);
-
-      this->upcall (info, cur_time);
-
-      this->postinvoke (info, cur_time, upcall_act);
-
       if (n->get_interval () > ACE_Time_Value::zero)
         {
           // Make sure that we skip past values that have already
@@ -849,10 +844,16 @@ ACE_Timer_Wheel_T<TYPE, FUNCTOR, ACE_LOCK>::expire (const ACE_Time_Value& cur_ti
           this->free_node (n);
         }
 
+      const void *upcall_act = 0;
+
+      this->preinvoke (info, cur_time, upcall_act);
+
+      this->upcall (info, cur_time);
+
+      this->postinvoke (info, cur_time, upcall_act);
+
       n = this->remove_first_expired (cur_time);
     }
-
-  //ACE_ERROR((LM_ERROR, "Expired %d nodes\n", expcount));
 
   return expcount;
 }

@@ -1,15 +1,16 @@
-// SPIPE_Connector.cpp
-// SPIPE_Connector.cpp,v 4.21 2003/11/01 11:15:17 dhinton Exp
+// SPIPE_Connector.cpp,v 4.24 2004/08/14 07:03:12 ossama Exp
 
 #include "ace/SPIPE_Connector.h"
 #include "ace/Log_Msg.h"
 #include "ace/OS_NS_sys_time.h"
+#include "ace/OS_NS_fcntl.h"
+#include "ace/OS_NS_unistd.h"
 
-#if defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/SPIPE_Connector.i"
-#endif
+#if !defined (__ACE_INLINE__)
+#include "ace/SPIPE_Connector.inl"
+#endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, SPIPE_Connector, "SPIPE_Connector.cpp,v 4.21 2003/11/01 11:15:17 dhinton Exp")
+ACE_RCSID(ace, SPIPE_Connector, "SPIPE_Connector.cpp,v 4.24 2004/08/14 07:03:12 ossama Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_SPIPE_Connector)
 
@@ -103,7 +104,7 @@ ACE_SPIPE_Connector::connect (ACE_SPIPE_Stream &new_io,
           if (relative_time <= ACE_Time_Value::zero)
             {
               // Mimick the errno value returned by
-              // ACE_Handle_Ops::handle_timed_open.
+              // ACE::handle_timed_open.
               if (*timeout == ACE_Time_Value::zero)
                 errno = EWOULDBLOCK;
               else
@@ -145,7 +146,7 @@ ACE_SPIPE_Connector::connect (ACE_SPIPE_Stream &new_io,
         }
     }
 #else /* ACE_WIN32 && !ACE_HAS_PHARLAP */
-  handle = ACE_Handle_Ops::handle_timed_open (timeout,
+  handle = ACE::handle_timed_open (timeout,
                                               remote_sap.get_path_name (),
                                               flags, perms, sa);
 #endif /* !ACE_WIN32 || ACE_HAS_PHARLAP || ACE_HAS_WINCE */

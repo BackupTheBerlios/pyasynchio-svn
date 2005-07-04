@@ -4,7 +4,7 @@
 /**
  *  @file    DLL_Manager.h
  *
- *  DLL_Manager.h,v 4.11 2003/08/04 04:33:44 dhinton Exp
+ *  DLL_Manager.h,v 4.12 2004/09/08 21:16:22 shuston Exp
  *
  *  @author Don Hinton <dhinton@ieee.org>
  */
@@ -22,6 +22,7 @@
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
 #include "ace/Auto_Ptr.h"
+#include "ace/Containers_T.h"
 #include "ace/SStringfwd.h"
 #include "ace/os_include/os_dlfcn.h"
 
@@ -106,6 +107,12 @@ private:
   /// but since this object is shared, we can't store or return the error
   /// to the caller.
   auto_ptr <ACE_TString> error (void);
+
+  // Builds array of DLL names to try to dlopen, based on platform
+  // and configured DLL prefixes/suffixes.
+  // Returns the array of names to try in try_names.
+  void get_dll_names (const ACE_TCHAR *dll_name,
+                      ACE_Array<ACE_TString> &try_names);
 
   // Keep track of how many ACE_DLL objects have a reference to this
   // dll.

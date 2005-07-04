@@ -4,7 +4,7 @@
 /**
  *  @file    Log_Record.h
  *
- *  Log_Record.h,v 4.47 2003/08/04 03:53:51 dhinton Exp
+ *  Log_Record.h,v 4.49 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -193,9 +193,9 @@ private:
   static const ACE_TCHAR *priority_names_[];
 };
 
-#if !defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/Log_Record.i"
-#endif
+#if defined (__ACE_INLINE__)
+#include "ace/Log_Record.inl"
+#endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"
 #endif /* ACE_LOG_RECORD_H */

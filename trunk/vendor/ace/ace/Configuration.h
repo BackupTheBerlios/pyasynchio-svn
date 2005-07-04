@@ -4,7 +4,7 @@
 /**
  *  @file    Configuration.h
  *
- *  Configuration.h,v 4.47 2003/08/04 03:53:50 dhinton Exp
+ *  Configuration.h,v 4.50 2004/06/25 11:46:38 jwillemsen Exp
  *
  *  @author Chris Hafey <chafey@stentor.com>
  *
@@ -33,7 +33,7 @@
 
 #include "ace/SString.h"
 #include "ace/Hash_Map_With_Allocator_T.h"
-#include "ace/Malloc.h"
+#include "ace/Malloc_.h"
 #include "ace/Synch_Traits.h"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
@@ -101,7 +101,7 @@ public:
   /**
    * @param key The section key to reference. Calls add_ref() with @a key.
    */
-  ACE_EXPLICIT ACE_Configuration_Section_Key (ACE_Section_Key_Internal *key);
+  explicit ACE_Configuration_Section_Key (ACE_Section_Key_Internal *key);
 
   /// Copy constructor, increments the reference count on the key.
   ACE_Configuration_Section_Key (const ACE_Configuration_Section_Key &rhs);
@@ -377,14 +377,14 @@ public:
    * contents of the object on the right hand side.
    * Returns 1 (True) if they are equal and 0 (False) if they are not equal
    */
-  int operator==(const ACE_Configuration& rhs) const;
+  bool operator==(const ACE_Configuration& rhs) const;
 
   /**
    * Determine if the contents of this object are different from the
    * contents of the object on the right hand side.
    * Returns 0 (False) if they are equal and 1 (True) if they are not equal
    */
-  int operator!=(const ACE_Configuration& rhs) const {return !(*this == rhs);}
+  bool operator!=(const ACE_Configuration& rhs) const {return !(*this == rhs);}
 
   /**
    *    *  Represents the "NULL" string to simplify the internal logic.
@@ -468,7 +468,7 @@ public:
    * base registry key to attach to.  This class takes ownership of
    * hKey, it will invoke <RegCloseKey> on it upon destruction.
    */
-  ACE_EXPLICIT ACE_Configuration_Win32Registry (HKEY hKey);
+  explicit ACE_Configuration_Win32Registry (HKEY hKey);
 
   /// Destructor
   virtual ~ACE_Configuration_Win32Registry (void);
@@ -536,8 +536,8 @@ public:
   static HKEY resolve_key (HKEY hKey,
                            const ACE_TCHAR* path,
                            int create = 1);
-  virtual int operator== (const ACE_Configuration_Win32Registry &rhs) const;
-  virtual int operator!= (const ACE_Configuration_Win32Registry &rhs) const;
+  virtual bool operator== (const ACE_Configuration_Win32Registry &rhs) const;
+  virtual bool operator!= (const ACE_Configuration_Win32Registry &rhs) const;
 
 protected:
 
@@ -574,7 +574,7 @@ public:
   ACE_Configuration_ExtId (void);
 
   /// Named constructor
-  ACE_EXPLICIT ACE_Configuration_ExtId (const ACE_TCHAR* name);
+  explicit ACE_Configuration_ExtId (const ACE_TCHAR* name);
 
   /// Copy ctor
   ACE_Configuration_ExtId (const ACE_Configuration_ExtId& rhs);
@@ -586,10 +586,10 @@ public:
   ACE_Configuration_ExtId& operator= (const ACE_Configuration_ExtId& rhs);
 
   /// Equality comparison operator (must match name_).
-  int operator==  (const ACE_Configuration_ExtId &rhs) const;
+  bool operator==  (const ACE_Configuration_ExtId &rhs) const;
 
   /// Inequality comparison operator.
-  int operator!= (const ACE_Configuration_ExtId &rhs) const;
+  bool operator!= (const ACE_Configuration_ExtId &rhs) const;
 
   /// Frees the name of the value.  needed since we don't know the
   /// allocator name_ was created in
@@ -616,7 +616,7 @@ typedef ACE_Hash_Map_Manager_Ex<ACE_Configuration_ExtId,
                                 ACE_Null_Mutex>
         SUBSECTION_HASH;
 
-// Deprecated typedef.  Use the SUBSECTION_HASH::ENTRY trait instead.
+/// @deprecated Deprecated typedef.  Use the SUBSECTION_HASH::ENTRY trait instead.
 typedef SUBSECTION_HASH::ENTRY SUBSECTION_ENTRY;
 
 /**
@@ -634,10 +634,10 @@ public:
   ACE_Configuration_Value_IntId (void);
 
   /// String constructor, takes ownership of string
-  ACE_EXPLICIT ACE_Configuration_Value_IntId (ACE_TCHAR* string);
+  explicit ACE_Configuration_Value_IntId (ACE_TCHAR* string);
 
   /// Integer constructor
-  ACE_EXPLICIT ACE_Configuration_Value_IntId (u_int integer);
+  explicit ACE_Configuration_Value_IntId (u_int integer);
 
   /// Binary constructor, takes ownership of data
   ACE_Configuration_Value_IntId (void* data, size_t length);
@@ -695,7 +695,7 @@ public:
   ACE_Configuration_Section_IntId (void);
 
   /// Named ctor
-  ACE_EXPLICIT ACE_Configuration_Section_IntId (VALUE_MAP* value_hash_map,
+  explicit ACE_Configuration_Section_IntId (VALUE_MAP* value_hash_map,
                                                 SUBSECTION_MAP* section_hash_map);
 
   /// Copy ctor

@@ -4,7 +4,7 @@
 /**
  *  @file    Thread.h
  *
- *  Thread.h,v 4.39 2003/12/11 18:19:28 jwillemsen Exp
+ *  Thread.h,v 4.40 2004/06/16 07:57:22 jwillemsen Exp
  *
  *  @author Douglas Schmidt <schmidt@cs.wustl.edu>
  */
@@ -250,7 +250,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Thread.i"
+#include "ace/Thread.inl"
 #endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"

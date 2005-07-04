@@ -1,4 +1,4 @@
-// Thread_Manager.cpp,v 4.215 2003/11/05 23:30:47 shuston Exp
+// Thread_Manager.cpp,v 4.222 2004/06/16 07:57:21 jwillemsen Exp
 
 #include "ace/TSS_T.h"
 #include "ace/Thread_Manager.h"
@@ -9,10 +9,10 @@
 #include "ace/Guard_T.h"
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Thread_Manager.i"
+#include "ace/Thread_Manager.inl"
 #endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, Thread_Manager, "Thread_Manager.cpp,v 4.215 2003/11/05 23:30:47 shuston Exp")
+ACE_RCSID(ace, Thread_Manager, "Thread_Manager.cpp,v 4.222 2004/06/16 07:57:21 jwillemsen Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_Thread_Control)
 ACE_ALLOC_HOOK_DEFINE(ACE_Thread_Manager)
@@ -684,8 +684,19 @@ ACE_Thread_Manager::spawn (ACE_THR_FUNC func,
   if (grp_id == -1)
     grp_id = this->grp_id_++; // Increment the group id.
 
-  if (this->spawn_i (func, args, flags, t_id, t_handle,
-                     priority, grp_id, stack, stack_size) == -1)
+  if (priority != ACE_DEFAULT_THREAD_PRIORITY)
+    ACE_CLR_BITS (flags, THR_INHERIT_SCHED);
+
+  if (this->spawn_i (func,
+                     args,
+                     flags,
+                     t_id,
+                     t_handle,
+                     priority,
+                     grp_id,
+                     stack,
+                     stack_size,
+                     0) == -1)
     return -1;
 
   return grp_id;
@@ -1171,6 +1182,15 @@ ACE_Thread_Manager::check_state (ACE_UINT32 state,
     return ACE_BIT_ENABLED (thr_state, state);
 
   return ACE_BIT_DISABLED (thr_state, state);
+}
+
+// Test if a single thread has terminated.
+
+int
+ACE_Thread_Manager::testterminate (ACE_thread_t t_id)
+{
+  ACE_TRACE ("ACE_Thread_Manager::testterminate");
+  return this->check_state (ACE_THR_TERMINATED, t_id);
 }
 
 // Test if a single thread is suspended.

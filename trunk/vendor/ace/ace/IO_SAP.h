@@ -4,7 +4,7 @@
 /**
  *  @file    IO_SAP.h
  *
- *  IO_SAP.h,v 4.13 2003/07/19 19:04:11 dhinton Exp
+ *  IO_SAP.h,v 4.15 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Doug Schmidt
  */
@@ -16,6 +16,7 @@
 #include /**/ "ace/pre.h"
 
 #include "ace/Flag_Manip.h"
+#include "ace/os_include/sys/os_types.h"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
@@ -82,9 +83,9 @@ private:
   static pid_t pid_;
 };
 
-#if !defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/IO_SAP.i"
-#endif /* ACE_LACKS_INLINE_FUNCTIONS */
+#if defined (__ACE_INLINE__)
+#include "ace/IO_SAP.inl"
+#endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"
 #endif /* ACE_IO_SAP_H */

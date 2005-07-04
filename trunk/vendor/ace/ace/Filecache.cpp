@@ -1,4 +1,4 @@
-// Filecache.cpp,v 4.77 2003/11/05 23:30:46 shuston Exp
+// Filecache.cpp,v 4.78 2004/06/14 13:58:41 jwillemsen Exp
 
 #include "ace/Filecache.h"
 #include "ace/Object_Manager.h"
@@ -7,8 +7,10 @@
 #include "ace/Guard_T.h"
 #include "ace/OS_NS_string.h"
 #include "ace/OS_NS_time.h"
+#include "ace/OS_NS_unistd.h"
+#include "ace/OS_NS_fcntl.h"
 
-ACE_RCSID(ace, Filecache, "Filecache.cpp,v 4.77 2003/11/05 23:30:46 shuston Exp")
+ACE_RCSID(ace, Filecache, "Filecache.cpp,v 4.78 2004/06/14 13:58:41 jwillemsen Exp")
 
 #if defined (ACE_WIN32)
 // Specifies no sharing flags.

@@ -1,5 +1,5 @@
 // Dynamic.cpp
-// Dynamic.cpp,v 4.11 2003/08/04 03:53:51 dhinton Exp
+// Dynamic.cpp,v 4.13 2004/06/16 07:57:20 jwillemsen Exp
 
 #include "ace/Dynamic.h"
 #include "ace/Singleton.h"
@@ -8,10 +8,10 @@
 #include "ace/Null_Mutex.h"
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Dynamic.i"
+#include "ace/Dynamic.inl"
 #endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, Dynamic, "Dynamic.cpp,v 4.11 2003/08/04 03:53:51 dhinton Exp")
+ACE_RCSID(ace, Dynamic, "Dynamic.cpp,v 4.13 2004/06/16 07:57:20 jwillemsen Exp")
 
 ACE_Dynamic::ACE_Dynamic (void)
   : is_dynamic_ (0)
@@ -38,7 +38,7 @@ ACE_Dynamic::instance (void)
     #pragma instantiate ACE_TSS<ACE_Dynamic>
 # endif /* ACE_HAS_THREADS && (ACE_HAS_THREAD_SPECIFIC_STORAGE || ACE_HAS_TSS_EMULATION) */
 
-#elif defined (__GNUC__) && (defined (_AIX) || defined (__hpux) || defined (VXWORKS))
+#elif defined (ACE_HAS_EXPLICIT_STATIC_TEMPLATE_MEMBER_INSTANTIATION)
 template ACE_TSS_Singleton<ACE_Dynamic, ACE_Null_Mutex> *
   ACE_TSS_Singleton<ACE_Dynamic, ACE_Null_Mutex>::singleton_;
 

@@ -1,5 +1,5 @@
 // Framework_Component.cpp
-// Framework_Component.cpp,v 1.13 2003/11/01 11:15:12 dhinton Exp
+// Framework_Component.cpp,v 1.14 2004/05/05 21:16:27 ossama Exp
 
 #include "ace/Framework_Component.h"
 
@@ -13,14 +13,14 @@
 #include "ace/Recursive_Thread_Mutex.h"
 #include "ace/OS_NS_string.h"
 
-ACE_RCSID(ace, Framework_Component, "Framework_Component.cpp,v 1.13 2003/11/01 11:15:12 dhinton Exp")
+ACE_RCSID(ace, Framework_Component, "Framework_Component.cpp,v 1.14 2004/05/05 21:16:27 ossama Exp")
 
 ACE_Framework_Component::~ACE_Framework_Component (void)
 {
   ACE_TRACE ("ACE_Framework_Component::~ACE_Framework_Component");
 
-  ACE::strdelete (ACE_const_cast (ACE_TCHAR*, this->dll_name_));
-  ACE::strdelete (ACE_const_cast (ACE_TCHAR*, this->name_));
+  ACE::strdelete (const_cast<ACE_TCHAR*> (this->dll_name_));
+  ACE::strdelete (const_cast<ACE_TCHAR*> (this->name_));
 }
 
 /***************************************************************/
@@ -69,8 +69,8 @@ ACE_Framework_Repository::close (void)
         if (this->component_vector_[i])
           {
             ACE_Framework_Component *s =
-              ACE_const_cast (ACE_Framework_Component *,
-                              this->component_vector_[i]);
+              const_cast<ACE_Framework_Component *> (
+                this->component_vector_[i]);
 
             this->component_vector_[i] = 0;
             delete s;

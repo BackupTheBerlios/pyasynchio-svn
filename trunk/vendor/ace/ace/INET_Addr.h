@@ -4,7 +4,7 @@
 /**
  *  @file    INET_Addr.h
  *
- *  INET_Addr.h,v 4.48 2003/11/17 05:54:32 bala Exp
+ *  INET_Addr.h,v 4.52 2004/12/20 14:17:46 jwillemsen Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -23,6 +23,7 @@
 #include "ace/Addr.h"
 
 #if defined(VXWORKS)
+   // Needed to get INET_ADDR_LEN
 #  include /**/ "inetLib.h"
 #endif /* VXWORKS */
 
@@ -61,7 +62,7 @@ public:
    * is assumed to be a port number, with the IP address being
    * INADDR_ANY.
    */
-  ACE_EXPLICIT ACE_INET_Addr (const char address[]);
+  explicit ACE_INET_Addr (const char address[]);
 
   /**
    * Creates an <ACE_INET_Addr> from a <port_number> and an Internet
@@ -92,7 +93,7 @@ public:
                  const wchar_t host_name[],
                  int address_family = AF_UNSPEC);
 
-  ACE_EXPLICIT ACE_INET_Addr (const wchar_t address[]);
+  explicit ACE_INET_Addr (const wchar_t address[]);
 
   ACE_INET_Addr (const wchar_t port_name[],
                  const wchar_t host_name[],
@@ -291,19 +292,19 @@ public:
   ACE_UINT32 get_ip_address (void) const;
 
   /**
-   * Returns true if <this> is less than <rhs>.  In this context,
+   * Returns @c true if @c this is less than @a rhs.  In this context,
    * "less than" is defined in terms of IP address and TCP port
-   * number.  This operator makes it possible to use <ACE_INET_Addr>s
+   * number.  This operator makes it possible to use @c ACE_INET_Addrs
    * in STL maps.
    */
-  int operator < (const ACE_INET_Addr &rhs) const;
+  bool operator < (const ACE_INET_Addr &rhs) const;
 
   /// Compare two addresses for equality.  The addresses are considered
   /// equal if they contain the same IP address and port number.
-  int operator == (const ACE_INET_Addr &SAP) const;
+  bool operator == (const ACE_INET_Addr &SAP) const;
 
   /// Compare two addresses for inequality.
-  int operator != (const ACE_INET_Addr &SAP) const;
+  bool operator != (const ACE_INET_Addr &SAP) const;
 
   /// Computes and returns hash value.
   virtual u_long hash (void) const;
@@ -344,7 +345,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/INET_Addr.i"
+#include "ace/INET_Addr.inl"
 #endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"

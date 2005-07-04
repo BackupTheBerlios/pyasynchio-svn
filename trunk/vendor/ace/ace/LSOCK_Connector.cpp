@@ -1,16 +1,15 @@
-// LSOCK_Connector.cpp
-// LSOCK_Connector.cpp,v 4.11 2003/07/27 20:48:25 dhinton Exp
+// LSOCK_Connector.cpp,v 4.13 2004/06/16 07:57:20 jwillemsen Exp
 
 #include "ace/LSOCK_Connector.h"
 #if !defined (ACE_LACKS_UNIX_DOMAIN_SOCKETS)
 
 #include "ace/Log_Msg.h"
 
-ACE_RCSID(ace, LSOCK_Connector, "LSOCK_Connector.cpp,v 4.11 2003/07/27 20:48:25 dhinton Exp")
+ACE_RCSID(ace, LSOCK_Connector, "LSOCK_Connector.cpp,v 4.13 2004/06/16 07:57:20 jwillemsen Exp")
 
-#if defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/LSOCK_Connector.i"
-#endif
+#if !defined (__ACE_INLINE__)
+#include "ace/LSOCK_Connector.inl"
+#endif /* __ACE_INLINE__ */
 
 ACE_ALLOC_HOOK_DEFINE(ACE_LSOCK_Connector)
 
@@ -32,8 +31,8 @@ ACE_LSOCK_Connector::ACE_LSOCK_Connector (void)
 }
 
 // Establish a connection.
-ACE_LSOCK_Connector::ACE_LSOCK_Connector (ACE_LSOCK_Stream &new_stream, 
-					  const ACE_UNIX_Addr &remote_sap, 
+ACE_LSOCK_Connector::ACE_LSOCK_Connector (ACE_LSOCK_Stream &new_stream,
+					  const ACE_UNIX_Addr &remote_sap,
 					  ACE_Time_Value *timeout,
 					  const ACE_Addr &local_sap,
 					  int reuse_addr,

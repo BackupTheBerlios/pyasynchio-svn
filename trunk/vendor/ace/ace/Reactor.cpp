@@ -1,4 +1,4 @@
-// Reactor.cpp,v 4.119 2003/11/16 18:27:04 dhinton Exp
+// Reactor.cpp,v 4.120 2004/06/16 07:57:20 jwillemsen Exp
 
 #include "ace/Reactor.h"
 //#if !defined (ACE_HAS_WINCE)
@@ -31,10 +31,10 @@
 #include "ace/Recursive_Thread_Mutex.h"
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Reactor.i"
+#include "ace/Reactor.inl"
 #endif /* __ACE_INLINE__ */
 
-ACE_RCSID(ace, Reactor, "Reactor.cpp,v 4.119 2003/11/16 18:27:04 dhinton Exp")
+ACE_RCSID(ace, Reactor, "Reactor.cpp,v 4.120 2004/06/16 07:57:20 jwillemsen Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_Reactor)
 

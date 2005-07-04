@@ -4,7 +4,7 @@
 /**
  *  @file    MEM_IO.h
  *
- *  MEM_IO.h,v 4.18 2003/07/19 19:04:12 dhinton Exp
+ *  MEM_IO.h,v 4.21 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Nanbor Wang <nanbor@cs.wustl.edu>
  */
@@ -83,7 +83,7 @@ public:
   class Simple_Queue
   {
   public:
-    ACE_INLINE_FOR_GNUC Simple_Queue (void);
+    Simple_Queue (void);
     Simple_Queue (MQ_Struct *mq);
 
     int init (MQ_Struct *mq, ACE_MEM_SAP::MALLOC_TYPE *malloc);
@@ -294,9 +294,9 @@ private:
   ssize_t cur_offset_;
 };
 
-#if !defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/MEM_IO.i"
-#endif /* ACE_LACKS_INLINE_FUNCTIONS */
+#if defined (__ACE_INLINE__)
+#include "ace/MEM_IO.inl"
+#endif /* __ACE_INLINE__ */
 
 #endif /* ACE_HAS_POSITION_INDEPENDENT_POINTERS == 1 */
 

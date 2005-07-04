@@ -1,13 +1,13 @@
-// Asynch_IO_Impl.cpp,v 4.8 2003/11/01 11:15:12 dhinton Exp
+// Asynch_IO_Impl.cpp,v 4.9 2004/06/16 07:57:20 jwillemsen Exp
 
 #include "ace/Asynch_IO_Impl.h"
 
 #if (defined (ACE_WIN32) && !defined (ACE_HAS_WINCE)) || (defined (ACE_HAS_AIO_CALLS))
 // This only works on Win32 platforms and on Unix platforms supporting
-// aio calls. 
+// aio calls.
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Asynch_IO_Impl.i"
+#include "ace/Asynch_IO_Impl.inl"
 #endif /* __ACE_INLINE__ */
 
 ACE_Asynch_Result_Impl::~ACE_Asynch_Result_Impl (void)

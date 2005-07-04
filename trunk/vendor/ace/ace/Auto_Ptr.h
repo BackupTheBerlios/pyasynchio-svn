@@ -4,7 +4,7 @@
 /**
  *  @file    Auto_Ptr.h
  *
- *  Auto_Ptr.h,v 4.33 2003/07/30 21:15:58 dhinton Exp
+ *  Auto_Ptr.h,v 4.38 2004/11/23 15:30:09 mcorino Exp
  *
  *  @author Doug Schmidt <schmidt@uci.edu>
  *  @author Irfan Pyarali <irfan@cs.wustl.edu>
@@ -43,7 +43,7 @@ class ACE_Auto_Basic_Ptr
 {
 public:
   // = Initialization and termination methods
-  ACE_EXPLICIT ACE_Auto_Basic_Ptr (X *p = 0) : p_ (p) {}
+  explicit ACE_Auto_Basic_Ptr (X *p = 0) : p_ (p) {}
 
   ACE_Auto_Basic_Ptr (ACE_Auto_Basic_Ptr<X> &ap);
   ACE_Auto_Basic_Ptr<X> &operator= (ACE_Auto_Basic_Ptr<X> &rhs);
@@ -85,12 +85,30 @@ class auto_ptr : public ACE_Auto_Basic_Ptr <X>
 {
 public:
   // = Initialization and termination methods
-  ACE_EXPLICIT auto_ptr (X *p = 0) : ACE_Auto_Basic_Ptr<X> (p) {}
+  explicit auto_ptr (X *p = 0) : ACE_Auto_Basic_Ptr<X> (p) {}
+  auto_ptr (auto_ptr<X> &ap) : ACE_Auto_Basic_Ptr<X> (ap.release()) {}
 
   X *operator-> () const;
 };
 
 #endif /* ACE_HAS_STANDARD_CPP_LIBRARY */
+
+
+/**
+ * @brief Implements the draft C++ standard auto_ptr abstraction.
+ * This version can be used instead of auto_ptr<T>, and obviates
+ * the need for the ACE_AUTO_PTR_RESET macro on platforms like
+ * VC6 where the auto_ptr<T> is broken.
+ */
+template <class X>
+class ACE_Auto_Ptr : public ACE_Auto_Basic_Ptr <X>
+{
+public:
+  // = Initialization and termination methods
+  explicit ACE_Auto_Ptr (X *p = 0) : ACE_Auto_Basic_Ptr<X> (p) {}
+
+  X *operator-> () const;
+};
 
 /**
  * @class ACE_Auto_Basic_Array_Ptr
@@ -105,7 +123,7 @@ class ACE_Auto_Basic_Array_Ptr
 {
 public:
   // = Initialization and termination methods.
-  ACE_EXPLICIT ACE_Auto_Basic_Array_Ptr (X *p = 0) : p_ (p) {}
+  explicit ACE_Auto_Basic_Array_Ptr (X *p = 0) : p_ (p) {}
 
   ACE_Auto_Basic_Array_Ptr (ACE_Auto_Basic_Array_Ptr<X> &ap);
   ACE_Auto_Basic_Array_Ptr<X> &operator= (ACE_Auto_Basic_Array_Ptr<X> &rhs);
@@ -139,7 +157,7 @@ class ACE_Auto_Array_Ptr : public ACE_Auto_Basic_Array_Ptr<X>
 {
 public:
   // = Initialization and termination methods.
-  ACE_EXPLICIT ACE_Auto_Array_Ptr (X *p = 0)
+  explicit ACE_Auto_Array_Ptr (X *p = 0)
     : ACE_Auto_Basic_Array_Ptr<X> (p) {}
 
   X *operator-> () const;
@@ -150,23 +168,23 @@ public:
 // easily.  Portability to these platforms requires
 // use of the following ACE_AUTO_PTR_RESET macro.
 # if defined (ACE_AUTO_PTR_LACKS_RESET)
-#   define ACE_AUTO_PTR_RESET(X,Y,Z) \
+#   define ACE_AUTO_PTR_RESET(AUTOPTR,NEWPTR,TYPE) \
       do { \
-        if (Y != X.get ()) \
+        if (NEWPTR != AUTOPTR.get ()) \
           { \
-            X.release (); \
-            X = auto_ptr<Z> (Y); \
+            AUTOPTR.release (); \
+            AUTOPTR = auto_ptr<TYPE> (NEWPTR); \
           } \
       } while (0)
 # else /* ! ACE_AUTO_PTR_LACKS_RESET */
-#   define ACE_AUTO_PTR_RESET(X,Y,Z) \
+#   define ACE_AUTO_PTR_RESET(AUTOPTR,NEWPTR,TYPE) \
       do { \
-         X.reset (Y); \
+         AUTOPTR.reset (NEWPTR); \
       } while (0)
 # endif /* ACE_AUTO_PTR_LACKS_RESET */
 
 #if defined (__ACE_INLINE__)
-#include "ace/Auto_Ptr.i"
+#include "ace/Auto_Ptr.inl"
 #endif /* __ACE_INLINE__ */
 
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)

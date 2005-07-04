@@ -4,7 +4,7 @@
 /**
  *  @file    Dynamic_Service.h
  *
- *  Dynamic_Service.h,v 4.18 2003/07/19 19:04:11 dhinton Exp
+ *  Dynamic_Service.h,v 4.20 2004/09/14 11:57:29 jwillemsen Exp
  *
  *  @author Prashant Jain <pjain@cs.wustl.edu>
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
@@ -39,16 +39,17 @@ template <class TYPE>
 class ACE_Dynamic_Service : public ACE_Dynamic_Service_Base
 {
 public:
-  /// Return instance using <name> to search the Service_Repository.
-  static TYPE*instance (const ACE_TCHAR *name);
+  /// Return instance using @a name to search the Service_Repository.
+  static TYPE* instance (const ACE_TCHAR *name);
 
 #if defined (ACE_USES_WCHAR)
+  /// Return instance using @a name to search the Service_Repository.
   static TYPE* instance (const ACE_ANTI_TCHAR *name);
 #endif  // ACE_USES_WCHAR
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Dynamic_Service.i"
+#include "ace/Dynamic_Service.inl"
 #endif /* __ACE_INLINE__ */
 
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)

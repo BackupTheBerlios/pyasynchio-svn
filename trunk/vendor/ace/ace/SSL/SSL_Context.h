@@ -4,7 +4,7 @@
 /**
  *  @file    SSL_Context.h
  *
- *  SSL_Context.h,v 1.19 2003/07/19 19:04:15 dhinton Exp
+ *  SSL_Context.h,v 1.21 2004/06/16 20:59:51 shuston Exp
  *
  *  @author Carlos O'Ryan <coryan@ece.uci.edu>
  */
@@ -23,7 +23,10 @@
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
 #include "ace/SString.h"
-#include "ace/Synch.h"
+
+#ifdef ACE_HAS_THREADS
+# include "ace/OS_NS_Thread.h"
+#endif  /* ACE_HAS_THREADS */
 
 #include <openssl/ssl.h>
 

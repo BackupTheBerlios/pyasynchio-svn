@@ -1,14 +1,15 @@
-// TTY_IO.cpp,v 4.38 2003/11/01 11:15:18 dhinton Exp
+// TTY_IO.cpp,v 4.39 2004/06/14 14:35:52 jwillemsen Exp
 
 #include "ace/TTY_IO.h"
 #include "ace/OS_NS_string.h"
 #include "ace/OS_NS_strings.h"
 #include "ace/os_include/os_termios.h"
+#include "ace/os_include/os_stropts.h"
 #include "ace/OS_NS_errno.h"
 
 ACE_RCSID (ace,
            TTY_IO,
-           "TTY_IO.cpp,v 4.38 2003/11/01 11:15:18 dhinton Exp")
+           "TTY_IO.cpp,v 4.39 2004/06/14 14:35:52 jwillemsen Exp")
 
 ACE_TTY_IO::Serial_Params::Serial_Params (void)
 {

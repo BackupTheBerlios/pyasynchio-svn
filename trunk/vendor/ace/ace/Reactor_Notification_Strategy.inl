@@ -1,5 +1,6 @@
 /* -*- C++ -*- */
-// Reactor_Notification_Strategy.inl,v 4.2 2001/12/11 01:02:12 bala Exp
+// Reactor_Notification_Strategy.inl,v 4.3 2004/06/14 13:58:41 jwillemsen Exp
+
 ACE_INLINE ACE_Reactor *
 ACE_Reactor_Notification_Strategy::reactor (void)
 {

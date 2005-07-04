@@ -4,7 +4,7 @@
 /**
  *  @file    WFMO_Reactor.h
  *
- *  WFMO_Reactor.h,v 4.69 2003/11/10 04:07:07 dhinton Exp
+ *  WFMO_Reactor.h,v 4.71 2004/06/16 07:57:22 jwillemsen Exp
  *
  *  @author Irfan Pyarali <irfan@cs.wustl.edu>
  *  @author Tim Harrison <harrison@cs.wustl.edu>
@@ -24,7 +24,7 @@
 
 #if defined (ACE_WIN32)
 
-#include "ace/Signal.h"
+#include "ace/Signal_.h"
 #include "ace/Timer_Queue.h"
 #include "ace/Event_Handler.h"
 #include "ace/Auto_Event.h"
@@ -696,11 +696,6 @@ public:
   /// Use a user specified signal handler instead.
   virtual int set_sig_handler (ACE_Sig_Handler *signal_handler);
 
-  /// @deprecated The following method is deprecated.
-  /// Instead, either specify a timer queue when creating/opening the
-  /// object or use the timer_queue() method.
-  virtual int set_timer_queue (ACE_Timer_Queue *tq);
-
   /// Set a user-specified timer queue.
   virtual int timer_queue (ACE_Timer_Queue *tq);
 
@@ -1348,7 +1343,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/WFMO_Reactor.i"
+#include "ace/WFMO_Reactor.inl"
 #endif /* __ACE_INLINE__ */
 
 #endif /* ACE_WIN32 */

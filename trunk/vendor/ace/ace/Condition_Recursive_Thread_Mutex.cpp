@@ -2,7 +2,7 @@
 /**
  * @file Condition_Recursive_Thread_Mutex.cpp
  *
- * Condition_Recursive_Thread_Mutex.cpp,v 4.3 2003/11/04 16:46:04 dhinton Exp
+ * Condition_Recursive_Thread_Mutex.cpp,v 4.5 2004/08/03 15:54:46 jtc Exp
  *
  * Originally in Synch.cpp
  *
@@ -13,15 +13,10 @@
 
 #if defined (ACE_HAS_THREADS)
 
-#if !defined (__ACE_INLINE__)
-#include "ace/Condition_Recursive_Thread_Mutex.inl"
-#endif /* __ACE_INLINE__ */
-
 #if defined (ACE_HAS_DUMP)
 #  include "ace/Log_Msg.h"
 #endif /* ACE_HAS_DUMP */
 
-//ACE_TEMPLATE_METHOD_SPECIALIZATION
 int
 ACE_Condition<ACE_Recursive_Thread_Mutex>::remove (void)
 {
@@ -35,7 +30,7 @@ ACE_Condition<ACE_Recursive_Thread_Mutex>::dump (void) const
 // ACE_TRACE ("ACE_Condition<MUTEX>::dump");
 
   ACE_DEBUG ((LM_DEBUG, ACE_BEGIN_DUMP, this));
-  // No dump method for ACE_cond_t even in emulated mode. 
+  // No dump method for ACE_cond_t even in emulated mode.
   // cond_.dump ();
   this->mutex_.dump ();
   ACE_DEBUG ((LM_DEBUG, ACE_LIB_TEXT ("\n")));
@@ -43,27 +38,23 @@ ACE_Condition<ACE_Recursive_Thread_Mutex>::dump (void) const
 #endif /* ACE_HAS_DUMP */
 }
 
-//ACE_TEMPLATE_METHOD_SPECIALIZATION
 ACE_Condition<ACE_Recursive_Thread_Mutex>::~ACE_Condition (void)
 {
   this->remove ();
 }
 
-//ACE_TEMPLATE_METHOD_SPECIALIZATION
 ACE_Condition<ACE_Recursive_Thread_Mutex>::ACE_Condition (ACE_Recursive_Thread_Mutex &m)
   : mutex_ (m)
 {
   ACE_OS::cond_init (&this->cond_);
 }
 
-//ACE_TEMPLATE_METHOD_SPECIALIZATION
 int
 ACE_Condition<ACE_Recursive_Thread_Mutex>::wait (const ACE_Time_Value *abstime)
 {
   return this->wait (this->mutex_, abstime);
 }
 
-//ACE_TEMPLATE_METHOD_SPECIALIZATION
 int
 ACE_Condition<ACE_Recursive_Thread_Mutex>::wait (ACE_Recursive_Thread_Mutex &mutex,
                                                  const ACE_Time_Value *abstime)
@@ -106,21 +97,18 @@ ACE_Condition<ACE_Recursive_Thread_Mutex>::wait (ACE_Recursive_Thread_Mutex &mut
   return result;
 }
 
-//ACE_TEMPLATE_METHOD_SPECIALIZATION
 int
 ACE_Condition<ACE_Recursive_Thread_Mutex>::signal (void)
 {
   return ACE_OS::cond_signal (&this->cond_);
 }
 
-//ACE_TEMPLATE_METHOD_SPECIALIZATION
 int
 ACE_Condition<ACE_Recursive_Thread_Mutex>::broadcast (void)
 {
   return ACE_OS::cond_broadcast (&this->cond_);
 }
 
-//ACE_TEMPLATE_METHOD_SPECIALIZATION
 ACE_Recursive_Thread_Mutex &
 ACE_Condition<ACE_Recursive_Thread_Mutex>::mutex (void)
 {

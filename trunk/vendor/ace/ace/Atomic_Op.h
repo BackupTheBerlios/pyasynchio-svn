@@ -4,7 +4,7 @@
 /**
  *  @file    Atomic_Op.h
  *
- *  Atomic_Op.h,v 4.9 2003/08/04 03:53:50 dhinton Exp
+ *  Atomic_Op.h,v 4.12 2004/12/11 16:43:54 schmidt Exp
  *
  *  @author Douglas C. Schmidt <schmidt@uci.edu>
  */
@@ -85,28 +85,28 @@ public:
   long operator-= (long rhs);
 
   /// Atomically compare <value_> with rhs.
-  int operator== (long rhs) const;
+  bool operator== (long rhs) const;
 
   /// Atomically compare <value_> with rhs.
-  int operator!= (long rhs) const;
+  bool operator!= (long rhs) const;
 
   /// Atomically check if <value_> greater than or equal to rhs.
-  int operator>= (long rhs) const;
+  bool operator>= (long rhs) const;
 
   /// Atomically check if <value_> greater than rhs.
-  int operator> (long rhs) const;
+  bool operator> (long rhs) const;
 
   /// Atomically check if <value_> less than or equal to rhs.
-  int operator<= (long rhs) const;
+  bool operator<= (long rhs) const;
 
   /// Atomically check if <value_> less than rhs.
-  int operator< (long rhs) const;
+  bool operator< (long rhs) const;
 
   /// Atomically assign rhs to <value_>.
-  void operator= (long rhs);
+  ACE_Atomic_Op<ACE_Thread_Mutex, long> &operator= (long rhs);
 
   /// Atomically assign <rhs> to <value_>.
-  void operator= (const ACE_Atomic_Op<ACE_Thread_Mutex, long> &rhs);
+  ACE_Atomic_Op<ACE_Thread_Mutex, long> &operator= (const ACE_Atomic_Op<ACE_Thread_Mutex, long> &rhs);
 
   /// Explicitly return <value_>.
   long value (void) const;
@@ -155,7 +155,7 @@ private:
 
 
 #if defined (__ACE_INLINE__)
-#include "ace/Atomic_Op.i"
+#include "ace/Atomic_Op.inl"
 #endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"

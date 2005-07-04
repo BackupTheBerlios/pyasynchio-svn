@@ -4,7 +4,7 @@
 /**
  *  @file    UPIPE_Acceptor.h
  *
- *  UPIPE_Acceptor.h,v 4.13 2003/08/04 03:53:54 dhinton Exp
+ *  UPIPE_Acceptor.h,v 4.15 2004/06/16 07:57:22 jwillemsen Exp
  *
  *  @author Gerhard Lenzer
  *  @author Douglas C. Schmidt
@@ -84,9 +84,9 @@ private:
   ACE_Message_Block mb_;
 };
 
-#if !defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/UPIPE_Acceptor.i"
-#endif
+#if defined (__ACE_INLINE__)
+#include "ace/UPIPE_Acceptor.inl"
+#endif /* __ACE_INLINE__ */
 
 #endif /* ACE_HAS_THREADS */
 #include /**/ "ace/post.h"

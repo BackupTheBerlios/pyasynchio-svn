@@ -4,7 +4,7 @@
 /**
  *  @file   OS_NS_strings.h
  *
- *  OS_NS_strings.h,v 1.3 2003/11/01 23:42:24 dhinton Exp
+ *  OS_NS_strings.h,v 1.4 2004/04/13 07:55:47 ossama Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  *  @author Jesper S. M|ller<stophph@diku.dk>
@@ -59,11 +59,11 @@ namespace ACE_OS {
 
 #if defined (ACE_LACKS_STRCASECMP)
   /// Emulated strcasecmp - Performs a case insensitive comparison of strings.
-  extern ACE_Export 
+  extern ACE_Export
   int strcasecmp_emulation (const char *s, const char *t);
 
   /// Emulated strncasecmp - Performs a case insensitvie comparison of arrays.
-  extern ACE_Export 
+  extern ACE_Export
   int strncasecmp_emulation (const char *s, const char *t, size_t len);
 #endif /* ACE_LACKS_STRCASECMP */
 

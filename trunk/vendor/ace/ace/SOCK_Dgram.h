@@ -4,7 +4,7 @@
 /**
  *  @file    SOCK_Dgram.h
  *
- *  SOCK_Dgram.h,v 4.36 2003/11/01 11:15:17 dhinton Exp
+ *  SOCK_Dgram.h,v 4.38 2004/06/16 07:57:22 jwillemsen Exp
  *
  *  @author Doug Schmidt
  */
@@ -211,9 +211,9 @@ private:
   int  get_remote_addr (ACE_Addr &) const;
 };
 
-#if !defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/SOCK_Dgram.i"
-#endif
+#if defined (__ACE_INLINE__)
+#include "ace/SOCK_Dgram.inl"
+#endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"
 #endif /* ACE_SOCK_DGRAM_H */

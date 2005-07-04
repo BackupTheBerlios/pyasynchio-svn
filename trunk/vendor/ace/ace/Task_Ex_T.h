@@ -4,7 +4,7 @@
 /**
  *  @file    Task_Ex_T.h
  *
- *  Task_Ex_T.h,v 1.3 2003/12/10 09:29:37 jwillemsen Exp
+ *  Task_Ex_T.h,v 1.4 2004/06/16 07:57:22 jwillemsen Exp
  *
  *  @author Kobi Cohen-Arazi <kobi-co@barak-online.net>
  */
@@ -183,7 +183,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Task_Ex_T.i"
+#include "ace/Task_Ex_T.inl"
 #endif /* __ACE_INLINE__ */
 
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)

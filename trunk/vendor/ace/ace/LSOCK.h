@@ -4,7 +4,7 @@
 /**
  *  @file    LSOCK.h
  *
- *  LSOCK.h,v 4.12 2003/07/19 19:04:11 dhinton Exp
+ *  LSOCK.h,v 4.14 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Doug Schmidt
  */
@@ -56,7 +56,7 @@ protected:
   /// Default constructor.
   ACE_LSOCK (void);
 
-  /// Initialize based on <handle>
+  /// Initialize based on @a handle.
   ACE_LSOCK (ACE_HANDLE handle);
 
   /// Get handle.
@@ -70,9 +70,9 @@ private:
   ACE_HANDLE aux_handle_;
 };
 
-#if !defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/LSOCK.i"
-#endif
+#if defined (__ACE_INLINE__)
+#include "ace/LSOCK.inl"
+#endif /* __ACE_INLINE__ */
 
 #endif /* ACE_LACKS_UNIX_DOMAIN_SOCKETS */
 #include /**/ "ace/post.h"

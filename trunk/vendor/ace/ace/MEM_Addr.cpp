@@ -1,4 +1,4 @@
-// MEM_Addr.cpp,v 4.13 2003/11/01 11:15:13 dhinton Exp
+// MEM_Addr.cpp,v 4.16 2004/06/16 07:57:20 jwillemsen Exp
 
 // Defines the Internet domain address family address format.
 
@@ -7,7 +7,7 @@
 #if (ACE_HAS_POSITION_INDEPENDENT_POINTERS == 1)
 
 #if !defined (__ACE_INLINE__)
-#include "ace/MEM_Addr.i"
+#include "ace/MEM_Addr.inl"
 #endif /* __ACE_INLINE__ */
 
 #include "ace/Log_Msg.h"
@@ -17,7 +17,7 @@
 
 ACE_RCSID (ace,
 	   MEM_Addr,
-	   "MEM_Addr.cpp,v 4.13 2003/11/01 11:15:13 dhinton Exp")
+	   "MEM_Addr.cpp,v 4.16 2004/06/16 07:57:20 jwillemsen Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_MEM_Addr)
 
@@ -42,11 +42,9 @@ ACE_MEM_Addr::ACE_MEM_Addr (const ACE_TCHAR port_number[])
   : ACE_Addr (AF_INET, sizeof (ACE_MEM_Addr))
 {
   ACE_TRACE ("ACE_MEM_Addr::ACE_MEM_Addr");
-  u_short pn
-    = ACE_static_cast (u_short,
-                       ACE_OS::strtoul (port_number,
-                                        0,
-                                        10));
+  u_short pn = static_cast<u_short> (ACE_OS::strtoul (port_number,
+                                                      0,
+                                                      10));
   this->initialize_local (pn);
 }
 
@@ -74,9 +72,12 @@ ACE_MEM_Addr::same_host (const ACE_INET_Addr &sap)
 {
   ACE_TRACE ("ACE_MEM_Addr::same_host");
 
-  ACE_UINT32 me = this->external_.get_ip_address ();
-  ACE_UINT32 you = sap.get_ip_address ();
-
+  // ACE_INET_Addr::operator== takes port number into account, so get
+  // the addresses without a port number and compare.
+  ACE_INET_Addr me (this->external_);
+  ACE_INET_Addr you (sap);
+  me.set_port_number (0);
+  you.set_port_number (0);
   return me == you;
 }
 
@@ -97,11 +98,9 @@ ACE_MEM_Addr::string_to_addr (const ACE_TCHAR s[])
 {
   ACE_TRACE ("ACE_MEM_Addr::string_to_addr");
 
-  u_short pn
-    = ACE_static_cast (u_short,
-                       ACE_OS::strtoul (s,
-                                        0,
-                                        10));
+  u_short pn = static_cast<u_short> (ACE_OS::strtoul (s,
+                                                      0,
+                                                      10));
   return this->set (pn);
 }
 

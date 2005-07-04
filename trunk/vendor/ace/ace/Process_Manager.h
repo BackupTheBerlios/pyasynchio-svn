@@ -4,7 +4,7 @@
 /**
  *  @file    Process_Manager.h
  *
- *  Process_Manager.h,v 4.37 2004/01/05 20:01:43 schmidt Exp
+ *  Process_Manager.h,v 4.38 2004/06/16 07:57:22 jwillemsen Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -21,7 +21,7 @@
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
-#include "ace/Process.h"
+#include "ace/Process_.h"
 
 #if defined (ACE_HAS_THREADS)
 #  include "ace/Recursive_Thread_Mutex.h"
@@ -395,7 +395,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Process_Manager.i"
+#include "ace/Process_Manager.inl"
 #endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"

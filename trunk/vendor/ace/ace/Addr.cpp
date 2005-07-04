@@ -1,11 +1,11 @@
 // Addr.cpp
-// Addr.cpp,v 4.17 2003/11/01 11:15:12 dhinton Exp
+// Addr.cpp,v 4.18 2004/06/16 07:57:20 jwillemsen Exp
 
 #include "ace/Addr.h"
-ACE_RCSID(ace, Addr, "Addr.cpp,v 4.17 2003/11/01 11:15:12 dhinton Exp")
+ACE_RCSID(ace, Addr, "Addr.cpp,v 4.18 2004/06/16 07:57:20 jwillemsen Exp")
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Addr.i"
+#include "ace/Addr.inl"
 #endif /* __ACE_INLINE__ */
 
 #include "ace/Log_Msg.h"

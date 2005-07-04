@@ -4,7 +4,7 @@
 /**
  *  @file    Caching_Strategies_T.h
  *
- *  Caching_Strategies_T.h,v 4.19 2003/07/19 19:04:10 dhinton Exp
+ *  Caching_Strategies_T.h,v 4.20 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Kirthika Parameswaran <kirthika@cs.wustl.edu>
  */
@@ -532,7 +532,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Caching_Strategies_T.i"
+#include "ace/Caching_Strategies_T.inl"
 #endif /* __ACE_INLINE__ */
 
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)

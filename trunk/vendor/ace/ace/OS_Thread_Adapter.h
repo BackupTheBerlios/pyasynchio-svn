@@ -3,7 +3,7 @@
 /**
  *  @file OS_Thread_Adapter.h
  *
- *  OS_Thread_Adapter.h,v 4.8 2003/11/06 18:19:39 dhinton Exp
+ *  OS_Thread_Adapter.h,v 4.9 2004/06/14 13:58:41 jwillemsen Exp
  *
  *  @author Carlos O'Ryan <coryan@uci.edu>
  */
@@ -65,14 +65,6 @@ private:
   /// destructor and has no friends.
   friend class ACE_Thread_Adapter_Has_Private_Destructor;
 };
-
-# if defined (ACE_HAS_INLINED_OSCALLS)
-#   if defined (ACE_INLINE)
-#     undef ACE_INLINE
-#   endif /* ACE_INLINE */
-#   define ACE_INLINE inline
-#   include "ace/OS_Thread_Adapter.inl"
-# endif /* ACE_HAS_INLINED_OSCALLS */
 
 #include /**/ "ace/post.h"
 #endif /* ACE_THREAD_ADAPTER_H */

@@ -1,6 +1,4 @@
-// NT_Service.cpp,v 4.25 2003/12/10 10:18:49 jwillemsen Exp
-
-// NT_Service.cpp
+// NT_Service.cpp,v 4.27 2004/06/16 07:57:20 jwillemsen Exp
 
 #include "ace/config-all.h"
 #if defined (ACE_WIN32) && \
@@ -9,7 +7,7 @@
 #include "ace/NT_Service.h"
 
 #if !defined (__ACE_INLINE__)
-#include "ace/NT_Service.i"
+#include "ace/NT_Service.inl"
 #endif /* __ACE_INLINE__ */
 
 #include "ace/Log_Msg.h"
@@ -195,8 +193,8 @@ ACE_NT_Service::insert (DWORD start_type,
       if (ACE_TEXT_GetModuleFileName (0, this_exe + 1, MAXPATHLEN) == 0)
         return -1;
       // Make sure that this_exe is quoted
-      this_exe[0] = ACE_TEXT ('\"');
-      ACE_OS::strcat (this_exe, ACE_TEXT ("\""));
+      this_exe[0] = ACE_LIB_TEXT ('\"');
+      ACE_OS::strcat (this_exe, ACE_LIB_TEXT ("\""));
       exe_path = this_exe;
     }
 

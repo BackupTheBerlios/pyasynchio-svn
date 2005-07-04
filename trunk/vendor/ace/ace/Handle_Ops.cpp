@@ -1,25 +1,23 @@
-// Handle_Ops.cpp,v 1.6 2003/11/01 11:15:12 dhinton Exp
+// Handle_Ops.cpp,v 1.8 2004/08/14 07:03:12 ossama Exp
 
 #include "ace/Handle_Ops.h"
-
-#if defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/Handle_Ops.i"
-#endif /* ACE_LACKS_INLINE_FUNCTIONS */
 
 #include "ace/OS_NS_errno.h"
 #include "ace/OS_NS_fcntl.h"
 #include "ace/Time_Value.h"
 
-ACE_RCSID(ace, Handle_Ops, "Handle_Ops.cpp,v 1.6 2003/11/01 11:15:12 dhinton Exp")
+ACE_RCSID (ace,
+           Handle_Ops,
+           "Handle_Ops.cpp,v 1.8 2004/08/14 07:03:12 ossama Exp")
 
 ACE_HANDLE
-ACE_Handle_Ops::handle_timed_open (ACE_Time_Value *timeout,
-                                   const ACE_TCHAR *name,
-                                   int flags,
-                                   int perms,
-                                   LPSECURITY_ATTRIBUTES sa)
+ACE::handle_timed_open (ACE_Time_Value *timeout,
+                        const ACE_TCHAR *name,
+                        int flags,
+                        int perms,
+                        LPSECURITY_ATTRIBUTES sa)
 {
-  ACE_TRACE ("ACE_Handle_Ops::handle_timed_open");
+  ACE_TRACE ("ACE::handle_timed_open");
 
   if (timeout != 0)
     {

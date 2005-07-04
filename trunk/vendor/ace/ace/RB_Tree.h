@@ -4,7 +4,7 @@
 /**
  *  @file    RB_Tree.h
  *
- *  RB_Tree.h,v 1.42 2003/07/19 19:04:13 dhinton Exp
+ *  RB_Tree.h,v 1.49 2004/10/02 06:31:16 ossama Exp
  *
  *  @author  Chris Gill
  */
@@ -16,7 +16,7 @@
 #include /**/ "ace/pre.h"
 
 #include "ace/Global_Macros.h"
-#include "ace/Functor.h"
+#include "ace/Functor_T.h"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
@@ -43,6 +43,31 @@ public:
   enum RB_Tree_Node_Color {RED, BLACK};
 };
 
+class ACE_RB_Tree_Base
+{
+public:
+  /// Search result enumeration.
+  enum RB_SearchResult {LEFT, EXACT, RIGHT};
+
+  /// Get the allocator;
+  /**
+   * @note This method is inlined here rather than in RB_Tree.inl
+   *       since that file may be included multiple times when
+   *       inlining is disabled and on platforms where
+   *       @c ACE_TEMPLATES_REQUIRE_SOURCE is defined.  In those
+   *       platform/configuration combinations, multiple definitions
+   *       of this method occured.  Placing the definition inline in
+   *       the header avoids such errors.
+   */
+  ACE_Allocator * allocator (void) const { return this->allocator_; }
+
+protected:
+  // = Protected members.
+
+  /// Pointer to a memory allocator.
+  ACE_Allocator *allocator_;
+};
+
 /**
  * @class ACE_RB_Tree_Node
  *
@@ -55,7 +80,7 @@ public:
   // = Initialization and termination methods.
 
   /// Constructor.
-  ACE_RB_Tree_Node (const EXT_ID &k, const INT_ID &t);
+  ACE_RB_Tree_Node (const EXT_ID &k, const INT_ID &t, const ACE_RB_Tree_Base &tree);
 
   /// Destructor.
   ~ACE_RB_Tree_Node (void);
@@ -109,13 +134,9 @@ private:
 
   /// Pointer to node's right child.
   ACE_RB_Tree_Node<EXT_ID, INT_ID> *right_;
-};
 
-class ACE_RB_Tree_Base
-{
-public:
-  /// Search result enumeration.
-  enum RB_SearchResult {LEFT, EXACT, RIGHT};
+  /// Pointer to tree base (to get the allocator).
+  const ACE_RB_Tree_Base *tree_;
 };
 
 /**
@@ -172,6 +193,7 @@ public:
 
   typedef EXT_ID KEY;
   typedef INT_ID VALUE;
+  typedef ACE_LOCK lock_type;
   typedef ACE_RB_Tree_Node<EXT_ID, INT_ID> ENTRY;
 
   // = ACE-style iterator typedefs.
@@ -186,6 +208,7 @@ public:
 
   /// Constructor.
   ACE_RB_Tree (ACE_Allocator *alloc = 0);
+
 
   /// Copy constructor.
   ACE_RB_Tree (const ACE_RB_Tree<EXT_ID, INT_ID, COMPARE_KEYS, ACE_LOCK> &rbt);
@@ -340,10 +363,10 @@ public:
   size_t current_size (void) const;
 
   /// Assignment operator.
-  void operator= (const ACE_RB_Tree<EXT_ID, INT_ID, COMPARE_KEYS, ACE_LOCK> &rbt);
-
-  /// Less than comparison function for keys, using comparison functor.
-  virtual int lessthan (const EXT_ID &k1, const EXT_ID &k2);
+  void operator= (const ACE_RB_Tree<EXT_ID,
+                  INT_ID,
+                  COMPARE_KEYS,
+                  ACE_LOCK> &rbt);
 
   /**
    * Returns a reference to the underlying <ACE_LOCK>.  This makes it
@@ -419,6 +442,14 @@ public:
   void clear (void);
 
 protected:
+  /// Reinitialize constructor.
+  /**
+   * This constructor is used to provide a valid vtable and allocator
+   * if the tree is reconstructed from shared memory.  Constructor
+   * used by the derived class that has an allocator
+   */
+  ACE_RB_Tree (void *location,
+               ACE_Allocator *alloc);
 
   // = Protected methods. These should only be called with locks held.
 
@@ -528,12 +559,12 @@ protected:
   /// provide definitions for various EXT_ID and INT_ID types.
   void dump_node_i (ACE_RB_Tree_Node<EXT_ID, INT_ID> &node) const;
 
+  /// Less than comparison function for keys, using comparison functor.
+  int lessthan (const EXT_ID &k1, const EXT_ID &k2);
+
 private:
 
   // = Private members.
-
-  /// Pointer to a memory allocator.
-  ACE_Allocator *allocator_;
 
   /// Synchronization variable for the MT_SAFE <ACE_RB_Tree>.
   ACE_LOCK lock_;
@@ -575,10 +606,10 @@ public:
   const ACE_RB_Tree<EXT_ID, INT_ID, COMPARE_KEYS, ACE_LOCK> &tree (void);
 
   /// Comparison operator: returns 1 if both iterators point to the same position, otherwise 0.
-  int operator== (const ACE_RB_Tree_Iterator_Base<EXT_ID, INT_ID, COMPARE_KEYS, ACE_LOCK> &) const;
+  bool operator== (const ACE_RB_Tree_Iterator_Base<EXT_ID, INT_ID, COMPARE_KEYS, ACE_LOCK> &) const;
 
   /// Comparison operator: returns 1 if the iterators point to different positions, otherwise 0.
-  int operator!= (const ACE_RB_Tree_Iterator_Base<EXT_ID, INT_ID, COMPARE_KEYS, ACE_LOCK> &) const;
+  bool operator!= (const ACE_RB_Tree_Iterator_Base<EXT_ID, INT_ID, COMPARE_KEYS, ACE_LOCK> &) const;
 
   /// Declare the dynamic allocation hooks.
   ACE_ALLOC_HOOK_DECLARE;
@@ -790,9 +821,9 @@ public:
                                 int set_last = 1);
 
   /**
-   * Constructor.  Takes an ACE_RB_Tree over which to iterate, and 
+   * Constructor.  Takes an ACE_RB_Tree over which to iterate, and
    * a point to a node in the tree.
-   */  
+   */
   ACE_RB_Tree_Reverse_Iterator (const ACE_RB_Tree<EXT_ID, INT_ID, COMPARE_KEYS, ACE_LOCK> &tree,
                                 ACE_RB_Tree_Node<EXT_ID, INT_ID>* entry);
 
@@ -848,7 +879,7 @@ public:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/RB_Tree.i"
+#include "ace/RB_Tree.inl"
 #endif /* __ACE_INLINE__ */
 
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)

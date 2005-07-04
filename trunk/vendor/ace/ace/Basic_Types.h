@@ -4,7 +4,7 @@
 /**
  *  @file    Basic_Types.h
  *
- *  Basic_Types.h,v 4.111 2003/11/06 18:19:38 dhinton Exp
+ *  Basic_Types.h,v 4.122 2004/12/13 12:23:30 jwillemsen Exp
  *
  *  @author David L. Levine
  *
@@ -31,7 +31,7 @@
  *    - ACE_INT32
  *    - ACE_UINT32
  *    - ACE_UINT64
- *  (Note: ACE_INT64 is not defined, because there is no ACE_LongLong for
+ *  (Note: ACE_INT64 is partly defined, there is no ACE_LongLong for
  *   platforms that don't have a native 8-byte integer type.)
  *
  *  Byte-order (endian-ness) determination:
@@ -41,7 +41,7 @@
  */
 //=============================================================================
 
-#include "ace/config-all.h"
+#include "ace/config-lite.h"
 
 #ifndef ACE_BASIC_TYPES_H
 # define ACE_BASIC_TYPES_H
@@ -65,9 +65,9 @@
 
 # include "ace/os_include/sys/os_types.h"
 
-# if !defined (ACE_LACKS_PARAM_H)
+# if !defined (ACE_LACKS_SYS_PARAM_H)
 #  include /**/ <sys/param.h>
-# endif /* ACE_LACKS_PARAM_H */
+# endif /* ACE_LACKS_SYS_PARAM_H */
 
 # include "ace/ACE_export.h"
 
@@ -75,11 +75,15 @@
 # define ACE_SIZEOF_CHAR 1
 
 // Unfortunately, there isn't a portable way to determine the size of a wchar.
-// So we just define them on a platform basis.
+// So we just define them on a platform basis. If the platform doesn't
+// define it and it's an XPG4 system, assume wchar_t is 4 bytes. Some code
+// uses ACE_SIZEOF_WCHAR in preprocessor statements, so sizeof() isn't valid.
+// If the platform config doesn't set this, and this guess is wrong,
+// Basic_Types_Test should catch the inconsistency.
 # if defined (ACE_HAS_WCHAR)
 #   if !defined (ACE_SIZEOF_WCHAR)
 #     if defined (ACE_HAS_XPG4_MULTIBYTE_CHAR)
-#       define ACE_SIZEOF_WCHAR sizeof (wchar_t)
+#       define ACE_SIZEOF_WCHAR 4
 #     else
 // 0 so the Basic_Types test will catch this.
 #       define ACE_SIZEOF_WCHAR 0
@@ -138,7 +142,8 @@
 #   else  /* ! ACE_WIN32 && ! ACE_LACKS_LONGLONG_T */
 #     if ACE_SIZEOF_LONG == 8
 #       define ACE_SIZEOF_LONG_LONG 8
-       typedef unsigned long ACE_UINT64;
+        typedef unsigned long ACE_UINT64;
+        typedef   signed long ACE_INT64;
 #     elif defined (ULLONG_MAX) && !defined (__GNUG__)
        // Some compilers use ULLONG_MAX and others, e.g. Irix, use
        // ULONGLONG_MAX.
@@ -150,6 +155,7 @@
 #         error Unsupported long long size needs to be updated for this platform
 #       endif
        typedef unsigned long long ACE_UINT64;
+       typedef   signed long long ACE_INT64;
 #     elif defined (ULONGLONG_MAX) && !defined (__GNUG__)
        // Irix 6.x, for example.
 #       if (ULONGLONG_MAX) == 18446744073709551615ULL
@@ -160,6 +166,7 @@
 #         error Unsupported long long size needs to be updated for this platform
 #       endif
        typedef unsigned long long ACE_UINT64;
+       typedef   signed long long ACE_INT64;
 #     else
        // ACE_SIZEOF_LONG_LONG is not yet known, but the platform doesn't
        // claim ACE_LACKS_LONGLONG_T, so assume it has 8-byte long longs.
@@ -169,9 +176,11 @@
          // Use it, at least with g++, so that its -pedantic doesn't
          // complain about no ANSI C++ long long.
          typedef u_longlong_t ACE_UINT64;
+         typedef   longlong_t ACE_INT64;
 #       else
          // LynxOS 2.5.0 and Linux don't have u_longlong_t.
          typedef unsigned long long ACE_UINT64;
+         typedef   signed long long ACE_INT64;
 #       endif /* sun */
 #     endif /* ULLONG_MAX && !__GNUG__ */
 #   endif /* ! ACE_WIN32 && ! ACE_LACKS_LONGLONG_T */
@@ -225,6 +234,7 @@ typedef unsigned char ACE_Byte;
   typedef unsigned int ACE_UINT32;
 #   if defined (__KCC) && !defined (ACE_LACKS_LONGLONG_T)
   typedef unsigned long long ACE_UINT64;
+  typedef   signed long long ACE_INT64;
 #   endif /* __KCC */
 # elif ACE_SIZEOF_LONG == 4
   typedef long ACE_INT32;
@@ -236,6 +246,7 @@ typedef unsigned char ACE_Byte;
       typedef unsigned int ACE_UINT32;
 #   endif
   typedef unsigned long long ACE_UINT64;
+  typedef   signed long long ACE_INT64;
 # else
 #   error Have to add to the ACE_UINT32 type setting
 # endif
@@ -292,7 +303,7 @@ typedef ptrdiff_t ptr_arith_t;
   // We weren't explicitly told, so we have to figure it out . . .
 #   if defined (i386) || defined (__i386__) || defined (_M_IX86) || \
      defined (vax) || defined (__alpha) || defined (__LITTLE_ENDIAN__) ||\
-     defined (ARM) || defined (_M_IA64)
+     defined (ARM) || defined (_M_IA64) || defined (_M_AMD64)
     // We know these are little endian.
 #     define ACE_LITTLE_ENDIAN 0x0123
 #     define ACE_BYTE_ORDER ACE_LITTLE_ENDIAN
@@ -335,10 +346,10 @@ typedef ptrdiff_t ptr_arith_t;
   // pointer will be more than 32 bits wide if the platform does not
   // support 64-bit integers.
 # define ACE_LONGLONG_TO_PTR(PTR_TYPE, L) \
-  ACE_reinterpret_cast (PTR_TYPE, L.lo ())
+  reinterpret_cast<PTR_TYPE> (L.lo ())
 #else  /* ! ACE_LACKS_LONGLONG_T */
 # define ACE_LONGLONG_TO_PTR(PTR_TYPE, L) \
-  ACE_reinterpret_cast (PTR_TYPE, ACE_static_cast (ptrdiff_t, L))
+  reinterpret_cast<PTR_TYPE> (static_cast<ptrdiff_t> (L))
 #endif /* ! ACE_LACKS_LONGLONG_T */
 
 // If the platform lacks a long long, define one.
@@ -372,18 +383,18 @@ typedef ptrdiff_t ptr_arith_t;
     ~ACE_U_LongLong (void);
 
     // = Overloaded relation operators.
-    int operator== (const ACE_U_LongLong &) const;
-    int operator== (const ACE_UINT32) const;
-    int operator!= (const ACE_U_LongLong &) const;
-    int operator!= (const ACE_UINT32) const;
-    int operator< (const ACE_U_LongLong &) const;
-    int operator< (const ACE_UINT32) const;
-    int operator<= (const ACE_U_LongLong &) const;
-    int operator<= (const ACE_UINT32) const;
-    int operator> (const ACE_U_LongLong &) const;
-    int operator> (const ACE_UINT32) const;
-    int operator>= (const ACE_U_LongLong &) const;
-    int operator>= (const ACE_UINT32) const;
+    bool operator== (const ACE_U_LongLong &) const;
+    bool operator== (const ACE_UINT32) const;
+    bool operator!= (const ACE_U_LongLong &) const;
+    bool operator!= (const ACE_UINT32) const;
+    bool operator< (const ACE_U_LongLong &) const;
+    bool operator< (const ACE_UINT32) const;
+    bool operator<= (const ACE_U_LongLong &) const;
+    bool operator<= (const ACE_UINT32) const;
+    bool operator> (const ACE_U_LongLong &) const;
+    bool operator> (const ACE_UINT32) const;
+    bool operator>= (const ACE_U_LongLong &) const;
+    bool operator>= (const ACE_UINT32) const;
 
     ACE_U_LongLong operator+ (const ACE_U_LongLong &) const;
     ACE_U_LongLong operator+ (const ACE_UINT32) const;
@@ -530,9 +541,9 @@ typedef ptrdiff_t ptr_arith_t;
 #   define ACE_U64_TO_U32(n) ((n).lo ())
 #   define ACE_CU64_TO_CU32(n) ((n).lo ())
 # else  /* ! ACE_LACKS_LONGLONG_T */
-#   define ACE_U64_TO_U32(n) (ACE_static_cast (ACE_UINT32, (n)))
+#   define ACE_U64_TO_U32(n) (static_cast<ACE_UINT32> (n))
 #   define ACE_CU64_TO_CU32(n) \
-     (ACE_static_cast (ACE_CAST_CONST ACE_UINT32, (n)))
+     (static_cast<ACE_CAST_CONST ACE_UINT32> (n))
 # endif /* ! ACE_LACKS_LONGLONG_T */
 
 // 64-bit literals require special marking on some platforms.
@@ -559,11 +570,19 @@ typedef ptrdiff_t ptr_arith_t;
 # endif /* ! ACE_WIN32  &&  ! ACE_LACKS_LONGLONG_T */
 
 #if !defined (ACE_UINT64_FORMAT_SPECIFIER)
-# define ACE_UINT64_FORMAT_SPECIFIER ACE_LIB_TEXT ("%llu")
+#  if ACE_SIZEOF_LONG == 8
+#    define ACE_UINT64_FORMAT_SPECIFIER ACE_LIB_TEXT ("%lu")
+#  else
+#    define ACE_UINT64_FORMAT_SPECIFIER ACE_LIB_TEXT ("%llu")
+#  endif /* ACE_SIZEOF_LONG == 8*/
 #endif /* ACE_UINT64_FORMAT_SPECIFIER */
 
 #if !defined (ACE_INT64_FORMAT_SPECIFIER)
-# define ACE_INT64_FORMAT_SPECIFIER ACE_LIB_TEXT ("%lld")
+#  if ACE_SIZEOF_LONG == 8
+#    define ACE_INT64_FORMAT_SPECIFIER ACE_LIB_TEXT ("%ld")
+#  else
+#    define ACE_INT64_FORMAT_SPECIFIER ACE_LIB_TEXT ("%lld")
+#  endif /* ACE_SIZEOF_LONG == 8 */
 #endif /* ACE_INT64_FORMAT_SPECIFIER */
 
 #if !defined (ACE_SSIZE_T_FORMAT_SPECIFIER)
@@ -588,7 +607,7 @@ typedef ptrdiff_t ptr_arith_t;
    // Only use the low 32 bits.
 #   define ACE_UINT64_DBLCAST_ADAPTER(n) ACE_U64_TO_U32 (n)
 # elif defined (ACE_WIN32)
-#   define ACE_UINT64_DBLCAST_ADAPTER(n) ACE_static_cast (__int64, n)
+#   define ACE_UINT64_DBLCAST_ADAPTER(n) static_cast<__int64> (n)
 # else  /* ! ACE_WIN32 && ! ACE_LACKS_LONGLONG_T */
 #   define ACE_UINT64_DBLCAST_ADAPTER(n) (n)
 # endif /* ! ACE_WIN32 && ! ACE_LACKS_LONGLONG_T */
@@ -624,7 +643,7 @@ typedef ptrdiff_t ptr_arith_t;
 #     define ACE_SIZEOF_LONG_DOUBLE 8
 #   elif LDBL_MAX_EXP == 16384
 #     if defined (LDBL_DIG)  &&  LDBL_DIG == 18
-#       if defined (__ia64)
+#       if defined (__ia64) || defined (__x86_64)
 #         define ACE_SIZEOF_LONG_DOUBLE 16
 #       else /* ! __ia64 */
 #       define ACE_SIZEOF_LONG_DOUBLE 12
@@ -656,7 +675,7 @@ typedef ptrdiff_t ptr_arith_t;
 #define ACE_DBL_MAX 1.7976931348623158e+308
 
 # if defined (__ACE_INLINE__)
-#   include "ace/Basic_Types.i"
+#   include "ace/Basic_Types.inl"
 # endif /* __ACE_INLINE__ */
 
 # include /**/ "ace/post.h"

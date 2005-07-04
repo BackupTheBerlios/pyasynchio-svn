@@ -4,7 +4,7 @@
 /**
  *  @file    Asynch_Connector.h
  *
- *  Asynch_Connector.h,v 1.6 2003/07/19 19:04:10 dhinton Exp
+ *  Asynch_Connector.h,v 1.10 2004/11/24 21:08:33 shuston Exp
  *
  *  @author Alexander Libman <alibman@ihug.com.au>
  */
@@ -44,7 +44,6 @@ template <class HANDLER>
 class ACE_Asynch_Connector : public ACE_Handler
 {
 public:
-
   /// A do nothing constructor.
   ACE_Asynch_Connector (void);
 
@@ -61,7 +60,7 @@ public:
   /// This initiates a new asynchronous connect
   virtual int connect (const ACE_INET_Addr &remote_sap,
                        const ACE_INET_Addr &local_sap =
-                                   ACE_INET_Addr ((u_short)0),
+                         (const ACE_INET_Addr &)ACE_Addr::sap_any,
                        int reuse_addr = 1,
                        const void *act = 0);
 

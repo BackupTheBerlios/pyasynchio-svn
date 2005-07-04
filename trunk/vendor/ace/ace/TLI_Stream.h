@@ -4,7 +4,7 @@
 /**
  *  @file    TLI_Stream.h
  *
- *  TLI_Stream.h,v 4.16 2003/11/01 11:15:18 dhinton Exp
+ *  TLI_Stream.h,v 4.17 2004/06/16 07:57:22 jwillemsen Exp
  *
  *  @author Doug Schmidt
  */
@@ -127,7 +127,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/TLI_Stream.i"
+#include "ace/TLI_Stream.inl"
 #endif /* __ACE_INLINE__ */
 
 #endif /* ACE_HAS_TLI */

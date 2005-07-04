@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// Time_Value.inl,v 4.7 2003/11/01 11:15:18 dhinton Exp
+// Time_Value.inl,v 4.19 2004/09/10 01:33:24 ossama Exp
 
 #include "ace/OS_NS_sys_time.h"
 
@@ -13,7 +13,13 @@ ACE_Time_Value::operator timeval () const
   return this->tv_;
 }
 
-// Returns a pointer to the object as a timeval.
+ACE_INLINE
+ACE_Time_Value::ACE_Time_Value (const struct timeval &tv)
+  // : tv_ ()
+{
+  // ACE_OS_TRACE ("ACE_Time_Value::ACE_Time_Value");
+  this->set (tv);
+}
 
 ACE_INLINE
 ACE_Time_Value::operator const timeval * () const
@@ -37,7 +43,7 @@ ACE_Time_Value::set (double d)
   // ACE_OS_TRACE ("ACE_Time_Value::set");
   long l = (long) d;
   this->tv_.tv_sec = l;
-  this->tv_.tv_usec = (long) ((d - (double) l) * ACE_ONE_SECOND_IN_USECS);
+  this->tv_.tv_usec = (long) ((d - (double) l) * ACE_ONE_SECOND_IN_USECS + .5);
   this->normalize ();
 }
 
@@ -50,7 +56,7 @@ ACE_Time_Value::set (const timespec_t &tv)
 {
   // ACE_OS_TRACE ("ACE_Time_Value::set");
 #if ! defined(ACE_HAS_BROKEN_TIMESPEC_MEMBERS)
-  this->tv_.tv_sec = ACE_static_cast (long, tv.tv_sec);
+  this->tv_.tv_sec = static_cast<long> (tv.tv_sec);
   // Convert nanoseconds into microseconds.
   this->tv_.tv_usec = tv.tv_nsec / 1000;
 #else
@@ -70,14 +76,6 @@ ACE_Time_Value::set (const timeval &tv)
   this->tv_.tv_usec = tv.tv_usec;
 
   this->normalize ();
-}
-
-ACE_INLINE
-ACE_Time_Value::ACE_Time_Value (const struct timeval &tv)
-  // : tv_ ()
-{
-  // ACE_OS_TRACE ("ACE_Time_Value::ACE_Time_Value");
-  this->set (tv);
 }
 
 ACE_INLINE
@@ -115,12 +113,23 @@ ACE_Time_Value::sec (long sec)
 
 // Converts from Time_Value format into milli-seconds format.
 
-ACE_INLINE long
+ACE_INLINE unsigned long
 ACE_Time_Value::msec (void) const
 {
   // ACE_OS_TRACE ("ACE_Time_Value::msec");
   return this->tv_.tv_sec * 1000 + this->tv_.tv_usec / 1000;
 }
+
+#if !defined (ACE_LACKS_LONGLONG_T)
+ACE_INLINE void
+ACE_Time_Value::msec (ACE_UINT64 &ms) const
+{
+  // ACE_OS_TRACE ("ACE_Time_Value::msec");
+  ms = this->tv_.tv_sec;
+  ms *= 1000;
+  ms += (this->tv_.tv_usec / 1000);
+}
+#endif /*ACE_LACKS_LONGLONG_T*/
 
 // Converts from milli-seconds format into Time_Value format.
 
@@ -152,18 +161,6 @@ ACE_Time_Value::usec (long usec)
   this->tv_.tv_usec = usec;
 }
 
-ACE_INLINE ACE_Time_Value &
-ACE_Time_Value::operator *= (double d)
-{
-  double time =
-    ((double) this->sec ()) * ACE_ONE_SECOND_IN_USECS + this->usec ();
-  time *= d;
-  this->sec ((long)(time / ACE_ONE_SECOND_IN_USECS));
-  this->usec (((long)time) % ACE_ONE_SECOND_IN_USECS);
-  this->normalize ();
-  return *this;
-}
-
 ACE_INLINE ACE_Time_Value
 operator * (double d, const ACE_Time_Value &tv)
 {
@@ -178,7 +175,7 @@ operator * (const ACE_Time_Value &tv, double d)
 
 // True if tv1 > tv2.
 
-ACE_INLINE int
+ACE_INLINE bool
 operator > (const ACE_Time_Value &tv1,
             const ACE_Time_Value &tv2)
 {
@@ -194,7 +191,7 @@ operator > (const ACE_Time_Value &tv1,
 
 // True if tv1 >= tv2.
 
-ACE_INLINE int
+ACE_INLINE bool
 operator >= (const ACE_Time_Value &tv1,
              const ACE_Time_Value &tv2)
 {
@@ -239,7 +236,7 @@ ACE_Time_Value::ACE_Time_Value (const timespec_t &tv)
 
 // True if tv1 < tv2.
 
-ACE_INLINE int
+ACE_INLINE bool
 operator < (const ACE_Time_Value &tv1,
             const ACE_Time_Value &tv2)
 {
@@ -249,7 +246,7 @@ operator < (const ACE_Time_Value &tv1,
 
 // True if tv1 >= tv2.
 
-ACE_INLINE int
+ACE_INLINE bool
 operator <= (const ACE_Time_Value &tv1,
              const ACE_Time_Value &tv2)
 {
@@ -259,7 +256,7 @@ operator <= (const ACE_Time_Value &tv1,
 
 // True if tv1 == tv2.
 
-ACE_INLINE int
+ACE_INLINE bool
 operator == (const ACE_Time_Value &tv1,
              const ACE_Time_Value &tv2)
 {
@@ -270,7 +267,7 @@ operator == (const ACE_Time_Value &tv1,
 
 // True if tv1 != tv2.
 
-ACE_INLINE int
+ACE_INLINE bool
 operator != (const ACE_Time_Value &tv1,
              const ACE_Time_Value &tv2)
 {
@@ -287,6 +284,16 @@ ACE_Time_Value::operator+= (const ACE_Time_Value &tv)
   this->sec (this->sec () + tv.sec ());
   this->usec (this->usec () + tv.usec ());
   this->normalize ();
+  return *this;
+}
+
+ACE_INLINE ACE_Time_Value &
+ACE_Time_Value::operator= (const ACE_Time_Value &tv)
+{
+  // ACE_OS_TRACE ("ACE_Time_Value::operator=");
+  this->sec (tv.sec ());
+  this->usec (tv.usec ());
+  // this->normalize ();
   return *this;
 }
 
@@ -328,4 +335,3 @@ operator - (const ACE_Time_Value &tv1,
   delta.normalize ();
   return delta;
 }
-

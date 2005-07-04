@@ -1,9 +1,9 @@
 // -*- C++ -*-
-// OS_NS_arpa_inet.cpp,v 1.2 2003/11/01 11:15:15 dhinton Exp
+// OS_NS_arpa_inet.cpp,v 1.3 2004/12/20 13:34:21 jwillemsen Exp
 
 #include "ace/OS_NS_arpa_inet.h"
 
-ACE_RCSID(ace, OS_NS_arpa_inet, "OS_NS_arpa_inet.cpp,v 1.2 2003/11/01 11:15:15 dhinton Exp")
+ACE_RCSID(ace, OS_NS_arpa_inet, "OS_NS_arpa_inet.cpp,v 1.3 2004/12/20 13:34:21 jwillemsen Exp")
 
 #if !defined (ACE_HAS_INLINED_OSCALLS)
 # include "ace/OS_NS_arpa_inet.inl"
@@ -31,7 +31,7 @@ ACE_OS::inet_aton (const char *host_name, struct in_addr *addr)
   // Must reset errno first. Refer to WindRiver SPR# 34949, SPR# 36026
   ::errnoSet(0);
   int result = ERROR;
-  ACE_OSCALL (::inet_aton ((char*)host_name, addr), int, ERROR, result);
+  ACE_OSCALL (::inet_aton (const_cast <char*>(host_name), addr), int, ERROR, result);
   return (result == ERROR) ? 0 : 1;
 #else
   // inet_aton() returns 0 upon failure, not -1 since -1 is a valid

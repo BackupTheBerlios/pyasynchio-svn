@@ -1,19 +1,18 @@
-// SPIPE.cpp
-// SPIPE.cpp,v 4.6 2003/11/01 11:15:17 dhinton Exp
+// SPIPE.cpp,v 4.9 2004/10/07 16:36:25 john_c Exp
 
 #include "ace/SPIPE.h"
 
-#if defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/SPIPE.i"
-#endif
-
 #include "ace/OS_NS_unistd.h"
 
-ACE_RCSID(ace, SPIPE, "SPIPE.cpp,v 4.6 2003/11/01 11:15:17 dhinton Exp")
+#if !defined (__ACE_INLINE__)
+#include "ace/SPIPE.inl"
+#endif /* __ACE_INLINE__ */
+
+ACE_RCSID(ace, SPIPE, "SPIPE.cpp,v 4.9 2004/10/07 16:36:25 john_c Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_SPIPE)
 
-// This is the do-nothing constructor. 
+// This is the do-nothing constructor.
 
 ACE_SPIPE::ACE_SPIPE (void)
 {
@@ -28,7 +27,7 @@ ACE_SPIPE::dump (void) const
 #endif /* ACE_HAS_DUMP */
 }
 
-// Close down a ACE_SPIPE. 
+// Close down a ACE_SPIPE.
 
 int
 ACE_SPIPE::get_local_addr (ACE_SPIPE_Addr &local_sap) const
@@ -49,6 +48,9 @@ ACE_SPIPE::close (void)
   if (this->get_handle () != ACE_INVALID_HANDLE)
     {
       result = ACE_OS::close (this->get_handle ());
+#if defined (ACE_HAS_STREAM_PIPES)
+      result = (ACE_OS::close (duplex_pipe_handle_) || result);
+#endif /* ACE_HAS_STREAM_PIPES */
       this->set_handle (ACE_INVALID_HANDLE);
     }
   return result;
@@ -65,3 +67,12 @@ ACE_SPIPE::remove (void)
   return ACE_OS::unlink (this->local_addr_.get_path_name ()) == -1 || result == -1 ? -1 : 0;
 }
 
+#if defined (ACE_HAS_STREAM_PIPES)
+/// Temporary store of duplex pipe handle.
+void
+ACE_SPIPE::set_duplex_handle (ACE_HANDLE handle)
+{
+  ACE_TRACE ("ACE_SPIPE::set_duplex_handle");
+  this->duplex_pipe_handle_ = handle;
+}
+#endif /* ACE_HAS_STREAM_PIPES */

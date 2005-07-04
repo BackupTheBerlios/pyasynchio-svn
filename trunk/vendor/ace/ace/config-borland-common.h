@@ -1,5 +1,5 @@
 // -*- C++ -*-
-//config-borland-common.h,v 1.9 2003/07/19 19:04:14 dhinton Exp
+//config-borland-common.h,v 1.15 2004/08/03 15:54:46 jtc Exp
 
 // The following configuration file contains defines for Borland compilers.
 
@@ -42,16 +42,12 @@
 # define ACE_CC_PREPROCESSOR_ARGS "-q -P- -o%s"
 
 # define ACE_EXPORT_NESTED_CLASSES 1
-# define ACE_HAS_ANSI_CASTS 1
 # define ACE_HAS_CPLUSPLUS_HEADERS 1
 # define ACE_HAS_EXCEPTIONS
-# define ACE_HAS_EXPLICIT_KEYWORD 1
 # define ACE_HAS_GNU_CSTRING_H 1
-# define ACE_HAS_MUTABLE_KEYWORD 1
 # define ACE_HAS_NONCONST_SELECT_TIMEVAL
 # define ACE_HAS_SIG_ATOMIC_T
 # define ACE_HAS_STANDARD_CPP_LIBRARY 1
-# define ACE_HAS_STD_TEMPLATE_METHOD_SPECIALIZATION 1
 # define ACE_HAS_STD_TEMPLATE_SPECIALIZATION 1
 # define ACE_HAS_STDCPP_STL_INCLUDES 1
 # define ACE_HAS_STRERROR
@@ -75,8 +71,8 @@
 # define ACE_INT64_FORMAT_SPECIFIER ACE_LIB_TEXT ("%Ld")
 # define ACE_USES_STD_NAMESPACE_FOR_STDCPP_LIB 1
 # define ACE_USES_STD_NAMESPACE_FOR_STDC_LIB 0
-
 # define ACE_ENDTHREADEX(STATUS) ::_endthreadex ((DWORD) STATUS)
+# define ACE_LACKS_SWAB
 
 #include /**/ "ace/post.h"
 #endif /* ACE_CONFIG_BORLAND_COMMON_H */

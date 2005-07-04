@@ -4,7 +4,7 @@
 /**
  *  @file    UPIPE_Connector.h
  *
- *  UPIPE_Connector.h,v 4.18 2003/08/04 03:53:54 dhinton Exp
+ *  UPIPE_Connector.h,v 4.20 2004/06/16 07:57:22 jwillemsen Exp
  *
  *  @author Gerhard Lenzer and Douglas C. Schmidt
  */
@@ -102,9 +102,9 @@ public:
   ACE_ALLOC_HOOK_DECLARE;
 };
 
-#if !defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/UPIPE_Connector.i"
-#endif
+#if defined (__ACE_INLINE__)
+#include "ace/UPIPE_Connector.inl"
+#endif /* __ACE_INLINE__ */
 
 #endif /* ACE_HAS_THREADS */
 #include /**/ "ace/post.h"

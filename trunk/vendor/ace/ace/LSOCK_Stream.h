@@ -4,7 +4,7 @@
 /**
  *  @file    LSOCK_Stream.h
  *
- *  LSOCK_Stream.h,v 4.16 2003/07/19 19:04:11 dhinton Exp
+ *  LSOCK_Stream.h,v 4.18 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Doug Schmidt
  */
@@ -69,9 +69,9 @@ public:
   int get_remote_addr (ACE_Addr &) const;
 };
 
-#if !defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/LSOCK_Stream.i"
-#endif
+#if defined (__ACE_INLINE__)
+#include "ace/LSOCK_Stream.inl"
+#endif /* __ACE_INLINE__ */
 
 #endif /* ACE_LACKS_UNIX_DOMAIN_SOCKETS */
 #include /**/ "ace/post.h"

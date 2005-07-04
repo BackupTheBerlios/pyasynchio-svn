@@ -1,4 +1,4 @@
-// TLI.cpp,v 4.23 2004/01/06 22:55:16 shuston Exp
+// TLI.cpp,v 4.24 2004/06/16 07:57:21 jwillemsen Exp
 
 // Defines the member functions for the base class of the ACE_TLI
 // abstraction.
@@ -11,12 +11,12 @@
 #include "ace/OS_NS_sys_socket.h"
 #include "ace/Auto_Ptr.h"
 
-ACE_RCSID(ace, TLI, "TLI.cpp,v 4.23 2004/01/06 22:55:16 shuston Exp")
+ACE_RCSID(ace, TLI, "TLI.cpp,v 4.24 2004/06/16 07:57:21 jwillemsen Exp")
 
 #if defined (ACE_HAS_TLI)
 
 #if !defined (__ACE_INLINE__)
-#include "ace/TLI.i"
+#include "ace/TLI.inl"
 #endif /* __ACE_INLINE__ */
 
 ACE_ALLOC_HOOK_DEFINE(ACE_TLI)

@@ -4,7 +4,7 @@
 /**
  *  @file    Pair_T.h
  *
- *  Pair_T.h,v 4.12 2003/07/19 19:04:13 dhinton Exp
+ *  Pair_T.h,v 4.14 2004/06/16 07:57:22 jwillemsen Exp
  *
  *  @author Irfan Pyarali <irfan@cs.wustl.edu>
  */
@@ -60,7 +60,7 @@ public:
   void second (const T2 &t2);
 
   // Compare pairs.
-  int operator== (const ACE_Pair<T1, T2> &rhs) const;
+  bool operator== (const ACE_Pair<T1, T2> &rhs) const;
 
 protected:
   /// First.
@@ -99,7 +99,7 @@ public:
   T2 &second (void) const;
 
   // Compare pairs.
-  int operator== (const ACE_Reference_Pair<T1, T2> &rhs) const;
+  bool operator== (const ACE_Reference_Pair<T1, T2> &rhs) const;
 
 protected:
   /// First.
@@ -110,7 +110,7 @@ protected:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Pair_T.i"
+#include "ace/Pair_T.inl"
 #endif /* __ACE_INLINE__ */
 
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)

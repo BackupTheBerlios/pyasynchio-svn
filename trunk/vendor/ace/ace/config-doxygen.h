@@ -1,10 +1,12 @@
+// -*- C++ -*-
+
 /**
  * This is a configuration file to define all the macros that Doxygen
  * needs
  *
  * @file config-doxygen.h
  *
- * config-doxygen.h,v 1.16 2003/07/02 13:23:19 dhinton Exp
+ * config-doxygen.h,v 1.17 2004/04/29 21:22:02 ossama Exp
  *
  * @author Carlos O'Ryan <coryan@uci.edu>
  * @author Darrell Brunsch <brunsch@uci.edu>
@@ -109,5 +111,9 @@
 
 /// Doxygen is capable of parsing using
 #define ACE_HAS_USING_KEYWORD
+
+/// Parse some ACE_SSL classes that depend on recent versions of
+/// OpenSSL.
+#define OPENSSL_VERSION_NUMBER 0x00905820L
 
 #endif /* ACE_CONFIG_DOXYGEN_H */

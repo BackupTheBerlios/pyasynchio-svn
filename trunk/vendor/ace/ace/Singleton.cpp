@@ -1,4 +1,4 @@
-// Singleton.cpp,v 4.52 2003/11/05 23:30:47 shuston Exp
+// Singleton.cpp,v 4.53 2004/06/16 07:57:21 jwillemsen Exp
 
 #ifndef ACE_SINGLETON_C
 #define ACE_SINGLETON_C
@@ -10,7 +10,7 @@
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Singleton.i"
+#include "ace/Singleton.inl"
 #endif /* __ACE_INLINE__ */
 
 #include "ace/Object_Manager.h"
@@ -20,7 +20,7 @@
 
 ACE_RCSID (ace,
            Singleton,
-           "Singleton.cpp,v 4.52 2003/11/05 23:30:47 shuston Exp")
+           "Singleton.cpp,v 4.53 2004/06/16 07:57:21 jwillemsen Exp")
 
 template <class TYPE, class ACE_LOCK> void
 ACE_Singleton<TYPE, ACE_LOCK>::dump (void)

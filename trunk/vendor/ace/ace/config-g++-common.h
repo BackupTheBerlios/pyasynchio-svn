@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// config-g++-common.h,v 4.51 2003/12/24 09:53:13 jwillemsen Exp
+// config-g++-common.h,v 4.59 2004/12/20 10:27:43 jwillemsen Exp
 
 // This configuration file is designed to be included by another,
 // specific configuration file.  It provides config information common
@@ -10,21 +10,16 @@
 #define ACE_GNUG_COMMON_H
 #include /**/ "ace/pre.h"
 
-#if __GNUC__ > 2  ||  ( __GNUC__ == 2 && __GNUC_MINOR__ >= 8)  || \
-    (defined (ACE_VXWORKS) && ACE_VXWORKS >= 0x540)
+#if __GNUC__ > 2  ||  ( __GNUC__ == 2 && __GNUC_MINOR__ >= 8)
   // egcs or g++ >= 2.8.0
 
-# define ACE_HAS_ANSI_CASTS
 # define ACE_HAS_CPLUSPLUS_HEADERS
-# define ACE_HAS_EXPLICIT_KEYWORD
-# define ACE_HAS_MUTABLE_KEYWORD
 # define ACE_HAS_STDCPP_STL_INCLUDES
 # define ACE_HAS_TEMPLATE_TYPEDEFS
 # define ACE_HAS_TYPENAME_KEYWORD
 # define ACE_HAS_STD_TEMPLATE_SPECIALIZATION
 
 #if __GNUC__ > 2  ||  ( __GNUC__ == 2 && __GNUC_MINOR__ >= 95)
-# define ACE_HAS_STD_TEMPLATE_METHOD_SPECIALIZATION
 # define ACE_HAS_STD_TEMPLATE_CLASS_MEMBER_SPECIALIZATION
 #endif
 
@@ -47,6 +42,9 @@
     // This is only needed with egcs 1.1 (egcs-2.91.57).  It can't be
     // used with older versions.
 #   define ACE_HAS_WORKING_EXPLICIT_TEMPLATE_DESTRUCTOR
+#   if (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4))
+#     define ACE_EXPLICIT_TEMPLATE_DESTRUCTOR_TAKES_ARGS
+#   endif /* __GNUC__ >= 3.4 */
 # endif /* __GNUC__ >= 2.91 */
 
 #if __GNUC__ > 2 || ( __GNUC__ == 2 && __GNUC_MINOR__ >= 97 )
@@ -91,8 +89,13 @@
 # define ACE_HAS_PENTIUM
 #endif /* i386 */
 
+// // GNU g++ 3.4.x implements "#pragma once".
+// #if (__GNUC__ < 3 || (__GNUC__ == 3 && __GNUC_MINOR__ < 4)) && !defined (ACE_LACKS_PRAGMA_ONCE)
+// // We define it with a -D with make depend.
+// # define ACE_LACKS_PRAGMA_ONCE
+// #endif /* ! ACE_LACKS_PRAGMA_ONCE */
+
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
-  // We define it with a -D with make depend.
 # define ACE_LACKS_PRAGMA_ONCE
 #endif /* ! ACE_LACKS_PRAGMA_ONCE */
 

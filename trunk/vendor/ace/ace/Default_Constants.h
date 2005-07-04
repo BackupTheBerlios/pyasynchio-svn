@@ -4,7 +4,7 @@
 /**
  *  @file   Default_Constants.h
  *
- *  Default_Constants.h,v 4.14 2003/11/18 02:02:05 bala Exp
+ *  Default_Constants.h,v 4.17 2004/08/24 18:13:29 shuston Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  *  @author Jesper S. M|ller<stophph@diku.dk>
@@ -360,6 +360,11 @@
 // Max size of an ACE Token client ID.
 # define ACE_MAXCLIENTIDLEN MAXHOSTNAMELEN + 20
 
+/// Max udp packet size
+#if !defined (ACE_MAX_UDP_PACKET_SIZE)
+#define ACE_MAX_UDP_PACKET_SIZE 65536
+#endif
+
 /**
  * @name Default values to control CDR classes memory allocation strategies
  */
@@ -427,6 +432,12 @@ const unsigned int ACE_CONNECTOR_HANDLER_MAP_SIZE = 16;
 #  define ACE_MAX_DEFAULT_PORT 65535
 #endif /* ACE_MAX_DEFAULT_PORT */
 
+// Default number of <ACE_Event_Handler>s supported by
+// <ACE_Timer_Heap>.
+# if !defined (ACE_DEFAULT_TIMERS)
+#   define ACE_DEFAULT_TIMERS _POSIX_TIMER_MAX
+# endif /* ACE_DEFAULT_TIMERS */
+
 #if defined (ACE_WIN32)
    // We're on WinNT or Win95
 #  define ACE_PLATFORM_A "Win32"
@@ -489,9 +500,9 @@ const unsigned int ACE_CONNECTOR_HANDLER_MAP_SIZE = 16;
  // Used for dynamic linking.
 #if !defined (ACE_DEFAULT_SVC_CONF)
 #  if (ACE_USES_CLASSIC_SVC_CONF == 1)
-#    define ACE_DEFAULT_SVC_CONF "./svc.conf"
+#    define ACE_DEFAULT_SVC_CONF ACE_LIB_TEXT ("./svc.conf")
 #  else
-#    define ACE_DEFAULT_SVC_CONF "./svc.conf.xml"
+#    define ACE_DEFAULT_SVC_CONF ACE_LIB_TEXT ("./svc.conf.xml")
 #  endif /* ACE_USES_CLASSIC_SVC_CONF ==1 */
 #endif /* ACE_DEFAULT_SVC_CONF */
 

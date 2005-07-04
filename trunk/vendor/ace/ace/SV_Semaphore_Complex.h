@@ -4,7 +4,7 @@
 /**
  *  @file   SV_Semaphore_Complex.h
  *
- *  SV_Semaphore_Complex.h,v 4.17 2003/07/19 19:04:13 dhinton Exp
+ *  SV_Semaphore_Complex.h,v 4.19 2004/06/16 07:57:22 jwillemsen Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -147,9 +147,9 @@ private:
   static sembuf op_unlock_[1];
 };
 
-#if !defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/SV_Semaphore_Complex.i"
-#endif
+#if defined (__ACE_INLINE__)
+#include "ace/SV_Semaphore_Complex.inl"
+#endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"
 #endif /* ACE_SV_SEMAPHORE_COMPLEX_H */

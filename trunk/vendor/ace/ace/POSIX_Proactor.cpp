@@ -1,12 +1,12 @@
 /* -*- C++ -*- */
-// POSIX_Proactor.cpp,v 4.61 2003/11/26 19:56:40 schmidt Exp
+// POSIX_Proactor.cpp,v 4.73 2004/10/23 16:33:57 schmidt Exp
 
 #include "ace/POSIX_Proactor.h"
 
 #if defined (ACE_HAS_AIO_CALLS)
 
 #if !defined (__ACE_INLINE__)
-#include "ace/POSIX_Proactor.i"
+#include "ace/POSIX_Proactor.inl"
 #endif /* __ACE_INLINE__ */
 
 # if defined (ACE_HAS_SYSINFO)
@@ -14,11 +14,13 @@
 # endif /* ACE_HAS_SYS_INFO */
 
 #include "ace/ACE.h"
+#include "ace/Flag_Manip.h"
 #include "ace/Task_T.h"
 #include "ace/Log_Msg.h"
 #include "ace/Object_Manager.h"
 #include "ace/OS_NS_sys_socket.h"
 #include "ace/OS_NS_signal.h"
+#include "ace/OS_NS_unistd.h"
 
 #if defined (sun)
 #  include "ace/OS_NS_strings.h"
@@ -55,11 +57,11 @@ public:
 
 // *********************************************************************
 ACE_POSIX_Proactor::ACE_POSIX_Proactor (void)
-  :  os_id_ (OS_UNDEFINED)
+  :  os_id_ (ACE_OS_UNDEFINED)
 {
 #if defined(sun)
 
-  os_id_ = OS_SUN; // set family
+  os_id_ = ACE_OS_SUN; // set family
 
   char Buf [32];
 
@@ -68,23 +70,23 @@ ACE_POSIX_Proactor::ACE_POSIX_Proactor (void)
   ACE_OS::sysinfo (SI_RELEASE , Buf, sizeof(Buf)-1);
 
   if (ACE_OS::strcasecmp (Buf , "5.6") == 0)
-    os_id_ = OS_SUN_56;
+    os_id_ = ACE_OS_SUN_56;
   else if (ACE_OS::strcasecmp (Buf , "5.7") == 0)
-    os_id_ = OS_SUN_57;
+    os_id_ = ACE_OS_SUN_57;
   else if (ACE_OS::strcasecmp (Buf , "5.8") == 0)
-    os_id_ = OS_SUN_58;
+    os_id_ = ACE_OS_SUN_58;
 
 #elif defined(HPUX)
 
-  os_id_ = OS_HPUX;   // set family
+  os_id_ = ACE_OS_HPUX;   // set family
 
 #elif defined(__sgi)
 
-  os_id_ = OS_IRIX;   // set family
+  os_id_ = ACE_OS_IRIX;   // set family
 
 #elif defined(__OpenBSD)
 
-  os_id_ = OS_OPENBSD; // set family
+  os_id_ = ACE_OS_OPENBSD; // set family
 
   // do the same
 
@@ -649,6 +651,9 @@ ACE_AIOCB_Notify_Pipe_Manager::ACE_AIOCB_Notify_Pipe_Manager (ACE_POSIX_AIOCB_Pr
 
   // Set write side in NONBLOCK mode
   ACE::set_flags (this->pipe_.write_handle (), ACE_NONBLOCK);
+
+  // Set read side in NONBLOCK mode
+  ACE::set_flags (this->pipe_.read_handle (), ACE_NONBLOCK);
 
   // Let AIOCB_Proactor know about our handle
   posix_aiocb_proactor_->set_notify_handle (this->pipe_.read_handle ());
@@ -1760,7 +1765,8 @@ ACE_POSIX_SIG_Proactor::create_asynch_timer (ACE_Handler &handler,
   return implementation;
 }
 
-static void 
+#if 0
+static void
 sig_handler (int sig_num, siginfo_t *, ucontext_t *)
 {
   // Should never be called
@@ -1768,6 +1774,7 @@ sig_handler (int sig_num, siginfo_t *, ucontext_t *)
               "%N:%l:(%P | %t)::sig_handler received signal: %d\n",
                sig_num));
 }
+#endif /*if 0*/
 
 int
 ACE_POSIX_SIG_Proactor::setup_signal_handler (int signal_number) const
@@ -1782,7 +1789,7 @@ ACE_POSIX_SIG_Proactor::setup_signal_handler (int signal_number) const
   // SIG_DFL handler resets  SA_SIGINFO flags
   // and we will lose all information sig_info
   // At least all SunOS have such behavior
-
+#if 0
   struct sigaction reaction;
   sigemptyset (&reaction.sa_mask);   // Nothing else to mask.
   reaction.sa_flags = SA_SIGINFO;    // Realtime flag.
@@ -1795,6 +1802,9 @@ ACE_POSIX_SIG_Proactor::setup_signal_handler (int signal_number) const
                        "Error:%p\n",
                        "Proactor couldnt do sigaction for the RT SIGNAL"),
                       -1);
+#else
+  ACE_UNUSED_ARG(signal_number);
+#endif
   return 0;
 }
 
@@ -1871,7 +1881,7 @@ ACE_POSIX_SIG_Proactor::handle_events_i (const ACE_Time_Value *timeout)
   int error_status = 0;
   size_t transfer_count = 0;
 
-  if (sig_info.si_code == SI_ASYNCIO || this->os_id_ == OS_SUN_56)
+  if (sig_info.si_code == SI_ASYNCIO || this->os_id_ == ACE_OS_SUN_56)
     {
       flg_aio = 1;  // AIO signal received
       // define index to start
@@ -1885,7 +1895,7 @@ ACE_POSIX_SIG_Proactor::handle_events_i (const ACE_Time_Value *timeout)
       // there is one I/O to process, and it's correctly specified in the
       // siginfo received. There are, however, some special situations
       // where this isn't true...
-      if (os_id_ == OS_SUN_56) // Solaris 6
+      if (os_id_ == ACE_OS_SUN_56) // Solaris 6
         {
           // 1. Solaris 6 always loses any RT signal,
           //    if it has more SIGQUEMAX=32 pending signals

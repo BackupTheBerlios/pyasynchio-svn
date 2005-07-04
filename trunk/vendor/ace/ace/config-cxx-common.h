@@ -1,4 +1,6 @@
-// config-cxx-common.h,v 4.17 2003/12/19 10:42:45 jwillemsen Exp
+// -*- C++ -*-
+//
+// config-cxx-common.h,v 4.18 2004/05/01 01:22:15 ossama Exp
 
 #ifndef ACE_CXX_COMMON_H
 #define ACE_CXX_COMMON_H
@@ -29,7 +31,6 @@
 #   if defined (ACE_HAS_EXCEPTIONS)
 #     define ACE_NEW_THROWS_EXCEPTIONS
 #   endif /* ACE_HAS_EXCEPTIONS */
-#   define ACE_HAS_ANSI_CASTS
 #   if !defined (__RTTI)
 #     define ACE_LACKS_RTTI
 #   endif

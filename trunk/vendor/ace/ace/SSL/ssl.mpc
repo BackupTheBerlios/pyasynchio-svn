@@ -1,5 +1,5 @@
 //  -*- MPC -*-
-// ssl.mpc,v 1.8 2004/01/08 13:51:26 elliott_c Exp
+// ssl.mpc,v 1.10 2004/10/08 22:40:53 shuston Exp
 
 project(SSL) : acelib, core, openssl {
   requires    += ssl

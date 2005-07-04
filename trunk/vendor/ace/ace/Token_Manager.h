@@ -4,7 +4,7 @@
 /**
  *  @file    Token_Manager.h
  *
- *  Token_Manager.h,v 4.20 2003/08/04 03:53:54 dhinton Exp
+ *  Token_Manager.h,v 4.23 2004/06/28 17:27:08 jwillemsen Exp
  *
  *  @author Tim Harrison (harrison@cs.wustl.edu)
  */
@@ -20,10 +20,12 @@
 # pragma once
 #endif /* ACE_LACKS_PRAGMA_ONCE */
 
-#include "ace/Map_Manager.h"
 #include "ace/Local_Tokens.h"
 
 #if defined (ACE_HAS_TOKENS_LIBRARY)
+
+#include "ace/Null_Mutex.h"
+#include "ace/Map_Manager.h"
 
 class ACE_Local_Mutex;
 class ACE_Mutex_Token;
@@ -61,7 +63,7 @@ public:
    * The Token manager uses ACE_Token_Proxy::token_id_ to look for
    * an existing token.  If none is found, the Token Manager calls
    * ACE_Token_Proxy::create_token to create a new one.  When
-   * finished, sets ACE_Token_Proxy::token_.  <token_name> uniquely
+   * finished, sets ACE_Token_Proxy::token_.  @a token_name uniquely
    * id's the token name.
    */
   void get_token (ACE_Token_Proxy *, const ACE_TCHAR *token_name);
@@ -137,7 +139,7 @@ private:
 #endif /* ACE_HAS_TOKENS_LIBRARY */
 
 #if defined (__ACE_INLINE__)
-#include "ace/Token_Manager.i"
+#include "ace/Token_Manager.inl"
 #endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"

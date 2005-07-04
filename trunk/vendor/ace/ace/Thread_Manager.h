@@ -4,7 +4,7 @@
 /**
  *  @file    Thread_Manager.h
  *
- *  Thread_Manager.h,v 4.151 2003/11/01 11:15:18 dhinton Exp
+ *  Thread_Manager.h,v 4.159 2004/06/16 07:57:22 jwillemsen Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -178,10 +178,10 @@ public:
   // = We need the following operators to make Borland happy.
 
   /// Equality operator.
-  int operator== (const ACE_Thread_Descriptor_Base &rhs) const;
+  bool operator== (const ACE_Thread_Descriptor_Base &rhs) const;
 
   /// Inequality operator.
-  int operator!= (const ACE_Thread_Descriptor_Base &rhs) const;
+  bool operator!= (const ACE_Thread_Descriptor_Base &rhs) const;
 
   /// Group ID.
   int grp_id (void) const;
@@ -299,12 +299,11 @@ public:
   void release (void);
 
   /**
-   * Set/get the <next_> pointer.  These are required by the
-   * ACE_Free_List.  ACE_INLINE is specified here because one version
-   * of g++ couldn't grok this code without it.
+   * Set/get the @c next_ pointer.  These are required by the
+   * ACE_Free_List.
    */
-  ACE_INLINE_FOR_GNUC void set_next (ACE_Thread_Descriptor *td);
-  ACE_INLINE_FOR_GNUC ACE_Thread_Descriptor *get_next (void) const;
+  void set_next (ACE_Thread_Descriptor *td);
+  ACE_Thread_Descriptor *get_next (void) const;
 
 private:
   /// Reset this thread descriptor.
@@ -323,7 +322,7 @@ private:
   /// Run the AT_Thread_Exit hooks.
   void do_at_exit (void);
 
-  /// terminate realize the cleanup process to thread termination
+  /// Terminate realize the cleanup process to thread termination
   void terminate (void);
 
   /// Thread_Descriptor is the ownership of ACE_Log_Msg if log_msg_!=0
@@ -336,14 +335,13 @@ private:
 
   /**
    * Stores the cleanup info for a thread.
-   * @@ Note, this should be generalized to be a stack of
-   * <ACE_Cleanup_Info>s.
+   * @note This should be generalized to be a stack of ACE_Cleanup_Info's.
    */
   ACE_Cleanup_Info cleanup_info_;
 
 #if !defined(ACE_USE_ONE_SHOT_AT_THREAD_EXIT)
-  /// Pointer to an <ACE_Thread_Manager> or NULL if there's no
-  /// <ACE_Thread_Manager>.
+  /// Pointer to an ACE_Thread_Manager or NULL if there's no
+  /// ACE_Thread_Manager>
   ACE_Thread_Manager* tm_;
 #endif /* !ACE_USE_ONE_SHOT_AT_THREAD_EXIT */
 
@@ -403,8 +401,8 @@ public:
   typedef int (ACE_Thread_Manager::*ACE_THR_MEMBER_FUNC)(ACE_Thread_Descriptor *, int);
 #endif /* !__GNUG__ */
 
-  // These are the various states a thread managed by the
-  // <Thread_Manager> can be in.
+  /// These are the various states a thread managed by the
+  /// ACE_Thread_Manager can be in.
   enum
   {
     /// Uninitialized.
@@ -495,7 +493,7 @@ public:
    */
   int spawn (ACE_THR_FUNC func,
              void *args = 0,
-             long flags = THR_NEW_LWP | THR_JOINABLE,
+             long flags = THR_NEW_LWP | THR_JOINABLE | THR_INHERIT_SCHED,
              ACE_thread_t * = 0,
              ACE_hthread_t *t_handle = 0,
              long priority = ACE_DEFAULT_THREAD_PRIORITY,
@@ -535,7 +533,7 @@ public:
   int spawn_n (size_t n,
                ACE_THR_FUNC func,
                void *args = 0,
-               long flags = THR_NEW_LWP | THR_JOINABLE,
+               long flags = THR_NEW_LWP | THR_JOINABLE | THR_INHERIT_SCHED,
                long priority = ACE_DEFAULT_THREAD_PRIORITY,
                int grp_id = -1,
                ACE_Task_Base *task = 0,
@@ -721,6 +719,14 @@ public:
    * <t_id> is not managed by the Thread_Manager.
    */
   int testcancel (ACE_thread_t t_id);
+
+  /**
+   * True if <t_id> has terminated (i.e., is no longer running),
+   * but the slot in the thread manager hasn't been reclaimed yet,
+   * else false.  Always return false if <t_id> is not managed by the
+   * Thread_Manager.
+   */
+  int testterminate (ACE_thread_t t_id);
 
   /// Set group ids for a particular thread id.
   int set_grp (ACE_thread_t,
@@ -947,7 +953,6 @@ protected:
                        void *stack = 0,
                        size_t stack_size = 0,
                        ACE_Task_Base *task = 0);
-
   /// Run the registered hooks when the thread exits.
   void run_thread_exit_hooks (int i);
 
@@ -1095,7 +1100,7 @@ typedef ACE_Singleton<ACE_Thread_Manager, ACE_SYNCH_MUTEX> ACE_THREAD_MANAGER_SI
 #endif /* defined (ACE_THREAD_MANAGER_LACKS_STATICS) */
 
 #if defined (__ACE_INLINE__)
-#include "ace/Thread_Manager.i"
+#include "ace/Thread_Manager.inl"
 #endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"

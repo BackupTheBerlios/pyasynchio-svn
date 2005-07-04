@@ -1,6 +1,6 @@
-// SString.cpp,v 4.86 2003/11/10 01:48:02 dhinton Exp
+// SString.cpp,v 4.89 2004/06/30 08:11:45 jwillemsen Exp
 
-#include "ace/Malloc.h"
+#include "ace/Malloc_.h"
 #if !defined (ACE_HAS_WINCE)
 //# include "ace/Service_Config.h"
 #endif /* !ACE_HAS_WINCE */
@@ -14,11 +14,11 @@
 #endif /* ! ACE_LACKS_IOSTREAM_TOTALLY */
 
 #if !defined (__ACE_INLINE__)
-#include "ace/SString.i"
+#include "ace/SString.inl"
 #endif /* __ACE_INLINE__ */
 
 ACE_RCSID (ace,
-           SString, 
+           SString,
            "SString.cpp,v 4.61 2001/03/04 00:55:30 brunsch Exp")
 
 
@@ -323,7 +323,7 @@ ACE_SString::substring (size_t offset,
     return nill;
 
   // get all remaining bytes
-  if (length == -1)
+  if (length == -1 || count > (this->len_ - offset))
     count = len_ - offset;
 
   return ACE_SString (&rep_[offset], count, this->allocator_);
@@ -561,7 +561,7 @@ template ACE_String_Base<ACE_WSTRING_TYPE> operator + (const ACE_WSTRING_TYPE *,
 #pragma instantiate ACE_String_Base<ACE_WSTRING_TYPE> operator + (const ACE_String_Base<ACE_WSTRING_TYPE> &, const ACE_String_Base<ACE_WSTRING_TYPE> &)
 #pragma instantiate ACE_String_Base<ACE_WSTRING_TYPE> operator + (const ACE_String_Base<ACE_WSTRING_TYPE> &, const ACE_WSTRING_TYPE *)
 #pragma instantiate ACE_String_Base<ACE_WSTRING_TYPE> operator + (const ACE_WSTRING_TYPE *,const ACE_String_Base<ACE_WSTRING_TYPE> &)
-#elif defined (__GNUC__) && (defined (_AIX) || defined (__hpux) || defined (VXWORKS) || defined (__Lynx__))
+#elif defined (ACE_HAS_EXPLICIT_STATIC_TEMPLATE_MEMBER_INSTANTIATION)
 template char ACE_String_Base<char>::NULL_String_;
 template ACE_WSTRING_TYPE ACE_String_Base<ACE_WSTRING_TYPE>::NULL_String_;
 #endif /* ACE_HAS_EXPLICIT_TEMPLATE_INSTANTIATION */

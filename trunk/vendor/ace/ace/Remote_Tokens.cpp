@@ -1,16 +1,16 @@
 // Remote_Tokens.cpp
-// Remote_Tokens.cpp,v 4.20 2003/07/27 20:48:27 dhinton Exp
+// Remote_Tokens.cpp,v 4.22 2004/06/16 07:57:20 jwillemsen Exp
 
 #include "ace/Remote_Tokens.h"
 #include "ace/Singleton.h"
 
 #if !defined (__ACE_INLINE__)
-#include "ace/Remote_Tokens.i"
+#include "ace/Remote_Tokens.inl"
 #endif /* __ACE_INLINE__ */
 
 #if defined (ACE_HAS_TOKENS_LIBRARY)
 
-ACE_RCSID(ace, Remote_Tokens, "Remote_Tokens.cpp,v 4.20 2003/07/27 20:48:27 dhinton Exp")
+ACE_RCSID(ace, Remote_Tokens, "Remote_Tokens.cpp,v 4.22 2004/06/16 07:57:20 jwillemsen Exp")
 
 #if defined (ACE_MT_SAFE) && (ACE_MT_SAFE != 0)
 #define ACE_TSS_CONNECTION_MUTEX ACE_Thread_Mutex
@@ -368,7 +368,7 @@ void
 ACE_Remote_Token_Proxy::token_acquired (ACE_TPQ_Entry *)
 {
   ACE_TRACE ("ACE_Remote_Token_Proxy::token_acquired");
-  ACE_DEBUG ((LM_DEBUG,  ACE_LIB_TEXT ("(%t) shadow token %s acquired\n"),
+  ACE_DEBUG ((LM_DEBUG,  ACE_LIB_TEXT ("(%t) %s shadow token %s acquired\n"),
 	      this->client_id (),
 	      this->name ()));
   // ACE_Token_Proxy::token_acquired (vp);

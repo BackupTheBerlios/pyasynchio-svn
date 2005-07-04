@@ -1,16 +1,16 @@
 // DEV.cpp
-// DEV.cpp,v 4.7 2003/11/01 11:15:12 dhinton Exp
+// DEV.cpp,v 4.9 2004/06/16 07:57:20 jwillemsen Exp
 
 
 #include "ace/DEV.h"
 
-#if defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/DEV.i"
-#endif
-
 #include "ace/OS_NS_unistd.h"
 
-ACE_RCSID(ace, DEV, "DEV.cpp,v 4.7 2003/11/01 11:15:12 dhinton Exp")
+#if !defined (__ACE_INLINE__)
+#include "ace/DEV.inl"
+#endif /* __ACE_INLINE__ */
+
+ACE_RCSID(ace, DEV, "DEV.cpp,v 4.9 2004/06/16 07:57:20 jwillemsen Exp")
 
 ACE_ALLOC_HOOK_DEFINE(ACE_DEV)
 
@@ -22,7 +22,7 @@ ACE_DEV::dump (void) const
 #endif /* ACE_HAS_DUMP */
 }
 
-// This is the do-nothing constructor. 
+// This is the do-nothing constructor.
 
 ACE_DEV::ACE_DEV (void)
 {

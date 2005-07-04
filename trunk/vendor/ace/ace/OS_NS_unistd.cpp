@@ -1,9 +1,9 @@
 // -*- C++ -*-
-// OS_NS_unistd.cpp,v 1.5 2003/11/03 16:42:13 dhinton Exp
+// OS_NS_unistd.cpp,v 1.10 2004/12/17 13:40:02 jwillemsen Exp
 
 #include "ace/OS_NS_unistd.h"
 
-ACE_RCSID(ace, OS_NS_unistd, "OS_NS_unistd.cpp,v 1.5 2003/11/03 16:42:13 dhinton Exp")
+ACE_RCSID(ace, OS_NS_unistd, "OS_NS_unistd.cpp,v 1.10 2004/12/17 13:40:02 jwillemsen Exp")
 
 #if !defined (ACE_HAS_INLINED_OSCALLS)
 # include "ace/OS_NS_unistd.inl"
@@ -16,14 +16,7 @@ ACE_RCSID(ace, OS_NS_unistd, "OS_NS_unistd.cpp,v 1.5 2003/11/03 16:42:13 dhinton
 #include "ace/OS_Memory.h"
 #include "ace/OS_NS_Thread.h"
 #include "ace/Object_Manager_Base.h"
-
-// This is here for ACE_OS::num_processors_online(). On HP-UX, it
-// needs sys/param.h (above) and sys/pstat.h. The implementation of the
-// num_processors_online() method also uses 'defined (__hpux)' to decide
-// whether or not to try the syscall.
-#if defined (__hpux)
-#  include /**/ <sys/pstat.h>
-#endif /* __hpux **/
+#include "ace/os_include/sys/os_pstat.h"
 
 #if defined (ACE_NEEDS_FTRUNCATE)
 extern "C" int
@@ -35,7 +28,7 @@ ftruncate (ACE_HANDLE handle, long len)
   fl.l_start = len;
   fl.l_type = F_WRLCK;
 
-  return ACE_OS::fcntl (handle, F_FREESP, ACE_reinterpret_cast (long, &fl));
+  return ACE_OS::fcntl (handle, F_FREESP, reinterpret_cast <long> (&fl));
 }
 #endif /* ACE_NEEDS_FTRUNCATE */
 
@@ -55,14 +48,30 @@ ACE_OS::argv_to_string (ACE_TCHAR **argv,
 
   for (int i = 0; argv[i] != 0; i++)
     {
-      ACE_TCHAR *temp = 0;
-
 #if !defined (ACE_LACKS_ENV)
       // Account for environment variables.
-      if (substitute_env_args
-          && (argv[i][0] == '$'
-              && (temp = ACE_OS::getenv (&argv[i][1])) != 0))
-        buf_len += ACE_OS::strlen (temp);
+      if (substitute_env_args && argv[i][0] == ACE_LIB_TEXT ('$'))
+        {
+#  if defined (ACE_WIN32) || !defined (ACE_HAS_WCHAR)
+          ACE_TCHAR *temp = 0;
+          // Win32 is the only platform with a wide-char ACE_OS::getenv().
+          if ((temp = ACE_OS::getenv (&argv[i][1])) != 0)
+            buf_len += ACE_OS::strlen (temp);
+          else
+            buf_len += ACE_OS::strlen (argv[i]);
+#  else
+          // This is an ACE_HAS_WCHAR platform and not ACE_WIN32.
+          // Convert the env variable name for getenv(), then add
+          // the length of the returned char *string. Later, when we
+          // actually use the returned env variable value, convert it
+          // as well.
+          char *ctemp = ACE_OS::getenv (ACE_TEXT_ALWAYS_CHAR (&argv[i][1]));
+          if (ctemp == 0)
+            buf_len += ACE_OS::strlen (argv[i]);
+          else
+            buf_len += ACE_OS::strlen (ctemp);
+#  endif /* ACE_WIN32 || !ACE_HAS_WCHAR */
+        }
       else
 #endif /* ACE_LACKS_ENV */
         buf_len += ACE_OS::strlen (argv[i]);
@@ -85,14 +94,29 @@ ACE_OS::argv_to_string (ACE_TCHAR **argv,
 
   for (j = 0; argv[j] != 0; j++)
     {
-      ACE_TCHAR *temp = 0;
 
 #if !defined (ACE_LACKS_ENV)
       // Account for environment variables.
-      if (substitute_env_args
-      && (argv[j][0] == '$'
-              && (temp = ACE_OS::getenv (&argv[j][1])) != 0))
-        end = ACE_OS::strecpy (end, temp);
+      if (substitute_env_args && argv[j][0] == ACE_LIB_TEXT ('$'))
+        {
+#  if defined (ACE_WIN32) || !defined (ACE_HAS_WCHAR)
+          // Win32 is the only platform with a wide-char ACE_OS::getenv().
+          ACE_TCHAR *temp = ACE_OS::getenv (&argv[j][1]);
+          if (temp != 0)
+            end = ACE_OS::strecpy (end, temp);
+          else
+            end = ACE_OS::strecpy (end, argv[j]);
+#  else
+          // This is an ACE_HAS_WCHAR platform and not ACE_WIN32.
+          // Convert the env variable name for getenv(), then convert
+          // the returned char *string back to wchar_t.
+          char *ctemp = ACE_OS::getenv (ACE_TEXT_ALWAYS_CHAR (&argv[j][1]));
+          if (ctemp == 0)
+            end = ACE_OS::strecpy (end, argv[j]);
+          else
+            end = ACE_OS::strecpy (end, ACE_TEXT_CHAR_TO_TCHAR (ctemp));
+#  endif /* ACE_WIN32 || !ACE_HAS_WCHAR */
+        }
       else
 #endif /* ACE_LACKS_ENV */
         end = ACE_OS::strecpy (end, argv[j]);
@@ -112,39 +136,27 @@ int
 ACE_OS::execl (const char * /* path */, const char * /* arg0 */, ...)
 {
   ACE_OS_TRACE ("ACE_OS::execl");
-#if defined (ACE_WIN32) || defined (VXWORKS)
-  ACE_NOTSUP_RETURN (-1);
-#else
   ACE_NOTSUP_RETURN (-1);
   // Need to write this code.
   // ACE_OSCALL_RETURN (::execv (path, argv), int, -1);
-#endif /* ACE_WIN32 */
 }
 
 int
 ACE_OS::execle (const char * /* path */, const char * /* arg0 */, ...)
 {
   ACE_OS_TRACE ("ACE_OS::execle");
-#if defined (ACE_WIN32) || defined (VXWORKS)
-  ACE_NOTSUP_RETURN (-1);
-#else
   ACE_NOTSUP_RETURN (-1);
   // Need to write this code.
   //  ACE_OSCALL_RETURN (::execve (path, argv, envp), int, -1);
-#endif /* ACE_WIN32 */
 }
 
 int
 ACE_OS::execlp (const char * /* file */, const char * /* arg0 */, ...)
 {
   ACE_OS_TRACE ("ACE_OS::execlp");
-#if defined (ACE_WIN32) || defined (VXWORKS)
-  ACE_NOTSUP_RETURN (-1);
-#else
   ACE_NOTSUP_RETURN (-1);
   // Need to write this code.
   //  ACE_OSCALL_RETURN (::execvp (file, argv), int, -1);
-#endif /* ACE_WIN32 */
 }
 
 pid_t
@@ -229,6 +241,13 @@ ACE_OS::fork_exec (ACE_TCHAR *argv[])
 # else
       pid_t result = ACE_OS::fork ();
 
+#   if defined (ACE_USES_WCHAR)
+      // Wide-char builds need to convert the command-line args to
+      // narrow char strings for execv().
+      char **cargv;
+      int arg_count;
+#   endif /* ACE_HAS_WCHAR */
+
       switch (result)
         {
         case -1:
@@ -236,6 +255,22 @@ ACE_OS::fork_exec (ACE_TCHAR *argv[])
           return -1;
         case 0:
           // Child process.
+#   if defined (ACE_USES_WCHAR)
+          for (arg_count = 0; argv[arg_count] != 0; ++arg_count)
+            ;
+          ++arg_count;    // Need a 0-pointer end-of-array marker
+          ACE_NEW_NORETURN (cargv, char*[arg_count]);
+          if (cargv == 0)
+            ACE_OS::exit (errno);
+          --arg_count;    // Back to 0-indexed
+          cargv[arg_count] = 0;
+          while (--arg_count >= 0)
+            cargv[arg_count] = ACE_Wide_To_Ascii::convert (argv[arg_count]);
+          // Don't worry about freeing the cargv or the strings it points to.
+          // Either the process will be replaced, or we'll exit.
+          if (ACE_OS::execv (cargv[0], cargv) == -1)
+            ACE_OS::exit (errno);
+#   else
           if (ACE_OS::execv (argv[0], argv) == -1)
             {
               // The OS layer should not print stuff out
@@ -245,6 +280,8 @@ ACE_OS::fork_exec (ACE_TCHAR *argv[])
               // If the execv fails, this child needs to exit.
               ACE_OS::exit (errno);
             }
+#   endif /* ACE_HAS_WCHAR */
+
         default:
           // Server process.  The fork succeeded.
           return result;
@@ -263,7 +300,7 @@ ACE_OS::num_processors (void)
   SYSTEM_INFO sys_info;
   ::GetSystemInfo (&sys_info);
   return sys_info.dwNumberOfProcessors;
-#elif defined (linux) || defined (sun)
+#elif defined (linux) || defined (sun) || defined (DIGITAL_UNIX) || defined (CYGWIN32)
   return ::sysconf (_SC_NPROCESSORS_CONF);
 #else
   ACE_NOTSUP_RETURN (-1);
@@ -281,7 +318,7 @@ ACE_OS::num_processors_online (void)
   SYSTEM_INFO sys_info;
   ::GetSystemInfo (&sys_info);
   return sys_info.dwNumberOfProcessors;
-#elif defined (linux) || defined (sun)
+#elif defined (linux) || defined (sun) || defined (DIGITAL_UNIX) || defined (CYGWIN32)
   return ::sysconf (_SC_NPROCESSORS_ONLN);
 #elif defined (__hpux)
   struct pst_dynamic psd;
@@ -360,7 +397,7 @@ ACE_OS::pread (ACE_HANDLE handle,
 
   BOOL result = ::ReadFile (handle,
                             buf,
-                            ACE_static_cast (DWORD, nbytes),
+                            static_cast <DWORD> (nbytes),
                             &bytes_read,
                             &overlapped);
 
@@ -485,7 +522,7 @@ ACE_OS::pwrite (ACE_HANDLE handle,
 
   BOOL result = ::WriteFile (handle,
                              buf,
-                             ACE_static_cast (DWORD, nbytes),
+                             static_cast <DWORD> (nbytes),
                              &bytes_written,
                              &overlapped);
 

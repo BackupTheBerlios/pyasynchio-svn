@@ -4,7 +4,7 @@
 /**
  *  @file    Capabilities.h
  *
- *  Capabilities.h,v 4.14 2003/08/04 03:53:50 dhinton Exp
+ *  Capabilities.h,v 4.16 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Arturo Montes <mitosys@colomsat.net.co>
  */
@@ -25,6 +25,7 @@
 #include "ace/Hash_Map_Manager_T.h"
 #include "ace/Containers.h"
 #include "ace/SString.h"
+#include "ace/Functor_String.h"
 
 /**
  * @class ACE_CapEntry
@@ -204,7 +205,7 @@ is_line (const ACE_TCHAR *line)
 #endif /* ACE_IS_SPLITTING */
 
 #if defined (__ACE_INLINE__)
-#include "ace/Capabilities.i"
+#include "ace/Capabilities.inl"
 #endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"

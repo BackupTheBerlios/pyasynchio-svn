@@ -4,7 +4,7 @@
 /**
  *  @file    Addr.h
  *
- *  Addr.h,v 4.21 2003/07/19 19:04:10 dhinton Exp
+ *  Addr.h,v 4.23 2004/06/16 07:57:21 jwillemsen Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -62,10 +62,10 @@ public:
 
   // = Equality/inequality tests
   /// Check for address equality.
-  int operator == (const ACE_Addr &sap) const;
+  bool operator == (const ACE_Addr &sap) const;
 
   /// Check for address inequality.
-  int operator != (const ACE_Addr &sap) const;
+  bool operator != (const ACE_Addr &sap) const;
 
   /// Initializes instance variables.
   void base_set (int type, int size);
@@ -92,7 +92,7 @@ protected:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/Addr.i"
+#include "ace/Addr.inl"
 #endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"

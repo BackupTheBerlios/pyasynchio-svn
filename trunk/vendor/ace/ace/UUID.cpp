@@ -1,4 +1,4 @@
-//UUID.cpp,v 1.18 2003/12/19 10:31:00 jwillemsen Exp
+//UUID.cpp,v 1.22 2004/07/05 18:46:33 ossama Exp
 
 #include "ace/UUID.h"
 #include "ace/Guard_T.h"
@@ -17,7 +17,7 @@
 
 ACE_RCSID (ace,
            UUID,
-           "UUID.cpp,v 1.18 2003/12/19 10:31:00 jwillemsen Exp")
+           "UUID.cpp,v 1.22 2004/07/05 18:46:33 ossama Exp")
 
 
 namespace ACE_Utils
@@ -235,7 +235,7 @@ namespace ACE_Utils
       {
         // Get a buffer exactly the correct size. Use the nil UUID as a
         // gauge.  Don't forget the trailing nul.
-        int UUID_STRING_LENGTH = 36 + thr_id_.length () + pid_.length ();
+        size_t UUID_STRING_LENGTH = 36 + thr_id_.length () + pid_.length ();
         char *buf;
 
         if ((thr_id_.length () != 0) && (pid_.length () != 0))
@@ -380,10 +380,7 @@ namespace ACE_Utils
 
     if (variant == 0xc0)
     {
-      ACE_thread_t thr_id = ACE_OS::thr_self ();
-      ACE_hthread_t thr_handle;
-      ACE_OS::thr_self (thr_handle);
-      ACE_Thread_ID thread_id (thr_id, thr_handle);
+      ACE_Thread_ID thread_id;
       char buf [BUFSIZ];
       thread_id.to_string (buf);
       uuid.thr_id (buf);
@@ -487,7 +484,7 @@ namespace ACE_Utils
 template class ACE_Singleton <ACE_Utils::UUID_Generator, ACE_SYNCH_MUTEX>;
 #elif defined (ACE_HAS_TEMPLATE_INSTANTIATION_PRAGMA)
 #pragma instantiate ACE_Singleton <ACE_Utils::UUID_Generator, ACE_SYNCH_MUTEX>
-#elif defined (__GNUC__) && (defined (_AIX) || defined (__hpux))
+#elif defined (ACE_HAS_EXPLICIT_STATIC_TEMPLATE_MEMBER_INSTANTIATION)
 template ACE_Singleton<ACE_Utils::UUID_Generator, ACE_SYNCH_MUTEX> *
   ACE_Singleton<ACE_Utils::UUID_Generator, ACE_SYNCH_MUTEX>::singleton_;
 #endif /* ACE_HAS_EXPLICIT_TEMPLATE_INSTANTIATION */

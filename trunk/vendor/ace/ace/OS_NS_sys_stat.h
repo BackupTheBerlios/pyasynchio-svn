@@ -4,7 +4,7 @@
 /**
  *  @file   OS_NS_sys_stat.h
  *
- *  OS_NS_sys_stat.h,v 1.4 2003/11/20 22:34:42 shuston Exp
+ *  OS_NS_sys_stat.h,v 1.8 2004/08/24 18:13:29 shuston Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  *  @author Jesper S. M|ller<stophph@diku.dk>
@@ -34,7 +34,7 @@
 #endif
 #define ACE_EXPORT_MACRO ACE_Export
 
-# if defined (ACE_WIN32) && !defined (ACE_HAS_WINCE) && !defined (__BORLANDC__)
+# if defined (ACE_WIN32) && !defined (ACE_HAS_WINCE) && !defined (__BORLANDC__) && !defined(__IBMCPP__)
       typedef struct _stat ACE_stat;
 # else
       typedef struct stat ACE_stat;
@@ -66,16 +66,33 @@ namespace ACE_OS {
   int lstat (const char *,
              ACE_stat *);
 
+#if defined (ACE_HAS_WCHAR)
   ACE_NAMESPACE_INLINE_FUNCTION
-  int mkdir (const ACE_TCHAR *path,
+  int lstat (const wchar_t *,
+             ACE_stat *);
+#endif /* ACE_HAS_WCHAR */
+
+  ACE_NAMESPACE_INLINE_FUNCTION
+  int mkdir (const char *path,
              mode_t mode = ACE_DEFAULT_DIR_PERMS);
+
+#if defined (ACE_HAS_WCHAR)
+  ACE_NAMESPACE_INLINE_FUNCTION
+  int mkdir (const wchar_t *path,
+             mode_t mode = ACE_DEFAULT_DIR_PERMS);
+#endif /* ACE_HAS_WCHAR */
 
   ACE_NAMESPACE_INLINE_FUNCTION
   int mkfifo (const ACE_TCHAR *file,
               mode_t mode = ACE_DEFAULT_FILE_PERMS);
 
   ACE_NAMESPACE_INLINE_FUNCTION
-  int stat (const ACE_TCHAR *file, ACE_stat *);
+  int stat (const char *file, ACE_stat *);
+
+#if defined (ACE_HAS_WCHAR)
+  ACE_NAMESPACE_INLINE_FUNCTION
+  int stat (const wchar_t *file, ACE_stat *);
+#endif /* ACE_HAS_WCHAR */
 
   ACE_NAMESPACE_INLINE_FUNCTION
   mode_t umask (mode_t cmask);

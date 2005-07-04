@@ -6,7 +6,7 @@
  *
  *  definitions for vector I/O operations
  *
- *  os_uio.h,v 1.4 2003/11/01 11:15:19 dhinton Exp
+ *  os_uio.h,v 1.6 2004/08/25 16:05:42 shuston Exp
  *
  *  @author Don Hinton <dhinton@dresystems.com>
  *  @author This code was originally in various places including ace/OS.h.
@@ -18,7 +18,7 @@
 
 #include /**/ "ace/pre.h"
 
-#include "ace/config-all.h"
+#include "ace/config-lite.h"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
@@ -63,27 +63,15 @@ extern "C"
 #endif /* __rtems__ */
 
 
-#if defined (ACE_HAS_BROKEN_WRITEV)
-   typedef struct iovec ACE_WRITEV_TYPE;
-#else
-   typedef const struct iovec ACE_WRITEV_TYPE;
-#endif /* ACE_HAS_BROKEN_WRITEV */
-
-#if defined (ACE_HAS_BROKEN_READV)
-   typedef const struct iovec ACE_READV_TYPE;
-#else
-   typedef struct iovec ACE_READV_TYPE;
-#endif /* ACE_HAS_BROKEN_READV */
-
 # if defined (ACE_LACKS_TIMEDWAIT_PROTOTYPES)
 
   ssize_t readv_timedwait (ACE_HANDLE handle,
-                           iovec *iov,
+                           const iovec *iov,
                            int iovcnt,
                            struct timespec* timeout);
 
   ssize_t writev_timedwait (ACE_HANDLE handle,
-                            ACE_WRITEV_TYPE *iov,
+                            const iovec *iov,
                             int iovcnt,
                             struct timespec *timeout);
 

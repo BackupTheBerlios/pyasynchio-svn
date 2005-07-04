@@ -4,7 +4,7 @@
 /**
  *  @file    SOCK.h
  *
- *  SOCK.h,v 4.33 2003/11/01 11:15:16 dhinton Exp
+ *  SOCK.h,v 4.38 2004/06/16 07:57:22 jwillemsen Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -22,30 +22,7 @@
 
 #include "ace/Addr.h"
 #include "ace/IPC_SAP.h"
-
-#if defined (SD_RECEIVE)
-#define ACE_SHUTDOWN_READ SD_RECEIVE
-#elif defined (SHUT_RD)
-#define ACE_SHUTDOWN_READ SHUT_RD
-#else
-#define ACE_SHUTDOWN_READ 0
-#endif /* SD_RECEIVE */
-
-#if defined (SD_SEND)
-#define ACE_SHUTDOWN_WRITE SD_SEND
-#elif defined (SHUT_WR)
-#define ACE_SHUTDOWN_WRITE SHUT_WR
-#else
-#define ACE_SHUTDOWN_WRITE 1
-#endif /* SD_RECEIVE */
-
-#if defined (SD_BOTH)
-#define ACE_SHUTDOWN_BOTH SD_BOTH
-#elif defined (SHUT_RDWR)
-#define ACE_SHUTDOWN_BOTH SHUT_RDWR
-#else
-#define ACE_SHUTDOWN_BOTH 2
-#endif /* SD_RECEIVE */
+#include "ace/OS_NS_stropts.h"
 
 /**
  * @class ACE_SOCK
@@ -127,7 +104,7 @@ protected:
             int protocol,
             ACE_Protocol_Info *protocolinfo,
             ACE_SOCK_GROUP g,
-             u_long flags,
+            u_long flags,
             int reuse_addr);
 
   /// Default constructor is protected to prevent instances of this class
@@ -136,9 +113,9 @@ protected:
 
 };
 
-#if !defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/SOCK.i"
-#endif /* ACE_LACKS_INLINE_FUNCTIONS */
+#if defined (__ACE_INLINE__)
+#include "ace/SOCK.inl"
+#endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"
 #endif /* ACE_SOCK_H */

@@ -4,7 +4,7 @@
 /**
  *  @file    SString.h
  *
- *  SString.h,v 4.80 2003/11/06 04:47:27 dhinton Exp
+ *  SString.h,v 4.83 2004/06/16 07:57:22 jwillemsen Exp
  *
  *  @author Douglas C. Schmidt (schmidt@cs.wustl.edu)
  */
@@ -203,16 +203,16 @@ public:
   int rfind (char c, int pos = npos) const;
 
   /// Equality comparison operator (must match entire string).
-  int operator == (const ACE_SString &s) const;
+  bool operator == (const ACE_SString &s) const;
 
   /// Less than comparison operator.
-  int operator < (const ACE_SString &s) const;
+  bool operator < (const ACE_SString &s) const;
 
   /// Greater than comparison operator.
-  int operator > (const ACE_SString &s) const;
+  bool operator > (const ACE_SString &s) const;
 
   /// Inequality comparison operator.
-  int operator != (const ACE_SString &s) const;
+  bool operator != (const ACE_SString &s) const;
 
   /// Performs a <strcmp>-style comparison.
   int compare (const ACE_SString &s) const;
@@ -464,7 +464,7 @@ protected:
 class ACE_Export ACE_Auto_String_Free
 {
 public:
-  ACE_EXPLICIT ACE_Auto_String_Free (char* p = 0);
+  explicit ACE_Auto_String_Free (char* p = 0);
   ACE_Auto_String_Free (ACE_Auto_String_Free &rhs);
   ACE_Auto_String_Free& operator= (ACE_Auto_String_Free &rhs);
   ~ACE_Auto_String_Free (void);
@@ -480,7 +480,7 @@ private:
 };
 
 #if defined (__ACE_INLINE__)
-#include "ace/SString.i"
+#include "ace/SString.inl"
 #endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"

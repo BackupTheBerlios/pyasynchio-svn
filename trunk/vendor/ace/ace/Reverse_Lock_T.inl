@@ -1,6 +1,7 @@
 /* -*- C++ -*- */
-// Reverse_Lock_T.inl,v 4.2 2003/11/28 22:24:30 shuston Exp
+// Reverse_Lock_T.inl,v 4.3 2004/09/01 21:16:57 shuston Exp
 
+#include "ace/config-all.h"
 #include "ace/OS_NS_errno.h"
 
 template <class ACE_LOCKING_MECHANISM> ACE_INLINE

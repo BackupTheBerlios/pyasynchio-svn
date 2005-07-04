@@ -1,30 +1,5 @@
 // -*- C++ -*-
-// OS_Errno.inl,v 4.1 2000/11/13 01:04:55 brunsch Exp
-
-#if defined (ACE_HAS_WINCE_BROKEN_ERRNO)
-
-ACE_INLINE ACE_CE_Errno *
-ACE_CE_Errno::instance ()
-{
-  // This should be inlined.
-  return ACE_CE_Errno::instance_;
-}
-
-ACE_INLINE
-ACE_CE_Errno::operator int (void) const
-{
-  return (int) TlsGetValue (ACE_CE_Errno::errno_key_);
-}
-
-ACE_INLINE int
-ACE_CE_Errno::operator= (int x)
-{
-  // error checking?
-  TlsSetValue (ACE_CE_Errno::errno_key_, (void *) x);
-  return x;
-}
-
-#endif /* ACE_HAS_WINCE_BROKEN_ERRNO */
+// OS_Errno.inl,v 4.3 2004/08/30 21:42:30 shuston Exp
 
 ACE_INLINE
 ACE_Errno_Guard::ACE_Errno_Guard (ACE_ERRNO_TYPE &errno_ref,
@@ -74,13 +49,13 @@ ACE_Errno_Guard::operator= (int error)
   return this->error_ = error;
 }
 
-ACE_INLINE int
+ACE_INLINE bool
 ACE_Errno_Guard::operator== (int error)
 {
   return this->error_ == error;
 }
 
-ACE_INLINE int
+ACE_INLINE bool
 ACE_Errno_Guard::operator!= (int error)
 {
   return this->error_ != error;

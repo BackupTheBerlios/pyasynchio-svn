@@ -1,12 +1,11 @@
 // -*- C++ -*-
-// OS_NS_sys_mman.inl,v 1.4 2003/11/18 16:05:00 dhinton Exp
+// OS_NS_sys_mman.inl,v 1.10 2004/12/20 14:57:10 olli Exp
 
 #include "ace/OS_NS_fcntl.h"
 #include "ace/OS_NS_unistd.h"
 #include "ace/OS_NS_stdio.h"
 #include "ace/OS_NS_macros.h"
 #include "ace/OS_NS_errno.h"
-#include "ace/os_include/sys/os_mman.h"
 
 #if defined (__Lynx__)
 #  include "ace/OS_NS_sys_stat.h"
@@ -23,13 +22,7 @@ ACE_INLINE int
 ACE_OS::madvise (caddr_t addr, size_t len, int map_advice)
 {
   ACE_OS_TRACE ("ACE_OS::madvise");
-#if defined (ACE_WIN32)
-  ACE_UNUSED_ARG (addr);
-  ACE_UNUSED_ARG (len);
-  ACE_UNUSED_ARG (map_advice);
-
-  ACE_NOTSUP_RETURN (-1);
-#elif !defined (ACE_LACKS_MADVISE)
+#if !defined (ACE_LACKS_MADVISE)
   ACE_OSCALL_RETURN (::madvise (addr, len, map_advice), int, -1);
 #else
   ACE_UNUSED_ARG (addr);
@@ -120,8 +113,12 @@ ACE_OS::mmap (void *addr,
       if (try_create)
 #  endif /* !ACE_HAS_WINCE && (ACE_HAS_WINNT4 || ACE_HAS_WINNT4 == 0) */
         {
+          SECURITY_ATTRIBUTES sa_buffer;
+          SECURITY_DESCRIPTOR sd_buffer;
           const LPSECURITY_ATTRIBUTES attr =
-            ACE_OS::default_win32_security_attributes (sa);
+            ACE_OS::default_win32_security_attributes_r (sa,
+                                                         &sa_buffer,
+                                                         &sd_buffer);
 
           *file_mapping = ACE_TEXT_CreateFileMapping (file_handle,
                                                       attr,
@@ -162,8 +159,8 @@ ACE_OS::mmap (void *addr,
     ACE_FAIL_RETURN (MAP_FAILED);
   else
     return addr_mapping;
-#elif defined (__Lynx__)
-  // The LynxOS 2.5.0 mmap doesn't allow operations on plain
+#elif defined (ACE_HAS_LYNXOS_BROKEN_MMAP)
+  // The LynxOS mmap doesn't allow operations on plain
   // file descriptors.  So, create a shm object and use that.
   ACE_UNUSED_ARG (sa);
 
@@ -214,6 +211,9 @@ ACE_OS::mmap (void *addr,
   flags |= ACE_OS_EXTRA_MMAP_FLAGS;
 #  endif /* ACE_OS_EXTRA_MMAP_FLAGS */
   ACE_UNUSED_ARG (file_mapping);
+#  if defined (ACE_OPENVMS)
+  ::fsync(file_handle);
+#  endif
   ACE_OSCALL_RETURN ((void *) ::mmap ((ACE_MMAP_TYPE) addr,
                                       len,
                                       prot,
@@ -306,6 +306,8 @@ ACE_OS::shm_open (const ACE_TCHAR *filename,
 # if defined (ACE_HAS_SHM_OPEN)
   ACE_UNUSED_ARG (sa);
   ACE_OSCALL_RETURN (::shm_open (filename, mode, perms), ACE_HANDLE, -1);
+# elif defined (ACE_OPENVMS)
+  ACE_OSCALL_RETURN (::open (filename, mode, perms, ACE_TEXT("shr=get,put,upd")), ACE_HANDLE, -1);
 # else  /* ! ACE_HAS_SHM_OPEN */
   // Just use ::open.
   return ACE_OS::open (filename, mode, perms, sa);

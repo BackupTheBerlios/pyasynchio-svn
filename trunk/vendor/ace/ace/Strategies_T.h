@@ -4,7 +4,7 @@
 /**
  *  @file   Strategies_T.h
  *
- *  Strategies_T.h,v 4.75 2003/08/04 03:53:53 dhinton Exp
+ *  Strategies_T.h,v 4.80 2004/12/10 09:51:04 jwillemsen Exp
  *
  *  @author Douglas C. Schmidt <schmidt@cs.wustl.edu>
  */
@@ -191,17 +191,17 @@ public:
 
   /// Initialize the DLL strategy based upon the service's DLL
   /// information contained in the <svc_dll_info> string.
-  ACE_DLL_Strategy (const char dll_name[],
-                    const char factory_function[],
-                    const char svc_name[],
+  ACE_DLL_Strategy (const ACE_TCHAR dll_name[],
+                    const ACE_TCHAR factory_function[],
+                    const ACE_TCHAR svc_name[],
                     ACE_Service_Repository *,
                     ACE_Thread_Manager * = 0);
 
   /// Initialize the DLL strategy based upon the service's DLL
   /// information contained in the <svc_dll_info> string.
-  int open (const char dll_name[],
-            const char factory_function[],
-            const char svc_name[],
+  int open (const ACE_TCHAR dll_name[],
+            const ACE_TCHAR factory_function[],
+            const ACE_TCHAR svc_name[],
             ACE_Service_Repository *,
             ACE_Thread_Manager * = 0);
 
@@ -220,14 +220,14 @@ protected:
   typedef ACE_Creation_Strategy<SVC_HANDLER> inherited;
 
   /// Name of the DLL to dynamically link.
-  char dll_name_[MAXPATHLEN + 1];
+  ACE_TCHAR dll_name_[MAXPATHLEN + 1];
 
   /// Name of the factory function in the shared library to use to
   /// obtain a pointer to the new SVC_HANDLER.
-  char factory_function_[MAXPATHLEN + 1];
+  ACE_TCHAR factory_function_[MAXPATHLEN + 1];
 
   /// Name of the service.
-  char svc_name_[MAXNAMELEN + 1];
+  ACE_TCHAR svc_name_[MAXNAMELEN + 1];
 
   /// Pointer to the <Service_Repository>.
   ACE_Service_Repository *svc_rep_;
@@ -287,8 +287,9 @@ protected:
 /**
  * @class ACE_Reactive_Strategy
  *
- * @brief Defines the interface for specifying a Reactive concurrency
- * strategy for a SVC_HANDLER.
+ * @brief Defines the interface for specifying a reactive concurrency
+ * strategy for a SVC_HANDLER, where all upcalls to @c handle_*()
+ * methods run in the reactor's thread of control.
  *
  * This class provides a strategy that registers the
  * <SVC_HANDLER> with a <Reactor>.
@@ -347,11 +348,11 @@ protected:
  * @brief Defines the interface for specifying a concurrency strategy
  * for a <SVC_HANDLER> based on multithreading.
  *
- * This class provides a strategy that manages the creation of
- * threads to handle requests from clients concurrently.  It
- * behaves as a "thread factory", spawning threads "on-demand"
- * to run the service specified by a user-supplied
- * <SVC_HANDLER>.
+ * This class provides a strategy that manages the creation of threads
+ * to handle requests from clients concurrently via a
+ * thread-per-connection model.  It behaves as a "thread factory",
+ * spawning threads "on-demand" to run the service specified by a
+ * user-supplied <SVC_HANDLER>.
  */
 template <class SVC_HANDLER>
 class ACE_Thread_Strategy : public ACE_Concurrency_Strategy<SVC_HANDLER>
@@ -415,10 +416,10 @@ protected:
  * for a <SVC_HANDLER> based on multiprocessing.
  *
  * This class provides a strategy that manages the creation of
- * processes to handle requests from clients concurrently.  It
- * behaves as a "process factory", using <ACE::fork> to fork
- * threads "on-demand" to run the service specified by a
- * user-supplied <SVC_HANDLER> in a separate process.
+ * processes to handle requests from clients concurrently using a
+ * process-per-connection model.  It behaves as a "process factory",
+ * using <ACE::fork> to fork threads "on-demand" to run the service
+ * specified by a user-supplied <SVC_HANDLER> in a separate process.
  */
 template <class SVC_HANDLER>
 class ACE_Process_Strategy : public ACE_Concurrency_Strategy<SVC_HANDLER>
@@ -800,8 +801,8 @@ public:
   virtual ~ACE_Refcounted_Hash_Recyclable (void);
 
   /// Compares two instances.
-  int operator== (const ACE_Refcounted_Hash_Recyclable<T> &rhs) const;
-  int operator!= (const ACE_Refcounted_Hash_Recyclable<T> &rhs) const;
+  bool operator== (const ACE_Refcounted_Hash_Recyclable<T> &rhs) const;
+  bool operator!= (const ACE_Refcounted_Hash_Recyclable<T> &rhs) const;
 
   T &subject ();
 
@@ -1055,9 +1056,9 @@ protected:
   int delete_recycling_strategy_;
 };
 
-#if !defined (ACE_LACKS_INLINE_FUNCTIONS)
-#include "ace/Strategies_T.i"
-#endif /* ACE_LACKS_INLINE_FUNCTIONS */
+#if defined (__ACE_INLINE__)
+#include "ace/Strategies_T.inl"
+#endif /* __ACE_INLINE__ */
 
 #if defined (ACE_TEMPLATES_REQUIRE_SOURCE)
 #include "ace/Strategies_T.cpp"

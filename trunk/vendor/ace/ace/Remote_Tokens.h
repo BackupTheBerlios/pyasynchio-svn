@@ -4,7 +4,7 @@
 /**
  *  @file    Remote_Tokens.h
  *
- *  Remote_Tokens.h,v 4.17 2003/07/19 19:04:13 dhinton Exp
+ *  Remote_Tokens.h,v 4.18 2004/06/16 07:57:22 jwillemsen Exp
  *
  *  @author Douglas C. Schmidt (schmidt@cs.wustl.edu)
  *  @author Tim Harrison (harrison@cs.wustl.edu)
@@ -309,7 +309,7 @@ private:
 #endif /* ACE_HAS_TOKENS_LIBRARY */
 
 #if defined (__ACE_INLINE__)
-#include "ace/Remote_Tokens.i"
+#include "ace/Remote_Tokens.inl"
 #endif /* __ACE_INLINE__ */
 
 #include /**/ "ace/post.h"
