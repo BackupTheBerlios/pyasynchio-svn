@@ -1,5 +1,5 @@
 # Hey Emacs, this is a -*- Makefile -*-
-# platform_linux_borland.GNU,v 1.16 2003/12/27 10:25:59 jwillemsen Exp
+# platform_linux_borland.GNU,v 1.17 2004/01/22 18:36:31 harris_s Exp
 
 # platform_linux_borland.GNU
 
@@ -52,9 +52,10 @@ PLATFORM_GTK_CPPFLAGS=$(shell gtk-config --cflags)
 PLATFORM_GTK_LIBS    =$(shell gtk-config --libs)
 PLATFORM_GTK_LDFLAGS=
 
-PLATFORM_WX_CPPFLAGS= $(shell wx-config --cflags) $(PLATFORM_GTK_CPPFLAGS)
-PLATFORM_WX_LIBS    = $(shell wx-config --libs)   $(PLATFORM_GTK_LIBS)
-PLATFORM_WX_LDFLAGS =
+# NOTE: we only support wxWindows over GTK
+PLATFORM_WX_CPPFLAGS= $(shell wx-config --cxxflags) $(PLATFORM_GTK_CPPFLAGS)
+PLATFORM_WX_LIBS    = $(shell wx-config --libs)     $(PLATFORM_GTK_LIBS)
+PLATFORM_WX_LDFLAGS = $(shell wx-config --ldflags)  $(PLATFORM_GTK_LDFLAGS)
 
 ifeq ($(insure),1)
 CC  = insure

@@ -1,4 +1,4 @@
-# platform_gnuwin32_common.GNU,v 4.13 2003/10/29 08:08:59 jwillemsen Exp
+# platform_gnuwin32_common.GNU,v 4.18 2004/12/16 10:15:29 jwillemsen Exp
 
 ifneq ($(mingw32),1)
   ifneq ($(cygwin32),1)
@@ -55,7 +55,11 @@ CC      = gcc
 CXX     = g++
 RC      = windres
 
-MODEL_FLAGS += -mcpu=$(TCPU)
+ifeq (3.4,$(findstring 3.4,$(GNUWIN32_CXX_VERSION)))
+  MODEL_FLAGS += -mtune=$(TCPU)
+else
+  MODEL_FLAGS += -mcpu=$(TCPU)
+endif
 
 CFLAGS  += -W -Wall -Wpointer-arith
 ifeq ($(threads),1)
@@ -86,6 +90,14 @@ SOEXT      = dll
 SOFLAGS    += $(MODEL_FLAGS) $(CPPFLAGS)
 SOBUILD    = $(COMPILE.cc) $(PIC) -o $(VSHDIR)$*.so $<
 
+PLATFORM_FL_CPPFLAGS  ?=
+PLATFORM_FL_LIBS      ?= -lfltk -lfltk_forms -lfltk_gl -lfltk_images
+PLATFORM_FL_LDFLAGS   ?=
+
+PLATFORM_GL_CPPFLAGS  ?= -I/usr/X11R6/include
+PLATFORM_GL_LIBS      ?= -lGL
+PLATFORM_GL_LDFLAGS   ?= -L/usr/X11R6/lib
+
 # The sed below is to strip comments on the .def file,
 # to workaround to a bug in ld.
 SHLIBBUILD = \
@@ -95,7 +107,7 @@ SHLIBBUILD = \
   && mv $(VSHDIR)/$@.def $(VSHDIR)/$@.def.old \
   && sed 's/;.*$$//g' < $(VSHDIR)/$@.def.old > $(VSHDIR)/$@.def \
   && $(SOLINK.cc) -Wl,--enable-auto-image-base -Wl,--out-implib,$@.a \
-    -shared -o $@ $(LDFLAGS) $(VSHDIR)/$@.def \
+    -shared -o $@ $(LDFLAGS) -Wl,$(VSHDIR)/$@.def \
     $(VSHOBJS1) $(ACE_SHLIBS) $(LIBS)
 
 ifneq ($(GNUWIN32_DLL_ALLOW_EXECP), 1)
@@ -107,7 +119,7 @@ endif
 
 PRELIB  = @true
 
-# Test for template instantiation, add to SOFLAGS if SONAME set, 
+# Test for template instantiation, add to SOFLAGS if SONAME set,
 # add -E to LDFLAGS if using GNU ld
 #
 include $(ACE_ROOT)/include/makeinclude/platform_g++_common.GNU

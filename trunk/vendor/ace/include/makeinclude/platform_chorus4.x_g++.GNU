@@ -1,4 +1,4 @@
-# platform_chorus4.x_g++.GNU,v 4.12 2003/12/08 16:02:34 jwillemsen Exp
+# platform_chorus4.x_g++.GNU,v 4.13 2004/03/03 00:17:37 dhinton Exp
 #
 # Chorus 4.0 with egcs 1.1.2
 #
@@ -113,7 +113,6 @@ CCFLAGS += $(CFLAGS) $(TEMPLATES_FLAG) \
            -fconserve-space                     \
            -fcheck-new                          \
            -nostdinc                            \
-           -pipe                                \
            -fno-rtti                            \
            -fwritable-strings                   \
            -fsigned-char                        \
@@ -122,6 +121,8 @@ CCFLAGS += $(CFLAGS) $(TEMPLATES_FLAG) \
            -D_POSIX_THREADS                     \
            -D_POSIX_THREAD_SAFE_FUNCTIONS	\
            "-DNO_FPU_SUPPORT"
+
+pipes ?= 1
 
 ifeq ($(CPU),powerpc)
 CCFLAGS += -mstrict-align                       \

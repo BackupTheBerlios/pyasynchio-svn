@@ -1,5 +1,5 @@
 # -*- Makefile -*-
-# platform_g++_common.GNU,v 4.22 2004/01/09 20:22:31 dhinton Exp
+# platform_g++_common.GNU,v 4.25 2004/04/15 09:55:21 jwillemsen Exp
 #
 # Common file help turn on/off explicit template instantiation
 
@@ -25,10 +25,14 @@ ifndef templates
       ifeq (2.96,$(findstring 2.96,$(CXX_VERSION)))
         templates = automatic
       else
-        ifeq (egcs, $(findstring egcs, $(CXX_VERSION)))
-          templates = explicit
+        ifeq (2.9-gnupro, $(findstring 2.9-gnupro, $(CXX_VERSION)))
+          templates = automatic
         else
-          templates = explicit
+          ifeq (egcs, $(findstring egcs, $(CXX_VERSION)))
+            templates = explicit
+          else
+            templates = explicit
+          endif
         endif
       endif
     endif
@@ -73,8 +77,12 @@ ifneq ($(DLD),)
   else
     LD_FOR_VERSION_TEST = $(DLD)
   endif # DLD = CXX_FOR_VERSION_TEST
-  # The -E option is GNU ld specific 
-  GNU_LD := $(shell sh -c '$(LD_FOR_VERSION_TEST) -v 2>&1 | grep -c "GNU ld"')
+  # The -E option is GNU ld specific
+  ifneq ($(mingw32),1)
+    GNU_LD := $(shell sh -c '$(LD_FOR_VERSION_TEST) -v 2>&1 | grep -c "GNU ld"')
+  else
+    GNU_LD := $(shell $(LD_FOR_VERSION_TEST) -v | grep -c 'GNU ld')
+  endif # mingw32
 endif # DLD
 
 ifeq ($(GNU_LD),1)
@@ -87,7 +95,16 @@ ifeq ($(shared_libs), 1)
   ifneq ($(static_libs_only), 1)
     ifeq ($(GNU_LD),1)
       # Make sure this version of ld supports the -E option.
-      LD_EXPORT_DEFINED := $(shell sh -c '$(LD_FOR_VERSION_TEST) -E 2>&1 | grep -i -e "(option|flag)" /dev/null; echo $$?')
+      ifneq ($(mingw32),1)
+        LD_EXPORT_DEFINED := $(shell sh -c '$(LD_FOR_VERSION_TEST) -E 2>&1 | grep -i -e "option" -e "flag" /dev/null; echo $$?')
+      else
+        LD_EXPORT_DEFINED := $(shell $(LD_FOR_VERSION_TEST) -E 2>&1 | grep -c -i -e '(option|flag)')
+	    ifeq ($(LD_EXPORT_DEFINED),0)
+	      LD_EXPORT_DEFINED:=1
+	    else
+	      LD_EXPORT_DEFINED:=0
+	    endif
+      endif # mingw32
       ifeq ($(LD_EXPORT_DEFINED),1)
         LDFLAGS += -Wl,-E
       endif # LD_EXPORT_DEFINED = 1

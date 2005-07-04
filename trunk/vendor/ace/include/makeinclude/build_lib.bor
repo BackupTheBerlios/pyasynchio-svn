@@ -1,5 +1,5 @@
 #
-# build_lib.bor,v 4.14 2003/12/30 19:08:07 elliott_c Exp
+# build_lib.bor,v 4.17 2004/02/01 12:36:35 jwillemsen Exp
 #
 # Rules	for building a static library
 #
@@ -39,6 +39,20 @@ TARGET = $(BINDIR)\$(NAME)$(LIB_DECORATOR).lib
 all: $(TARGET)
 	@echo Do nothing >NUL
 
+!ifdef CBX
+!ifdef TARGET
+$(TARGET): $(OBJFILES)
+	@$(MAKE_BINDIR)
+	-@del $(TARGET) 2>NUL
+	$(AR) -M < @&&!
+VERBOSE
+CREATE $@
+ADDMOD $(OBJFILES:\=/)
+SAVE
+END
+!
+!endif
+!else
 !ifdef TARGET
 $(TARGET): $(OBJFILES)
 	@$(MAKE_BINDIR)
@@ -47,6 +61,7 @@ $(TARGET): $(OBJFILES)
 + $(**: = &^
 + )
 !
+!endif
 !endif
 
 !include <$(ACE_ROOT)\include\makeinclude\clean.bor>
@@ -63,7 +78,7 @@ INSTALL_TYPES =	lib includes
 .path.c	= $(CDIR)
 !endif
 
-.path.obj = $(OBJDIR)
+.path.$(OBJ_EXT) = $(OBJDIR)
 
 !ifdef DEBUG
 !ifndef NO_FULL_PATH
@@ -71,7 +86,7 @@ USE_FULL_PATH = 1
 !endif
 !endif
 
-.cpp.obj:
+.cpp.$(OBJ_EXT):
 	@$(MAKE_OBJDIR)
 !ifdef USE_FULL_PATH
 	@for /F "delims=;" %i in ('cd') do @echo $(CC) $(COMMON_CFLAGS) $(LIB_CFLAGS) $(CFLAGS) -c -n$(@D) %i\$(<:.\=)
@@ -80,7 +95,7 @@ USE_FULL_PATH = 1
 	$(CC) $(COMMON_CFLAGS) $(LIB_CFLAGS) $(CFLAGS) -c -n$(@D) $<
 !endif
 
-.c.obj:
+.c.$(OBJ_EXT):
 	@$(MAKE_OBJDIR)
 !ifdef USE_FULL_PATH
 	@for /F "delims=;" %i in ('cd') do @echo $(CC) $(COMMON_CFLAGS) $(LIB_CFLAGS) $(CFLAGS) -c -n$(@D) %i\$(<:.\=)

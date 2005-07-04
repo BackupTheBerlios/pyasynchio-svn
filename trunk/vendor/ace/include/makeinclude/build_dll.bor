@@ -1,5 +1,5 @@
 #
-# build_dll.bor,v 4.16 2003/12/30 19:08:07 elliott_c Exp
+# build_dll.bor,v 4.17 2004/01/26 16:01:06 jwillemsen Exp
 #
 # Rules	for linking a dll
 #
@@ -86,7 +86,7 @@ INSTALL_TYPES =	dll lib	includes
 .path.rc = .
 !endif
 
-.path.obj = $(OBJDIR)
+.path.$(OBJ_EXT) = $(OBJDIR)
 
 !ifdef DEBUG
 !ifndef NO_FULL_PATH
@@ -94,7 +94,7 @@ USE_FULL_PATH = 1
 !endif
 !endif
 
-.cpp.obj:
+.cpp.$(OBJ_EXT):
 	@$(MAKE_OBJDIR)
 !ifdef USE_FULL_PATH
 	@for /F "delims=;" %i in ('cd') do @echo $(CC) $(COMMON_CFLAGS) $(DLL_CFLAGS) $(CFLAGS) -c -n$(@D) %i\$(<:.\=)
@@ -103,7 +103,7 @@ USE_FULL_PATH = 1
 	$(CC) $(COMMON_CFLAGS) $(DLL_CFLAGS) $(CFLAGS) -c -n$(@D) $<
 !endif
 
-.c.obj:
+.c.$(OBJ_EXT):
 	@$(MAKE_OBJDIR)
 !ifdef USE_FULL_PATH
 	@for /F "delims=;" %i in ('cd') do @echo $(CC) $(COMMON_CFLAGS) $(DLL_CFLAGS) $(CFLAGS) -c -n$(@D) %i\$(<:.\=)

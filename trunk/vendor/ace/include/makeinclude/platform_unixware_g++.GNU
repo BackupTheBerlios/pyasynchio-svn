@@ -1,4 +1,4 @@
-# platform_unixware_g++.GNU,v 4.23 2003/08/09 04:43:51 dhinton Exp
+# platform_unixware_g++.GNU,v 4.24 2004/03/03 00:17:37 dhinton Exp
 
 # UnixWare V2.2.1.2 with g++ version 2.7.2.2
 
@@ -48,5 +48,6 @@ PRELIB          = @true
 #
 include $(ACE_ROOT)/include/makeinclude/platform_g++_common.GNU
 
-CFLAGS          += -W -Wall -Wpointer-arith -pipe #### -Winline
+pipes ?= 1
+CFLAGS          += -W -Wall -Wpointer-arith #### -Winline
 CCFLAGS         += $(CFLAGS) $(TEMPLATES_FLAG)

@@ -1,4 +1,4 @@
-# platform_chorus.GNU,v 4.28 2003/12/08 16:02:34 jwillemsen Exp
+# platform_chorus.GNU,v 4.29 2004/03/03 00:17:37 dhinton Exp
 
 # Chorus 3.1b with GNU g++ 2.7.2
 
@@ -52,7 +52,6 @@ CCFLAGS         += $(CFLAGS) -fno-implicit-templates    \
                    -fconserve-space                     \
                    -fcheck-new                          \
                    -nostdinc                            \
-                   -pipe                                \
                    -fno-rtti                            \
                    -fwritable-strings                   \
                    -fsigned-char                        \
@@ -60,6 +59,8 @@ CCFLAGS         += $(CFLAGS) -fno-implicit-templates    \
                    -D_POSIX_THREADS                     \
                    -D_POSIX_THREAD_SAFE_FUNCTIONS	\
                    "-DNO_FPU_SUPPORT"
+
+pipes ?= 1
 
 ifeq ($(CPU),powerpc)
 CCFLAGS         += -mstrict-align                       \

@@ -1,4 +1,4 @@
-# platform_mingw32.GNU,v 4.9 2003/12/19 11:47:20 jwillemsen Exp
+# platform_mingw32.GNU,v 4.13 2004/05/11 09:25:56 jwillemsen Exp
 
 # This file should allow to build ACE for mingw32 with mingw tools.
 # Edit to change TCPU below.
@@ -25,11 +25,13 @@
 #    ... %{!shared:%{!mdll:c:/mingw32/lib/gcc-lib/mingw32/2.95.2/crt2%O%s}} ...
 #    or something similar depending on the location of your instalation).
 
-# Chose your target CPU (uncomment ONE of these).
-TCPU = pentiumpro
-#TCPU = pentium
-#TCPU = i486
-#TCPU = i386
+#
+# Chose your target CPU (by default we set it to pentiumpro. In your
+# platform_macros.GNU file you can override this to pentium, i486 or i386
+#
+ifndef TCPU
+  TCPU = pentiumpro
+endif
 
 mingw32 = 1
 
@@ -40,12 +42,17 @@ versioned_so=0
 # MinGW doesn't have rwho
 rwho = 0
 
-# MinGW has wfmo
+# MinGW has wfmo and registry
 wfmo = 1
+winregistry = 1
 
 # Disable auto-import warnings. The MingW linker has a problem with imports
 # See https://sourceforge.net/tracker/?func=detail&atid=102435&aid=683455&group_id=2435
 # for the details why to do this.
 LDFLAGS += -Wl,--enable-auto-import
 
+PWD=$(subst \,/,$(shell pwd))
+
 include $(ACE_ROOT)/include/makeinclude/platform_gnuwin32_common.GNU
+
+PRELIB:=

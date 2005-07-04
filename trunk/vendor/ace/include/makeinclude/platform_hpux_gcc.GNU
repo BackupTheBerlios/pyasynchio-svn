@@ -1,4 +1,4 @@
-# platform_hpux_gcc.GNU,v 4.28 2003/10/17 21:48:05 shuston Exp
+# platform_hpux_gcc.GNU,v 4.30 2004/08/12 07:53:52 jwillemsen Exp
 #
 
 ifeq (,$(buildbits))
@@ -95,7 +95,7 @@ else
 
 endif
 
-# Test for template instantiation, add to SOFLAGS if versioned_so set, 
+# Test for template instantiation, add to SOFLAGS if versioned_so set,
 # add -E to LDFLAGS if using GNU ld
 #
 include $(ACE_ROOT)/include/makeinclude/platform_g++_common.GNU

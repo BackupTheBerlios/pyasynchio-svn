@@ -1,6 +1,6 @@
 # -*- Makefile -*-
 
-# platform_sunos5_g++.GNU,v 4.55 2004/01/12 23:40:47 dhinton Exp
+# platform_sunos5_g++.GNU,v 4.58 2004/03/03 00:17:37 dhinton Exp
 
 # SunOS 5.x (Solaris 2.x) with g++
 
@@ -39,9 +39,11 @@ else  # ! i86pc
   DCFLAGS         += -g
 endif # ! i86pc
 
+pipes ?= 1
+
 CC              = gcc
 CXX             = g++
-CFLAGS          += -W -Wall -Wpointer-arith -pipe #### -Winline
+CFLAGS          += -W -Wall -Wpointer-arith #### -Winline
 
 ifeq ($(threads),1)
   CPPFLAGS      += -D_REENTRANT

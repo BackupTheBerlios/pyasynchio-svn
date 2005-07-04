@@ -1,6 +1,6 @@
 # -*- Makefile -*-
 #----------------------------------------------------------------------------
-#       rules.local.GNU,v 4.95 2004/01/13 18:29:54 dhinton Exp
+#       rules.local.GNU,v 4.115 2004/11/10 16:38:04 mcorino Exp
 #
 #       Local targets
 #       GNU version
@@ -25,11 +25,13 @@ endif # CLEANUP_VSHLIB
 
 ifdef TEMPINCDIR
   CLEANUP_DIRS += $(TEMPINCDIR)
-endif 
+endif
 
 ifdef sun
   CLEANUP_DIRS += SunWS_cache
 endif
+
+vxworks_ntbuild ?= 0
 
 #### TEMPLATE_REPOSITORY can be set in individual platform files
 #### to create template repository directories.  See
@@ -38,10 +40,17 @@ ifdef TEMPLATE_REPOSITORY
 CLEANUP_DIRS += $(TEMPLATE_REPOSITORY)
 endif
 
+ifneq ($(mingw32),1)
 makefile_name.local:
 	@echo
-	@echo Makefile: $(shell pwd)/$(MAKEFILE)
+	@echo GNUmakefile: $(shell pwd)/$(MAKEFILE) MAKEFLAGS=$(MAKEFLAGS)
 	@echo
+else
+makefile_name.local:
+	@echo
+	@echo GNUmakefile: $(call PWD)/$(MAKEFILE)
+	@echo
+endif
 
 all.local: makefile_name.local $(split_target) build.objdirs build.local install.local
 
@@ -55,7 +64,9 @@ VLIBS ?=
 BUILD ?=
 BIN ?=
 VBIN ?= $(BIN:%=%$(VAR))
-$(VBIN): $(VLIBS)
+ifneq ($(VBIN),)
+  $(VBIN): $(VLIBS)
+endif
 
 # Always build the V* targets in this order.  We control assignment to them
 # elsewhere. We add the existing $(BUILD) targets to the end to allow the
@@ -74,39 +85,28 @@ build.local: $(VBUILD)
 STATIC_LINK_FLAG ?=
 static_link ?= 0
 ifeq ($(static_link),1)
-  ifeq ($(static_libs_only),1)
-    LDFLAGS += $(STATIC_LINK_FLAG)
-  endif # static_libs_only = 1
+  LDFLAGS += $(STATIC_LINK_FLAG)
 endif # static_link = 1
 
 OS ?=
-ifeq ($(OS),"Windows_NT")
-$(VDIR)%.obj: %.c
+
+$(VDIR)%.o: %.c $(VDIR)%.creation_stamp
 	$(COMPILE.c) $(CC_OUTPUT_FLAG) $@ $<
 	${MVCMD}
 
-$(VDIR)%.obj: %.cpp
-	$(COMPILE.cc) $(CC_OUTPUT_FLAG) $@ $<
-	${MVCMD}
-else
-$(VDIR)%.o: %.c $(VDIR).creation_stamp
-	$(COMPILE.c) $(CC_OUTPUT_FLAG) $@ $<
-	${MVCMD}
-
-$(VDIR)%.o: %.cpp $(VDIR).creation_stamp
-	$(COMPILE.cc) $(CC_OUTPUT_FLAG) $@ $<
-	${MVCMD}
-endif
-
-$(VDIR)%.o: %.C $(VDIR).creation_stamp
+$(VDIR)%.o: %.cpp $(VDIR)%.creation_stamp
 	$(COMPILE.cc) $(CC_OUTPUT_FLAG) $@ $<
 	${MVCMD}
 
-$(VDIR)%.o: %.cc $(VDIR).creation_stamp
+$(VDIR)%.o: %.C $(VDIR)%.creation_stamp
 	$(COMPILE.cc) $(CC_OUTPUT_FLAG) $@ $<
 	${MVCMD}
 
-$(VDIR)%.o: %.cxx $(VDIR).creation_stamp
+$(VDIR)%.o: %.cc $(VDIR)%.creation_stamp
+	$(COMPILE.cc) $(CC_OUTPUT_FLAG) $@ $<
+	${MVCMD}
+
+$(VDIR)%.o: %.cxx $(VDIR)%.creation_stamp
 	$(COMPILE.cc) $(CC_OUTPUT_FLAG) $@ $<
 	${MVCMD}
 
@@ -120,63 +120,64 @@ ifndef SOLINK
 # that the service configurator needs to be able to function).
 # 970104 Marius Kjeldahl <mariusk@sn.no, marius@funcom.com>
   ifdef (ESOBUILD)
-$(VSHDIR)%.$(SOEXT): %.cpp $(VSHDIR).creation_stamp
+$(VSHDIR)%.$(SOEXT): %.cpp $(VSHDIR)%.creation_stamp
 	$(ESOBUILD)
   else # ! ESOBUILD
-$(VSHDIR)%.$(SOEXT): %.cpp $(VSHDIR).creation_stamp
+$(VSHDIR)%.$(SOEXT): %.cpp $(VSHDIR)%.creation_stamp
 	$(SOBUILD)
   endif # ESOBUILD
 
   ifeq ($(split), 1)
-$(VSHDIR)%.$(OBJEXT): %.cpp $(VSHDIR).creation_stamp
+$(VSHDIR)%.$(OBJEXT): %.cpp $(VSHDIR)%.creation_stamp
 	$(COMPILE.cc) $(PIC) SPLIT/`echo $< | sed "s/.cpp/_S\*/"`
 	mv *.$(OBJEXT) $(VSHDIR)
   else # ! split
 
-$(VSHDIR)%.$(OBJEXT): %.cpp $(VSHDIR).creation_stamp
+$(VSHDIR)%.$(OBJEXT): %.cpp $(VSHDIR)%.creation_stamp
 	$(COMPILE.cc) $(PIC) $(CC_OUTPUT_FLAG) $@ $<
+
   endif # split
 
-$(VSHDIR)%.$(OBJEXT): %.cc $(VSHDIR).creation_stamp
+$(VSHDIR)%.$(OBJEXT): %.cc $(VSHDIR)%.creation_stamp
 	$(COMPILE.cc) $(PIC) $(CC_OUTPUT_FLAG) $@ $<
 
-$(VSHDIR)%.$(OBJEXT): %.C $(VSHDIR).creation_stamp
+$(VSHDIR)%.$(OBJEXT): %.C $(VSHDIR)%.creation_stamp
 	$(COMPILE.cc) $(PIC) $(CC_OUTPUT_FLAG) $@ $<
 
-$(VSHDIR)%.$(OBJEXT): %.cxx $(VSHDIR).creation_stamp
+$(VSHDIR)%.$(OBJEXT): %.cxx $(VSHDIR)%.creation_stamp
 	$(COMPILE.cc) $(PIC) $(CC_OUTPUT_FLAG) $@ $<
 
-$(VSHDIR)%.$(OBJEXT): %.c $(VSHDIR).creation_stamp
+$(VSHDIR)%.$(OBJEXT): %.c $(VSHDIR)%.creation_stamp
 	$(COMPILE.c) $(PIC) $(CC_OUTPUT_FLAG) $@ $<
 
   ifneq (,$(COMPILE.rc))
-$(VSHDIR)%.rc.$(OBJEXT): %.rc $(VSHDIR).creation_stamp
+$(VSHDIR)%.rc.$(OBJEXT): %.rc $(VSHDIR)%.creation_stamp
 	$(COMPILE.rc) $< $@
   endif # COMPILE.rc
 
-$(VSHDIR)%.$(SOEXT): $(VSHDIR)%.$(OBJEXT) $(VSHDIR).creation_stamp
+$(VSHDIR)%.$(SOEXT): $(VSHDIR)%.$(OBJEXT) $(VSHDIR)%.creation_stamp
 	$(SOLINK)
 endif # SOLINK
 
-ifeq ($(OS),"Windows_NT")
-$(VDIR).creation_stamp:
-	@if not exist $(VDIR) mkdir $(VDIR)
+ifeq ($(vxworks_ntbuild),1)
+$(VDIR)%.creation_stamp:
+	@if not exist $(dir $@) $(MKDIR) $(dir $@) $(ACE_NUL_STDERR)
 	@echo > $@
 else
-$(VDIR).creation_stamp:
-	@-test -d $(VDIR) || mkdir $(VDIR) $(ACE_NUL_STDERR)
-	@touch $@
+.PHONY: $(VDIR)%.creation_stamp
+$(VDIR)%.creation_stamp:
+	@-test -d $(dir $@) || $(MKDIR) $(dir $@) $(ACE_NUL_STDERR)
 endif
 
 ifneq ($(VDIR),$(VSHDIR))
-  ifeq ($(OS),"Windows_NT")
-$(VSHDIR).creation_stamp:
-	@if not exist $(VSHDIR) mkdir $(VSHDIR)
+  ifeq ($(vxworks_ntbuild),1)
+$(VSHDIR)%.creation_stamp:
+	@if not exist $(dir $@) $(MKDIR) $(dir $@) $(ACE_NUL_STDERR)
 	@echo > $@
   else
-$(VSHDIR).creation_stamp:
-	@-test -d $(VSHDIR) || mkdir $(VSHDIR) $(ACE_NUL_STDERR)
-	@touch $@
+.PHONY: $(VSHDIR)%.creation_stamp
+$(VSHDIR)%.creation_stamp:
+	@-test -d $(dir $@) || $(MKDIR) $(dir $@) $(ACE_NUL_STDERR)
   endif
 endif
 
@@ -250,6 +251,16 @@ $(INSMAN)/man7/% \
 $(INSMAN)/man8/% \
 $(INSMAN)/manl/% \
 $(INSMAN)/mann/% :
+ifeq ($(vxworks_ntbuild),1)
+	@if exist $@ echo "$(@F) already installed"
+	@if not exist $@ echo "Installing $(@F:%.$(SOEXT)$(SOVERSION)=%.$(SOEXT)) to $(@D)" && \
+		$(RM) $(@:%.$(SOEXT)$(SOVERSION)=%.$(SOEXT)) && \
+		$(LN_S) $(shell pwd)/$(@F) $(@:%.$(SOEXT)$(SOVERSION)=%.$(SOEXT)) && \
+		echo "Installing $(@F) to $(@D)" && \
+		$(RM) $@ && \
+		$(LN_S) $(shell pwd)/$(@F) $@
+else
+ifneq ($(mingw32),1)
 	@if test $(shell pwd) != $(@D) -o -n "$(SOVERSION)" ; then \
 		if test -s $@ ; then \
 			echo "$(@F) already installed" ; \
@@ -262,6 +273,21 @@ $(INSMAN)/mann/% :
 			$(LN_S) $(shell pwd)/$(@F) $@; \
 		fi ; \
 	fi
+else
+	@if test $(call PWD) != $(@D) -o -n "$(SOVERSION)" ; then \
+		if test -s $@ ; then \
+			echo "$(@F) already installed" ; \
+		else \
+			echo "Installing $(@F:%.$(SOEXT)$(SOVERSION)=%.$(SOEXT)) -> $(@D)" ; \
+			$(RM) $(@:%.$(SOEXT)$(SOVERSION)=%.$(SOEXT)); \
+			$(LN_S) $(call PWD)/$(@F) $(@:%.$(SOEXT)$(SOVERSION)=%.$(SOEXT)); \
+			echo "Installing $(@F) -> $(@D)" ; \
+			$(RM) $@; \
+			$(LN_S) $(call PWD)/$(@F) $@; \
+		fi ; \
+	fi
+endif
+endif
 ifdef MVSLIB
 #special for MVS in order to use the .x files
 	@if test -w $(@D) ; then \
@@ -308,20 +334,20 @@ endif # shared_libs
 CLEANUP_OBJS += $(addsuffix .o, $(addprefix $(VDIR),$(CLEANUP_BIN)))
 
 ifdef SRC
-  CLEANUP_OBJS = $(addsuffix .$(OBJEXT),$(addprefix $(VDIR),$(basename $(notdir $(SRC)))))
+  CLEANUP_OBJS += $(addsuffix .$(OBJEXT),$(addprefix $(VDIR),$(basename $(SRC))))
 endif # SRC
 ifneq ($(CLEANUP_BIN),)
-  CLEANUP_OBJS += $(addsuffix .$(OBJEXT),$(addprefix $(VDIR),$(basename $(notdir $(CLEANUP_BIN)))))
+  CLEANUP_OBJS += $(addsuffix .$(OBJEXT),$(addprefix $(VDIR),$(basename $(CLEANUP_BIN))))
 endif # CLEANUP_BIN
 ifdef LSRC
-  CLEANUP_OBJS += $(addsuffix .$(OBJEXT),$(addprefix $(VSHDIR),$(basename $(notdir $(LSRC)))))
+  CLEANUP_OBJS += $(addsuffix .$(OBJEXT),$(addprefix $(VSHDIR),$(basename $(LSRC))))
 endif # LSRC
 
 clean.local: makefile_name.local
 ifdef DO_CLEANUP
 	-$(RM) -r \
 	*.$(OBJEXT) *~ *.bak *.rpo *.sym lib*.*_pure_* \
-	Makefile.old core-r $(CLEANUP_DIRS) \
+	GNUmakefile.old core-r $(CLEANUP_DIRS) \
 	cxx_repository ptrepository ti_files \
 	gcctemp.c gcctemp so_locations *.ics \
 	templateregistry ir.out core.* $(CLEANUP_OBJS)
@@ -337,7 +363,7 @@ endif # DO_CLEANUP
 #       Dependency generation target
 #----------------------------------------------------------------------------
 
-MAKEFILE ?= Makefile
+MAKEFILE ?= GNUmakefile
 DEPENDENCY_FILE ?= $(MAKEFILE)
 
 TAO_ROOT ?= $(ACE_ROOT)/TAO
@@ -361,9 +387,9 @@ ORIGdepend.local: $(MAKEFILE)
 	@cat $(MAKEFILE).new >$(MAKEFILE)
 	@$(RM) $(MAKEFILE).new
 	@if	cmp -s $(MAKEFILE) $(MAKEFILE).old ;\
-	then	echo "Makefile dependencies unchanged." ;\
+	then	echo "GNUmakefile dependencies unchanged." ;\
 	else \
-		echo "Makefile dependencies updated." ;\
+		echo "GNUmakefile dependencies updated." ;\
 	fi ;\
 	$(RM) $(MAKEFILE).old ;
 
@@ -374,21 +400,19 @@ depend.local: $(DEPENDENCY_FILE)
 -include $(DEPENDENCY_FILE)
 endif
 
-ifndef DEPGEN
-  DEPGEN = $(ACE_ROOT)/bin/g++dep
-endif
+DEPGEN ?= $(ACE_ROOT)/bin/depgen.pl
 
 depend.local: $(MAKEFILE) idl_stubs.local
 	@$(RM) $(DEPENDENCY_FILE).old
 	@cp $(DEPENDENCY_FILE) $(DEPENDENCY_FILE).old
-	ACE_PLATFORM_CONFIG=$(ACE_PLATFORM_CONFIG) OBJEXT=$(OBJEXT) SOEXT=$(SOEXT) \
-	VDIR=$(VDIR) VSHDIR=$(VSHDIR) ACE_DEPEND_SED_CMD="$(ACE_DEPEND_SED_CMD)" \
-	$(DEPGEN) -A $(DEPEND_CMD_ARGS) -f $(DEPENDENCY_FILE) $(CPPFLAGS) \
-	-DMAKEDEPEND $(LSRC) $(SRC) $(PSRC)
+	ACE_PLATFORM_CONFIG=$(ACE_PLATFORM_CONFIG) \
+	ACE_DEPEND_SED_CMD="$(ACE_DEPEND_SED_CMD)" \
+	$(DEPGEN) -A $(DEPEND_CMD_ARGS) -e config.h -f $(DEPENDENCY_FILE) $(CPPFLAGS) \
+	-DMAKEDEPEND $(CCFLAGS) $(LSRC) $(SRC) $(PSRC)
 	@if cmp -s $(DEPENDENCY_FILE) $(DEPENDENCY_FILE).old ;\
-	then echo "Makefile dependencies unchanged." ;\
+	then echo "GNUmakefile dependencies unchanged." ;\
 	else \
-		echo "Makefile dependencies updated." ;\
+		echo "GNUmakefile dependencies updated." ;\
 	fi ;\
 	$(RM) $(DEPENDENCY_FILE).old ;
 
@@ -423,12 +447,12 @@ rcs_info.local:
 
 build.objdirs: $(CLEANUP_DIRS)
 
-ifeq ($(OS),"Windows_NT")
+ifeq ($(MKDIR_NTSTYLE),1)
 $(CLEANUP_DIRS):
-	@if not exist $@ mkdir $@
+	@if not exist $@ $(MKDIR) $@ $(ACE_NUL_STDERR)
 else
 $(CLEANUP_DIRS):
-	@test -d $@ || mkdir -p $@ $(ACE_NUL_STDERR)
+	@test -d $@ || $(MKDIR) $@ $(ACE_NUL_STDERR)
 endif
 
 #---------------------------------------------------------------------------
@@ -438,4 +462,3 @@ SPLIT:
 	@echo "Splitting source files..."
 	@$(ACE_ROOT)/bin/split-cpp -s Svc_Conf_l.cpp -s Svc_Conf_y.cpp $(LSRC)
 	@echo "done."
-

@@ -1,6 +1,6 @@
 # -*- Makefile -*-
 #----------------------------------------------------------------------------
-#       rules.lib.GNU,v 4.54 2004/01/07 23:28:11 dhinton Exp
+#       rules.lib.GNU,v 4.58 2004/11/08 18:05:55 elliott_c Exp
 #
 #       Build libraries (i.e., contain no binary executables)
 #       GNU version
@@ -40,7 +40,7 @@ VLIB = $(LIB:%.$(LIBEXT)=%$(VAR).$(LIBEXT))
 CLEANUP_VLIB = $(CLEANUP_LIB:%.$(LIBEXT)=%$(VAR).$(LIBEXT))
 
 # Add VLIB to VLIBS if building static_libs.
-ifdef static_libs 
+ifdef static_libs
   VLIBS += $(VLIB)
 endif
 
@@ -79,13 +79,17 @@ else # VLIBS
   endif # IDL_SRC
 endif # !VLIBS
 
-VLOBJS   += $(addsuffix .$(OBJEXT),$(addprefix $(VDIR),$(basename $(notdir $(LSRC)))))
+VLOBJS   += $(addsuffix .$(OBJEXT),$(addprefix $(VDIR),$(basename $(LSRC))))
 ifdef LSRC2
   LSRC += $(LSRC2)
 endif
 
-VSHOBJS = $(addsuffix .$(OBJEXT),$(addprefix $(VSHDIR),$(basename $(notdir $(LSRC)))))
-VSHOBJS1 = $(addsuffix .$(OBJEXT),$(addprefix $(VSHDIR),$(basename $(notdir $(LSRC)))))
+VSHOBJS = $(addsuffix .$(OBJEXT),$(addprefix $(VSHDIR),$(basename $(LSRC))))
+VSHOBJS1 = $(addsuffix .$(OBJEXT),$(addprefix $(VSHDIR),$(basename $(LSRC))))
+
+ifneq ($(IDL_SRC),)
+  $(VLOBJS) $(VSHOBJS) $(VSHOBJS1): $(IDL_SRC)
+endif
 
 ifdef static_libs
   LIB_INSTALL += $(VLIB:%=$(INSLIB)/%)
@@ -126,11 +130,11 @@ ifeq (1,$(ace_lib_prelink))
         #### to lib files, for example.
 	-$(LINK.cc) $(LINK_OUTPUT_FLAG) ace-templ_inst $? $(LDFLAGS) $(ACE_NUL_STDERR)
 endif # ace_lib_prelink
-	echo $(TMPINCDIR:%=%/*.o) $(filter %.o, $?) | xargs $(AR) $(ARFLAGS) $@ $(AREXTRA);
+	echo $(TMPINCDIR:%=%/*.o) $(filter %.o, $?) | xargs $(AR) $(ARFLAGS) $@ $(AREXTRA)
 ifdef ibmcxx_build
 # This is required to get AIX IBM C/C++ to instantiate and compile the needed
 # templates.
-	if test -s ./$(TEMPINCDIR)/*.C; \
+                      if test -s ./$(TEMPINCDIR)/*.C; \
 	then \
 		$(LINK.cc) $(LINK_OUTPUT_FLAG) dummy $(LDFLAGS) $(ACE_ROOT)/etc/xlc_dummy.cpp $^ $(ACE_SHLIBS) $(LIBS); \
 		$(RM) dummy; \

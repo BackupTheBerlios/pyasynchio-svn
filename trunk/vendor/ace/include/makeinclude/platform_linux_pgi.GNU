@@ -1,27 +1,24 @@
-# platform_linux_icc.GNU,v 1.10 2004/09/14 10:20:46 jwillemsen Exp
+# platform_linux_pgi.GNU,v 1.4 2004/10/26 10:55:58 jwillemsen Exp
 
-# According to Roger Tragin <r.tragin@computer.org>, this file
-# should allow ACE to be built on Linux, using the Intel compiler.
+# This file should allow ACE to be built on Linux, using the 
+# Portland Group PGI compilers
 #
 # This is just a copy of platform_linux.GNU, with a few things changed.
-
-# debug = 1
-# optimize = 1
 
 ifndef exceptions
   exceptions = 1
 endif
-ifeq ($(exceptions),1)
-  CPPFLAGS += -Kc++eh
-endif # exceptions
 ifeq (,$(debug))
-  debug = 1
+  debug = 0
 endif
 ifeq (,$(optimize))
   optimize = 1
 endif
 ifeq (,$(threads))
   threads = 1
+endif
+ifeq (,$(static_libs_only))
+  static_libs_only=1
 endif
 
 PLATFORM_XT_CPPFLAGS=
@@ -52,33 +49,15 @@ PLATFORM_WX_LDFLAGS = $(shell wx-config --ldflags)  $(PLATFORM_GTK_LDFLAGS)
 PLATFORM_AIO_SUPPORT := \
        $(shell test -e /usr/lib/librt.so && echo -DACE_HAS_AIO_CALLS)
 
-SYSARCH := $(shell uname -m)
+CC  = pgcc
+CXX = pgCC
 
-ifeq ($(insure),1)
-  CC  = insure
-  CXX = insure
-else
-  CC  = icc
-  CXX = icc
-endif
-
-ifndef CXX_VERSION
-  CXX_VERSION := $(shell $(CXX) --version)
-endif
-
-ifeq (8.0,$(findstring 8.0,$(CXX_VERSION)))
-  CFLAGS += -wd1476,1505
-endif
-ifeq (8.1,$(findstring 8.1,$(CXX_VERSION)))
-  CFLAGS += -wd1476,1505 -no-gcc
-endif
-
-CFLAGS  += -w1
+CFLAGS  += --one_instantiation_per_object --prelink_objects -Wc,-tused
 ifeq ($(threads),1)
     CPPFLAGS  += -D_REENTRANT $(PLATFORM_AIO_SUPPORT)
 endif # threads
 
-CCFLAGS += $(CFLAGS) $(IMPLICIT_TEMPLATES_FLAG) -ip
+CCFLAGS += $(CFLAGS) $(IMPLICIT_TEMPLATES_FLAG) 
 DCFLAGS += -g
 DLD     = $(CXX)
 LD      = $(CXX)
@@ -96,16 +75,13 @@ PLATFORM_QT_LIBS=-lqt
 PLATFORM_QT_LDFLAGS=-L$(QTDIR)/lib
 
 OCFLAGS += -O3
-ifneq ($(SYSARCH),ia64)
-  OCFLAGS += -axK
-endif
 
-PIC     = -KPIC
+PIC     = -fPIC
 AR      = ar
 ARFLAGS = rsuv
 RANLIB  = @true
-SOFLAGS += $(CPPFLAGS) -shared
-SOBUILD = $(COMPILE.cc) $(PIC) -o $(VSHDIR)$*.so $<; \
+SOFLAGS += $(CPPFLAGS) -shared $(PIC) --one_instantiation_per_object --prelink_objects
+SOBUILD = $(COMPILE.cc) $(PIC) --one_instantiation_per_object --prelink_objects -o $(VSHDIR)$*.so $<; \
           $(SOLINK.cc) -o $@ $(LDFLAGS) $(VSHDIR)$*.o
 PRELIB  = @true
 

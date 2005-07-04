@@ -1,5 +1,5 @@
 dnl -------------------------------------------------------------------------
-dnl       acinclude.m4,v 1.20 2003/11/04 09:05:39 ossama Exp
+dnl       acinclude.m4,v 1.23 2004/01/21 21:29:58 ossama Exp
 dnl
 dnl       ACE M4 include file which contains general M4 macros
 dnl       to be used by the ACE configure script.
@@ -71,7 +71,7 @@ AC_DEFUN([ACE_CHECK_TOP_SRCDIR],
      [
       Please configure and build in a directory other than the
       top-level source directory.  Doing so will prevent files
-      distributed with the package from being overwritten.  This
+      distributed with the package from being overwritten.  This is
       currently necessary since autoconf support is still
       experimental.  If you encounter problems please use the stock
       build procedure.
@@ -121,42 +121,30 @@ dnl header when doing an AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[]])],[],[]).
 dnl Usage: ACE_USE_TEMP_FILE(TEMP-FILE-TO-CREATE, COMMANDS-THAT-WILL-USE-IT)
 AC_DEFUN([ACE_USE_TEMP_FILE],
 [
- test -d ./$1 && AC_MSG_ERROR([cannot create file: $acetmp is a directory])
+ test -d $1 && AC_MSG_ERROR([cannot create file: $acetmp is a directory])
 
+ dnl Make sure contents of existing file don't override the contents
+ dnl of the temporary one.
  test -f ${srcdir}/$1 && mv ${srcdir}/$1 ${srcdir}/$1.conf
- touch ${srcdir}/$1
 
- if test ${srcdir}/$1 != "./$1"; then
-   test -f ./$1 && mv ./$1 ./$1.conf
-   dnl Create all of the sub-directories (assume "mkdir -p" is not portable).
-   acetmp="."
-changequote(, )dnl
-   for ace_dir in `echo $1 | sed -e 's,/[^/][^/]*\$,,' -e 's,/, ,g'`; do
-changequote([, ])dnl
-     acetmp="$acetmp/$ace_dir"
-     test -f $acetmp && AC_MSG_ERROR([cannot create directory: $acetmp])
-     test -d $acetmp || mkdir $acetmp
-   done
-   touch ./$1
+ if test ${srcdir} != "."; then
+   dnl Create all of the sub-directories.
+   AS_MKDIR_P([`AS_DIRNAME(["$1"])`])
  fi
+
+ touch $1
 
  $2
 
  if test -f ${srcdir}/$1.conf; then
    mv ${srcdir}/$1.conf ${srcdir}/$1
- else
-   rm ${srcdir}/$1
  fi
 
- if test ${srcdir}/$1 != "./$1"; then
-   if test -f ./$1.conf; then
-     mv ./$1.conf ./$1
-   else
-     dnl Remove the file.  Any sub-directories will not be removed
-     dnl since we have no way to tell if they existed prior to the
-     dnl creation of this file.
-     rm ./$1
-   fi
+ if test ${srcdir} != "."; then
+   dnl Remove the file.  Any sub-directories will not be removed
+   dnl since we have no way to tell if they existed prior to the
+   dnl creation of this file.
+   rm $1
  fi
 ])
 
@@ -430,14 +418,12 @@ if test "$ac_cv_func_setrlimit" = yes; then
 #include <sys/resource.h>
 EOF
 
-changequote(, )dnl
 dnl Here we attempt to determine the type of the first argument of
 dnl getrusage from its prototype.  It should either be an int or an
 dnl enum.  If it is an enum, determine the enum type.
      ace_setrlimit_enum=`eval "$ac_cpp conftest.$ac_ext" | \
-       $EGREP '[ ]+setrlimit.*\(.*[^,]*enum' | \
-       sed -e 's/^.*setrlimit.*(.*enum//' -e 's/[^ ]*,.*$//'`
-changequote([, ])dnl
+       $EGREP '[[ ]]+setrlimit.*\(.*[[^,]]*enum' | \
+       sed -e 's/^.*setrlimit.*(.*enum//' -e 's/[[^ ]]*,.*$//'`
 
      ace_setrlimit_enum="enum $ace_setrlimit_enum"
 
@@ -473,14 +459,12 @@ if test "$ac_cv_func_getrusage" = yes; then
 #include <sys/resource.h>
 EOF
 
-changequote(, )dnl
 dnl Here we attempt to determine the type of the first argument of
 dnl getrusage from its prototype.  It should either be an int or an
 dnl enum.  If it is an enum, determine the enum type.
      ace_rusage_who=`eval "$ac_cpp conftest.$ac_ext" | \
-       $EGREP '[ ]+getrusage.*\(.*[^,]*enum' | \
-       sed -e 's/^.*getrusage.*(.*enum//' -e 's/[^ ]*,.*$//'`
-changequote([, ])dnl
+       $EGREP '[[ ]]+getrusage.*\(.*[[^,]]*enum' | \
+       sed -e 's/^.*getrusage.*(.*enum//' -e 's/[[^ ]]*,.*$//'`
 
      ace_rusage_who="enum $ace_rusage_who"
 
@@ -590,13 +574,11 @@ AC_DEFUN([ACE_CHECK_OFF64_T],
 #endif
 EOF
 
-changequote(, )dnl
 dnl Here we attempt to determine the type of the second argument of
 dnl lseek64()/llseek() from its prototype.
      ace_off64_t=`eval "$ac_cpp conftest.$ac_ext" | \
-       $EGREP '[ ]+lseek64.*\(.*' | \
-       sed -e 's/^.*(.*,[ ]*\(.*\) .*,.*$/\1/'`
-changequote([, ])dnl
+       $EGREP '[[ ]]+lseek64.*\(.*' | \
+       sed -e 's/^.*(.*,[[ ]]*\(.*\) .*,.*$/\1/'`
 
 
 if test -n "$ace_off64_t"; then

@@ -1,5 +1,5 @@
 dnl -------------------------------------------------------------------------
-dnl       compiler.m4,v 1.20 2003/12/26 21:59:35 shuston Exp
+dnl       compiler.m4,v 1.27 2004/12/22 19:35:44 ossama Exp
 dnl
 dnl       compiler.m4
 dnl
@@ -38,16 +38,6 @@ dnl  AC_BEFORE([$0], [AC_PROG_LIBTOOL])
  AC_REQUIRE([ACE_COMPILATION_OPTIONS])
 
  if test "$GXX" = yes; then
-dnl Temporarily change M4 quotes to prevent "regex []" from being eaten
-changequote(, )dnl
-   if $CXX --version | $EGREP -v '^2\.[0-7]' > /dev/null; then
-changequote([, ])dnl
-     :  # Do nothing
-   else
-     AC_DEFINE([ACE_HAS_GNUG_PRE_2_8])
-     AC_DEFINE([ACE_HAS_GNUC_BROKEN_TEMPLATE_INLINE_FUNCTIONS])
-   fi
-
    case `$CXX --version` in
      2.9* | 3*)
        if test "$ace_user_enable_exceptions" != yes; then
@@ -72,7 +62,7 @@ changequote([, ])dnl
  dnl    ACE_CPPFLAGS
  dnl              - General C++ preprocessor flags the configure
  dnl                script should set before CPPFLAGS to allow the
- dnl                user override them.
+ dnl                user to override them.
  dnl    WERROR    - Compiler flag that converts warnings to errors
 
  if test "$GXX" = yes; then
@@ -113,7 +103,9 @@ changequote([, ])dnl
             CXXFLAGS="$CXXFLAGS -qflag=w:w"
            ])
          if test "$ace_user_enable_rtti" = yes; then
-           CXXFLAGS="$CXXFLAGS -qrtti"
+           CXXFLAGS="$CXXFLAGS -qrtti=dynamiccast"
+         else
+           CXXFLAGS="$CXXFLAGS -DACE_LACKS_RTTI"
          fi
 
          ;;
@@ -185,6 +177,12 @@ changequote([, ])dnl
      esac
      ;;
    *hpux*)
+     # In case anything here or in the config depends on OS
+     # version number, grab it here and pass it all to the
+     # compiler as well.
+     OSVERS=`uname -r | $AWK 'BEGIN{FS=".";OFS="";}{print [$][2],[$][3]}' -`
+     ACE_CPPFLAGS="$ACE_CPPFLAGS -DHPUX_VERS=$OSVERS"
+
      # HP-UX OS version specific settings.
      case "$host" in
        *hpux11*)
@@ -317,7 +315,12 @@ changequote([, ])dnl
 
          dnl Sun C++ 5.0 weirdness
          if (CC -V 2>&1 | $EGREP 'Compilers 5\.0' > /dev/null); then
-           CXXFLAGS="$CXXFLAGS -library=iostream,no%Cstd -instances=explicit"
+           if test "$ace_user_enable_stdcpplib" = yes; then
+             CXXFLAGS="$CXXFLAGS -library=Cstd"
+           else
+             CXXFLAGS="$CXXFLAGS -library=iostream,no%Cstd"
+             AC_DEFINE([ACE_USES_OLD_IOSTREAMS])
+           fi
 
            dnl Inlining appears to cause link problems with early
            dnl releases of CC 5.0.
@@ -327,6 +330,11 @@ changequote([, ])dnl
              dnl See /opt/SUNWspro_5.0/SC5.0/include/CC/stdcomp.h.
              ACE_CPPFLAGS="$ACE_CPPFLAGS -D_RWSTD_NO_EXCEPTIONS"
            fi
+
+	   CXXFLAGS="$CXXFLAGS -instances=explicit"
+	 else
+           CXXFLAGS="$CXXFLAGS -library=iostream"
+           AC_DEFINE([ACE_USES_OLD_IOSTREAMS])           
          fi
 
          CXXFLAGS="$CXXFLAGS"

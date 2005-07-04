@@ -1,7 +1,7 @@
 # -*- Makefile -*-
 
 #----------------------------------------------------------------------------
-#  wrapper_macros.GNU,v 4.159 2004/01/12 23:40:47 dhinton Exp
+#  wrapper_macros.GNU,v 4.175 2004/12/16 10:17:37 jwillemsen Exp
 #----------------------------------------------------------------------------
 #
 #  ACE supports the following flags.  They can be enabled either on
@@ -57,6 +57,7 @@
 #  gtk_reactor      Build the GtkReactor.
 #  ssl              Build with OpenSSL support.
 #  rapi             Build with RAPI
+#  stlport          Build with STLPort support
 #  rwho             Build with rwho, this results in building apps/drwho
 #  pipes            Build with pipe support, resulting in adding -pipe to the
 #                   compiler options.
@@ -78,6 +79,7 @@
 #                   to append to the name - it should have a leading '.' -
 #                   else it defaults to .ACE_MAJOR.ACE_MINOR.ACE_BETA.
 #  wfmo             Build with wfmo support (Win32 only)
+#  winregistry      Build with windows registry support (Win32 only)
 #
 #  Usually, users do not need to be concerned with make targets.
 #  Just enter "make" on the command line to build.  A few notable
@@ -165,8 +167,10 @@
 #  PURE_CACHE_DIR
 #               The full name of the directory in which Pure produces will
 #               produce instrumented libraries.
+#  PWD          Command to get the current working directory
 #  PTDIRS       Pathnames of directories containing template code
 #  RM           Name of program to use to remove files
+#  ACE_MKDIR    Name of program to (recursively) create directories
 #  SOFLAGS      Flags used to build a shared library
 #  SOLINK.cc    Link line necessary to build a share library
 #  VAR          Variant identifier suffix
@@ -259,8 +263,6 @@ ACE_MAJOR_VERSION := $(shell awk '/ACE_MAJOR_VERSION/ { print $$3}' ${ACE_ROOT}/
 ACE_MINOR_VERSION := $(shell awk '/ACE_MINOR_VERSION/ { print $$3}' ${ACE_ROOT}/ace/Version.h)
 ACE_BETA_VERSION := $(shell awk '/ACE_BETA_VERSION/ { print $$3}' ${ACE_ROOT}/ace/Version.h)
 
-PACE_ROOT ?= $(ACE_ROOT)/PACE
-
 # Define some variables to silence warnings
 SHR_FILTER ?=
 
@@ -302,6 +304,16 @@ endif
 SOVERSION ?=
 SONAME ?=
 
+ifeq ($(PWD),)
+  PWD=$(shell pwd)
+endif
+
+ifeq ($(ACE_MKDIR),)
+  MKDIR = mkdir -p
+else
+  MKDIR = $(ACE_MKDIR)
+endif
+
 #----------------------------------------------------------------------------
 #      Platform-independent macro definitions
 #----------------------------------------------------------------------------
@@ -311,23 +323,22 @@ DEFFLAGS ?=
 
 CPPFLAGS        += $(DEFFLAGS) $(INCLDIRS)
 
-# Define default extentions for IDL-generated files
+# Define default extensions for IDL-generated files
 IDL_CLIENT_HDR_EXT ?= C.h
-IDL_CLIENT_INL_EXT ?= C.i
+IDL_CLIENT_INL_EXT ?= C.inl
 IDL_CLIENT_SRC_EXT ?= C.cpp
 IDL_SERVER_HDR_EXT ?= S.h
-IDL_SERVER_INL_EXT ?= S.i
+IDL_SERVER_INL_EXT ?= S.inl
 IDL_SERVER_SRC_EXT ?= S.cpp
 IDL_SERVER_THDR_EXT ?= S_T.h
-IDL_SERVER_TINL_EXT ?= S_T.i
+IDL_SERVER_TINL_EXT ?= S_T.inl
 IDL_SERVER_TSRC_EXT ?= S_T.cpp
 
 ifeq (,$(findstring -I$(ACE_ROOT),$(INCLDIRS)))
   INCLDIRS        += -I$(ACE_ROOT)
 endif
-INSBIN          ?= $(ACE_ROOT)/bin
 INSINC          ?= $(ACE_ROOT)/ace
-INSLIB          ?= $(ACE_ROOT)/ace
+INSLIB          ?= $(ACE_ROOT)/lib
 INSMAN          ?= $(ACE_ROOT)/man
 
 ifeq (,$(findstring -L$(ACE_ROOT)/ace,$(LDFLAGS)))
@@ -366,8 +377,6 @@ ACELIB ?= -lACE
 # NOTE: VLDLIBS is defined below, in case it is overridden for static-
 #       or shared-only builds.
 YACC          ?= bison
-
-
 
 #----------------------------------------------------------------------------
 #      Platform-dependent macros that require platform_macros.GNU.
@@ -458,7 +467,7 @@ ifneq ($(fl_reactor),)
   CPPFLAGS += -DACE_HAS_FL $(PLATFORM_FL_CPPFLAGS)
   LIBS += $(PLATFORM_FL_LIBS)
   LDFLAGS += $(PLATFORM_FL_LDFLAGS)
-  ACE_MAKE_OPTIONS += rl_reactor
+  ACE_MAKE_OPTIONS += fl_reactor
 endif # fl_reactor
 
 tk_reactor ?=
@@ -766,7 +775,7 @@ endif
 # If not explicitly is set that we don't have rwho, assume we have it.
 rwho ?= 1
 
-# If not explicitly is set that we don't have stlport, assume we 
+# If not explicitly is set that we don't have stlport, assume we
 # don't have it.
 stlport ?= 0
 ifeq ($(stlport),1)
@@ -777,9 +786,19 @@ endif
 
 
 # If not explicitly is set that we have wfmo, assume we don't have it.
-ifndef wfmo
-  wfmo = 0
-endif
+wfmo ?= 0
+
+# If not explicitly is set that we have winregistry, assume we don't have it.
+winregistry ?= 0
+
+# In MPC, these are now features that are enabled by default.
+ace_other     ?= 1
+ace_codecs    ?= 1
+ace_token     ?= 1
+ace_svcconf   ?= 1
+ace_uuid      ?= 1
+ace_filecache ?= 1
+acexml        ?= 1
 
 #----------------------------------------------------------------------------
 #      Conditional macro definitions

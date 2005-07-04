@@ -1,5 +1,5 @@
 dnl -------------------------------------------------------------------------
-dnl       ace.m4,v 1.12 2003/12/26 22:34:36 shuston Exp
+dnl       ace.m4,v 1.27 2004/12/22 19:35:44 ossama Exp
 dnl
 dnl       ace.m4
 dnl
@@ -24,6 +24,108 @@ dnl Macros that add ACE configuration options to a `configure' script.
 dnl ACE_CONFIGURATION_OPTIONS
 AC_DEFUN([ACE_CONFIGURATION_OPTIONS],
 [
+ AC_ARG_ENABLE([ace-codecs],
+  AS_HELP_STRING(--enable-ace-codecs,build ACE with codecs support [[[yes]]]),
+  [
+   case "${enableval}" in
+    yes)
+      ace_user_enable_ace_codecs=yes
+      ;;
+    no)
+      ace_user_enable_ace_codecs=no
+      ;;
+    *)
+      AC_MSG_ERROR([bad value ${enableval} for --enable-ace-codecs])
+      ;;
+   esac
+  ],
+  [
+   ace_user_enable_ace_codecs=yes
+  ])
+ AM_CONDITIONAL([BUILD_ACE_CODECS], [test X$ace_user_enable_ace_codecs = Xyes])
+
+ AC_ARG_ENABLE([ace-filecache],
+  AS_HELP_STRING(--enable-ace-filecache,build ACE_Filecache support [[[yes]]]),
+  [
+   case "${enableval}" in
+    yes)
+      ace_user_enable_ace_filecache=yes
+      ;;
+    no)
+      ace_user_enable_ace_filecache=no
+      ;;
+    *)
+      AC_MSG_ERROR([bad value ${enableval} for --enable-ace-filecache])
+      ;;
+   esac
+  ],
+  [
+   dnl Enable ACE_Filecache support by default since it's never turned off
+   dnl in the ACE lib itself. Just required for some things like JAWS.
+   ace_user_enable_ace_filecache=yes
+  ])
+ AM_CONDITIONAL([BUILD_ACE_FILECACHE], [test X$ace_user_enable_ace_filecache = Xyes])
+
+ AC_ARG_ENABLE([ace-other],
+  AS_HELP_STRING(--enable-ace-other,build ACE with all misc pieces [[[yes]]]),
+  [
+   case "${enableval}" in
+    yes)
+      ace_user_enable_ace_other=yes
+      ;;
+    no)
+      ace_user_enable_ace_other=no
+      ;;
+    *)
+      AC_MSG_ERROR([bad value ${enableval} for --enable-ace-other])
+      ;;
+   esac
+  ],
+  [
+   ace_user_enable_ace_other=yes
+  ])
+ AM_CONDITIONAL([BUILD_ACE_OTHER], [test X$ace_user_enable_ace_other = Xyes])
+
+ AC_ARG_ENABLE([ace-token],
+  AS_HELP_STRING(--enable-ace-token,build ACE with tokens support [[[yes]]]),
+  [
+   case "${enableval}" in
+    yes)
+      ace_user_enable_ace_token=yes
+      ;;
+    no)
+      ace_user_enable_ace_token=no
+      ;;
+    *)
+      AC_MSG_ERROR([bad value ${enableval} for --enable-ace-token])
+      ;;
+   esac
+  ],
+  [
+   ace_user_enable_ace_token=yes
+  ])
+ AM_CONDITIONAL([BUILD_ACE_TOKEN], [test X$ace_user_enable_ace_token = Xyes])
+
+ AC_ARG_ENABLE([ace-uuid],
+  AS_HELP_STRING(--enable-ace-uuid,build ACE with UUID support [[[yes]]]),
+  [
+   case "${enableval}" in
+    yes)
+      ace_user_enable_ace_uuid=yes
+      ;;
+    no)
+      ace_user_enable_ace_uuid=no
+      ;;
+    *)
+      AC_MSG_ERROR([bad value ${enableval} for --enable-ace-uuid])
+      ;;
+   esac
+  ],
+  [
+   ace_user_enable_ace_uuid=yes
+  ])
+ AM_CONDITIONAL([BUILD_ACE_UUID], [test X$ace_user_enable_ace_uuid = Xyes])
+
  AC_ARG_ENABLE([alloca],
   AS_HELP_STRING(--enable-alloca,compile with alloca() support [[[no]]]),
   [
@@ -44,6 +146,57 @@ AC_DEFUN([ACE_CONFIGURATION_OPTIONS],
    dnl not recommended.
    ace_user_enable_alloca=no
   ])
+
+ AC_ARG_ENABLE([rwho],
+  AS_HELP_STRING(--enable-rwho,build the distributed rwho program [[[no]]]),
+  [
+   case "${enableval}" in
+    yes)
+      ace_user_enable_rwho=yes
+      ;;
+    no)
+      ace_user_enable_rwho=no
+      ;;
+    *)
+      AC_MSG_ERROR([bad value ${enableval} for --enable-rwho])
+      ;;
+   esac
+  ],)
+ AM_CONDITIONAL([BUILD_RWHO], [test X$ace_user_enable_rwho = Xyes])
+
+ AC_ARG_ENABLE([ipv4-ipv6],
+  AS_HELP_STRING(--enable-ipv4-ipv6,compile with IPv4/IPv6 migration support [[[no]]]),
+  [
+   case "${enableval}" in
+    yes)
+      AC_DEFINE(ACE_HAS_IPV6)
+      AC_DEFINE(ACE_USES_IPV4_IPV6_MIGRATION)
+      ;;
+    no)
+      ;;
+    *)
+      AC_MSG_ERROR([bad value ${enableval} for --enable-ipv4-ipv6])
+      ;;
+   esac
+  ],)
+
+ AC_ARG_ENABLE([ipv6],
+  AS_HELP_STRING(--enable-ipv6,compile with IPv6 support [[[no]]]),
+  [
+   case "${enableval}" in
+    yes)
+      AC_DEFINE(ACE_HAS_IPV6)
+      ace_user_enable_ipv6=yes
+      ;;
+    no)
+      ace_user_enable_ipv6=no
+      ;;
+    *)
+      AC_MSG_ERROR([bad value ${enableval} for --enable-ipv6])
+      ;;
+   esac
+  ],)
+ AM_CONDITIONAL([BUILD_IPV6], [test X$ace_user_enable_ipv6 = Xyes])
 
  AC_ARG_ENABLE([log-msg-prop],
   AS_HELP_STRING(--enable-log-msg-prop,enable threads inheriting ACE_Log_Msg properties from parent thread [[[yes]]]),
@@ -161,6 +314,56 @@ AC_DEFUN([ACE_CONFIGURATION_OPTIONS],
   [
     ace_user_enable_threads=yes
   ])
+ AM_CONDITIONAL([BUILD_THREADS], [test X$ace_user_enable_threads = Xyes])
+
+ AC_ARG_ENABLE([pthreads],
+  AS_HELP_STRING(--enable-pthreads,enable POSIX thread (Pthreads) support [[[yes]]]),
+  [
+   case "${enableval}" in
+    yes)
+      ace_user_enable_pthreads=yes
+      ;;
+    no)
+      ace_user_enable_pthreads=no
+      ;;
+    *)
+      AC_MSG_ERROR([bad value ${enableval} for --enable-pthreads])
+      ;;
+   esac
+  ],
+  [
+    ace_user_enable_pthreads=yes
+  ])
+
+ AC_ARG_ENABLE([uithreads],
+  AS_HELP_STRING(--enable-uithreads,enable UNIX International thread support [[[no]]]),
+  [
+   case "${enableval}" in
+    yes)
+      ace_user_enable_uithreads=yes
+      ;;
+    no)
+      ace_user_enable_uithreads=no
+      ;;
+    *)
+      AC_MSG_ERROR([bad value ${enableval} for --enable-uithreads])
+      ;;
+   esac
+  ],
+  [
+    dnl The default is to disable UI threads. However, on Solaris, we
+    dnl enable it by default since it's functionality is very useful and
+    dnl has traditionally been enabled in ACE.
+    case "$host" in
+      *solaris2*)
+        ace_user_enable_uithreads=yes
+        AC_MSG_NOTICE([[--enable-uithreads enabled by default for Solaris; use --enable-uithreads=no to disable it.]])
+        ;;
+      *)
+        ace_user_enable_uithreads=no
+        ;;
+    esac
+  ])
 
  AC_ARG_ENABLE([verb-not-sup],
   AS_HELP_STRING(--enable-verb-not-sup,enable verbose ENOTSUP reports [[[no]]]),
@@ -178,23 +381,77 @@ AC_DEFUN([ACE_CONFIGURATION_OPTIONS],
    esac
   ],)
 
+ dnl The ace/config-all.h file defaults ACE_NTRACE properly, so only emit
+ dnl something if the user specifies this option.
  AC_ARG_ENABLE([trace],
   AS_HELP_STRING(--enable-trace,enable ACE tracing [[[no]]]),
   [
    case "${enableval}" in
     yes)
+      AC_DEFINE([ACE_NTRACE],0)
       ;;
     no)
-      AC_DEFINE([ACE_NTRACE])
+      AC_DEFINE([ACE_NTRACE],1)
       ;;
     *)
       AC_MSG_ERROR([bad value ${enableval} for --enable-trace])
       ;;
    esac
+  ],)
+
+ AC_ARG_ENABLE([wfmo],
+  AS_HELP_STRING(--enable-wfmo,build WFMO-using examples [[[no]]]),
+  [
+   case "${enableval}" in
+    yes)
+      ace_user_enable_wfmo=yes
+      ;;
+    no)
+      ace_user_enable_wfmo=no
+      ;;
+    *)
+      AC_MSG_ERROR([bad value ${enableval} for --enable-rtti])
+      ;;
+   esac
   ],
   [
-   AC_DEFINE([ACE_NTRACE])
+    case "$host" in
+      *win*)
+           ace_user_enable_wfmo=yes
+               ;;
+      *)
+           ace_user_enable_wfmo=no
+               ;;
+    esac
   ])
+ AM_CONDITIONAL([BUILD_WFMO], [test X$ace_user_enable_wfmo = Xyes])
+
+ AC_ARG_ENABLE([winregistry],
+  AS_HELP_STRING(--enable-winregistry,build Windows registry-using examples [[[no]]]),
+  [
+   case "${enableval}" in
+    yes)
+      ace_user_enable_winregistry=no
+      ;;
+    no)
+      ace_user_enable_winregistry=no
+      ;;
+    *)
+      AC_MSG_ERROR([bad value ${enableval} for --enable-winregistry])
+      ;;
+   esac
+  ],
+  [
+    case "$host" in
+      *win*)
+           ace_user_enable_winregistry=yes
+               ;;
+      *)
+           ace_user_enable_winregistry=no
+               ;;
+    esac
+  ])
+ AM_CONDITIONAL([BUILD_WINREGISTRY], [test X$ace_user_enable_winregistry = Xyes])
 
  AC_ARG_ENABLE([xt-reactor],
   AS_HELP_STRING(--enable-xt-reactor,build support for the XtReactor [[[no]]]),
@@ -276,83 +533,29 @@ dnl line, then "no_x" is set to "yes."
   ])
  AM_CONDITIONAL([COMPILE_GPERF], [test X$ace_user_with_gperf = Xyes])
 
- AC_ARG_WITH([rmcast],
-  AS_HELP_STRING(--with-rmcast,compile the ACE_RMCast library [[[yes]]]),
+ ACE_WITH_RMCAST
+ ACE_WITH_QOS
+ ACE_WITH_SSL
+ ACE_WITH_ACEXML
+
+ AC_ARG_WITH([tao],
+  AS_HELP_STRING(--with-tao,build TAO (the ACE ORB) [[[yes]]]),
   [
    case "${withval}" in
     yes)
-      ace_user_with_rmcast=yes
+      ace_user_with_tao=yes
       ;;
     no)
-      ace_user_with_rmcast=no
+      ace_user_with_tao=no
       ;;
     *)
-      AC_MSG_ERROR([bad value ${withval} for --with-rmcast])
+      AC_MSG_ERROR([bad value ${withval} for --with-tao])
       ;;
    esac
   ],
   [
-   ace_user_with_rmcast=yes
+   ace_user_with_tao=yes
   ])
- AM_CONDITIONAL([BUILD_RMCAST], [test X$ace_user_with_rmcast = Xyes])
-
- AC_ARG_WITH([qos],
-  AS_HELP_STRING(--with-qos,compile the ACE_QoS library [[[no]]]),
-  [
-   case "${withval}" in
-    yes)
-      ace_user_with_qos=yes
-      ;;
-    no)
-      ace_user_with_qos=no
-      ;;
-    *)
-      AC_MSG_ERROR([bad value ${withval} for --with-qos])
-      ;;
-   esac
-  ],
-  [
-   ace_user_with_qos=no
-  ])
- AM_CONDITIONAL([BUILD_QOS], [test X$ace_user_with_qos = Xyes])
-
- AC_ARG_WITH([ssl],
-  AS_HELP_STRING(--with-ssl,compile the ACE_SSL library [[[yes]]]),
-  [
-   case "${withval}" in
-    yes)
-      ace_user_with_ssl=yes
-      ;;
-    no)
-      ace_user_with_ssl=no
-      ;;
-    *)
-      AC_MSG_ERROR([bad value ${withval} for --with-ssl])
-      ;;
-   esac
-  ],
-  [
-   ace_user_with_ssl=yes
-  ])
-AM_CONDITIONAL([BUILD_SSL], [test X$ace_user_with_ssl = Xyes])
-
-#AC_ARG_WITH([tao],
-# AS_HELP_STRING(--with-tao,build TAO (the ACE ORB) [[[yes]]]),
-#              [
-#               case "${withval}" in
-#                yes)
-#                  ace_user_with_tao=yes
-#                  ;;
-#                no)
-#                  ;;
-#                *)
-#                  AC_MSG_ERROR([bad value ${withval} for --with-tao])
-#                  ;;
-#               esac
-#              ],
-#              [
-#               ace_user_with_tao=yes
-#              ])
 
  AC_ARG_WITH([tli-device],
   AS_HELP_STRING(--with-tli-device(=DEV),device for TCP on TLI [[/dev/tcp]]),
@@ -409,6 +612,7 @@ AC_DEFUN([ACE_COMPILATION_OPTIONS],
       ;;
     no)
       AC_DEFINE([ACE_NDEBUG])
+      AC_DEFINE([ACE_USE_RCSID],[0])
       ;;
     *)
       AC_MSG_ERROR([bad value ${enableval} for --enable-debug])
@@ -426,10 +630,7 @@ AC_DEFUN([ACE_COMPILATION_OPTIONS],
     no)
       ace_user_enable_exceptions=no
       if test "$GXX" = yes; then
-dnl Temporarily change M4 quotes to prevent "regex []" from being eaten
-changequote(, )dnl
-        if $CXX --version | $EGREP -v '^2\.[0-7]' > /dev/null; then
-changequote([, ])dnl
+        if $CXX --version | $EGREP -v '^2\.[[0-7]]' > /dev/null; then
           ACE_CXXFLAGS="$ACE_CXXFLAGS -fno-exceptions"
         fi
       fi
@@ -446,18 +647,15 @@ dnl THE FOLLOWING WAS ONLY USED WHEN DISABLING EXCEPTION SUPPORT BY
 dnl DEFAULT.
 dnl
 dnl    if test "$GXX" = yes; then
-dnl dnl Temporarily change M4 quotes to prevent "regex []" from being eaten
-dnl changequote(, )dnl
-dnl      if $CXX --version | $EGREP -v '^2\.[0-7]' > /dev/null; then
-dnl changequote([, ])dnl
+dnl      if $CXX --version | $EGREP -v '^2\.[[0-7]]' > /dev/null; then
 dnl        ACE_CXXFLAGS="$ACE_CXXFLAGS -fno-exceptions"
 dnl      fi
 dnl    fi
   ])
-
+ AM_CONDITIONAL([BUILD_EXCEPTIONS], [test X$ace_user_enable_exceptions = Xyes])
 
  AC_ARG_ENABLE([fast],
-  AS_HELP_STRING(--enable-fast,enable -fast flag, e.g. Sun C++ [[[no]]]),
+  AS_HELP_STRING(--enable-fast,enable -fast flag (e.g. Sun C++) [[[no]]]),
   [
    case "${enableval}" in
     yes)
@@ -663,7 +861,7 @@ dnl    fi
   ],)
 
  AC_ARG_ENABLE([stdcpplib],
-  AS_HELP_STRING(--enable-stdcpplib,enable standard C++ library [[[yes]]]),
+  AS_HELP_STRING([--enable-stdcpplib],[enable standard C++ library [[yes]]]),
   [
    case "${enableval}" in
     yes)
@@ -681,4 +879,106 @@ dnl    fi
    ace_user_enable_stdcpplib=yes
   ])
 
+ AC_ARG_ENABLE([uses-wchar],
+               AS_HELP_STRING([--enable-uses-wchar],
+                            [enable use of wide characters [[no]]]),
+               [case "${withval}" in
+                 yes) 
+                  AC_DEFINE([ACE_USES_WCHAR])
+                  ace_user_enable_wide_char=yes
+                  ;;
+                 no)
+                  ace_user_enable_wide_char=no
+                  ;;
+                 *)
+                  AC_MSG_ERROR([bad value ${enableval} for --enable-uses-wchar])
+                  ;;
+                esac])
+ AC_CACHE_CHECK([whether to use wide characters internally],
+                [ace_user_enable_wide_char], [ace_user_enable_wide_char=no])
+ AM_CONDITIONAL([BUILD_USES_WCHAR], [test X$ace_user_enable_wide_char = Xyes])
+
+])
+
+AC_DEFUN([ACE_WITH_RMCAST],
+[AC_ARG_WITH([rmcast],
+             AS_HELP_STRING([--with-rmcast],
+                            [compile/use the ACE_RMCast library [[yes]]]),
+             [case "${withval}" in
+               yes) 
+                ace_user_with_rmcast=yes
+                ;;
+               no)
+                ace_user_with_rmcast=no
+                ;;
+               *)
+                AC_MSG_ERROR(bad value ${withval} for --with-rmcast)
+                ;;
+              esac])
+AC_CACHE_CHECK([whether to compile/use the ACE_RMCast library],
+               [ace_user_with_rmcast],[ace_user_with_rmcast=yes])
+AM_CONDITIONAL([BUILD_RMCAST], [test X$ace_user_with_rmcast = Xyes])
+])
+
+AC_DEFUN([ACE_WITH_QOS],
+[AC_ARG_WITH([qos],
+             AS_HELP_STRING([--with-qos],
+                            [compile/use the ACE_QoS library [[no]]]),
+             [case "${withval}" in
+               yes) 
+                ace_user_with_qos=yes
+                ;;
+               no)
+                ace_user_with_qos=no
+                ;;
+               *)
+                AC_MSG_ERROR(bad value ${withval} for --with-qos)
+                ;;
+              esac])
+AC_CACHE_CHECK([whether to compile/use the ACE_QoS library],
+               [ace_user_with_qos],[ace_user_with_qos=no])
+AM_CONDITIONAL([BUILD_QOS], [test X$ace_user_with_qos = Xyes])
+])
+
+AC_DEFUN([ACE_WITH_SSL],
+[AC_ARG_WITH([ssl],
+             AS_HELP_STRING([--with-ssl],
+                            [compile/use the ACE_SSL library [[yes]]]),
+             [case "${withval}" in
+               yes) 
+                ace_user_with_ssl=yes
+                ;;
+               no)
+                ace_user_with_ssl=no
+                ;;
+               *)
+                AC_MSG_ERROR(bad value ${withval} for --with-ssl)
+                ;;
+              esac])
+AC_CACHE_CHECK([whether to compile/use the ACE_SSL library],
+               [ace_user_with_ssl], [ace_user_with_ssl=yes])
+AM_CONDITIONAL([BUILD_SSL], [test X$ace_user_with_ssl = Xyes])
+])
+
+AC_DEFUN([ACE_WITH_ACEXML],
+[AC_ARG_WITH([acexml],
+             AS_HELP_STRING([--with-acexml],
+                            [compile/use the ACEXML library [[yes]]]),
+             [case "${withval}" in
+               yes) 
+                ace_user_with_acexml=yes
+                ;;
+               no)
+                ace_user_with_acexml=no
+                ;;
+               *)
+                AC_MSG_ERROR(bad value ${withval} for --with-acexml)
+                ;;
+              esac],
+              [
+               ace_user_with_acexml=yes
+              ])
+AC_CACHE_CHECK([whether to compile/use the ACEXML library],
+               [ace_user_with_acexml], [ace_user_with_acexml=yes])
+AM_CONDITIONAL([BUILD_ACEXML], [test X$ace_user_with_acexml = Xyes])
 ])

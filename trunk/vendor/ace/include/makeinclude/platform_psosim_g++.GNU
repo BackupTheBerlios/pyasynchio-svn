@@ -1,4 +1,4 @@
-# platform_psosim_g++.GNU,v 4.5 2003/08/09 04:43:51 dhinton Exp
+# platform_psosim_g++.GNU,v 4.6 2004/03/03 00:17:37 dhinton Exp
 # PSOSim with GNU g++ 2.7.2
 
 ####
@@ -24,10 +24,11 @@ PSS_BSP_LIB     = $(PSS_BSP)/bsp.a
 
 debug = 1
 optimize = 1
+pipes ?=1
 
 CC              = gcc
 CXX             = g++
-CFLAGS          += -W -Wall -Wpointer-arith -pipe #### -Winline
+CFLAGS          += -W -Wall -Wpointer-arith #### -Winline
 
 
 # -w suppresses warnings

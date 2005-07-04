@@ -1,4 +1,4 @@
-# platform_cygwin32.GNU,v 4.8 2003/12/08 16:02:34 jwillemsen Exp
+# platform_cygwin32.GNU,v 4.11 2004/12/14 19:52:46 jwillemsen Exp
 #
 # This file should allow to build ACE for cygwin32 with cygwin tools.
 #
@@ -8,12 +8,12 @@
 #
 
 #
-# Chose your target CPU (uncomment ONE of these).
+# Chose your target CPU (by default we set it to pentiumpro. In your
+# platform_macros.GNU file you can override this to pentium, i486 or i386
 #
-TCPU = pentiumpro
-#TCPU = pentium
-#TCPU = i486
-#TCPU = i386
+ifndef TCPU
+  TCPU = pentiumpro
+endif
 
 cygwin32 = 1
 

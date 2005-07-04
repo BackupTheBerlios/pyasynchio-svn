@@ -1,19 +1,29 @@
-dnl
+dnl configure.ac,v 4.84 2004/12/22 19:35:44 ossama Exp
+
 dnl An autoconf script to automatically configure ACE.
 dnl Process this file with autoconf to produce a configure script.
+
+dnl Statically (i.e. at autoconf-time) determine the version of ACE.
+dnl This is necessary since the version argument to AC_INIT is
+dnl supposed to be a static value, not a dynamic (e.g. a shell
+dnl variable).
 dnl
+dnl Note that this macro removes the newline output by the M4
+dnl "esyscmd" built-in.  Unless you understand what you're doing,
+dnl particularly with M4, do not modify this macro definition.
+define([ACE_VERSION], patsubst(esyscmd(grep ACE_VERSION ace/Version.h | sed 's/.*\"\(.*\)\".*/\1/'), [
+]))dnl remove newline ending every `esyscmd' answer
 
-dnl @todo PACKAGE and VERSION should be static, not computed by the
-dnl       shell.  Or M4 should be used to compute if necessary.
-dnl AC_INIT(["$PACKAGE"], ["$ACE_VERSION"], [ace-bugs@cs.wustl.edu],[ace])
-AC_INIT([ACE],[TEST-VERSION],[ace-bugs@cs.wustl.edu],[ace])
+AC_INIT([ACE],
+        ACE_VERSION,
+        [ace-bugs@cs.wustl.edu],
+        [ace])
 
-
-AC_REVISION([configure.ac,v 4.13 2004/01/13 21:34:39 ossama Exp])
+AC_REVISION([configure.ac,v 4.84 2004/12/22 19:35:44 ossama Exp])
 
 AC_COPYRIGHT([ACE(TM) and TAO(TM) are copyrighted by Douglas C. Schmidt and
-his research group at Washington University, University of California,
-Irvine, and Vanderbilt University Copyright (c) 1993-2003, all rights
+his research group at Vanderbilt University, Washington University, and
+University of California, Irvine.  Copyright (c) 1993-2004, all rights
 reserved.  Since ACE and TAO are open-source, free software, you are
 free to use, modify, and distribute the ACE and TAO source code and
 object code produced from the source, as long as you include this
@@ -23,25 +33,27 @@ Please see the file `COPYING' in the top level ACE directory for
 additional details.])
 
 
-dnl Require GNU Autoconf 2.57g or better.
-AC_PREREQ([2.57g])
+dnl Require GNU Autoconf 2.58 or better.  Previous versions did not
+dnl correctly support HP-UX.
+AC_PREREQ([2.58])
+
+dnl Autoconf explicitly forbids patterns containing "_AC_".  This causes
+dnl a problem when using MPC to generate the Automake ".am" files since
+dnl the "AC_CLD" project in ACE_wrappers/examples/C++NPv2 ends up having
+dnl a Makefile containing "NPv2_AC_CLD" in it, triggering the forbidden
+dnl "_AC_" pattern.  Explicitly allow our pattern.
+m4_pattern_allow([NPv2_AC_CLD])
 
 AC_CONFIG_SRCDIR([ace/ACE.cpp])
 
-AC_CONFIG_AUX_DIR([aux])
+AC_CONFIG_AUX_DIR([aux_config])
 AC_CONFIG_MACRO_DIR([m4])
 
 dnl Check what platform we are running on.
 AC_CANONICAL_TARGET([])
 
-dnl Initialize GNU Automake, and require Automake 1.7 or better.
-AM_INIT_AUTOMAKE([1.7])
-
-changequote(, )dnl
-ACE_VERSION=`head -1 ${srcdir}/VERSION | sed 's/.*version \([0-9.]*\).*/\1/'`
-changequote([, ])dnl
-
-
+dnl Initialize GNU Automake, and require Automake 1.9 or better.
+AM_INIT_AUTOMAKE([1.9])
 
 dnl Add maintainer mode option to the option list.
 dnl AM_MAINTAINER_MODE
@@ -119,44 +131,23 @@ AC_LANG([C++])
 dnl If we are cross compiling disable certain things in the Makefiles.
 AM_CONDITIONAL([ACE_CROSS_COMPILED], [test X$cross_compiling = Xyes])
 
-
-dnl This checks for a binary called gm4, gnum4 or m4, and assigns
-dnl whatever was found (or "gonzo") to the M4 macro.
-dnl AC_CHECK_PROGS(M4, gm4 gnum4 m4, gonzo)
-
 dnl Look for the best awk-style program available.
 AC_PROG_AWK
 
-dnl Set some version information
-ACE_CURRENT=0
-ACE_AGE=0
-ACE_REVISION=0
+dnl Parse the version information argument.
+dnl Note that "ACE_VERSION" is an m4 macro.
+ace_version_temp=ACE_VERSION
+ace_save_ifs="$IFS"; IFS='.'
+set dummy $ace_version_temp 0 0 0
+IFS="$ace_save_ifs"
 
-AS_IF([test -n "$AWK"],
- [
-  ACE_MAJOR=`echo "$ACE_VERSION" | sed 's/\./ /g' | $AWK '{ print \[$]1 }'`
-  ACE_MINOR=`echo "$ACE_VERSION" | sed 's/\./ /g' | $AWK '{ print \[$]2 }'`
-  ACE_BETA=`echo "$ACE_VERSION" | sed 's/\./ /g' | $AWK '{ print \[$]3 }'`
+ACE_MAJOR=$2
+ACE_MINOR=$3
+ACE_BETA=$4
 
-dnl Make sure all of the versions have a legitimate value, i.e. not an
-dnl empty string.
-  test -z "$ACE_MAJOR" && ACE_MAJOR=0
-  test -z "$ACE_MINOR" && ACE_MINOR=0
-  test -z "$ACE_BETA" && ACE_BETA=0
-
-dnl This is a terrible kludge to fool libtool into making it produce a shared
-dnl library with the "right" version information.
-dnl We really should switch to a version scheme that is compatible with
-dnl libtool.
-dnl               -Ossama
-  ACE_CURRENT=`expr $ACE_MAJOR + $ACE_MINOR`
-  ACE_AGE=$ACE_MINOR
-  ACE_REVISION=$ACE_BETA
- ],[])
-
-AC_SUBST([ACE_CURRENT])
-AC_SUBST([ACE_AGE])
-AC_SUBST([ACE_REVISION])
+AC_SUBST([ACE_MAJOR])
+AC_SUBST([ACE_MINOR])
+AC_SUBST([ACE_BETA])
 
 dnl Do the usual install settings; don't forget to include a
 dnl `install-sh' script, in case there is no BSD compatible `install'
@@ -177,7 +168,7 @@ case $host_os in
 esac
 
 
-dnl Check if we support symlinks
+dnl Check if we support symbolic links
 AC_PROG_LN_S
 
 dnl Check if a lexical analyzer exists (lex, flex, etc.)
@@ -216,9 +207,6 @@ ACE_CHECK_SUBSETS
 dnl Add --{enable,disable,with,without}-feature options.
 ACE_CONFIGURATION_OPTIONS
 ACE_COMPILATION_OPTIONS
-
-dnl Configure the TAO directory if it exists.
-dnl TAO_CONFIGURATION_OPTIONS
 
 # Autoconf's AC_OBJEXT and AC_EXEEXT macros only works for C compilers!
 # Libtool's setup macro calls AC_OBJEXT and AC_EXEEXT without setting
@@ -440,12 +428,6 @@ AS_IF([test "$ac_cv_header_dirent_dirent_h" = yes ||
 dnl Check for sys/wait.h Posix.1 compliance
 AC_HEADER_SYS_WAIT
 
-AS_IF([test "$ac_cv_cygwin" = yes],
-  [
-   AC_CHECK_HEADER([cygwin32/socket.h],
-                   [AC_DEFINE([ACE_HAS_CYGWIN32_SOCKET_H])],)
-  ],[])
-
 AC_CHECK_HEADER([dlfcn.h],
   [
    dnl We already checked for dlopen in the previous library checks however,
@@ -460,28 +442,9 @@ AC_CHECK_HEADER([dlfcn.h],
     ],[])
   ],)
 
-AC_CHECK_HEADER([malloc.h],
-  ,
-  [AC_DEFINE([ACE_LACKS_MALLOC_H])])
+ACE_CHECK_LACKS_HEADERS(inttypes.h malloc.h memory.h stdint.h)
 
-AC_CHECK_HEADER([memory.h],
-  ,
-  [AC_DEFINE([ACE_LACKS_MEMORY_H])])
-
-AC_CHECK_HEADER([stdint.h],
-  ,
-  [AC_DEFINE(ACE_LACKS_STDINT_H)])
-
-AC_CHECK_HEADER([inttypes.h],
-  ,
-  [AC_DEFINE(ACE_LACKS_INTTYPES_H)])
-
-AC_CHECK_HEADER([bytesex.h],
-  [AC_DEFINE([ACE_HAS_BYTESEX_H])])
-
-dnl We don't need to explicitly include this on linux.
-dnl AC_CHECK_HEADER([features.h],
-dnl  [AC_DEFINE([ACE_HAS_FEATURES_H])])
+ACE_CHECK_HAS_HEADERS(bytesex.h)
 
 AC_CHECK_HEADER([sys/msg.h],
   [
@@ -524,18 +487,17 @@ AC_CHECK_HEADER([sys/msg.h],
       AC_DEFINE([ACE_HAS_BROKEN_MSG_H])
      ],)
   ],
-  [AC_DEFINE([ACE_LACKS_SYSV_MSG_H])])
+  [AC_DEFINE([ACE_LACKS_SYS_MSG_H])])
 
-AC_CHECK_HEADER([sys/param.h],
-  [],
-  [AC_DEFINE([ACE_LACKS_PARAM_H])])
+AC_CHECK_HEADER([sys/sem.h],,)
+AC_CHECK_HEADER([sys/shm.h],,)
+
+ACE_CHECK_LACKS_HEADERS(sys/param.h)
 
 AC_CHECK_HEADER([sys/priocntl.h],[],[])
 
 dnl Check for <ucontext.h> _before_ <sys/procfs.h>
-AC_CHECK_HEADER([ucontext.h],
-  [],
-  [AC_DEFINE([ACE_LACKS_UCONTEXT_H])])
+ACE_CHECK_LACKS_HEADERS(ucontext.h)
 
 AC_CHECK_HEADER([sys/procfs.h],
   [
@@ -567,36 +529,85 @@ AC_CHECK_HEADER([sys/procfs.h],
      ])
   ],)
 
-AC_CHECK_HEADER([select.h],
-  [AC_DEFINE([ACE_HAS_SELECT_H])])
+ACE_CHECK_LACKS_HEADERS(arpa/inet.h)
 
-AC_CHECK_HEADER([sys/select.h],
-  [],
-  [AC_DEFINE([ACE_LACKS_SYS_SELECT_H])])
+ACE_CHECK_LACKS_HEADERS(dirent.h)
 
-AC_CHECK_HEADER([netinet/tcp.h],
-  [],
-  [AC_DEFINE([ACE_LACKS_TCP_H])])
+ACE_CHECK_LACKS_HEADERS(dlfcn.h)
 
-AC_CHECK_HEADER([sys/sockio.h],
-  [AC_DEFINE([ACE_HAS_SOCKIO_H])])
+ACE_CHECK_LACKS_HEADERS(errno.h)
 
-AC_CHECK_HEADER([sysent.h],
-  [AC_DEFINE([ACE_HAS_SYSENT_H])],)
+ACE_CHECK_LACKS_HEADERS(fcntl.h)
+
+ACE_CHECK_LACKS_HEADERS(search.h)
+
+ACE_CHECK_HAS_HEADERS(select.h)
+
+ACE_CHECK_LACKS_HEADERS(semaphore.h)
+
+ACE_CHECK_LACKS_HEADERS(signal.h)
+
+ACE_CHECK_LACKS_HEADERS(stdlib.h)
+
+ACE_CHECK_LACKS_HEADERS(string.h)
+
+ACE_CHECK_LACKS_HEADERS(strings.h)
+
+ACE_CHECK_LACKS_HEADERS(netdb.h)
+
+ACE_CHECK_LACKS_HEADERS(netinet/in.h)
+
+ACE_CHECK_LACKS_HEADERS(netinet/tcp.h)
+
+ACE_CHECK_LACKS_HEADERS(net/if.h)
+
+ACE_CHECK_HAS_HEADERS(sys/filio.h)
+
+ACE_CHECK_LACKS_HEADERS(sys/ioctl.h)
+
+ACE_CHECK_LACKS_HEADERS(sys/ipc.h)
+
+ACE_CHECK_HAS_HEADERS(sys/loadavg.h)
+
+ACE_CHECK_LACKS_HEADERS(sys/mman.h)
+
+ACE_CHECK_HAS_HEADERS(sys/pstat.h)
+
+ACE_CHECK_LACKS_HEADERS(sys/resource.h)
+
+ACE_CHECK_LACKS_HEADERS(sys/sem.h)
+
+ACE_CHECK_LACKS_HEADERS(sys/shm.h)
+
+ACE_CHECK_LACKS_HEADERS(sys/select.h)
+
+ACE_CHECK_HAS_HEADERS(sys/sockio.h)
+
+ACE_CHECK_LACKS_HEADERS(sys/socket.h)
+
+ACE_CHECK_LACKS_HEADERS(sys/stat.h)
+
+ACE_CHECK_LACKS_HEADERS(sys/time.h)
+
+ACE_CHECK_LACKS_HEADERS(sys/types.h)
+
+ACE_CHECK_LACKS_HEADERS(sys/uio.h)
+
+ACE_CHECK_LACKS_HEADERS(sys/un.h)
+
+ACE_CHECK_LACKS_HEADERS(sys/wait.h)
+
+ACE_CHECK_HAS_HEADERS(sysent.h)
+
+ACE_CHECK_LACKS_HEADERS(time.h)
+
+ACE_CHECK_LACKS_HEADERS(termios.h)
+
+ACE_CHECK_LACKS_HEADERS(wctype.h)
+
+
 
 AC_CHECK_HEADER([sys/systeminfo.h],[],[])
-
-AC_CHECK_HEADER([sys/filio.h],
-  [AC_DEFINE([ACE_HAS_SYS_FILIO_H])],)
-
-AC_CHECK_HEADER([sys/uio.h],,)
-
-AC_CHECK_HEADER([sys/ioctl.h],
-   [AC_DEFINE([ACE_HAS_SYS_IOCTL_H])],)
-
-AC_CHECK_HEADER([sys/types.h],
-  ,
-  [AC_DEFINE([ACE_LACKS_SYS_TYPES_H])])
 
 AC_CHECK_HEADER([sys/termios.h],
   [
@@ -604,7 +615,7 @@ AC_CHECK_HEADER([sys/termios.h],
       [
 #include <sys/termios.h>
 
-#if defined (ACE_HAS_SYS_IOCTL_H)
+#if !defined (ACE_LACKS_SYS_IOCTL_H)
 # include <sys/ioctl.h>
 #endif
 
@@ -885,56 +896,41 @@ AC_CHECK_HEADER([strings.h],
      ],)
   ],)
 
-AC_CHECK_HEADER([sys/syscall.h],
-  [AC_DEFINE([ACE_HAS_SYSCALL_H])],)
+ACE_CHECK_HAS_HEADERS(sys/syscall.h)
 
 AC_CHECK_HEADER([poll.h],
   [AC_DEFINE([ACE_HAS_POLL])],)
 
-dnl We want AC_CHECK_HEADERS so that "HAVE_PWD_H" gets defined if we have it.
-dnl "HAVE_PWD_H" is used in one of the tests later on.
-AC_CHECK_HEADERS([pwd.h],,)
+ACE_CHECK_LACKS_HEADERS(pwd.h)
 
 AC_CHECK_HEADER([regexpr.h],
   [AC_DEFINE([ACE_HAS_REGEX])],)
 
 AC_CHECK_HEADER([stropts.h],
-  [AC_DEFINE([ACE_HAS_STREAMS])],)
+  [AC_DEFINE([ACE_HAS_STREAMS])],
+  [AC_DEFINE([ACE_LACKS_STROPTS_H])])
 
-AC_CHECK_HEADER([siginfo.h],
-  ,
-  [AC_DEFINE([ACE_LACKS_SIGINFO_H])])
+ACE_CHECK_LACKS_HEADERS(siginfo.h)
 
-AC_CHECK_HEADER([unistd.h],
-  ,
-  [AC_DEFINE([ACE_LACKS_UNISTD_H])])
+ACE_CHECK_LACKS_HEADERS(unistd.h)
 
-AC_CHECK_HEADER([utime.h],
-  [AC_DEFINE([ACE_HAS_UTIME])],)
+ACE_CHECK_LACKS_HEADERS(utime.h)
 
-dnl This check will be disabled until we can get ACE to compile when it
-dnl ACE_HAS_WCHAR is defined on UN*X systems
-dnl AC_CHECK_HEADER([wchar.h],
-dnl   [AC_DEFINE([ACE_HAS_WCHAR])],)
+ACE_CHECK_LACKS_HEADERS(wchar.h)
 
-AC_CHECK_HEADER([libc.h],
-  [AC_DEFINE([ACE_HAS_LIBC_H])])
-
-AC_CHECK_HEADER([osfcn.h],
-  [AC_DEFINE([ACE_HAS_OSFCN_H])])
+AC_CHECK_HEADER([wchar.h],
+  [AC_DEFINE([ACE_HAS_WCHAR])],)
 
 AC_CHECK_HEADER([new],
   [AC_DEFINE([ACE_HAS_NEW_NO_H])],
   [
-   AC_CHECK_HEADER([new.h],
-    [AC_DEFINE([ACE_HAS_NEW_H])])
+   ACE_CHECK_HAS_HEADERS([new.h])
   ])
 
 AC_CHECK_HEADER([stdexcept],
   [AC_DEFINE([ACE_HAS_STDEXCEPT_NO_H])],
   [
-   AC_CHECK_HEADER([exception.h],
-     [AC_DEFINE([ACE_HAS_EXCEPTION_H])])
+   ACE_CHECK_HAS_HEADERS([exception.h])
   ])
 
 dnl ace/OS.i can #include <cstring>,not #include <cstring.h>
@@ -998,23 +994,6 @@ ACE_CACHE_CHECK([if sprintf() returns char*],
   ],[AC_DEFINE([ACE_HAS_CHARPTR_SPRINTF])],)
 ]) dnl ACE_CONVERT_WARNINGS_TO_ERRORS
 
-dnl Check for getopt() prototype
-ACE_CACHE_CHECK([for getopt() prototype],[ace_cv_lib_getopt_proto],[
-  AC_EGREP_HEADER([getopt],[unistd.h],
-    [
-     ace_cv_lib_getopt_proto=yes
-    ],
-    [
-     AC_EGREP_HEADER([[^_]+getopt],[stdlib.h],
-       [
-        ace_cv_lib_getopt_proto=yes
-       ],
-       [
-        ace_cv_lib_getopt_proto=no
-       ])
-    ])
-],,[AC_DEFINE([ACE_LACKS_GETOPT_PROTO])])
-
 dnl Check for old malloc() prototype.
 ACE_CONVERT_WARNINGS_TO_ERRORS([
 ACE_CACHE_CHECK([for old malloc() prototype],
@@ -1036,66 +1015,55 @@ ACE_CACHE_CHECK([for old malloc() prototype],
   ],[AC_DEFINE([ACE_HAS_OLD_MALLOC])],)
 ]) dnl ACE_CONVERT_WARNINGS_TO_ERRORS
 
+
+dnl Check for getopt() prototype
+AC_CHECK_DECL([getopt],
+              [],
+              [AC_DEFINE([ACE_LACKS_GETOPT_PROTOTYPE], 1,
+                         [Define to 1 if platform lacks the declaration
+                         of getopt().])],
+              [#include <stdlib.h>
+              #ifndef ACE_LACKS_UNISTD_H
+              # include <unistd.h>
+              #endif])
+
 dnl Check for *_timedwait() prototypes
 dnl TODO: We only check for one of the *_timedwait() prototypes.
 dnl       Is this enough?
-ACE_CACHE_CHECK([for *_timedwait() prototypes],[ace_cv_lib_timedwait_proto],[
-  AC_EGREP_HEADER([recv_timedwait],[pthread.h],
-    [
-     ace_cv_lib_timedwait_proto=yes
-    ],
-    [
-     AC_EGREP_HEADER([recv_timedwait],[fcntl.h],
-       [
-        ace_cv_lib_timedwait_proto=yes
-       ],
-       [
-        ace_cv_lib_timedwait_proto=no
-       ])
-    ])
-],,[AC_DEFINE([ACE_LACKS_TIMEDWAIT_PROTOTYPES])])
+AC_CHECK_DECL([recv_timedwait],
+              [],
+              [AC_DEFINE([ACE_LACKS_TIMEDWAIT_PROTOTYPES], 1,
+                         [Define to 1 if platform lacks the declarations
+                         of recv_timedwait, send_timedwait, etc.])],
+              [#include <pthread.h>
+	       #include <fcntl.h>])
 
-dnl Check for ualarm prototype in unistd.h.
-dnl Most Unices seem to put it there (?)
-ACE_CACHE_CHECK([for ualarm() prototype],[ace_cv_lib_ualarm_proto],[
-   AC_EGREP_HEADER([ualarm],[unistd.h],
-                   [
-                    ace_cv_lib_ualarm_proto=yes
-                   ],
-                   [
-                    ace_cv_lib_ualarm_proto=no
-                   ])
-],,[AC_DEFINE([ACE_LACKS_UALARM_PROTOTYPE])])
+dnl Check for ualarm prototype
+AC_CHECK_DECL([ualarm],
+              [],
+	      [AC_DEFINE([ACE_LACKS_UALARM_PROTOTYPE], 1,
+	                 [Define to 1 if platform lacks the declaration
+			 of ualarm().])],
+              [#include <unistd.h>])
 
 dnl Check for getrusage prototype in sys/resource.h
-ACE_CACHE_CHECK([for getrusage() in sys/resource.h],
-    [ace_cv_lib_has_getrusage_proto],[
-      AC_EGREP_HEADER([getrusage],[sys/resource.h],
-         [
-          ace_cv_lib_has_getrusage_proto=yes
-         ],
-         [
-          ace_cv_lib_has_getrusage_proto=no
-         ])
-],[AC_DEFINE([ACE_HAS_GETRUSAGE_PROTO])],)
+AC_CHECK_DECL([getrusage],
+	      [AC_DEFINE([ACE_HAS_GETRUSAGE_PROTOTYPE], 1,
+			 [Define to 1 if platform has the declaration
+			 of getrusage().])],
+	      [],
+	      [#include <sys/resource.h>])
 
-dnl Check for {get,set}rlimit prototypes in sys/resource.h
-ACE_CACHE_CHECK([for getrlimit() and setrlimit() in sys/resource.h],
-    [ace_cv_lib_has_getsetrlimit_proto],[
-      AC_EGREP_HEADER([getrlimit],[sys/resource.h],
-         [
-          AC_EGREP_HEADER([getrlimit],[sys/resource.h],
-             [
-              ace_cv_lib_has_getsetrlimit_proto=yes
-             ],
-             [
-              ace_cv_lib_has_getsetrlimit_proto=no
-             ])
-         ],
-         [
-          ace_cv_lib_has_getsetrlimit_proto=no
-         ])
-],,[AC_DEFINE([ACE_LACKS_RLIMIT_PROTOTYPE])])
+dnl Check for {get,set}rlimit prototypes
+AC_CHECK_DECL([getrlimit],[],[],[#include <sys/resource.h>])
+AC_CHECK_DECL([setrlimit],[],[],[#include <sys/resource.h>])
+if test "$ac_cv_have_decl_getrlimit" != yes ||
+   test "$ac_cv_have_decl_setrlimit" != yes; then
+  AC_DEFINE([ACE_LACKS_RLIMIT_PROTOTYPE], 1,
+            [Define to 1 if platform lacks the declaration of
+            {get,set}rlimit().])
+fi
+
 
 dnl Check for platforms that don't declare dl* functions
 dnl as extern "C" in dlfcn.h.
@@ -1129,26 +1097,64 @@ dnl AC_CHECK_TYPE([off64_t],[long long])
 
 dnl Specific typedef checks
 dnl TODO: Check whether these typedefs can be defined somewhere else.
-ACE_CHECK_TYPE([idtype_t],[signal.h],[AC_DEFINE([ACE_HAS_IDTYPE_T])],)
+AC_CHECK_TYPE([idtype_t],
+	      [AC_DEFINE([ACE_HAS_IDTYPE_T], 1,
+			 [Define to 1 if the system has the type `idtype_t'.])],
+	      [],
+	      [#include <signal.h>])
+
+AC_CHECK_TYPE([key_t],
+	      [],
+	      [AC_DEFINE([ACE_LACKS_KEY_T], 1, 
+			 [Define to 1 if the system lacks the type `key_t'.])],
+	      [#include <sys/types.h>])
+
 ACE_CHECK_TYPE([sem_t],[semaphore.h],,)
-ACE_CHECK_TYPE([key_t],[sys/types.h],,[AC_DEFINE([ACE_LACKS_KEY_T])])
-ACE_CHECK_TYPE([ssize_t],[sys/types.h],[AC_DEFINE([ACE_HAS_SSIZE_T])],)
-ACE_CHECK_TYPE([u_longlong_t],[sys/types.h],,[AC_DEFINE([ACE_LACKS_U_LONGLONG_T])])
-ACE_CHECK_TYPE([pri_t],[sys/types.h],,[AC_DEFINE([ACE_LACKS_PRI_T])])
-ACE_CHECK_TYPE([ucontext_t],[ucontext.h],
-  [
-   AC_DEFINE([ACE_HAS_UCONTEXT_T])
-  ],
-  [
-   dnl Some platforms define ucontext_t in <sys/ucontext.h>, but ACE
-   dnl doesn't explicitly include that header.  However, it is very likely
-   dnl that <signal.h> does, either directly or indirectly.
-   ACE_CHECK_TYPE([ucontext_t],[signal.h],[AC_DEFINE([ACE_HAS_UCONTEXT_T])])
-  ])
-ACE_CHECK_TYPE([wchar_t],[wchar.h],,
-  [
-   ACE_CHECK_TYPE([wchar_t],[sys/types.h],,[AC_DEFINE([ACE_LACKS_WCHAR_T])])
-  ])
+
+AC_CHECK_TYPE([pri_t],
+	      [],
+	      [AC_DEFINE([ACE_LACKS_PRI_T], 1,
+			 [Define to 1 if the system lacks the type 'pri_t'.])],
+	      [#include <sys/types.h>])
+
+AC_CHECK_TYPE([sig_atomic_t],
+	      [AC_DEFINE([ACE_HAS_SIG_ATOMIC_T], 1,
+			 [Define to 1 if the system has the type 'sig_atomic_t'.])],
+	      [],
+	      [#include <signal.h>])
+
+AC_CHECK_TYPE([ssize_t],
+	      [AC_DEFINE([ACE_HAS_SSIZE_T], 1,
+			 [Define to 1 if the system has the type `ssize_t'.])],
+	      [],
+	      [#include <sys/types.h>])
+
+dnl Some platforms define ucontext_t in <sys/ucontext.h>, but ACE
+dnl doesn't explicitly include that header.  However, it is very
+dnl likely that <signal.h> does, either directly or indirectly.
+AC_CHECK_TYPE([ucontext_t],
+	      [AC_DEFINE([ACE_HAS_UCONTEXT_T], 1,
+			 [Define to 1 if the system has the type `ucontext_t'.])],
+	      [],
+[#include <signal.h>
+#ifndef ACE_LACKS_UCONTEXT_H
+# include <ucontext.h>
+#endif
+])
+
+AC_CHECK_TYPE([u_longlong_t],
+	      [],
+	      [AC_DEFINE([ACE_LACKS_U_LONGLONG_T], 1,
+			 [Define to 1 if the system lacks the type `u_long_long'.])],
+	      [#include <sys/types.h>])
+
+AC_CHECK_TYPE([wchar_t],
+	      [],
+	      [AC_DEFINE([ACE_LACKS_WCHAR_T], 1,
+			 [Define to 1 if the system lacks the type `wchar_t'.])],
+[#include <sys/types.h>
+#include <wchar.h>
+])
 
 ACE_CHECK_TYPE([socklen_t],[sys/socket.h],[AC_DEFINE([ACE_HAS_SOCKLEN_T])],
   [
@@ -1200,23 +1206,6 @@ ACE_CHECK_TYPE([socklen_t],[sys/socket.h],[AC_DEFINE([ACE_HAS_SOCKLEN_T])],
     ])
   ])
 
-dnl Check for sig_atomic_t
-ACE_CACHE_CHECK([for sig_atomic_t],
-    [ace_cv_lib_posix_defines_sig_atomic_t],[
-      AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-#ifndef ACE_LACKS_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-#include <signal.h>
-         ]],[[
-          sig_atomic_t sat;
-         ]])],[
-          ace_cv_lib_posix_defines_sig_atomic_t=yes
-         ],[
-          ace_cv_lib_posix_defines_sig_atomic_t=no
-         ])
-],[AC_DEFINE([ACE_HAS_SIG_ATOMIC_T])],)
-
 
 
 dnl SECTION 7: checks for structures
@@ -1227,7 +1216,6 @@ ACE_CHECK_STRUCT([dirent],[dirent.h],,[AC_DEFINE([ACE_LACKS_STRUCT_DIR])])
 ACE_CHECK_STRUCT([flock],[fcntl.h],,[AC_DEFINE([ACE_LACKS_FILELOCKS])])
 ACE_CHECK_STRUCT([rwlock_t],[synch.h],,[AC_DEFINE([ACE_LACKS_RWLOCK_T])])
 ACE_CHECK_STRUCT([strbuf],[stropts.h],[AC_DEFINE([ACE_HAS_STRBUF_T])],)
-ACE_CHECK_STRUCT([msgbuf],[sys/msg.h],,[AC_DEFINE([ACE_LACKS_MSGBUF_T])])
 case "$host" in
 *irix*)
   dnl IRIX prusage fields don't match what ACE currently supports.
@@ -1494,6 +1482,7 @@ dnl Check for more than two fields in struct rusage
 ACE_CACHE_CHECK([for limited struct rusage],
     [ace_cv_lib_limited_rusage],[
         AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+#include <sys/time.h>
 #include <sys/resource.h>
           ]],[[
            rusage ace_rusage;
@@ -1725,50 +1714,60 @@ dnl If we get a size of zero, then the type is unknown to the compiler.
 dnl We don't need to check for sizeof(char) right now.  Also conflicts with
 dnl ACE definition in Basic_Types.h, so we leave the test out.
 if test "$cross_compiling" != yes; then
-  dnl AC_CHECK_SIZEOF([char],[1])
-  dnl if test "$ac_cv_sizeof_char" != "0"; then
-  dnl   AC_DEFINE([ACE_SIZEOF_CHAR],[SIZEOF_CHAR])
-  dnl fi
+  AC_CHECK_SIZEOF([wchar_t])
+  if test "$ac_cv_sizeof_wchar_t" != 0; then
+    AC_DEFINE_UNQUOTED([ACE_SIZEOF_WCHAR],[$ac_cv_sizeof_wchar_t],
+		       [Size of the native "wchar_t" type])
+  fi
   AC_CHECK_SIZEOF([short])
   if test "$ac_cv_sizeof_short" != 0; then
-    AC_DEFINE_UNQUOTED([ACE_SIZEOF_SHORT],[$ac_cv_sizeof_short])
+    AC_DEFINE_UNQUOTED([ACE_SIZEOF_SHORT],[$ac_cv_sizeof_short],
+		       [Size of the native "short" type])
   fi
   AC_CHECK_SIZEOF([int])
   if test $ac_cv_sizeof_int != 0; then
-    AC_DEFINE_UNQUOTED([ACE_SIZEOF_INT],[$ac_cv_sizeof_int])
+    AC_DEFINE_UNQUOTED([ACE_SIZEOF_INT],[$ac_cv_sizeof_int],
+		       [Size of the native "int" type])
   fi
   AC_CHECK_SIZEOF([long])
   if test $ac_cv_sizeof_long != 0; then
-    AC_DEFINE_UNQUOTED([ACE_SIZEOF_LONG],[$ac_cv_sizeof_long])
+    AC_DEFINE_UNQUOTED([ACE_SIZEOF_LONG],[$ac_cv_sizeof_long],
+		       [Size of the native "long" type])
   fi
   AC_CHECK_SIZEOF([long long])
   if test $ac_cv_sizeof_long_long != 0; then
-    AC_DEFINE_UNQUOTED([ACE_SIZEOF_LONG_LONG],[$ac_cv_sizeof_long_long])
+    AC_DEFINE_UNQUOTED([ACE_SIZEOF_LONG_LONG],[$ac_cv_sizeof_long_long],
+		       [Size of the native "long long" type])
   else
     AC_DEFINE([ACE_LACKS_LONGLONG_T])
   fi
   AC_CHECK_SIZEOF([void *])
   if test $ac_cv_sizeof_void_p != 0; then
-    AC_DEFINE_UNQUOTED([ACE_SIZEOF_VOID_P],[$ac_cv_sizeof_void_p])
+    AC_DEFINE_UNQUOTED([ACE_SIZEOF_VOID_P],[$ac_cv_sizeof_void_p],
+		       [Size of the native "pointer to void" type])
   fi
   AC_CHECK_SIZEOF([float])
   if test $ac_cv_sizeof_float != 0; then
-    AC_DEFINE_UNQUOTED([ACE_SIZEOF_FLOAT],[$ac_cv_sizeof_float])
+    AC_DEFINE_UNQUOTED([ACE_SIZEOF_FLOAT],[$ac_cv_sizeof_float],
+		       [Size of the native "float" type])
   else
     AC_DEFINE([ACE_LACKS_FLOATING_POINT])
   fi
   AC_CHECK_SIZEOF([double])
   if test $ac_cv_sizeof_double != 0; then
-    AC_DEFINE_UNQUOTED([ACE_SIZEOF_DOUBLE],[$ac_cv_sizeof_double])
+    AC_DEFINE_UNQUOTED([ACE_SIZEOF_DOUBLE],[$ac_cv_sizeof_double],
+		       [Size of the native "double" type])
   else
     AC_DEFINE([ACE_LACKS_FLOATING_POINT])
   fi
   AC_CHECK_SIZEOF([long double])
   if test $ac_cv_sizeof_long_double != 0; then
-    AC_DEFINE_UNQUOTED([ACE_SIZEOF_LONG_DOUBLE],[$ac_cv_sizeof_long_double])
+    AC_DEFINE_UNQUOTED([ACE_SIZEOF_LONG_DOUBLE],[$ac_cv_sizeof_long_double],
+		       [Size of the native "long double" type])
   fi
 
-  dnl Set the 64 bit unsigned int typedef
+  dnl Set the 64 bit typedefs
+  ACE_INT64=""
   ACE_UINT64=""
   dnl if test "$ace_cv_type_u_longlong_t" = yes; then
   dnl This doesn't work:  AC_CHECK_SIZEOF([u_longlong_t],[8])
@@ -1778,9 +1777,11 @@ if test "$cross_compiling" != yes; then
   dnl   fi
   dnl elif test $ac_cv_sizeof_long = 8; then
   if test $ac_cv_sizeof_long = 8; then
+    ACE_INT64="signed long"
     ACE_UINT64="unsigned long"
     ace_u_long_long_typedef_set=yes
   elif test $ac_cv_sizeof_long_long = 8; then
+    ACE_INT64="signed long long"
     ACE_UINT64="unsigned long long"
     ace_u_long_long_typedef_set=yes
   else
@@ -1799,6 +1800,8 @@ else
 fi dnl test "$cross_compiling" != yes
 
 dnl Other checks
+
+ACE_VAR_TIMEZONE
 
 
 dnl Check for istream operator>> for char, unsigned char and signed char
@@ -2133,129 +2136,6 @@ if test "$ace_cv_lib_auto_ptr_class" = yes; then
     ],,[AC_DEFINE([ACE_AUTO_PTR_LACKS_RESET])])
 fi  dnl test $ace_cv_lib_auto_ptr_class=yes
 
-dnl Check for ANSI C++ cast support
-ACE_CACHE_CHECK([for ANSI C++ cast support],
-  [ace_cv_lib_posix_standard_casts],[
-   ACE_CONVERT_WARNINGS_TO_ERRORS([
-    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[/* No headers */]],[[
-       class B { public: int b_; virtual int b() const = 0; };
-       class D : public B { virtual int b() const { return b_; } };
-
-       void* vp = 0;
-       char* cp = 0;
-       float f = 1.0;
-       int i = 0;
-       int* ip = 0;
-       const int* jp = 0;
-
-       i = static_cast<int> (f);
-       ip = const_cast<int*> (jp);
-       cp = reinterpret_cast<char*> (vp);
-
-       B* bp = new D;
-       D* dp = dynamic_cast<D*> (bp);
-       delete bp;
-      ]])],[
-       ace_cv_lib_posix_standard_casts=yes
-       AC_CACHE_VAL([ace_cv_lib_rtti],[ace_cv_lib_rtti=yes])
-      ],[
-       AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
-         [[/* No headers */]],
-         [[
-          class B { public: int b_; virtual int b() const = 0; };
-          class D : public B { virtual int b() const { return b_; } };
-
-          void* vp = 0;
-          char* cp = 0;
-          float f = 1.0;
-          int i = 0;
-          int* ip = 0;
-          const int* jp = 0;
-
-          i = static_cast<int> (f);
-          ip = const_cast<int*> (jp);
-          cp = reinterpret_cast<char*> (vp);
-         ]])],
-         [
-          ace_cv_lib_posix_standard_casts=yes
-          AC_CACHE_VAL([ace_cv_lib_rtti],[ace_cv_lib_rtti=no])
-         ],
-         [
-          ace_cv_lib_posix_standard_casts=no
-         ])
-      ])
-   ])
-  ],
-  [
-   AC_DEFINE([ACE_HAS_ANSI_CASTS])
-   if test "$ace_cv_lib_rtti" != yes; then
-     AC_DEFINE([ACE_LACKS_RTTI])
-   fi
-  ],)
-
-dnl Check for explicit C++ constructor support
-ACE_CACHE_CHECK([for explicit C++ constructor support],
-  [ace_cv_feature_explicit_constructor],
-  [
-   AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-class Foo
-{
- public:
-   explicit Foo (int i) { this->val_ = i; }
- private:
-   int val_;
-};
-     ]],[[
-Foo bar = 'a'; // error: no implicit char->Foo conversion
-     ]])],[
-dnl    The above test *should* fail!
-      ace_cv_feature_explicit_constructor=no
-     ],[
-      AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
-        [[
-class Foo
-{
- public:
-   explicit Foo (int i) { this->val_ = i; }
- private:
-   int val_;
-};
-        ]],
-        [[
-Foo bar (5);
-        ]])],
-        [
-         ace_cv_feature_explicit_constructor=yes
-        ],
-        [
-         ace_cv_feature_explicit_constructor=no
-        ])
-     ])
-  ],[AC_DEFINE([ACE_HAS_EXPLICIT_KEYWORD])],)
-
-dnl Check for C++ mutable keyword
-ACE_CACHE_CHECK([for C++ mutable keyword],
-  [ace_cv_feature_cxx_mutable_keyword],
-  [
-   AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-class Foo
-{
- public:
-   Foo (void) : val_ (0) {}
-
-   mutable int val_;
-};
-     ]],[[
-const Foo bar;
-
-bar.val_ = 3; // mutable declaration should allow this to be modified
-     ]])],[
-      ace_cv_feature_cxx_mutable_keyword=yes
-     ],[
-      ace_cv_feature_cxx_mutable_keyword=no
-     ])
-  ],[AC_DEFINE([ACE_HAS_MUTABLE_KEYWORD])],)
-
 dnl Check if platform supports typename keyword
 ACE_CACHE_CHECK([for C++ typename keyword],
   [ace_cv_feature_posix_typename_keyword],[
@@ -2275,15 +2155,11 @@ ACE_CACHE_CHECK([for C++ typename keyword],
                      public:
                        typedef typename T::Y Y;
                        Foo(T* foo) : foo_(foo) {}
-                       void bilbo(typename T::Y y);
+                       void bilbo(typename T::Y y)
+                         { typename T::Y x(10); }
                      private:
                        T* foo_;
                      };
-
-                     template <class T>
-                     void Foo<T>::bilbo(typename T::Y y)
-                     {
-                     }
                    ]],[[
                      Bar bar(15);
                      Foo<Bar> foo(&bar);
@@ -2293,7 +2169,12 @@ ACE_CACHE_CHECK([for C++ typename keyword],
                    ],[
                     ace_cv_feature_posix_typename_keyword=no
                    ])
-  ],[AC_DEFINE([ACE_HAS_TYPENAME_KEYWORD])],)
+  ],
+  [AC_DEFINE([ACE_HAS_TYPENAME_KEYWORD])],
+  [
+   AC_MSG_WARN([$CXX does not support the C++ \"typename\" keyword.
+ACE will require it in the near future.])
+  ])
 
 dnl Check if platform supports placement new operator
 ACE_CACHE_CHECK([for C++ placement new operator],
@@ -2894,7 +2775,7 @@ ACE_CACHE_CHECK([for template specialization],
        ])
   ],[AC_DEFINE([ACE_HAS_TEMPLATE_SPECIALIZATION])],)
 
-dnl Check if platform supports *standard *template specialization
+dnl Check if platform supports *standard* template specialization
 ACE_CACHE_CHECK([for standard template specialization],
   [ace_cv_feature_cxx_std_template_specialization],[
     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
@@ -2936,15 +2817,18 @@ Vector<void *> vpv;
       ]])],[
        ace_cv_feature_cxx_std_template_specialization=yes
       ],[
-       ace_cv_feature_std_cxx_template_specialization=no
+       ace_cv_feature_cxx_std_template_specialization=no
       ])
-  ],[AC_DEFINE([ACE_HAS_STD_TEMPLATE_SPECIALIZATION])],)
+  ],
+  [AC_DEFINE([ACE_HAS_STD_TEMPLATE_SPECIALIZATION])],
+  [AC_MSG_WARN([$CXX does not support standard full template specialization.
+ACE will require it in the near future.])])
 
 if test "$ace_cv_feature_cxx_std_template_specialization" = yes; then
 
-dnl Check if platform needs *standard* template method specialization
-ACE_CACHE_CHECK([if platform needs standard template method specialization],
-  [ace_cv_feature_cxx_std_template_method_specialization],[
+dnl Check if platform supports *standard* template class member specialization
+ACE_CACHE_CHECK([for standard template class member specialization],
+  [ace_cv_feature_cxx_std_template_class_member_specialization],[
     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 // Some compilers have a hard time with this test since the syntax is
 // too "new" for them.
@@ -2987,64 +2871,41 @@ Vector<void *>::operator[] (int i)
       ]],[[
        Vector <void *> vpv;
       ]])],[
-dnl   template method specialization is *not* needed
-       ace_cv_feature_cxx_std_template_method_specialization=no
+       ace_cv_feature_cxx_std_template_class_member_specialization=yes
       ],[
-       AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
-         [[
-// Some compilers have a hard time with this test since the syntax is
-// too "new" for them.
-
-// general vector type
-template<class T>
-class Vector
-{
-public:
-  Vector (void);
-  Vector (int);
-
-  T& elem (int i) { return v[i]; }
-  T& operator[] (int i);
-private:
-  T* v;
-  int sz;
-};
-
-// void * specialization
-template<>
-class Vector<void *>
-{
-public:
-  Vector (void);
-  Vector (int);
-
-  void*& elem (int i) { return p[i]; }
-  void*& operator[] (int i);
-private:
-  void** p;
-  int sz;
-};
-
-template <>
-void *&
-Vector<void *>::operator[] (int i)
-{
- return p[i];
-}
-         ]],
-         [[
-          Vector<void *> vpv;
-         ]])],
-         [
-dnl   template method specialization is needed
-          ace_cv_feature_cxx_std_template_method_specialization=yes
-         ],
-         [
-dnl   template method specialization is *not* needed
-          ace_cv_feature_cxx_std_template_method_specialization=no
-         ])
+       ace_cv_feature_cxx_std_template_class_member_specialization=no
       ])
-  ],[AC_DEFINE([ACE_HAS_STD_TEMPLATE_METHOD_SPECIALIZATION])],)
+  ],[AC_DEFINE([ACE_HAS_STD_TEMPLATE_CLASS_MEMBER_SPECIALIZATION])],)
+
+
+dnl Check if platform supports partial template specialization
+ACE_CACHE_CHECK([for partial template specialization],
+  [ace_cv_feature_cxx_partial_template_specialization],[
+     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+template <bool C, typename Ta>
+struct Foo;
+
+template <typename Ta>
+struct Foo<true, Ta>
+{
+  typedef Ta result_type;
+};
+
+template <typename Ta>
+struct Foo<false, Ta>
+{
+  typedef void result_type;
+};
+       ]],[[
+  Foo<true, int>::result_type a = 2;
+       ]])],[
+        ace_cv_feature_cxx_partial_template_specialization=yes
+       ],[
+        ace_cv_feature_cxx_partial_template_specialization=no
+       ])
+  ],[],[AC_MSG_WARN([$CXX does not support partial template specialization.
+ACE will require it in the near future.])])
+
 fi  dnl test $ace_cv_feature_cxx_std_template_specialization = yes
 
 dnl Check if platform supports template typedefs
@@ -3338,47 +3199,105 @@ case "$host_os" in
      ;;
 esac
 
-AC_CHECK_FUNC([access],
-  ,
-  [AC_DEFINE([ACE_LACKS_ACCESS])])
+ACE_CHECK_LACKS_FUNCS(access)
 
-dnl Temporarily select C as the test language to work around a bug in
-dnl some versions of Autoconf when C++ is selected as the test
-dnl language.
-AC_LANG_PUSH([C])
-AC_CHECK_FUNC([bsearch],
-  ,
-  [AC_DEFINE([ACE_LACKS_BSEARCH])])
-AC_LANG_POP([C])
+ACE_CHECK_LACKS_FUNCS(bsearch)
 
-AC_CHECK_FUNC([clock_gettime], [AC_DEFINE([ACE_HAS_CLOCK_GETTIME])],)
+ACE_CHECK_HAS_FUNCS(clock_gettime)
 
-dnl Temporarily select C as the test language to work around a bug in
-dnl some versions of Autoconf when C++ is selected as the test
-dnl language.
-AC_LANG_PUSH([C])
-AC_CHECK_FUNC([qsort],
-  ,
-  [AC_DEFINE([ACE_LACKS_QSORT])])
-AC_LANG_POP([C])
+ACE_CHECK_LACKS_FUNCS(difftime)
+
+ACE_CHECK_LACKS_FUNCS(fgetwc fcntl fsync)
+
+ACE_CHECK_LACKS_FUNCS(gethostent)
+
+ACE_CHECK_LACKS_FUNCS(getipnodebyaddr)
+
+ACE_CHECK_LACKS_FUNCS(getipnodebyname)
+
+ACE_CHECK_HAS_FUNCS(getifaddrs)
+
+ACE_CHECK_HAS_FUNCS(itoa)
+
+ACE_CHECK_LACKS_FUNCS(qsort)
+
+ACE_CHECK_HAS_FUNCS(strnlen)
+
+ACE_CHECK_LACKS_FUNCS(strchr)
+
+ACE_CHECK_LACKS_FUNCS(strcspn)
+
+ACE_CHECK_LACKS_FUNCS(strerror)
+
+ACE_CHECK_LACKS_FUNCS(strpbrk)
+
+ACE_CHECK_LACKS_FUNCS(strspn)
+
+ACE_CHECK_LACKS_FUNCS(strtod)
+
+ACE_CHECK_LACKS_FUNCS(strtol)
+
+ACE_CHECK_LACKS_FUNCS(strtoul)
+
+# swab() comes in a number of forms:
+#   swab (const void*, void*, ssize_t) is POSIX, XPG4, SUS, SUSv2 standard.
+#   swab (const char*, char*, ssize_t) is SVID third edition.
+#   swab (char*, char*, ssize_t) is on some odd platforms like Windows.
+# So, if swab() is available, figure out which of the three variants it is.
+# The second and third have ACE config settings.
+ACE_CHECK_LACKS_FUNCS([swab],
+    [
+      AC_LINK_IFELSE([
+      AC_LANG_PROGRAM([
+#include <stdlib.h>
+#include <unistd.h>
+       ],
+       [
+// If this compiles, we have the POSIX, XPG4, etc. standard.
+const char src[2] = {'a', 'b'};
+char dst[2];
+const void *vsrc = src;
+void *vdst = dst;
+swab (vsrc, vdst, 2);
+       ])
+      ],
+      [
+        ace_cv_std_swab=yes
+      ],
+      [
+        AC_LINK_IFELSE([
+        AC_LANG_PROGRAM([
+#include <stdlib.h>
+#include <unistd.h>
+        ],
+        [
+// If this compiles, we have the SVID3 version, else it's the odd,
+// non-const one.
+const char src[2] = {'a', 'b'};
+char dst[2];
+swab (src, dst, 2);
+        ])
+       ],
+       [
+         AC_DEFINE([ACE_HAS_CONST_CHAR_SWAB])
+       ],
+       [
+         AC_DEFINE([ACE_HAS_NONCONST_SWAB])
+       ])
+      ])
+    ],
+)
 
 dnl ACE uses execv, execvp and execve, so we don't bother to check
 dnl for the others (e.g. execl, execlp, execle)
-AC_CHECK_FUNCS([execv execvp execve],
-  ,
-  [AC_DEFINE([ACE_LACKS_EXEC])])
-
-AC_CHECK_FUNC([fgetwc],
-  ,
-  [AC_DEFINE([ACE_LACKS_FGETWC])])
-
-AC_CHECK_FUNC([fcntl],
-  ,
-  [AC_DEFINE([ACE_LACKS_FCNTL])])
-
-AC_CHECK_FUNC([fsync],
-  ,
-  [AC_DEFINE([ACE_LACKS_FSYNC])])
+AC_CHECK_FUNC(execv)
+AC_CHECK_FUNC(execvp)
+AC_CHECK_FUNC(execve)
+if test "$ac_cv_func_execv" != yes &&
+   test "$ac_cv_func_execvp" != yes &&
+   test "$ac_cv_func_execve" != yes; then
+  AC_DEFINE([ACE_LACKS_EXEC])
+fi
 
 AC_CHECK_FUNC([getmsg],
   [
@@ -3387,9 +3306,9 @@ AC_CHECK_FUNC([getmsg],
 # include <unistd.h>
 #endif  /* !ACE_LACKS_UNISTD_H */
 
-#ifdef ACE_HAS_SYS_IOCTL_H
+#ifndef ACE_LACKS_SYS_IOCTL_H
 # include <sys/ioctl.h>
-#endif  /* ACE_HAS_SYS_IOCTL_H */
+#endif  /* ACE_LACKS_SYS_IOCTL_H */
 
 #ifdef ACE_HAS_STREAMS
 #  include <stropts.h>
@@ -3427,10 +3346,6 @@ main ()
   ],)
 
 AC_CHECK_FUNC([gethostbyaddr],,)
-
-AC_CHECK_FUNC([difftime],
-  ,
-  [AC_DEFINE([ACE_LACKS_DIFFTIME])])
 
 dnl Check for 64 bit llseek() or lseek64()
 case "$host" in
@@ -3529,6 +3444,44 @@ AC_CHECK_FUNC([poll],
      ],[AC_DEFINE([ACE_POLL_IS_BROKEN])],)
   ],)
 
+case "$host" in
+  *linux*)
+    dnl Linux Event Poll
+    ACE_CACHE_CHECK([for epoll_create],
+     [ace_cv_linux_event_poll],
+     [
+      AC_LINK_IFELSE([
+      AC_LANG_PROGRAM([
+#include <sys/epoll.h>
+#include <linux/version.h>
+#if LINUX_VERSION_CODE < KERNEL_VERSION (2,5,45)
+#  error Disabling Linux epoll support.  Kernel used in C library is too old.
+#  error Linux kernel 2.5.45 or better is required.
+#endif  /* LINUX_VERSION_CODE < KERNEL_VERSION (2,5,45) */
+       ],
+       [
+int const ACE_NUM_DESCRIPTORS = 10;
+(void) epoll_create (ACE_NUM_DESCRIPTORS);
+       ])
+      ],
+      [
+       ace_cv_linux_event_poll=yes
+      ],
+      [
+       ace_cv_linux_event_poll=no
+      ])
+     ],
+     [
+      AC_DEFINE([ACE_HAS_EVENT_POLL])
+     ],
+     [])
+    ;;
+  *)
+    dnl /dev/poll character device
+    dnl TODO add test
+    ;;
+esac
+
 AC_CHECK_FUNC([gethrtime],
   [
    ACE_CHECK_TYPE([hrtime_t],[sys/time.h],[AC_DEFINE([ACE_HAS_HI_RES_TIMER])],)
@@ -3558,33 +3511,19 @@ AC_CHECK_FUNC([pread],
        ],,[AC_DEFINE([ACE_LACKS_PREAD_PROTOTYPE])])
     ],)],)
 
-AC_CHECK_FUNC([readv], , [AC_DEFINE([ACE_LACKS_READV])])
-
-AC_CHECK_FUNC([writev], , [AC_DEFINE([ACE_LACKS_WRITEV])])
+ACE_CHECK_LACKS_FUNCS(readv writev)
 
 AC_CHECK_FUNC([set_t_errno], [AC_DEFINE([ACE_HAS_SET_T_ERRNO])],)
 
-AC_CHECK_FUNC([sigsuspend],
-  [AC_DEFINE([ACE_HAS_SIGSUSPEND])],)
+ACE_CHECK_HAS_FUNCS(sigsuspend sigtimedwait)
 
-AC_CHECK_FUNC([sigtimedwait],
-  [AC_DEFINE([ACE_HAS_SIGTIMEDWAIT])],)
-
-AC_CHECK_FUNC([socketpair],
-  ,
-  [AC_DEFINE([ACE_LACKS_SOCKETPAIR])])
-
-AC_CHECK_FUNC([strcasecmp],
-  ,
-  [AC_DEFINE([ACE_LACKS_STRCASECMP])])
+ACE_CHECK_LACKS_FUNCS(socketpair strcasecmp)
 
 AC_CHECK_FUNC([strdup],
   ,
   [AC_DEFINE([ACE_HAS_STRDUP_EMULATION])])
 
-AC_CHECK_FUNC([strrchr],
-  ,
-  [AC_DEFINE([ACE_LACKS_STRRCHR])])
+ACE_CHECK_LACKS_FUNCS(strrchr)
 
 AC_CHECK_FUNC([strptime],
   [
@@ -3612,20 +3551,16 @@ AC_CHECK_FUNC([strptime],
    AC_DEFINE([ACE_LACKS_NATIVE_STRPTIME])
   ])
 
-AC_CHECK_FUNC([memchr],
-  [AC_DEFINE([ACE_HAS_MEMCHR])],)
+ACE_CHECK_HAS_FUNCS(memchr)
 
 if test "$ace_cv_type_wchar_t" = yes; then
   AC_CHECK_FUNC([wcslen],
     [AC_DEFINE([ACE_HAS_XPG4_MULTIBYTE_CHAR])],)
 fi
 
-AC_CHECK_FUNC([syscall],
-  ,
-  [AC_DEFINE([ACE_LACKS_SYSCALL])])
+ACE_CHECK_LACKS_FUNCS(syscall)
 
-AC_CHECK_FUNC([ualarm],
-  [AC_DEFINE([ACE_HAS_UALARM])],)
+ACE_CHECK_HAS_FUNCS(ualarm)
 
 AC_CHECK_FUNC([alarm],,)
 AC_CHECK_FUNC([signal],,)
@@ -3635,19 +3570,14 @@ if test "$ac_cv_func_alarm" != yes &&
   AC_DEFINE([ACE_LACKS_UNIX_SIGNALS])
 fi
 
-AC_CHECK_FUNC([fork],
-  ,
-  [AC_DEFINE([ACE_LACKS_FORK])])
+ACE_CHECK_LACKS_FUNCS(fork)
 
-AC_CHECK_FUNC([getrlimit],
-  [
-   AC_CHECK_FUNC([setrlimit],
-     ,
-     [AC_DEFINE([ACE_LACKS_RLIMIT])])
-  ],
-  [
-   AC_DEFINE([ACE_LACKS_RLIMIT])
-  ])
+AC_CHECK_FUNC([getrlimit])
+AC_CHECK_FUNC([setrlimit])
+if test "$ac_cv_func_getrlimit" != yes ||
+   test "$ac_cv_func_setrlimit" != yes; then
+  AC_DEFINE([ACE_LACKS_RLIMIT])
+fi
 
 AC_CHECK_FUNC([sysinfo],
   [
@@ -3656,139 +3586,95 @@ AC_CHECK_FUNC([sysinfo],
    fi
   ],)
 
-AC_CHECK_FUNC([strerror],
-  [AC_DEFINE([ACE_HAS_STRERROR])],)
+ACE_CHECK_HAS_FUNCS(strerror)
 
-AC_CHECK_FUNC([lstat],
-  ,
-  [AC_DEFINE([ACE_LACKS_LSTAT])])
+ACE_CHECK_LACKS_FUNCS(lstat readlink rename recvmsg sendmsg)
 
-AC_CHECK_FUNC([readlink],
-  ,
-  [AC_DEFINE([ACE_LACKS_READLINK])])
+ACE_CHECK_HAS_FUNCS(getrusage)
 
-AC_CHECK_FUNC([rename],
-  ,
-  [AC_DEFINE([ACE_LACKS_RENAME])])
+ACE_CHECK_LACKS_FUNCS([getpgid])
+if test "$ac_cv_func_getpgid" = yes; then
+  dnl Check if _XOPEN_SOURCE and _XOPEN_SOURCE_EXTENDED macros are
+  dnl needed to make the getpgid() prototype visible.
+  ACE_CACHE_CHECK([for getpgid prototype],
+    [ace_cv_lib_has_getpgid_prototype],
+    [
+     ace_save_CPPFLAGS="$CPPFLAGS"
+     ace_no_xopen="-U_XOPEN_SOURCE -U_XOPEN_SOURCE_EXTENDED"
+     CPPFLAGS="$CPPFLAGS $ace_no_xopen"
+     AC_EGREP_HEADER([[^_]+getpgid], [unistd.h],
+       [
+        ace_cv_lib_has_getpgid_prototype=yes
+       ],
+       [
+        ace_cv_lib_has_getpgid_prototype=no
+       ])
+     dnl Reset the compiler flags
+     CPPFLAGS="$ace_save_CPPFLAGS"
+    ],, [AC_DEFINE([ACE_LACKS_GETPGID_PROTOTYPE])])
+  AH_TEMPLATE([ACE_LACKS_GETPGID_PROTOTYPE],
+  [Define to 1 if platform lacks getpgid() declaration in <unistd.h>.])
+fi
 
-AC_CHECK_FUNC([recvmsg],
-  ,
-  [AC_DEFINE([ACE_LACKS_RECVMSG])])
+ACE_CHECK_LACKS_FUNCS(getppid)
 
-AC_CHECK_FUNC([sendmsg],
-  ,
-  [AC_DEFINE([ACE_LACKS_SENDMSG])])
+ACE_CHECK_LACKS_FUNCS([setregid])
+if test "$ac_cv_func_setregid" = yes; then
+  dnl Check if _XOPEN_SOURCE and _XOPEN_SOURCE_EXTENDED macros are
+  dnl needed to make the setregid() prototype visible.
+  ACE_CACHE_CHECK([for setregid prototype],
+    [ace_cv_lib_has_setregid_prototype],
+    [
+     ace_save_CPPFLAGS="$CPPFLAGS"
+     ace_no_xopen="-U_BSD_SOURCE -U_XOPEN_SOURCE -U_XOPEN_SOURCE_EXTENDED"
+     CPPFLAGS="$CPPFLAGS $ace_no_xopen"
+     AC_EGREP_HEADER([[^_]+setregid], [unistd.h],
+       [
+        ace_cv_lib_has_setregid_prototype=yes
+       ],
+       [
+        ace_cv_lib_has_setregid_prototype=no
+       ])
+     dnl Reset the compiler flags
+     CPPFLAGS="$ace_save_CPPFLAGS"
+    ],, [AC_DEFINE([ACE_LACKS_SETREGID_PROTOTYPE])])
+  AH_TEMPLATE([ACE_LACKS_SETREGID_PROTOTYPE],
+  [Define to 1 if platform lacks setregid() declaration in <unistd.h>.])
+fi
 
-AC_CHECK_FUNC([getrusage],
-  [AC_DEFINE([ACE_HAS_GETRUSAGE])],)
-
-AC_CHECK_FUNC([getpgid],
-  [
-   dnl Check if _XOPEN_SOURCE and _XOPEN_SOURCE_EXTENDED macros are
-   dnl needed to make the getpgid() prototype visible.
-   ACE_CACHE_CHECK([for getpgid prototype],
-     [ace_cv_lib_has_getpgid_prototype],
-     [
-      ace_save_CPPFLAGS="$CPPFLAGS"
-      ace_no_xopen="-U_XOPEN_SOURCE -U_XOPEN_SOURCE_EXTENDED"
-      CPPFLAGS="$CPPFLAGS $ace_no_xopen"
-      AC_EGREP_HEADER([[^_]+getpgid], [unistd.h],
-        [
-         ace_cv_lib_has_getpgid_prototype=yes
-        ],
-        [
-         ace_cv_lib_has_getpgid_prototype=no
-        ])
-      dnl Reset the compiler flags
-      CPPFLAGS="$ace_save_CPPFLAGS"
-     ],, [AC_DEFINE([ACE_LACKS_GETPGID_PROTOTYPE])])
-  ],
-  [
-   AC_DEFINE([ACE_LACKS_GETPGID])
-  ])
-
-AC_CHECK_FUNC([getppid],
-  ,
-  AC_DEFINE([ACE_LACKS_GETPPID]))
-
-AC_CHECK_FUNC([setregid],
-  [
-   dnl Check if _XOPEN_SOURCE and _XOPEN_SOURCE_EXTENDED macros are
-   dnl needed to make the setregid() prototype visible.
-   ACE_CACHE_CHECK([for setregid prototype],
-     [ace_cv_lib_has_setregid_prototype],
-     [
-      ace_save_CPPFLAGS="$CPPFLAGS"
-      ace_no_xopen="-U_BSD_SOURCE -U_XOPEN_SOURCE -U_XOPEN_SOURCE_EXTENDED"
-      CPPFLAGS="$CPPFLAGS $ace_no_xopen"
-      AC_EGREP_HEADER([[^_]+setregid], [time.h],
-        [
-         ace_cv_lib_has_setregid_prototype=yes
-        ],
-        [
-         ace_cv_lib_has_setregid_prototype=no
-        ])
-      dnl Reset the compiler flags
-      CPPFLAGS="$ace_save_CPPFLAGS"
-     ],, [AC_DEFINE([ACE_LACKS_SETREGID_PROTOTYPE])])
-  ],
-  [
-   AC_DEFINE([ACE_LACKS_SETREGID])
-  ])
-
-AC_CHECK_FUNC([setreuid],
-  [
-   dnl Check if _XOPEN_SOURCE and _XOPEN_SOURCE_EXTENDED macros are
-   dnl needed to make the setreuid() prototype visible.
-   ACE_CACHE_CHECK([for setreuid prototype],
-     [ace_cv_lib_has_setreuid_prototype],
-     [
-      ace_save_CPPFLAGS="$CPPFLAGS"
-      ace_no_xopen="-U_BSD_SOURCE -U_XOPEN_SOURCE -U_XOPEN_SOURCE_EXTENDED"
-      CPPFLAGS="$CPPFLAGS $ace_no_xopen"
-      AC_EGREP_HEADER([[^_]+setreuid], [time.h],
-        [
-         ace_cv_lib_has_setreuid_prototype=yes
-        ],
-        [
-         ace_cv_lib_has_setreuid_prototype=no
-        ])
-      dnl Reset the compiler flags
-      CPPFLAGS="$ace_save_CPPFLAGS"
-     ],, [AC_DEFINE([ACE_LACKS_SETREUID_PROTOTYPE])])
-  ],
-  [
-   AC_DEFINE([ACE_LACKS_SETREUID])
-  ])
+ACE_CHECK_LACKS_FUNCS([setreuid])
+if test "$ac_cv_func_setreuid" = yes; then
+  dnl Check if _XOPEN_SOURCE and _XOPEN_SOURCE_EXTENDED macros are
+  dnl needed to make the setreuid() prototype visible.
+  ACE_CACHE_CHECK([for setreuid prototype],
+    [ace_cv_lib_has_setreuid_prototype],
+    [
+     ace_save_CPPFLAGS="$CPPFLAGS"
+     ace_no_xopen="-U_BSD_SOURCE -U_XOPEN_SOURCE -U_XOPEN_SOURCE_EXTENDED"
+     CPPFLAGS="$CPPFLAGS $ace_no_xopen"
+     AC_EGREP_HEADER([[^_]+setreuid], [unistd.h],
+       [
+        ace_cv_lib_has_setreuid_prototype=yes
+       ],
+       [
+        ace_cv_lib_has_setreuid_prototype=no
+       ])
+     dnl Reset the compiler flags
+     CPPFLAGS="$ace_save_CPPFLAGS"
+    ],, [AC_DEFINE([ACE_LACKS_SETREUID_PROTOTYPE])])
+  AH_TEMPLATE([ACE_LACKS_SETREUID_PROTOTYPE],
+  [Define to 1 if platform lacks setreuid() declaration in <unistd.h>.])
+fi
 
 AC_CHECK_FUNC([getpagesize],
   [AC_DEFINE([ACE_HAS_GETPAGESIZE])],
   [AC_DEFINE([ACE_PAGE_SIZE], [4096])])
 
-AC_CHECK_FUNC([msync],
-  ,
-  [AC_DEFINE([ACE_LACKS_MSYNC])])
+ACE_CHECK_LACKS_FUNCS(msync mprotect mkfifo)
 
-AC_CHECK_FUNC([mprotect],
-  ,
-  [AC_DEFINE([ACE_LACKS_MPROTECT])])
+ACE_CHECK_LACKS_FUNCS(mkstemp mktemp)
 
-AC_CHECK_FUNC([mkfifo],
-  ,
-  [AC_DEFINE([ACE_LACKS_MKFIFO])])
-
-dnl Temporarily select C as the test language to work around a bug in
-dnl some versions of Autoconf when C++ is selected as the test
-dnl language.
-AC_LANG_PUSH([C])
-AC_CHECK_FUNC([mktemp],
-  ,
-  [AC_DEFINE([ACE_LACKS_MKTEMP])])
-AC_LANG_POP([C])
-
-AC_CHECK_FUNC([madvise],
-  ,
-  [AC_DEFINE([ACE_LACKS_MADVISE])])
+ACE_CHECK_LACKS_FUNCS(madvise)
 
 if test "$ac_cv_header_sys_priocntl_h" = yes; then
   AC_CHECK_FUNC([priocntl],
@@ -3818,84 +3704,122 @@ dnl Some platforms define priocntl as a macro!
 fi dnl test "$ac_cv_header_sys_priocntl_h" = yes
 
 dnl FIXME:  How do we check for a working sbrk()?  Do we need to?
-AC_CHECK_FUNC([sbrk],, [AC_DEFINE([ACE_LACKS_SBRK])])
+ACE_CHECK_LACKS_FUNCS(sbrk)
+
+ACE_CHECK_HAS_FUNCS(vfwprintf vswprintf)
+
+ACE_CHECK_LACKS_FUNCS(fgetws fputws itow towlower towupper wcscat wcschr wcscmp wcscpy wcscspn wcsdup wcsicmp wcslen wcsncat wcsncmp wcsncpy wcsnicmp wcspbrk wcsrchr wcsspn wcsstr wcstod wcstok wcstol wcstoul)
+
+ACE_CHECK_LACKS_FUNCS(umask)
+
+if test "$ac_cv_func_wcstok" = yes; then
+dnl The wcstok() function varies with standards. Check which one we have.
+AC_MSG_CHECKING([for 2- or 3-param wcstok])
+AC_LINK_IFELSE([AC_LANG_PROGRAM(
+          [[
+#include <wchar.h>
+          ]],
+          [[
+           wchar_t str[] = L"junk";
+           const wchar_t delim[] = L"\t\n";
+           wchar_t *ptr;
+           wchar_t *p = wcstok (str, delim, &ptr);
+          ]])],
+          [
+           AC_DEFINE([ACE_HAS_3_PARAM_WCSTOK])
+           AC_MSG_RESULT([3])
+          ],
+          [
+           AC_MSG_RESULT([2])
+          ])
+fi dnl test "$ac_cv_func_wcstok" = yes
 
 dnl Check for SYSV IPC functions
-AC_CHECK_FUNC([msgctl],,)
+dnl
+dnl Although Darwin/OS X does not implement any of the SysV IPC API,
+dnl its C library contains stubs for all the system calls (probably
+dnl left over from the BSD libc).  This causes false positives from
+dnl AC_CHECK_FUNC which results in configure reporting that SysV IPC
+dnl is supported.  We avoid this problem by avoiding the function
+dnl checks if the cooresponding headers were not detected earlier.
+dnl
+if test "$ac_cv_header_sys_msg_h" = yes; then
+  AC_CHECK_FUNC([msgctl],,)
 
-AC_CHECK_FUNC([msgget],,)
+  AC_CHECK_FUNC([msgget],,)
 
-AC_CHECK_FUNC([msgrcv],,)
+  AC_CHECK_FUNC([msgrcv],,)
+fi dnl test "$ac_cv_header_sys_msg_h" = yes
 
-AC_CHECK_FUNC([semctl],,)
+if test "$ac_cv_header_sys_sem_h" = yes; then
+  AC_CHECK_FUNC([semctl],,)
 
-AC_CHECK_FUNC([semget],,)
+  AC_CHECK_FUNC([semget],,)
 
-AC_CHECK_FUNC([semop],,)
+  AC_CHECK_FUNC([semop],,)
+fi dnl test "$ac_cv_header_sys_sem_h" = yes
 
-AC_CHECK_FUNC([shmat],,)
+if test "$ac_cv_header_sys_shm_h" = yes; then
+  AC_CHECK_FUNC([shmat],,)
 
-AC_CHECK_FUNC([shmctl],,)
+  AC_CHECK_FUNC([shmctl],,)
 
-AC_CHECK_FUNC([shmdt],,)
+  AC_CHECK_FUNC([shmdt],,)
 
-AC_CHECK_FUNC([shmget],,)
+  AC_CHECK_FUNC([shmget],,)
+fi dnl test "$ac_cv_header_sys_shm_h" = yes
+
 dnl End check for SYSV IPC functions
 
 AC_CHECK_FUNC([read_real_time],
   [AC_DEFINE([ACE_HAS_AIX_HI_RES_TIMER])],)
 
-AC_CHECK_FUNC([shm_open], [AC_DEFINE([ACE_HAS_SHM_OPEN])],)
+dnl See shm_open() test after this one ...
+dnl AC_CHECK_FUNC([shm_open], [AC_DEFINE([ACE_HAS_SHM_OPEN])],)
 
-AC_CHECK_FUNC([snprintf],
-  [AC_DEFINE([ACE_HAS_SNPRINTF])],)
+dnl Use a more comprehensive test for shm_open() since the prototype
+dnl may not be visible on all platforms without enabling POSIX.1b
+dnl support (e.g. when the user defines _POSIX_C_SOURCE > 2).
+AC_MSG_CHECKING([for shm_open])
+AC_LINK_IFELSE([AC_LANG_PROGRAM(
+          [[
+#ifndef ACE_LACKS_SYS_TYPES_H
+# include <sys/types.h>
+#endif
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/mman.h>
+          ]],
+          [[
+           const char name[] = "Foo";
+           const int oflag = O_RDONLY;
+	   const mode_t mode = 0400;  /* Whatever */
+           const int fd = shm_open (name, oflag, mode);
+          ]])],
+          [
+           AC_DEFINE([ACE_HAS_SHM_OPEN])
+           AC_MSG_RESULT([yes])
+          ],
+          [
+           AC_MSG_RESULT([no])
+          ])
 
-AC_CHECK_FUNC([tempnam],
-  ,
-  [AC_DEFINE([ACE_LACKS_TEMPNAM])])
+ACE_CHECK_HAS_FUNCS(snprintf)
 
-AC_CHECK_FUNC([truncate],
-  ,
-  [AC_DEFINE([ACE_LACKS_TRUNCATE])])
+ACE_CHECK_LACKS_FUNCS(tempnam truncate)
 
 dnl Check for MIT pthreads APIs for timed send/recv operations
-AC_CHECK_FUNC([recv_timedwait],
-  [AC_DEFINE([ACE_HAS_RECV_TIMEDWAIT])],)
-
-AC_CHECK_FUNC([recvfrom_timedwait],
-  [AC_DEFINE([ACE_HAS_RECVFROM_TIMEDWAIT])],)
-
-AC_CHECK_FUNC([recvmsg_timedwait],
-  [AC_DEFINE([ACE_HAS_RECVMSG_TIMEDWAIT])],)
-
-AC_CHECK_FUNC([send_timedwait],
-  [AC_DEFINE([ACE_HAS_SEND_TIMEDWAIT])],)
-
-AC_CHECK_FUNC([sendto_timedwait],
-  [AC_DEFINE([ACE_HAS_SENDTO_TIMEDWAIT])],)
-
-AC_CHECK_FUNC([sendmsg_timedwait],
-  [AC_DEFINE([ACE_HAS_SENDMSG_TIMEDWAIT])],)
-
-AC_CHECK_FUNC([read_timedwait],
-  [AC_DEFINE([ACE_HAS_READ_TIMEDWAIT])],)
-
-AC_CHECK_FUNC([readv_timedwait],
-  [AC_DEFINE([ACE_HAS_READV_TIMEDWAIT])],)
-
-AC_CHECK_FUNC([write_timedwait],
-  [AC_DEFINE([ACE_HAS_WRITE_TIMEDWAIT])],)
-
-AC_CHECK_FUNC([writev_timedwait],
-  [AC_DEFINE([ACE_HAS_WRITEV_TIMEDWAIT])],)
+ACE_CHECK_HAS_FUNCS(read_timedwait readv_timedwait recv_timedwait recvfrom_timedwait recvmsg_timedwait send_timedwait sendmsg_timedwait sendto_timedwait write_timedwait writev_timedwait)
 
 dnl Save the cache for debugging purposes
 AC_CACHE_SAVE
 
 dnl Check for POSIX Semaphore functions
 dnl We only check for a few of them since some platforms don't have these.
-AC_CHECK_FUNC([sem_init],,)
-AC_CHECK_FUNC([sem_destroy],,)
+dnl On some platforms, a separate library is required, so use AC_SEARCH_LIBS
+dnl instead of AC_CHECK_FUNC. This will add any needed library to LIBS.
+AC_SEARCH_LIBS([sem_init],rt,[ace_cv_func_sem_init=yes],,)
+AC_SEARCH_LIBS([sem_destroy],rt,[ace_cv_func_sem_destroy=yes],,)
 
 dnl We only enable POSIX semaphores if we are not using UNIX International
 dnl threads.
@@ -3903,8 +3827,8 @@ dnl Enabling POSIX semaphores on Solaris seems to cause problems for
 dnl ACE. (NOTE: This may no longer be true after the updates/fixes
 dnl I made.  The fixes corrected broken code in ACE_OS::sema_init().
 dnl -Ossama)
-if test "$ac_cv_func_sem_init" = yes &&
-   test "$ac_cv_func_sem_destroy" = yes &&
+if test "$ace_cv_func_sem_init" = yes &&
+   test "$ace_cv_func_sem_destroy" = yes &&
    test "$ace_cv_type_sem_t" = yes &&
    test "$ace_has_sthreads" != yes; then
 
@@ -4043,9 +3967,7 @@ dnl These functions have a double underscore "__" prepended to maintain
 dnl backwards compatibility with Pthread Draft 4 functions of the same
 dnl name.
 
-  AC_CHECK_FUNC([pthread_sigmask],
-    ,
-    [AC_DEFINE([ACE_LACKS_PTHREAD_SIGMASK])])
+  ACE_CHECK_LACKS_FUNCS(pthread_sigmask)
 
   AC_CHECK_FUNC([pthread_key_create],
     [AC_DEFINE([ACE_HAS_THREAD_SPECIFIC_STORAGE])],
@@ -4055,11 +3977,8 @@ dnl name.
        [AC_DEFINE(ACE_HAS_TSS_EMULATION)])
     ])
 
-  AC_CHECK_FUNC([pthread_condattr_setkind_np],
-    [AC_DEFINE([ACE_HAS_PTHREAD_CONDATTR_SETKIND_NP])],)
-
-  AC_CHECK_FUNC([pthread_mutexattr_setkind_np],
-    [AC_DEFINE([ACE_HAS_PTHREAD_MUTEXATTR_SETKIND_NP])],)
+  ACE_CHECK_HAS_FUNCS(pthread_condattr_setkind_np)
+  ACE_CHECK_HAS_FUNCS(pthread_mutexattr_setkind_np)
 
   AC_CHECK_FUNC([pthread_condattr_setpshared],
     ,
@@ -4095,13 +4014,8 @@ dnl name.
      AC_DEFINE([ACE_LACKS_PTHREAD_CANCEL])
     ])
 
-  AC_CHECK_FUNC([pthread_yield],
-    ,
-    [AC_DEFINE([ACE_LACKS_PTHREAD_YIELD])])
-
-  AC_CHECK_FUNC([pthread_thr_sigsetmask],
-    ,
-    [AC_DEFINE([ACE_LACKS_PTHREAD_THR_SIGSETMASK])])
+  ACE_CHECK_LACKS_FUNCS(pthread_yield)
+  ACE_CHECK_LACKS_FUNCS(pthread_thr_sigsetmask)
 
   AC_CHECK_FUNC([pthread_attr_setdetachstate],
     ,
@@ -4164,7 +4078,7 @@ dnl Check for Unix98 pthreads extensions
   ACE_CACHE_CHECK([for struct pthread_rwlock_t],
     [ace_cv_struct_pthread_rwlock_t],
     [
-     dnl Since we are checking for siginfo_t in more than one header
+     dnl Since we are checking for pthread_rwlock_t in more than one header
      dnl we can't use the ACE_CHECK_STRUCT macro so we have to do things
      dnl manually.
      ACE_TRY_COMPILE_STRUCT([pthread_rwlock_t], [pthread.h],
@@ -4185,9 +4099,9 @@ dnl Check for Unix98 pthreads extensions
   ACE_CACHE_CHECK([for struct pthread_rwlockattr_t],
     [ace_cv_struct_pthread_rwlockattr_t],
     [
-     dnl Since we are checking for siginfo_t in more than one header
-     dnl we can't use the ACE_CHECK_STRUCT macro so we have to do things
-     dnl manually.
+     dnl Since we are checking for pthread_rwlockattr_t in more than one
+     dnl header, we can't use the ACE_CHECK_STRUCT macro so we have to do
+     dnl things manually.
      ACE_TRY_COMPILE_STRUCT([pthread_rwlockattr_t], [pthread.h],
        [
         ace_cv_struct_pthread_rwlockattr_t=yes
@@ -4203,8 +4117,8 @@ dnl Check for Unix98 pthreads extensions
        ])
     ],,)
 
-  AC_CHECK_FUNC([pthread_continue],,)
-  AC_CHECK_FUNC([pthread_suspend],,)
+  ACE_CHECK_HAS_FUNCS(pthread_continue pthread_continue_np pthread_resume_np pthread_suspend pthread_suspend_np)
+
   AC_CHECK_FUNC([pthread_rwlock_init],,)
   AC_CHECK_FUNC([pthread_rwlock_destroy],,)
   AC_CHECK_FUNC([pthread_rwlock_rdlock],,)
@@ -4214,13 +4128,12 @@ dnl Check for Unix98 pthreads extensions
   AC_CHECK_FUNC([pthread_rwlock_trywrlock],,)
   AC_CHECK_FUNC([pthread_rwlockattr_init],,)
   AC_CHECK_FUNC([pthread_rwlockattr_destroy],,)
-  AC_CHECK_FUNC([pthread_rwlockattr_setpshared],,)
+  AC_CHECK_FUNC([pthread_rwlockattr_setpshared],
+    ,
+    [AC_DEFINE([ACE_LACKS_RWLOCKATTR_PSHARED])])
 
   if test "$ace_cv_struct_pthread_rwlock_t" = yes &&
      test "$ace_cv_struct_pthread_rwlockattr_t" = yes &&
-     test "$ac_cv_func_pthread_continue" = yes &&
-     test "$ac_cv_func_pthread_continue" = yes &&
-     test "$ac_cv_func_pthread_suspend" = yes &&
      test "$ac_cv_func_pthread_rwlock_init" = yes &&
      test "$ac_cv_func_pthread_rwlock_destroy" = yes &&
      test "$ac_cv_func_pthread_rwlock_rdlock" = yes &&
@@ -4229,8 +4142,7 @@ dnl Check for Unix98 pthreads extensions
      test "$ac_cv_func_pthread_rwlock_tryrdlock" = yes &&
      test "$ac_cv_func_pthread_rwlock_trywrlock" = yes &&
      test "$ac_cv_func_pthread_rwlockattr_init" = yes &&
-     test "$ac_cv_func_pthread_rwlockattr_destroy" = yes &&
-     test "$ac_cv_func_pthread_rwlockattr_setpshared" = yes; then
+     test "$ac_cv_func_pthread_rwlockattr_destroy" = yes; then
     AC_DEFINE([ACE_HAS_PTHREADS_UNIX98_EXT])
   fi  dnl Unix98 pthreads extensions
 
@@ -4489,18 +4401,12 @@ dnl ACE will define a sigwait function if we lie and say we don't have
 dnl one.  Unfortunately, the ACE function may conflict with our
 dnl function, so we'll go ahead and turn this on, even if we are
 dnl ignoring threads.
-AC_CHECK_FUNC([sigwait],
-  [AC_DEFINE([ACE_HAS_SIGWAIT])],)
+ACE_CHECK_HAS_FUNCS(sigwait)
 
 
 dnl Check for reentrant functions
 if test "$ace_user_enable_reentrant_funcs" = yes; then
-  dnl Temporarily select C as the test language to work around a bug in
-  dnl some versions of Autoconf when C++ is selected as the test
-  dnl language.
-  AC_LANG_PUSH([C])
-  AC_CHECK_FUNC([rand_r],,)
-  AC_LANG_POP([C])
+  AC_CHECK_FUNC([rand_r])
 
   AC_CHECK_FUNC([strtok_r],
     [
@@ -4530,7 +4436,7 @@ if test "$ace_user_enable_reentrant_funcs" = yes; then
 #ifndef _REENTRANT
 # define _REENTRANT
 #endif
-#ifdef HAVE_PWD_H
+#ifndef ACE_LACKS_PWD_H
 # include <pwd.h>
 #endif
 #ifndef ACE_LACKS_SYS_TYPES_H
@@ -4576,9 +4482,8 @@ if test "$ace_user_enable_reentrant_funcs" = yes; then
   AC_CHECK_FUNC([getservbyname_r],,)
 fi dnl End checks for reentrant functions
 
-AC_CHECK_FUNC([readdir_r],
-  ,
-  [AC_DEFINE([ACE_LACKS_READDIR_R])])
+
+ACE_CHECK_LACKS_FUNCS(readdir_r)
 
 dnl Disabled until we figure out what to do with the comparator
 dnl function argument inconsistencies between different platforms.
@@ -4587,15 +4492,9 @@ dnl    int comparator (const void * d1, const void * d2)
 dnl instead of:
 dnl    int comparator (const dirent ** d1, const dirent ** d2)
 dnl
-dnl AC_CHECK_FUNC([scandir], [AC_DEFINE([ACE_HAS_SCANDIR])], [])
+dnl ACE_CHECK_HAS_FUNCS([scandir])
 
-AC_CHECK_FUNC([seekdir],
-  ,
-  [AC_DEFINE([ACE_LACKS_SEEKDIR])])
-
-AC_CHECK_FUNC([telldir],
-  ,
-  [AC_DEFINE([ACE_LACKS_TELLDIR])])
+ACE_CHECK_LACKS_FUNCS(seekdir telldir)
 
 
 dnl
@@ -4756,6 +4655,32 @@ if test "$ace_user_enable_exceptions" = yes; then
   fi dnl ace_cv_new_throws_bad_alloc_exceptions = no
 fi dnl $ace_user_enable_exceptions = yes
 
+AC_CACHE_CHECK([if compiler supports new(std::nothrow)],
+	[ace_cv_has_new_nothrow],
+        [AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+#if defined (ACE_HAS_NEW_NO_H)
+# include <new>
+#elif defined (ACE_HAS_NEW_H)
+# include <new.h>
+#endif
+
+int main(int, char*[]) {
+	int *foo;
+
+#ifdef ACE_USES_STD_NAMESPACE_FOR_STDCPP_LIB
+	foo = new (std::nothrow) int;
+#else
+	foo = new (nothrow) int;
+#endif  /* ACE_USES_STD_NAMESPACE_FOR_STDCPP_LIB */
+}]])], [
+	 ace_cv_has_new_nothrow=yes
+	],[
+	 ace_cv_has_new_nothrow=no
+	])])
+if test $ace_cv_has_new_nothrow = yes; then
+  AC_DEFINE([ACE_HAS_NEW_NOTHROW])
+fi
+
 ACE_CONVERT_WARNINGS_TO_ERRORS([
 dnl Check if putmsg takes a const struct strbuf *
 dnl If we have getmsg() we can be pretty sure that we have putmsg()
@@ -4858,24 +4783,6 @@ dnl converts all warnings to errors, whenever we are compiling with
 dnl G++.
 dnl        -Ossama
 
-ACE_CONVERT_WARNINGS_TO_ERRORS(
-[
-dnl Check if setrlimit() takes a const pointer as 2nd argument
-ACE_CACHE_CHECK([if setrlimit() takes a const pointer as 2nd argument],
-  [ace_cv_lib_posix_setrlimit_const_2],[
-    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-#include <sys/resource.h>
-      ]], [[
-       const struct rlimit* rlp = 0;
-       setrlimit(RLIMIT_CPU, rlp);
-      ]])],[
-       ace_cv_lib_posix_setrlimit_const_2=yes
-      ],[
-       ace_cv_lib_posix_setrlimit_const_2=no
-      ])
-  ],, [AC_DEFINE([ACE_HAS_BROKEN_SETRLIMIT])])
-]) dnl ACE_CONVERT_WARNINGS_TO_ERRORS
-
 dnl Check if getrusage() takes an enum as 1st argument
 ACE_CHECK_GETRUSAGE_ENUM
 
@@ -4915,14 +4822,15 @@ ACE_CACHE_CHECK([if select takes a const fifth argument],
   ], , [AC_DEFINE([ACE_HAS_NONCONST_SELECT_TIMEVAL])])
 ]) dnl ACE_CONVERT_WARNINGS_TO_ERRORS
 
+
 dnl Only run the following tests if the msghdr structure exists.
 if test "$ace_cv_struct_msghdr" = yes &&
    test "$ac_cv_func_sendmsg" = yes; then
  ACE_CONVERT_WARNINGS_TO_ERRORS(
  [
 dnl Check if sendmsg takes a const 2nd argument
- ACE_CACHE_CHECK([if sendmsg omits the const from the second argument],
-  [ace_cv_lib_broken_sendmsg],[
+ ACE_CACHE_CHECK([if sendmsg omits const qualifier from the msghdr argument],
+  [ace_cv_lib_nonconst_sendmsg],[
     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 #ifndef ACE_LACKS_SYS_TYPES_H
 # include <sys/types.h>
@@ -4937,13 +4845,69 @@ dnl Check if sendmsg takes a const 2nd argument
 
        result = (int) sendmsg(s, msg, flags);
       ]])],[
-       ace_cv_lib_broken_sendmsg=no
+       ace_cv_lib_nonconst_sendmsg=no
       ],[
-       ace_cv_lib_broken_sendmsg=yes
+       ace_cv_lib_nonconst_sendmsg=yes
       ])
-   ], [AC_DEFINE([ACE_HAS_BROKEN_SENDMSG])],)
+   ], [AC_DEFINE([ACE_HAS_NONCONST_SENDMSG])],)
  ]) dnl ACE_CONVERT_WARNINGS_TO_ERRORS
-fi dnl test "$ace_cv_struct_msghdr" = yes
+fi dnl "$ace_cv_struct_msghdr" = yes && $ac_cv_func_sendmsg = yes
+
+
+dnl Only run the following tests if the setrlimit function exists
+if test "$ac_cv_func_setrlimit" = yes; then
+ ACE_CONVERT_WARNINGS_TO_ERRORS(
+ [
+dnl Check if setrlimit() takes a const pointer as 2nd argument
+ ACE_CACHE_CHECK([if setrlimit omits const qualifier from the rlimit argument],
+  [ace_cv_lib_nonconst_setrlimit],[
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+#include <sys/time.h>
+#include <sys/resource.h>
+      ]], [[
+       const struct rlimit* rlp = 0;
+       setrlimit(RLIMIT_CPU, rlp);
+      ]])],[
+       ace_cv_lib_nonconst_setrlimit=no
+      ],[
+       ace_cv_lib_nonconst_setrlimit=yes
+      ])
+   ], [AC_DEFINE([ACE_HAS_NONCONST_SETRLIMIT])])
+ ]) dnl ACE_CONVERT_WARNINGS_TO_ERRORS
+fi dnl "$ac_cv_func_setrlimit" = yes; then
+
+
+dnl Only run the following tests if the readv function exists
+if test "$ac_cv_header_sys_uio_h" = yes &&
+   test "$ac_cv_func_readv" = yes; then
+ ACE_CONVERT_WARNINGS_TO_ERRORS(
+ [
+dnl Check if readv omits the const from the iovec argument
+ ACE_CACHE_CHECK([if readv omits const qualifier from the iovec argument],
+  [ace_cv_lib_nonconst_readv],[
+    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+#ifndef ACE_LACKS_UNISTD_H
+# include <unistd.h>
+#endif
+
+#include <sys/uio.h>
+      ]], [[
+       int filedes = 0;
+       const struct iovec *vector = 0;
+       size_t count = 0;
+
+       int result = 0;
+
+       result = (int) readv(filedes, vector, count);
+      ]])],[
+       ace_cv_lib_nonconst_readv=no
+      ],[
+       ace_cv_lib_nonconst_readv=yes
+      ])
+   ], [AC_DEFINE([ACE_HAS_NONCONST_READV])],)
+ ]) dnl ACE_CONVERT_WARNINGS_TO_ERRORS
+fi dnl $ac_cv_header_sys_uio_h = yes && $ac_cv_func_writev = yes
+
 
 dnl Only run the following tests if the writev function exists
 if test "$ac_cv_header_sys_uio_h" = yes &&
@@ -4951,10 +4915,10 @@ if test "$ac_cv_header_sys_uio_h" = yes &&
  ACE_CONVERT_WARNINGS_TO_ERRORS(
  [
 dnl Check if writev omits the const from the iovec argument
- ACE_CACHE_CHECK([if writev omits the const from the iovec argument],
-  [ace_cv_lib_broken_writev],[
+ ACE_CACHE_CHECK([if writev omits const qualifier from the iovec argument],
+  [ace_cv_lib_nonconst_writev],[
     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-#ifdef ACE_HAS_UNISTD_H
+#ifndef ACE_LACKS_UNISTD_H
 # include <unistd.h>
 #endif
 
@@ -4968,11 +4932,11 @@ dnl Check if writev omits the const from the iovec argument
 
        result = (int) writev(filedes, vector, count);
       ]])],[
-       ace_cv_lib_broken_writev=no
+       ace_cv_lib_nonconst_writev=no
       ],[
-       ace_cv_lib_broken_writev=yes
+       ace_cv_lib_nonconst_writev=yes
       ])
-   ], [AC_DEFINE([ACE_HAS_BROKEN_WRITEV])],)
+   ], [AC_DEFINE([ACE_HAS_NONCONST_WRITEV])],)
  ]) dnl ACE_CONVERT_WARNINGS_TO_ERRORS
 fi dnl $ac_cv_header_sys_uio_h = yes && $ac_cv_func_writev = yes
 
@@ -5544,7 +5508,7 @@ ACE_CACHE_CHECK([if msgsnd() takes a struct msgbuf* second argument],
 # include <sys/types.h>
 #endif
 # include <sys/ipc.h>
-#ifndef ACE_LACKS_SYSV_MSG_H
+#ifndef ACE_LACKS_SYS_MSG_H
 # include <sys/msg.h>
 #endif
       ]], [[
@@ -5571,7 +5535,7 @@ ACE_CACHE_CHECK([if msgsnd() takes a struct msgbuf* second argument],
 # include <sys/types.h>
 #endif
 # include <sys/ipc.h>
-#ifndef ACE_LACKS_SYSV_MSG_H
+#ifndef ACE_LACKS_SYS_MSG_H
 # include <sys/msg.h>
 #endif
          ]], [[
@@ -5612,7 +5576,7 @@ AC_CACHE_CHECK([if msgrcv() takes a void* second argument],
 # include <sys/types.h>
 #endif
 # include <sys/ipc.h>
-#ifndef ACE_LACKS_SYSV_MSG_H
+#ifndef ACE_LACKS_SYS_MSG_H
 # include <sys/msg.h>
 #endif
       ]], [[
@@ -5804,7 +5768,7 @@ dnl We don't have a gettimeofday prototype
     ],
     [
      if test "$ace_cv_lib_voidptr_gettimeofday" = yes; then
-       AC_DEFINE([ACE_HAS_SUNOS4_GETTIMEOFDAY])
+       AC_DEFINE([ACE_HAS_VOIDPTR_GETTIMEOFDAY])
      else
        AC_DEFINE([ACE_HAS_TIMEZONE_GETTIMEOFDAY])
      fi
@@ -6006,14 +5970,6 @@ dnl
 dnl SECTION 13: checks for system services
 dnl
 
-dnl Do not run this test if we are using a cross-compiler.
-if test "$cross_compiling" != yes; then
-  AC_SYS_RESTARTABLE_SYSCALLS
-  if test "$ac_cv_sys_restartable_syscalls" = yes; then
-    AC_DEFINE([ACE_HAS_SIGNAL_SAFE_OS_CALLS])
-  fi
-fi
-
 dnl Check if platform defines ctime() as a macro
 ACE_CACHE_CHECK([for ctime() macro],
   [ace_cv_feature_have_ctime_macro],
@@ -6055,7 +6011,7 @@ ACE_CACHE_CHECK([for reentrant function macros],
 # include <sys/time.h>
 #endif
 
-#if defined (HAVE_PWD_H)
+#if !defined (ACE_LACKS_PWD_H)
 # include <pwd.h>
 #endif
 
@@ -6085,10 +6041,10 @@ ACE_CACHE_CHECK([for sig{empty fill add del}set macros],
 #endif
 #include <signal.h>
 
-#if defined (sigemptyset) && \
-    defined (sigfillset) && \
-    defined (sigaddset) && \
-    defined (sigdelset) && \
+#if defined (sigemptyset) || \
+    defined (sigfillset) || \
+    defined (sigaddset) || \
+    defined (sigdelset) || \
     defined (sigismember)
   ACE_SIG_MACROS
 #endif
@@ -6306,6 +6262,9 @@ ACE_CACHE_CHECK([for UNIX domain sockets],
   [ace_cv_feature_unix_sockets],
    [
     AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+#ifndef ACE_LACKS_SYS_TYPES_H
+# include <sys/types.h>
+#endif
 #include <sys/un.h>
       ]], [[
        sockaddr_un su;
@@ -6621,9 +6580,9 @@ if test "$ace_user_enable_threads" != yes ||
   dnl Removal of these flags is only performed if the configure script
   dnl added them.
   if test -n "$ACE_THR_CPPFLAGS"; then
-changequote(, )dnl
-  CPPFLAGS=`eval "echo $CPPFLAGS | sed -e 's/$ACE_THR_CPPFLAGS//' -e 's/-D_THREAD_SAFE\(=[0-9]*\)\?//'"`
-changequote([, ])dnl
+dnl changequote(, )dnl
+  CPPFLAGS=`eval "echo $CPPFLAGS | sed -e 's/$ACE_THR_CPPFLAGS//' -e 's/-D_THREAD_SAFE\(=[[0-9]]*\)\?//'"`
+dnl changequote([, ])dnl
   fi
 
   AC_MSG_WARN([It appears that you do NOT have any usable thread libraries])
@@ -6987,6 +6946,8 @@ int main ()
 fi dnl test "$ace_user_enable_threads" = yes
 
 
+AC_CHECK_HEADER(libc.h)
+AC_CHECK_HEADER(osfcn.h)
 if test "$ac_cv_header_libc_h" != yes ||
    test "$ac_cv_header_osfcn_h" != yes; then
   AC_DEFINE([ACE_HAS_CPLUSPLUS_HEADERS])
@@ -7044,6 +7005,7 @@ dnl
 
 dnl Make final substitutions and defines
 if test "$ace_u_long_long_typedef_set" = yes; then
+  AC_DEFINE_UNQUOTED([ACE_INT64_TYPEDEF], [$ACE_INT64])
   AC_DEFINE_UNQUOTED([ACE_UINT64_TYPEDEF], [$ACE_UINT64])
 fi
 
@@ -7082,15 +7044,25 @@ ACE_CACHE_CHECK([if generated ACE configuration is usable],
       dnl Now run the compilation test
       ACE_TRY_COMPILE([-I. -I${srcdir}],
         [
+#if defined(ACE_INT64_TYPEDEF)
+  typedef ACE_INT64_TYPEDEF ACE_INT64;
+#endif /* ACE_INT64_TYPEDEF */
 #if defined(ACE_UINT64_TYPEDEF)
   typedef ACE_UINT64_TYPEDEF ACE_UINT64;
 #endif /* ACE_UINT64_TYPEDEF */
 
-#include "ace/OS.cpp"
+// Include ".cpp" files instead of headers so that we can get a more
+// thorough test compile.
+#include "ace/Time_Value.cpp"
+#include "ace/Reactor.cpp"
         ],
         [
          ACE_Time_Value t = ACE_OS::gettimeofday ();
          t++;
+
+	 ACE_Reactor * r = ACE_Reactor::instance ();
+
+         (void) r->close ();
         ],
         [
          ace_cv_configuration_is_usable=yes
@@ -7116,10 +7088,10 @@ and the following information:
 
   ACE 'configure' Script Information
   ==================================
-  [RCS] translit([configure.ac,v 4.13 2004/01/13 21:34:39 ossama Exp], [$"])
+  [RCS] translit([configure.ac,v 4.84 2004/12/22 19:35:44 ossama Exp], [$"])
 
 
-  ACE Version:        $ACE_VERSION
+  ACE Version:        ACE_VERSION
   C++ Compiler:       $CXX
   C++ Preprocessor:   $CXXCPP
   C++ Flags:          $CXXFLAGS
@@ -7148,6 +7120,9 @@ ACE_CACHE_CHECK([for ACE_IOStream support],
       dnl Now run the compilation test
       ACE_TRY_COMPILE([-I. -I${srcdir}],
         [
+#if defined(ACE_INT64_TYPEDEF)
+  typedef ACE_INT64_TYPEDEF ACE_INT64;
+#endif /* ACE_INT64_TYPEDEF */
 #if defined(ACE_UINT64_TYPEDEF)
   typedef ACE_UINT64_TYPEDEF ACE_UINT64;
 #endif /* ACE_UINT64_TYPEDEF */
@@ -7166,55 +7141,6 @@ ACE_CACHE_CHECK([for ACE_IOStream support],
      ])
   ], , [AC_DEFINE([ACE_LACKS_ACE_IOSTREAM])])
 
-dnl Check if ACE needs minimum iostream header inclusion
-ACE_CACHE_CHECK([if ACE needs minimum iostream header inclusion],
-  [ace_cv_lib_minimum_iostream],
-  [
-   dnl We want an empty ace/config.h to prevent multiple defines
-   dnl with Autoconf's confdefs.h
-   ACE_USE_TEMP_FILE([ace/config.h],
-     [
-      dnl Now run the compilation test
-      ACE_TRY_COMPILE([-I. -I${srcdir}],
-        [
-#if defined(ACE_UINT64_TYPEDEF)
-  typedef ACE_UINT64_TYPEDEF ACE_UINT64;
-#endif /* ACE_UINT64_TYPEDEF */
-
-#include "ace/OS.cpp"
-        ],
-        [
-         int a=0; a += 1;
-        ],
-        [
-         ace_cv_lib_minimum_iostream=no
-        ],
-        [
-         dnl Now check if ACE_HAS_MINIMUM_IOSTREAMH_INCLUSION makes
-         dnl compilation work!
-         ACE_TRY_COMPILE([-I. -I${srcdir}],
-           [
-#if defined(ACE_UINT64_TYPEDEF)
-  typedef ACE_UINT64_TYPEDEF ACE_UINT64;
-#endif /* ACE_UINT64_TYPEDEF */
-
-#define ACE_HAS_MINIMUM_IOSTREAMH_INCLUSION
-#include "ace/OS.cpp"
-           ],
-           [
-            int a=0; a += 1;
-           ],
-           [
-            ace_cv_lib_minimum_iostream=yes
-           ],
-           [
-            dnl If we get here, then we have no idea what is wrong!
-            ace_cv_lib_minimum_iostream=no
-           ])
-        ])
-     ])
-  ], [AC_DEFINE([ACE_HAS_MINIMUM_IOSTREAMH_INCLUSION])],)
-
 dnl @@ I don't think that this test is correct.  The only way I could
 dnl    get ACE_Addr::sap_any to work was to explicitly cast it to the
 dnl    a constant reference of the derived type.
@@ -7230,6 +7156,9 @@ ACE_CACHE_CHECK([for ACE_addr::sap_any support],
       dnl Now run the compilation test
       ACE_TRY_COMPILE([-I. -I${srcdir}],
         [
+#if defined(ACE_INT64_TYPEDEF)
+  typedef ACE_INT64_TYPEDEF ACE_INT64;
+#endif /* ACE_INT64_TYPEDEF */
 #if defined(ACE_UINT64_TYPEDEF)
   typedef ACE_UINT64_TYPEDEF ACE_UINT64;
 #endif /* ACE_UINT64_TYPEDEF */
@@ -7247,6 +7176,9 @@ ACE_CACHE_CHECK([for ACE_addr::sap_any support],
          dnl compilation work!
          ACE_TRY_COMPILE([-I. -I${srcdir}],
            [
+#if defined(ACE_INT64_TYPEDEF)
+  typedef ACE_INT64_TYPEDEF ACE_INT64;
+#endif /* ACE_INT64_TYPEDEF */
 #if defined(ACE_UINT64_TYPEDEF)
   typedef ACE_UINT64_TYPEDEF ACE_UINT64;
 #endif /* ACE_UINT64_TYPEDEF */
@@ -7279,6 +7211,9 @@ ACE_CACHE_CHECK([if ACE needs conversion to pass ACE_TTY_IO to DEV_Connector],
       dnl Now run the compilation test
       ACE_TRY_COMPILE([-I. -I${srcdir}],
         [
+#if defined(ACE_INT64_TYPEDEF)
+  typedef ACE_INT64_TYPEDEF ACE_INT64;
+#endif /* ACE_INT64_TYPEDEF */
 #if defined(ACE_UINT64_TYPEDEF)
   typedef ACE_UINT64_TYPEDEF ACE_UINT64;
 #endif /* ACE_UINT64_TYPEDEF */
@@ -7296,6 +7231,9 @@ ACE_CACHE_CHECK([if ACE needs conversion to pass ACE_TTY_IO to DEV_Connector],
          dnl compilation work!
          ACE_TRY_COMPILE([-I. -I${srcdir}],
            [
+#if defined(ACE_INT64_TYPEDEF)
+  typedef ACE_INT64_TYPEDEF ACE_INT64;
+#endif /* ACE_INT64_TYPEDEF */
 #if defined(ACE_UINT64_TYPEDEF)
   typedef ACE_UINT64_TYPEDEF ACE_UINT64;
 #endif /* ACE_UINT64_TYPEDEF */
@@ -7396,29 +7334,211 @@ dnl   tests/Makefile
 AC_CONFIG_FILES([
   ace-config
   ace-config.1
-  aceConf.sh
   Makefile
   ace/Makefile
-  ace/RMCast/Makefile
   ace/QoS/Makefile
+  ace/RMCast/Makefile
   ace/SSL/Makefile
+  ace/TMCast/Makefile
+  ASNMP/Makefile
+  ASNMP/asnmp/Makefile
+  ASNMP/agent/Makefile
+  ASNMP/examples/Makefile
+  ASNMP/examples/get/Makefile
+  ASNMP/examples/next/Makefile
+  ASNMP/examples/set/Makefile
+  ASNMP/examples/trap/Makefile
+  ASNMP/examples/walk/Makefile
+  ASNMP/tests/Makefile
   apps/Makefile
+  apps/Gateway/Makefile
+  apps/Gateway/Gateway/Makefile
+  apps/Gateway/Peer/Makefile
+  apps/JAWS/Makefile
+  apps/JAWS/clients/Makefile
+  apps/JAWS/clients/Blobby/Makefile
+  apps/JAWS/clients/Caching/Makefile
+  apps/JAWS/server/Makefile
+  apps/JAWS3/Makefile
+  apps/JAWS3/jaws3/Makefile
+  apps/drwho/Makefile
   apps/gperf/Makefile
   apps/gperf/src/Makefile
+  apps/gperf/tests/Makefile
+  apps/mkcsregdb/Makefile
+  apps/soreduce/Makefile
+  bin/Makefile
+  bin/PerlACE/Makefile
+  examples/Makefile
+  examples/APG/Makefile
+  examples/APG/Active_Objects/Makefile
+  examples/APG/Config/Makefile
+  examples/APG/Containers/Makefile
+  examples/APG/Logging/Makefile
+  examples/APG/Misc_IPC/Makefile
+  examples/APG/Naming/Makefile
+  examples/APG/Proactor/Makefile
+  examples/APG/Processes/Makefile
+  examples/APG/Reactor/Makefile
+  examples/APG/Shared_Memory/Makefile
+  examples/APG/Signals/Makefile
+  examples/APG/Sockets/Makefile
+  examples/APG/Streams/Makefile
+  examples/APG/Svc_Config/Makefile
+  examples/APG/ThreadManagement/Makefile
+  examples/APG/ThreadPools/Makefile
+  examples/APG/ThreadSafety/Makefile
+  examples/APG/Threads/Makefile
+  examples/APG/Timers/Makefile
+  examples/ASX/Makefile
+  examples/ASX/CCM_App/Makefile
+  examples/ASX/Message_Queue/Makefile
+  examples/Bounded_Packet_Relay/Makefile
+  examples/C++NPv1/Makefile
+  examples/C++NPv2/Makefile
+  examples/Connection/Makefile
+  examples/Connection/blocking/Makefile
+  examples/Connection/misc/Makefile
+  examples/Connection/non_blocking/Makefile
+  examples/DLL/Makefile
+  examples/Export/Makefile
+  examples/IOStream/Makefile
+  examples/IOStream/client/Makefile
+  examples/IOStream/server/Makefile
+  examples/IPC_SAP/Makefile
+  examples/IPC_SAP/ATM_SAP/Makefile
+  examples/IPC_SAP/DEV_SAP/Makefile
+  examples/IPC_SAP/DEV_SAP/reader/Makefile
+  examples/IPC_SAP/DEV_SAP/writer/Makefile
+  examples/IPC_SAP/FIFO_SAP/Makefile
+  examples/IPC_SAP/FILE_SAP/Makefile
+  examples/IPC_SAP/SOCK_SAP/Makefile
+  examples/IPC_SAP/SPIPE_SAP/Makefile
+  examples/IPC_SAP/SSL_SAP/Makefile
+  examples/IPC_SAP/TLI_SAP/Makefile
+  examples/IPC_SAP/UPIPE_SAP/Makefile
+  examples/Log_Msg/Makefile
+  examples/Logger/Makefile
+  examples/Logger/Acceptor-server/Makefile
+  examples/Logger/client/Makefile
+  examples/Logger/simple-server/Makefile
+  examples/Mem_Map/Makefile
+  examples/Mem_Map/IO-tests/Makefile
+  examples/Mem_Map/file-reverse/Makefile
+  examples/Misc/Makefile
+  examples/NT_Service/Makefile
+  examples/Naming/Makefile
+  examples/OS/Makefile
+  examples/OS/Process/Makefile
+  examples/QOS/Makefile
+  examples/QOS/Change_Receiver_FlowSpec/Makefile
+  examples/QOS/Change_Sender_TSpec/Makefile
+  examples/QOS/Diffserv/Makefile
+  examples/QOS/Simple/Makefile
+  examples/RMCast/Makefile
+  examples/RMCast/Send_File/Makefile
+  examples/Reactor/Makefile
+  examples/Reactor/Dgram/Makefile
+  examples/Reactor/FIFO/Makefile
+  examples/Reactor/Misc/Makefile
+  examples/Reactor/Multicast/Makefile
+  examples/Reactor/Ntalker/Makefile
+  examples/Reactor/Proactor/Makefile
+  examples/Reactor/WFMO_Reactor/Makefile
+  examples/Registry/Makefile
+  examples/Service_Configurator/Makefile
+  examples/Service_Configurator/IPC-tests/Makefile
+  examples/Service_Configurator/IPC-tests/client/Makefile
+  examples/Service_Configurator/IPC-tests/server/Makefile
+  examples/Service_Configurator/Misc/Makefile
+  examples/Shared_Malloc/Makefile
+  examples/Shared_Memory/Makefile
+  examples/Smart_Pointers/Makefile
+  examples/Synch/Makefile
+  examples/System_V_IPC/Makefile
+  examples/System_V_IPC/SV_Message_Queues/Makefile
+  examples/System_V_IPC/SV_Semaphores/Makefile
+  examples/TMCast/Makefile
+  examples/TMCast/Member/Makefile
+  examples/Threads/Makefile
+  examples/Timer_Queue/Makefile
+  examples/Web_Crawler/Makefile
+  netsvcs/Makefile
+  netsvcs/lib/Makefile
+  netsvcs/clients/Makefile
+  netsvcs/clients/Logger/Makefile
+  netsvcs/clients/Naming/Makefile
+  netsvcs/clients/Naming/Client/Makefile
+  netsvcs/clients/Naming/Dump_Restore/Makefile
+  netsvcs/servers/Makefile
+  performance-tests/Makefile
+  performance-tests/Misc/Makefile
+  performance-tests/SCTP/Makefile
+  performance-tests/Server_Concurrency/Makefile
+  performance-tests/Server_Concurrency/Leader_Follower/Makefile
+  performance-tests/Server_Concurrency/Queue_Based_Workers/Makefile
+  performance-tests/Synch-Benchmarks/Makefile
+  performance-tests/Synch-Benchmarks/Synch_Lib/Makefile
+  performance-tests/Synch-Benchmarks/Base_Test/Makefile
+  performance-tests/Synch-Benchmarks/Perf_Test/Makefile
+  performance-tests/TCP/Makefile
+  performance-tests/UDP/Makefile
+  protocols/Makefile
+  protocols/ace/Makefile
+  protocols/ace/HTBP/Makefile
   tests/Makefile
+  tests/HTBP/Makefile
+  tests/HTBP/Reactor_Tests/Makefile
+  tests/HTBP/Send_Large_Msg/Makefile
+  tests/HTBP/Send_Recv_Tests/Makefile
+  tests/HTBP/ping/Makefile
+  tests/RMCast/Makefile
   tests/SSL/Makefile
+  websvcs/Makefile
+  websvcs/lib/Makefile
+  websvcs/tests/Makefile
 ])
 
+dnl Configure subdirectories if they are present.
+if test -d $srcdir/ACEXML -a X$ace_user_with_acexml = Xyes; then
+  AC_CONFIG_FILES([
+    ACEXML/Makefile
+    ACEXML/common/Makefile
+    ACEXML/parser/Makefile
+    ACEXML/parser/parser/Makefile
+    ACEXML/apps/Makefile
+    ACEXML/apps/svcconf/Makefile
+    ACEXML/examples/Makefile
+    ACEXML/examples/SAXPrint/Makefile
+    ACEXML/tests/Makefile
+  ])
+fi
+
+if test -d $srcdir/Kokyu; then
+  AC_CONFIG_FILES([
+    Kokyu/Makefile
+    Kokyu/tests/Makefile
+    Kokyu/tests/DSRT_MIF/Makefile
+    Kokyu/tests/EDF/Makefile
+    Kokyu/tests/FIFO/Makefile
+  ])
+  AC_SUBST([KOKYU],[Kokyu])
+fi
+AM_CONDITIONAL([BUILD_KOKYU],
+               [test -d $srcdir/Kokyu])
+
+if test -d $srcdir/TAO -a X$ace_user_with_tao = Xyes; then
+  AC_CONFIG_SUBDIRS([TAO])
+  AC_SUBST([TAO],[TAO])
+fi
+AM_CONDITIONAL([BUILD_TAO],
+               [test -d $srcdir/TAO -a X$ace_user_with_tao = Xyes])
+
+dnl Note that the "ACE_VERSION" in the message below is an M4 macro
+dnl that expands to the version of ACE being configured.
 AC_CONFIG_COMMANDS([default],[
   echo ""
-  echo "Configuration of ACE is now complete."
+  echo "Configuration of ACE ACE_VERSION is now complete."
   echo ""
  ],[])
 AC_OUTPUT
-
-
-
-dnl Configure the TAO directory if it exists.
-dnl if test -d $srcdir/TAO; then
-dnl   AC_CONFIG_SUBDIRS([TAO])
-dnl fi

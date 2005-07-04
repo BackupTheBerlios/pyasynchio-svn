@@ -1,4 +1,4 @@
-# platform_macosx.GNU,v 4.17 2003/12/06 19:08:29 jmzorko Exp
+# platform_macosx.GNU,v 4.18 2004/03/03 00:17:37 dhinton Exp
 # platform_macosx.GNU
 # support for Mac OS X 10.2
 
@@ -16,9 +16,11 @@ ifeq (,$(versioned_so))
 endif
 with_ld = macosx
 
+pipes ?= 1
+
 CC              = gcc
 CXX             = g++
-CFLAGS          += -Wall -Wpointer-arith -Wno-long-double -pipe -I/sw/include
+CFLAGS          += -Wall -Wpointer-arith -Wno-long-double -I/sw/include
 
 DCFLAGS         += -g
 DLD             = libtool

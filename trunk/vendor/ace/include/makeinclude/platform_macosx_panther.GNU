@@ -1,4 +1,4 @@
-# platform_macosx_panther.GNU,v 1.4 2003/12/07 02:08:52 jmzorko Exp
+# platform_macosx_panther.GNU,v 1.6 2004/03/03 00:17:37 dhinton Exp
 # platform_macosx.GNU
 # support for Mac OS X 10.3 (Panther)
 
@@ -16,16 +16,18 @@ ifeq (,$(versioned_so))
 endif
 with_ld = macosx
 
+pipes ?= 1
+
 CC              = gcc
 CXX             = g++
-CFLAGS          += -Wall -Wpointer-arith -Wno-long-double -pipe  
+CFLAGS          += -Wall -Wpointer-arith -Wno-long-double  
 
 DCFLAGS         += -g
 DLD             = libtool
 LD              = $(CXX)
 LIBS            += -lcc_dynamic -lstdc++ -lSystem
 
-OCFLAGS         += -O3
+OCFLAGS         += -O3 -mcpu=G3 -mtune=G4
 RANLIB          = ranlib
 SOEXT		= dylib
 SOFLAGS += -dynamic

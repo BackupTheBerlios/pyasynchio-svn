@@ -1,7 +1,7 @@
 # -*- Makefile -*-
 
 #----------------------------------------------------------------------------
-#       rules.bin.GNU,v 4.25 2004/01/12 23:40:47 dhinton Exp
+#       rules.bin.GNU,v 4.28 2004/11/05 15:41:39 mcorino Exp
 #
 #       Build binaries
 #       GNU version
@@ -23,7 +23,11 @@ else # !BIN
   endif # !BIN_UNCHECKED
 endif # BIN
 
-VOBJS = $(addsuffix .$(OBJEXT),$(addprefix $(VDIR),$(basename $(notdir $(SRC))))) 
+VOBJS = $(addsuffix .$(OBJEXT),$(addprefix $(VDIR),$(basename $(SRC))))
+
+ifneq ($(IDL_SRC),)
+  $(VBIN): $(IDL_SRC)
+endif
 
 # Needed for depend.
 PSRC += $(addsuffix .cpp, $(CLEANUP_BIN))
@@ -31,8 +35,13 @@ PSRC += $(addsuffix .cpp, $(CLEANUP_BIN))
 CLEANUP_INSTALL += $(CLEANUP_BIN:%=$(INSBIN)/%$(VAR)$(EXEEXT))
 
 CHORUSLINK ?=
+VXWORKSLINK ?=
 using_aix_vacpp ?=
 
+ifeq ($(VXWORKSLINK),true)
+$(BIN): $(DEFAULTRULE)
+	mv $(DEFAULTRULE) $@
+else # !VXWORKSLINK
 ifeq ($(CHORUSLINK),true)
 $(BIN): %: $(VDIR)%.$(OBJEXT) $(VOBJS)
 	$(LINK.cc) $(CC_OUTPUT_FLAG) $@ $(sort $(VDIR)$@.$(OBJEXT) $(VOBJS)) $(VLDLIBS) $(LDFLAGS) $(POSTLINK)
@@ -56,4 +65,4 @@ $(BIN): %: $(VDIR)%.$(OBJEXT) $(VOBJS)
     endif # kylix
   endif # using_aix_vacpp
 endif
-
+endif

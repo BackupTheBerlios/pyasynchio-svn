@@ -1,7 +1,7 @@
 # -*- Makefile -*-
 
 #----------------------------------------------------------------------------
-#       rules.nested.GNU,v 4.15 2004/01/07 23:28:11 dhinton Exp
+#       rules.nested.GNU,v 4.17 2004/05/03 16:59:29 ossama Exp
 #
 #       Nested directory targets makefile definitions
 #----------------------------------------------------------------------------
@@ -10,7 +10,7 @@
 # variable must be set to its actual name before including this
 # file to allow the recursive MAKE to work properly.
 
-MAKEFILE ?= Makefile
+MAKEFILE ?= GNUmakefile
 SUBDIR_MAKEFILE ?= $(MAKEFILE)
 
 # Make sure that we build directories with DIRS= in sequence instead of in
@@ -24,12 +24,12 @@ endif
 
 # A rule to build DIR.subdir from DIR by calling MAKE again, with
 # DIR as the new directory, SUBDIR_TARGET as the target to build, and
-# "Makefile" as the makefile to use in the new directory.
+# "GNUmakefile" as the makefile to use in the new directory.
 
 # Triggered by the $(TARGETS_NESTED) target, below.
 
 %.subdir: %
-	$(MAKE) -f $(SUBDIR_MAKEFILE) -C $< $(SUBDIR_TARGET)
+	cd $< && $(MAKE) -f $(SUBDIR_MAKEFILE) $(SUBDIR_TARGET)
 
 # Build FOO.nested by calling MAKE again, this time with DIRS (with
 # ".subdir" appended to each) as the targets, and passing FOO as the

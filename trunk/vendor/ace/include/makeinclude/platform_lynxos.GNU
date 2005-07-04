@@ -1,4 +1,4 @@
-# platform_lynxos.GNU,v 4.35 2003/11/25 17:15:51 elliott_c Exp
+# platform_lynxos.GNU,v 4.39 2004/05/29 14:17:57 olli Exp
 #
 # LynxOS with g++.  Defaults to LynxOS Version 3.0.0.  For Version 3.1.0,
 # for example, add "VERSION=3.1.0" to your make invocation.
@@ -97,16 +97,21 @@ else
   ACE_HAS_GNUG_PRE_2_8 = 0
 endif # VERSION
 
+PLATFORM_XT_CPPFLAGS=
+PLATFORM_XT_LIBS=-lXm -lXt
+PLATFORM_XT_LDFLAGS=
+
+PLATFORM_X11_CPPFLAGS=
+PLATFORM_X11_LIBS=-lXpm -lXext -lX11 -lSM -lICE
+PLATFORM_X11_LDFLAGS=
+
+pipes ?= 1
+
 CC              = gcc
 CXX             = g++
-CFLAGS          += -mthreads -pipe -ansi -Wpointer-arith
+CFLAGS          += -mthreads -Wpointer-arith -Wall
 #### -Winline complains a lot with -O2.
 #### CFLAGS          += -Winline
-#### LynxOS 3.0.0's g++ has a lot of warnings about non-virtual base class
-#### destructors with -Wall.
-ifeq (2.5.0,$(VERSION))
-  CFLAGS += -Wall
-endif # VERSION
 
 DCFLAGS         += -g
 PIC             = -fPIC
@@ -117,7 +122,7 @@ OCFLAGS         += -O2
 AR              = ar
 ARFLAGS         = ruv
 RANLIB          = @true
-SOFLAGS        += $(CPPFLAGS) -shared
+SOFLAGS         += $(CPPFLAGS) -shared
 SOBUILD         = $(COMPILE.cc) $(PIC) -o $(VSHDIR)$*.so $<; \
                   $(SOLINK.cc) -o $@ $(LDFLAGS) $(VSHDIR)$*.o
 PRELIB          = @true

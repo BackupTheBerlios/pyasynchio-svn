@@ -1,4 +1,4 @@
-# platform_openbsd.GNU,v 1.4 2003/10/17 21:48:05 shuston Exp
+# platform_openbsd.GNU,v 1.5 2004/03/03 00:17:37 dhinton Exp
 
 # platform_openbsd.GNU
 
@@ -20,10 +20,12 @@ ifeq (,$(threads))
   threads = 1
 endif
 
+pipes ?= 1
+
 CC              = gcc
 CXX		= g++
 
-CFLAGS          += -W -Wall -Wpointer-arith -pipe
+CFLAGS          += -W -Wall -Wpointer-arith
 DCFLAGS         += -g
 LDFLAGS		+= -Wl,-rpath $(ACE_ROOT)/ace
 DLD             = $(CXX)
