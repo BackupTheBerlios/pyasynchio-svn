@@ -13,17 +13,15 @@
 #pragma once
 
 #include <pyasynchio/detail/config.hpp>
-#include <pyasynchio/StreamContext.hpp>
+#include <pyasynchio/AbstractAcceptHandler.hpp>
+#include <pyasynchio/AbstractConnectHandler.hpp>
+#include <pyasynchio/AbstractStreamHandler.hpp>
 #include <pyasynchio/Signals.hpp>
-#include <pyasynchio/AcceptContext.hpp>
-#include <pyasynchio/ConnectContext.hpp>
 
 class ACE_INET_Addr;
 class ACE_Time_Value;
 
 namespace pyasynchio {
-
-
 
 /*!
  *  @brief Our proactor facade, which is based on ACE_Proactor framework. 
@@ -37,6 +35,7 @@ class PYASYNCHIO_LINK_DECL Proactor
 {
 public:
     static const ACE_INET_Addr ANY_INTERFACE;
+
     /*! Create proactor object.
      *  @param active If true then behave as active object (owns
      *  its thread). If false then user should launch event
@@ -49,32 +48,32 @@ public:
     ~Proactor();
 
     /*! Initiate proactive accept operation.
-     *  @param ctx signal context of accept operation
+     *  @param ctx signal handler of accept operation
      *  @param addr Bind address.
      *  @param bytesToRead How many bytes to read during accept (Windows only).
      */
-    void accept(AcceptContextPtr ctx
+    void open_stream_accept(AbstractAcceptHandlerPtr user_accept_handler
         , const ACE_INET_Addr &addr
         , size_t bytesToRead = 0);
         
     /*! Close pending proactive accept operations related to particular context.
      *  @param ctx Accept context to cancel and close any accepts on.
      */
-    void close(AcceptContextPtr ctx);
+    void close_stream_accept(AbstractAcceptHandlerPtr user_accept_handler);
     
     /*! Initiate proactive connect operation.
      *  @param ctx signal context of connect operation.
      *  @param remote Remote address to connect to.
      *  @param local Local address.
      */
-    void connect(ConnectContextPtr ctx
+    void open_stream_connect(AbstractConnectHandlerPtr user_connect_handler
         , const ACE_INET_Addr &remote
         , const ACE_INET_Addr &local = ANY_INTERFACE);
         
     /*! Close proactive connect operations related to particular context.
      *  @param ctx Connect context to cancel and close any accepts on.
      */
-    void close(ConnectContextPtr ctx);
+    void close_stream_connect(AbstractConnectHandlerPtr user_connect_handler);
 
     /*! Initiate proactive stream read operation on stream context.
      *  @param ctx Stream context to use.
@@ -83,7 +82,7 @@ public:
      *  @param priority Operation priority (no-op on Windows).
      *  @param signal POSIX4 real-time signal to be used for operation.
      */  
-    void read(StreamContextPtr ctx
+    void open_stream_read(AbstractStreamHandlerPtr user_stream_handler
         , size_t count
         , const void * act = 0
         , int priority = 0
@@ -92,7 +91,7 @@ public:
     /* Cancel any pending read operation on the context.
      *  @param ctx Stream context to close read operations on.
      */
-    void cancelRead(StreamContextPtr ctx);
+    void cancel_stream_read(AbstractStreamHandlerPtr user_stream_handler);
 
     /*! Initiate proactive stream write operation on stream context.
      *  @param ctx Stream context to use.
@@ -101,7 +100,7 @@ public:
      *  @param priority Operation priority (no-op on Windows).
      *  @param signal POSIX4 real-time signal to be used for operation.
      */
-    void write(StreamContextPtr ctx
+    void open_stream_write(AbstractStreamHandlerPtr user_stream_handler
         , const buf &data
         , const void *act = 0
         , int priority = 0
@@ -110,12 +109,12 @@ public:
     /*! Cancel any pending write operations on the context.
      *  @param ctx Stream context to close write operations on.
      */
-    void cancelWrite(StreamContextPtr ctx);
+    void cancel_stream_write(AbstractStreamHandlerPtr user_stream_handler);
     
     /*! Close stream context and terminate any operations.
      *  @param ctx Stream context to terminate operations on.
      */
-    void close(StreamContextPtr ctx);
+    void close_active_stream(AbstractStreamHandlerPtr user_stream_handler);
 
     /*! Schedule timer signal to specified delay.
      *  @param delay Relative delay for timer to be signalled.

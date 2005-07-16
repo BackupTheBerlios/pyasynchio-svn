@@ -16,14 +16,12 @@
 
 namespace pyasynchio {
 
-
-
 class Proactor::impl::Connector
-: public ACE_Asynch_Connector<StreamHandler>
+: public ACE_Asynch_Connector<Proactor::impl::StreamHandler>
 , public boost::signals::trackable
 {
 public:
-	typedef ACE_Asynch_Connector<StreamHandler> Super;
+	typedef ACE_Asynch_Connector<Proactor::impl::StreamHandler> Super;
 	virtual ~Connector();
 
 	int validate_connection(const ACE_Asynch_Connect::Result &result
@@ -41,17 +39,17 @@ public:
 	StreamHandler* make_handler();
 
 	static ConnectorPtr Create(Proactor::impl *pro
-								, ConnectContextPtr ctx
-								, ACE_INET_Addr remote
-								, ACE_INET_Addr local);
+		, AbstractConnectHandlerPtr user_connect_handler
+		, ACE_INET_Addr remote
+		, ACE_INET_Addr local);
 
 protected:
 	Connector(Proactor::impl *pro
-			, ConnectContextPtr ctx);
+			, AbstractConnectHandlerPtr user_connect_handler);
 
 private:
 	Proactor::impl *pro_;
-	ConnectContextPtr ctx_;
+	AbstractConnectHandlerPtr user_connect_handler_;
 	ConnectorWeakPtr thisPtr_;
 };
 

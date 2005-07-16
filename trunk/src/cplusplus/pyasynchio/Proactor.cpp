@@ -39,56 +39,56 @@ void Proactor::cancelTimer(TimerSignalPtr elapsed)
     pimpl_->cancelTimer(elapsed);
 }
 
-void Proactor::accept(AcceptContextPtr ctx
+void Proactor::open_stream_accept(AbstractAcceptHandlerPtr user_accept_handler
                       , const ACE_INET_Addr &addr 
                       , size_t bytesToRead)
 {
-    pimpl_->accept(ctx, addr, bytesToRead);
+    pimpl_->open_stream_accept(user_accept_handler, addr, bytesToRead);
 }
 
-void Proactor::close(AcceptContextPtr ctx)
+void Proactor::close_stream_accept(AbstractAcceptHandlerPtr user_accept_handler)
 {
-    pimpl_->close(ctx);
+    pimpl_->close_stream_accept(user_accept_handler);
 }
 
-void Proactor::connect(ConnectContextPtr ctx
+void Proactor::open_stream_connect(AbstractConnectHandlerPtr user_connect_handler
                         , const ACE_INET_Addr &remote
                         , const ACE_INET_Addr &local)
 {
-    pimpl_->connect(ctx, remote, local);
+    pimpl_->open_stream_connect(user_connect_handler, remote, local);
 }
 
-void Proactor::close(ConnectContextPtr ctx)
+void Proactor::close_stream_connect(AbstractConnectHandlerPtr user_connect_handler)
 {
-    pimpl_->close(ctx);
+    pimpl_->close_stream_connect(user_connect_handler);
 }
 
-void Proactor::write(StreamContextPtr ctx
+void Proactor::open_stream_write(AbstractStreamHandlerPtr user_stream_handler
                     , const buf &data
                     , const void *act
                     , int priority
                     , int signal)
 {
-    pimpl_->write(ctx, data, act, priority, signal);
+    pimpl_->open_stream_write(user_stream_handler, data, act, priority, signal);
 }
 
-void Proactor::cancelWrite(StreamContextPtr ctx)
+void Proactor::cancel_stream_write(AbstractStreamHandlerPtr user_stream_handler)
 {
-    pimpl_->cancelWrite(ctx);
+    pimpl_->cancel_stream_write(user_stream_handler);
 }
 
-void Proactor::read(StreamContextPtr ctx
+void Proactor::open_stream_read(AbstractStreamHandlerPtr user_stream_handler
                     , size_t bytes
                     , const void *act
                     , int priority
                     , int signal)
 {
-    pimpl_->read(ctx, bytes, act, priority, signal);
+    pimpl_->open_stream_read(user_stream_handler, bytes, act, priority, signal);
 }
 
-void Proactor::cancelRead(StreamContextPtr ctx)
+void Proactor::cancel_stream_read(AbstractStreamHandlerPtr user_stream_handler)
 {
-    pimpl_->cancelRead(ctx);
+    pimpl_->cancel_stream_read(user_stream_handler);
 }
 
 void Proactor::handleEvents(const ACE_Time_Value &delay)
@@ -106,9 +106,9 @@ void Proactor::shutdown()
     pimpl_->shutdown();
 }
 
-void Proactor::close(StreamContextPtr ctx)
+void Proactor::close_active_stream(AbstractStreamHandlerPtr user_stream_handler)
 {
-    pimpl_->close(ctx);
+    pimpl_->close_active_stream(user_stream_handler);
 }
 
 } // namespace pyasynchio

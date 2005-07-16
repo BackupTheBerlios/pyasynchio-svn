@@ -13,18 +13,18 @@
 namespace pyasynchio {
 
 Proactor::impl::Acceptor::Acceptor(Proactor::impl *pro
-    , AcceptContextPtr ctx
+    , AbstractAcceptHandlerPtr user_accept_handler
     , ACE_INET_Addr addr)
 : pro_(pro)
-, ctx_(ctx)
+, user_accept_handler_(user_accept_handler)
 {
 }
 
 Proactor::impl::AcceptorPtr Proactor::impl::Acceptor::Create(Proactor::impl *pro
-    , AcceptContextPtr ctx
+    , AbstractAcceptHandlerPtr user_accept_handler
     , ACE_INET_Addr addr)
 {
-    AcceptorPtr accp(new Acceptor(pro, ctx, addr));
+    AcceptorPtr accp(new Acceptor(pro, user_accept_handler, addr));
     accp->thisPtr_ = accp;
     accp->open(addr /* address */
         , 0 /* bytes_to_read */
@@ -59,7 +59,7 @@ void Proactor::impl::Acceptor::handle_accept (const ACE_Asynch_Accept::Result &r
     Super::handle_accept(result);
     AcceptResult ar;
     convert(ar, result);
-    ctx_->sigComplete_(ar);
+	user_accept_handler_->conn_completed(ar);
 }
 
 int Proactor::impl::Acceptor::validate_connection(
@@ -69,7 +69,7 @@ int Proactor::impl::Acceptor::validate_connection(
 {
     AcceptResult ar;
     convert(ar, result);
-    if (ctx_->sigValidate_(ar, remote ,local)) {
+	if (user_accept_handler_->conn_validate(ar, remote, local)) {
         return 0;
     }
     return -1;
@@ -77,9 +77,9 @@ int Proactor::impl::Acceptor::validate_connection(
 
 Proactor::impl::StreamHandler* Proactor::impl::Acceptor::make_handler()
 {
-    std::pair<StreamContextPtr, StreamHandlerPtr> stream = pro_->makeStream();
-    ctx_->sigStream_(stream.first); // here stream should be set-up.
-    return stream.second.get();
+	AbstractStreamHandlerPtr user_stream_handler = 
+		user_accept_handler_->make_stream_handler();
+	return pro_->make_impl_stream_handler(user_stream_handler).get();
 }
 
 void Proactor::impl::Acceptor::close()

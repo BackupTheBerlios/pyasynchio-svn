@@ -20,8 +20,6 @@
 
 namespace pyasynchio {
 
-
-
 /************************************************************************/
 /* Proactor implementation (PIMPL)                                      */
 /************************************************************************/
@@ -35,27 +33,32 @@ public:
 
 	void scheduleTimer(ACE_Time_Value time, TimerSignalPtr elapsed);
 	void cancelTimer(TimerSignalPtr elapsed);
-	void accept(AcceptContextPtr ctx, ACE_INET_Addr addr, size_t bytesToRead);
-	void connect(ConnectContextPtr ctx, ACE_INET_Addr remote, ACE_INET_Addr local);
-	void close(AcceptContextPtr ctx);
-	void close(StreamContextPtr ctx);
-	void close(ConnectContextPtr ctx);
+
+	void open_stream_accept(AbstractAcceptHandlerPtr user_accept_handler 
+		, const ACE_INET_Addr &addr 
+		, size_t bytesToRead /* = 0 */);
+	void open_stream_connect(AbstractConnectHandlerPtr user_connect_handler 
+		, const ACE_INET_Addr &remote 
+		, const ACE_INET_Addr &local /* = ANY_INTERFACE */);
+	void close_stream_accept(AbstractAcceptHandlerPtr user_accept_handler);
+	void close_stream_connect(AbstractConnectHandlerPtr user_connect_handler);
+	void close_active_stream(AbstractStreamHandlerPtr user_stream_handler);
 
 	void handleEvents(ACE_Time_Value delay);
 	void handleEvents();
 	
-	void write(StreamContextPtr ctx
+	void open_stream_write(AbstractStreamHandlerPtr user_stream_handler
 		, const buf &data
 		, const void *act
 		, int priority
 		, int signal);
-	void cancelWrite(StreamContextPtr ctx);
-	void read(StreamContextPtr ctx
+	void cancel_stream_write(AbstractStreamHandlerPtr user_stream_handler);
+	void open_stream_read(AbstractStreamHandlerPtr user_stream_handler
 		, size_t count
 		, const void *act
 		, int priority
 		, int signal);
-	void cancelRead(StreamContextPtr ctx);
+	void cancel_stream_read(AbstractStreamHandlerPtr user_stream_handler);
 	
 	int svc();
 
@@ -78,7 +81,9 @@ public:
 
 private:
 	void scheduleBlocking(boost::function<void ()>);
-	std::pair<StreamContextPtr, StreamHandlerPtr> makeStream();
+//	std::pair<StreamContextPtr, StreamHandlerPtr> makeStream();
+	Proactor::impl::StreamHandlerPtr make_impl_stream_handler(
+		AbstractStreamHandlerPtr user_stream_handler);
 
 	void registerPending(ACE_HandlerPtr pending);
 	void unregisterPending(ACE_HandlerPtr pending);
@@ -90,15 +95,15 @@ private:
 	ACE_thread_t ace_pro_thr_;
 	ACE_Manual_Event got_ace_pro_thr_;
 
-	typedef std::multimap<AcceptContextPtr, AcceptorPtr> Acceptors;
+	typedef std::multimap<AbstractAcceptHandlerPtr, AcceptorPtr> Acceptors;
 	Acceptors acceptors_;
 	ACE_Thread_Mutex acceptorsMutex_;
 	
-	typedef std::multimap<ConnectContextPtr, ConnectorPtr> Connectors;
+	typedef std::multimap<AbstractConnectHandlerPtr, ConnectorPtr> Connectors;
 	Connectors connectors_;
 	ACE_Thread_Mutex connectorsMutex_;
 	
-	typedef safe_map<StreamContextPtr, StreamHandlerPtr> Streams;
+	typedef safe_map<AbstractStreamHandlerPtr, StreamHandlerPtr> Streams;
 	Streams streams_;
 	ACE_Thread_Mutex streamsMutex_;
 

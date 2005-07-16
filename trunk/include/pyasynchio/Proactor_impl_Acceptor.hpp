@@ -9,9 +9,9 @@
 
 #pragma once
  
+#include <ace/Asynch_Acceptor.h>
 #include <pyasynchio/Proactor_impl.hpp>
 #include <pyasynchio/Proactor_impl_StreamHandler.hpp>
-#include <ace/Asynch_Acceptor.h>
 #include <boost/signals/trackable.hpp>
 
 namespace pyasynchio {
@@ -38,17 +38,17 @@ public:
 	StreamHandler* make_handler();
 
 	static AcceptorPtr Create(Proactor::impl *pro
-		, AcceptContextPtr ctx
+		, AbstractAcceptHandlerPtr user_accept_handler
 		, ACE_INET_Addr addr);
 
 protected:
 	Acceptor(Proactor::impl *pro
-		, AcceptContextPtr ctx
+		, AbstractAcceptHandlerPtr user_accept_handler
 		, ACE_INET_Addr addr);
 
 private:
 	Proactor::impl *pro_;
-	AcceptContextPtr ctx_;
+	AbstractAcceptHandlerPtr user_accept_handler_;
 	AcceptorWeakPtr thisPtr_;
 };
 

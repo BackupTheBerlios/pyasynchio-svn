@@ -32,7 +32,8 @@ public:
 	void addresses(ACE_INET_Addr remote, ACE_INET_Addr local);
 	void open(ACE_HANDLE new_handle, ACE_Message_Block &message_block);
 	
-	static StreamHandlerPtr Create(Proactor::impl *pro, StreamContextPtr ctx);
+	static StreamHandlerPtr Create(Proactor::impl *pro
+		, AbstractStreamHandlerPtr user_stream_handler);
 		
 	void read(size_t count, const void *act, int priority, int signal);
 	void write(const buf &data, const void *act, int priority, int signal);
@@ -45,11 +46,12 @@ public:
 	
 	void close();
 protected:
-	StreamHandler(Proactor::impl *pro, StreamContextPtr ctx);
+	StreamHandler(Proactor::impl *pro
+		, AbstractStreamHandlerPtr user_stream_handler);
 	
 private:
 	Proactor::impl *pro_;
-	StreamContextPtr ctx_;
+	AbstractStreamHandlerPtr user_stream_handler_;
 	StreamHandlerWeakPtr thisPtr_;
 	ACE_Asynch_Read_Stream reader_;
 	ACE_Asynch_Write_Stream writer_;

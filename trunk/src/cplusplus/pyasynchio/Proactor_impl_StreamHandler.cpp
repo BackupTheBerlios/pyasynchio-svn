@@ -4,27 +4,28 @@
  *  \author Vladimir Sukhoy
  */
 
+#include <ace/INET_Addr.h>
+#include <ace/OS.h>
+#include <boost/lambda/construct.hpp>
+#include <boost/lambda/bind.hpp>
 #include <pyasynchio/Proactor_impl_StreamHandler.hpp>
 #include <pyasynchio/ResultConversion.hpp>
 #include <pyasynchio/scopeguard.hpp>
-#include <boost/lambda/construct.hpp>
-#include <boost/lambda/bind.hpp>
-#include <ace/INET_Addr.h>
-#include <ace/OS.h>
 
 namespace pyasynchio {
 
-Proactor::impl::StreamHandler::StreamHandler(Proactor::impl *pro, StreamContextPtr ctx)
+Proactor::impl::StreamHandler::StreamHandler(Proactor::impl *pro
+	, AbstractStreamHandlerPtr user_stream_handler)
 : pro_(pro)
-, ctx_(ctx)
+, user_stream_handler_(user_stream_handler)
 {
 }
 
 Proactor::impl::StreamHandlerPtr Proactor::impl::StreamHandler::Create(
-    Proactor::impl *pro,
-    StreamContextPtr ctx)
+    Proactor::impl *pro
+	, AbstractStreamHandlerPtr user_stream_handler)
 {
-    StreamHandlerPtr shp(new StreamHandler(pro, ctx));
+    StreamHandlerPtr shp(new StreamHandler(pro, user_stream_handler));
     shp->thisPtr_ = shp;
     return shp;
 }
@@ -37,19 +38,19 @@ Proactor::impl::StreamHandler::~StreamHandler()
 
 void Proactor::impl::StreamHandler::act(const void *act)
 {
-    ctx_->sigAct_(act);
+    user_stream_handler_->notify_act(act);
 }
 
 void Proactor::impl::StreamHandler::addresses(ACE_INET_Addr remote, ACE_INET_Addr local)
 {
-    ctx_->sigAddresses_(remote, local);
+	user_stream_handler_->notify_endpoints(remote, local);
 }
 
 void Proactor::impl::StreamHandler::open(ACE_HANDLE new_handle, ACE_Message_Block &message_block)
 {
     reader_.open(*this);
     writer_.open(*this);
-    ctx_->sigOpen_(new_handle);
+	user_stream_handler_->notify_opened(new_handle);
 }
 
 void Proactor::impl::StreamHandler::read(size_t count
@@ -97,7 +98,7 @@ void Proactor::impl::StreamHandler::handle_read_stream(
     ON_BLOCK_EXIT(boost::lambda::bind(boost::lambda::delete_ptr(), &result.message_block()));
     ReadStreamResult r;
     convert(r, result);
-    ctx_->sigRead_(r);
+	user_stream_handler_->read_completed(r);
 }
 
 void Proactor::impl::StreamHandler::handle_write_stream(
@@ -107,7 +108,7 @@ void Proactor::impl::StreamHandler::handle_write_stream(
     ON_BLOCK_EXIT(boost::lambda::bind(boost::lambda::delete_ptr(), &result.message_block()));
     WriteStreamResult r;
     convert(r, result);
-    ctx_->sigWrite_(r);
+	user_stream_handler_->write_completed(r);
 }
 
 void Proactor::impl::StreamHandler::close()
