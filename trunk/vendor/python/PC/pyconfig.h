@@ -38,7 +38,7 @@ MS_CORE_DLL.
 #define HAVE_STRERROR
 #define DONT_HAVE_SIG_ALARM
 #define DONT_HAVE_SIG_PAUSE
-#define LONG_BIT	32
+#define LONG_BIT    32
 #define WORD_BIT 32
 #define PREFIX ""
 #define EXEC_PREFIX ""
@@ -46,7 +46,7 @@ MS_CORE_DLL.
 #define MS_WIN32 /* only support win32 and greater. */
 #define MS_WINDOWS
 #ifndef PYTHONPATH
-#	define PYTHONPATH ".\\DLLs;.\\lib;.\\lib\\plat-win;.\\lib\\lib-tk"
+#   define PYTHONPATH ".\\DLLs;.\\lib;.\\lib\\plat-win;.\\lib\\lib-tk"
 #endif
 #define NT_THREADS
 #define WITH_THREAD
@@ -67,9 +67,9 @@ MS_CORE_DLL.
  * literally in the string.
  */
 #define _Py_PASTE_VERSION(SUFFIX) \
-	("[MSC v." _Py_STRINGIZE(_MSC_VER) " " SUFFIX "]")
+    ("[MSC v." _Py_STRINGIZE(_MSC_VER) " " SUFFIX "]")
 /* e.g., this produces, after compile-time string catenation,
- * 	("[MSC v.1200 32 bit (Intel)]")
+ *  ("[MSC v.1200 32 bit (Intel)]")
  *
  * _Py_STRINGIZE(_MSC_VER) expands to
  * _Py_STRINGIZE1((_MSC_VER)) expands to
@@ -88,7 +88,7 @@ MS_CORE_DLL.
    *and* on Win64. For the same reasons, in Python, MS_WIN32 is
    defined on Win32 *and* Win64. Win32 only code must therefore be
    guarded as follows:
-   	#if defined(MS_WIN32) && !defined(MS_WIN64)
+    #if defined(MS_WIN32) && !defined(MS_WIN64)
 */
 #ifdef _WIN64
 #define MS_WIN64
@@ -115,7 +115,7 @@ MS_CORE_DLL.
 #endif
 #endif /* MS_WIN32 && !MS_WIN64 */
 
-typedef int pid_t;
+typedef long pid_t;
 #define hypot _hypot
 
 #include <float.h>
@@ -193,25 +193,25 @@ typedef int pid_t;
 /* End of compilers - finish up */
 
 #ifndef NO_STDIO_H
-#	include <stdio.h>
+#   include <stdio.h>
 #endif
 
 /* 64 bit ints are usually spelt __int64 unless compiler has overridden */
 #define HAVE_LONG_LONG 1
 #ifndef PY_LONG_LONG
-#	define PY_LONG_LONG __int64
+#   define PY_LONG_LONG __int64
 #endif
 
 /* For Windows the Python core is in a DLL by default.  Test
 Py_NO_ENABLE_SHARED to find out.  Also support MS_NO_COREDLL for b/w compat */
 #if !defined(MS_NO_COREDLL) && !defined(Py_NO_ENABLE_SHARED)
-#	define Py_ENABLE_SHARED 1 /* standard symbol for shared library */
-#	define MS_COREDLL	/* deprecated old symbol */
+#   define Py_ENABLE_SHARED 1 /* standard symbol for shared library */
+#   define MS_COREDLL   /* deprecated old symbol */
 #endif /* !MS_NO_COREDLL && ... */
 
 /* Deprecated USE_DL_EXPORT macro - please use Py_BUILD_CORE */
 #ifdef USE_DL_EXPORT
-#	define Py_BUILD_CORE
+#   define Py_BUILD_CORE
 #endif /* USE_DL_EXPORT */
 
 /*  All windows compilers that use this header support __declspec */
@@ -219,48 +219,48 @@ Py_NO_ENABLE_SHARED to find out.  Also support MS_NO_COREDLL for b/w compat */
 
 /* For an MSVC DLL, we can nominate the .lib files used by extensions */
 #ifdef MS_COREDLL
-#	ifndef Py_BUILD_CORE /* not building the core - must be an ext */
-#		if defined(_MSC_VER)
-			/* So MSVC users need not specify the .lib file in
-			their Makefile (other compilers are generally
-			taken care of by distutils.) */
-#			ifdef _DEBUG
-#				pragma comment(lib,"python24_d.lib")
-#			else
-#				pragma comment(lib,"python24.lib")
-#			endif /* _DEBUG */
-#		endif /* _MSC_VER */
-#	endif /* Py_BUILD_CORE */
+#   ifndef Py_BUILD_CORE /* not building the core - must be an ext */
+#       if defined(_MSC_VER)
+            /* So MSVC users need not specify the .lib file in
+            their Makefile (other compilers are generally
+            taken care of by distutils.) */
+#           ifdef _DEBUG
+#               pragma comment(lib,"python24_d.lib")
+#           else
+#               pragma comment(lib,"python24.lib")
+#           endif /* _DEBUG */
+#       endif /* _MSC_VER */
+#   endif /* Py_BUILD_CORE */
 #endif /* MS_COREDLL */
 
 #if defined(MS_WIN64)
 /* maintain "win32" sys.platform for backward compatibility of Python code,
    the Win64 API should be close enough to the Win32 API to make this
    preferable */
-#	define PLATFORM "win32"
-#	define SIZEOF_VOID_P 8
-#	define SIZEOF_TIME_T 8
-#	define SIZEOF_OFF_T 4
-#	define SIZEOF_FPOS_T 8
-#	define SIZEOF_HKEY 8
+#   define PLATFORM "win32"
+#   define SIZEOF_VOID_P 8
+#   define SIZEOF_TIME_T 8
+#   define SIZEOF_OFF_T 4
+#   define SIZEOF_FPOS_T 8
+#   define SIZEOF_HKEY 8
 /* configure.in defines HAVE_LARGEFILE_SUPPORT iff HAVE_LONG_LONG,
    sizeof(off_t) > sizeof(long), and sizeof(PY_LONG_LONG) >= sizeof(off_t).
    On Win64 the second condition is not true, but if fpos_t replaces off_t
    then this is true. The uses of HAVE_LARGEFILE_SUPPORT imply that Win64
    should define this. */
-#	define HAVE_LARGEFILE_SUPPORT
+#   define HAVE_LARGEFILE_SUPPORT
 #elif defined(MS_WIN32)
-#	define PLATFORM "win32"
-#	define HAVE_LARGEFILE_SUPPORT
-#	define SIZEOF_VOID_P 4
-#	define SIZEOF_TIME_T 4
-#	define SIZEOF_OFF_T 4
-#	define SIZEOF_FPOS_T 8
-#	define SIZEOF_HKEY 4
+#   define PLATFORM "win32"
+#   define HAVE_LARGEFILE_SUPPORT
+#   define SIZEOF_VOID_P 4
+#   define SIZEOF_TIME_T 4
+#   define SIZEOF_OFF_T 4
+#   define SIZEOF_FPOS_T 8
+#   define SIZEOF_HKEY 4
 #endif
 
 #ifdef _DEBUG
-#	define Py_DEBUG
+#   define Py_DEBUG
 #endif
 
 
