@@ -11,6 +11,7 @@
 
 #include <pyasynchio/StreamResults.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
 
 class ACE_INET_Addr;
 
@@ -21,16 +22,16 @@ typedef boost::shared_ptr<AbstractStreamHandler> AbstractStreamHandlerPtr;
 
 class AbstractStreamHandler
 {
-protected:
-    AbstractStreamHandler() {}
 public:
+    AbstractStreamHandler() {}
     virtual ~AbstractStreamHandler() {}
 
     virtual void notify_endpoints(const ACE_INET_Addr &remote
                                     , const ACE_INET_Addr &local) = 0;
     
-    virtual void notify_act(const void *act) = 0;
-    virtual void notify_opened(void *handle) = 0;
+	virtual void notify_act(const void *act) {};
+	virtual void notify_opened(void *handle) {};
+	virtual void notify_initialized() = 0;
 
     virtual void read_completed(const ReadStreamResult &read_result) = 0;
     virtual void write_completed(const WriteStreamResult &write_result) = 0;

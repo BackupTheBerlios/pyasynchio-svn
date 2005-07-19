@@ -150,6 +150,15 @@
 				Name="header"
 				Filter="">
 				<File
+					RelativePath="..\..\..\include\pyasynchio\AbstractAcceptHandler.hpp">
+				</File>
+				<File
+					RelativePath="..\..\..\include\pyasynchio\AbstractConnectHandler.hpp">
+				</File>
+				<File
+					RelativePath="..\..\..\include\pyasynchio\AbstractStreamHandler.hpp">
+				</File>
+				<File
 					RelativePath="..\..\..\include\pyasynchio\AcceptContext.hpp">
 				</File>
 				<File
@@ -157,6 +166,12 @@
 				</File>
 				<File
 					RelativePath="..\..\..\include\pyasynchio\AcceptSignals.hpp">
+				</File>
+				<File
+					RelativePath="..\..\..\include\pyasynchio\buf.hpp">
+				</File>
+				<File
+					RelativePath="..\..\..\include\pyasynchio\common_includes.hpp">
 				</File>
 				<File
 					RelativePath="..\..\..\include\pyasynchio\conditional_and_combiner.hpp">
@@ -169,6 +184,9 @@
 				</File>
 				<File
 					RelativePath="..\..\..\include\pyasynchio\ConnectSignals.hpp">
+				</File>
+				<File
+					RelativePath="..\..\..\include\pyasynchio\primitive.hpp">
 				</File>
 				<File
 					RelativePath="..\..\..\include\pyasynchio\Proactor.hpp">
@@ -193,6 +211,12 @@
 				</File>
 				<File
 					RelativePath="..\..\..\include\pyasynchio\ResultConversion.hpp">
+				</File>
+				<File
+					RelativePath="..\..\..\include\pyasynchio\safe_map.hpp">
+				</File>
+				<File
+					RelativePath="..\..\..\include\pyasynchio\scopeguard.hpp">
 				</File>
 				<File
 					RelativePath="..\..\..\include\pyasynchio\signal_wrapper.hpp">

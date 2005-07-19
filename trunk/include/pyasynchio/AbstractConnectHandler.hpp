@@ -14,9 +14,8 @@ typedef boost::shared_ptr<AbstractConnectHandler> AbstractConnectHandlerPtr;
 
 class AbstractConnectHandler
 {
-protected:
-    AbstractConnectHandler() {}
 public:
+    AbstractConnectHandler() {}
     virtual ~AbstractConnectHandler() {}
 
     virtual bool conn_validate(const ConnectResult &result

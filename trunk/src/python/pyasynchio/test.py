@@ -8,10 +8,9 @@ class EchoFixture(unittest.TestCase):
     def setUp(self):
         self.pro = pyasynchio.Proactor(False)
         self.port = 40274
-        self.ac = pyasynchio.AcceptContext()
-        self.echo = Echo(self.pro, self.ac)
+        self.echo = Echo(self.pro)
         self.done = False
-        self.pro.accept(self.ac, ('', self.port))
+        self.pro.open_stream_accept(self.echo, ('', self.port))
         import thread
         thread.start_new_thread(self.thr_func, ())
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -27,7 +26,7 @@ class EchoFixture(unittest.TestCase):
         self.sock.close()
 
 class TestEcho(EchoFixture):
-    def test_(self):
+    def test_it(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.connect(('127.0.0.1', self.port))
         data = "data for sending"

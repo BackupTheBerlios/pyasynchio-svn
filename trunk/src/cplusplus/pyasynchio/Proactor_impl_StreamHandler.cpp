@@ -51,6 +51,7 @@ void Proactor::impl::StreamHandler::open(ACE_HANDLE new_handle, ACE_Message_Bloc
     reader_.open(*this);
     writer_.open(*this);
 	user_stream_handler_->notify_opened(new_handle);
+	user_stream_handler_->notify_initialized();
 }
 
 void Proactor::impl::StreamHandler::read(size_t count

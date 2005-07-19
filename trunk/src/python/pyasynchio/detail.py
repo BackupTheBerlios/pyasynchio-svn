@@ -4,3 +4,4 @@ def override_constructor(cls, cons):
     dc = {'__new__' : override_func}
     from new import classobj
     return classobj(cls.__name__, (cls,), dc)
+

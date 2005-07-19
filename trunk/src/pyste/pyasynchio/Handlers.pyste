@@ -1,0 +1,36 @@
+PCHInclude("pyste/common_includes.hpp")
+Include("pyste/boost_shared_ptr_create.hpp")
+Include("pyasynchio/AbstractStreamHandler.hpp")
+Include("pyasynchio/AbstractAcceptHandler.hpp")
+Include("pyasynchio/AbstractConnectHandler.hpp")
+
+Include("ace/Inet_Addr.h")
+
+abstract_stream_handler = Class("pyasynchio::AbstractStreamHandler"
+                                , "pyasynchio/AbstractStreamHandler.hpp")
+#class_code(abstract_stream_handler
+#    , '''.def("shared_ptr_create"
+#            , &shared_ptr_create<pyasynchio_AbstractStreamHandler_Wrapper
+#                                , PyObject*>)
+#         .staticmethod("shared_ptr_create")''')
+use_shared_ptr(abstract_stream_handler)
+exclude(abstract_stream_handler.notify_act)
+exclude(abstract_stream_handler.notify_opened)
+
+abstract_accept_handler = Class("pyasynchio::AbstractAcceptHandler"
+                                , "pyasynchio/AbstractAcceptHandler.hpp")
+#class_code(abstract_accept_handler
+#    , '''.def("shared_ptr_create"
+#            , &shared_ptr_create<pyasynchio_AbstractAcceptHandler_Wrapper
+#                                , PyObject*>)
+#         .staticmethod("shared_ptr_create")''')
+use_shared_ptr(abstract_accept_handler)
+
+abstract_connect_handler = Class("pyasynchio::AbstractConnectHandler"
+                                , "pyasynchio/AbstractConnectHandler.hpp")
+#class_code(abstract_connect_handler
+#    , '''.def("shared_ptr_create"
+#            , &shared_ptr_create<pyasynchio_AbstractConnectHandler_Wrapper
+#                                , PyObject*>)
+#         .staticmethod("shared_ptr_create")''')
+use_shared_ptr(abstract_connect_handler)

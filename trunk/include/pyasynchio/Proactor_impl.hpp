@@ -23,6 +23,15 @@ namespace pyasynchio {
 /************************************************************************/
 /* Proactor implementation (PIMPL)                                      */
 /************************************************************************/
+struct less_without_shared_ownership_check
+{
+	bool operator()(AbstractStreamHandlerPtr const & lhs
+		, AbstractStreamHandlerPtr const & rhs) const
+	{
+		return lhs.get() < rhs.get();
+	}
+};
+	
 
 class Proactor::impl : public ACE_Task<ACE_MT_SYNCH>
 {
@@ -102,8 +111,10 @@ private:
 	typedef std::multimap<AbstractConnectHandlerPtr, ConnectorPtr> Connectors;
 	Connectors connectors_;
 	ACE_Thread_Mutex connectorsMutex_;
-	
-	typedef safe_map<AbstractStreamHandlerPtr, StreamHandlerPtr> Streams;
+
+	typedef safe_map<AbstractStreamHandlerPtr
+		, StreamHandlerPtr
+		, less_without_shared_ownership_check> Streams;
 	Streams streams_;
 	ACE_Thread_Mutex streamsMutex_;
 

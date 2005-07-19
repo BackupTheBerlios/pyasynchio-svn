@@ -14,6 +14,7 @@ files = map(path.abspath,
 ,'src/pyste/pyasynchio/Contexts.pyste'
 ,'src/pyste/pyasynchio/Results.pyste'
 ,'src/pyste/pyasynchio/Signals.pyste'
+,'src/pyste/pyasynchio/Handlers.pyste'
 ,'src/pyste/pyasynchio/buf.pyste']
 
 )

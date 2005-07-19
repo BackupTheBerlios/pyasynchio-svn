@@ -18,11 +18,10 @@ namespace pyasynchio {
 class AbstractAcceptHandler;
 typedef boost::shared_ptr<AbstractAcceptHandler> AbstractAcceptHandlerPtr;
 
-class AbstractAcceptHandler 
+class AbstractAcceptHandler
 {
-protected:
-    AbstractAcceptHandler() {}
 public:
+    AbstractAcceptHandler() {}
     virtual ~AbstractAcceptHandler() {}
 
     virtual bool conn_validate(const AcceptResult &result
