@@ -1,6 +1,7 @@
 from _pyasynchio import AbstractAcceptHandler as _AbstractAcceptHandler
 from _pyasynchio import AbstractConnectHandler as _AbstractConnectHandler
 from _pyasynchio import AbstractStreamHandler as _AbstractStreamHandler
+from _pyasynchio import AbstractTimerHandler as _AbstractTimerHandler
 from detail import override_constructor
 
 class AbstractAcceptHandler(_AbstractAcceptHandler):
@@ -43,4 +44,11 @@ class AbstractStreamHandler(_AbstractStreamHandler):
         raise NotImplementedError
 
     def write_completed(self, read_result):
+        raise NotImplementedError
+
+class AbstractTimerHandler(_AbstractTimerHandler):
+    def __init__(self):
+        _AbstractTimerHandler.__init__(self)
+
+    def notify_elapsed(self):
         raise NotImplementedError

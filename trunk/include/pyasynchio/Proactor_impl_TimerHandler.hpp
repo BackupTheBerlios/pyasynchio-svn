@@ -17,7 +17,7 @@ namespace pyasynchio {
 class Proactor::impl::TimerHandler : public ACE_Handler
 {
     public:
-        TimerHandler(Proactor::impl *pro, TimerSignalPtr sig);
+        TimerHandler(Proactor::impl *pro, AbstractTimerHandlerPtr uh);
         virtual ~TimerHandler();
 
         void handle_time_out(const ACE_Time_Value &tv, const void *act /* = 0 */);
@@ -25,7 +25,7 @@ class Proactor::impl::TimerHandler : public ACE_Handler
 
     private:
         Proactor::impl *pro_;
-        TimerSignalPtr sig_;
+        AbstractTimerHandlerPtr user_handler_;
         bool canceled_;
 };
 

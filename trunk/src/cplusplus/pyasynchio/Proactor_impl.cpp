@@ -4,6 +4,7 @@
  *  \author Vladimir Sukhoy
  */
 
+#include <pyasynchio/detail/fix_ace_warnings.hpp>
 #include <ace/Synch.h>
 #include <ace/Thread.h>
 #include <pyasynchio/Proactor_impl.hpp>
@@ -13,59 +14,24 @@
 
 namespace pyasynchio {
 
-Proactor::impl::impl(bool active)
-: done_(false)
-, active_(active)
-{
-    if(active) {
-        this->activate();
-        got_ace_pro_thr_.wait();
-    }
-    else {
-        ace_pro_thr_ = ACE_Thread::self();
-    }
-}
-
+Proactor::impl::impl()
+{}
 
 Proactor::impl::~impl()
-{
-    shutdown();
-}
+{}
 
-void Proactor::impl::shutdown()
+void Proactor::impl::schedule_timer(ACE_Time_Value delay
+									, AbstractTimerHandlerPtr elapsed_handler)
 {
-    if(active_) {
-        if(!done_) {
-            done_ = true;
-            this->wait();
-        }
-        active_ = false;
-    }
-}
-
-
-int Proactor::impl::svc()
-{
-    ace_pro_thr_ = ACE_Thread::self();
-    got_ace_pro_thr_.signal();
-    static ACE_Time_Value interval(0, 10000);
-    while(!done_) {
-        ace_pro_.handle_events(interval);
-    }
-    return 0;
-}
-
-void Proactor::impl::scheduleTimer(ACE_Time_Value delay, TimerSignalPtr elapsed)
-{
-    TimerHandlerPtr th(new TimerHandler(this, elapsed));
-    ths_.insert(std::make_pair(elapsed, th));
+    TimerHandlerPtr th(new TimerHandler(this, elapsed_handler));
+    ths_.insert(std::make_pair(elapsed_handler, th));
     ace_pro_.schedule_timer(*th, NULL, delay);
 }
 
-void Proactor::impl::cancelTimer(TimerSignalPtr elapsed)
+void Proactor::impl::cancel_timer(AbstractTimerHandlerPtr elapsed_handler)
 {
     std::pair<TimerHandlers::iterator, TimerHandlers::iterator> eqr;
-    eqr = ths_.equal_range(elapsed);
+    eqr = ths_.equal_range(elapsed_handler);
     TimerHandlers::iterator thi;
     for (thi = eqr.first; thi != eqr.second; ++thi) {
         thi->second->cancel();
@@ -150,19 +116,7 @@ void Proactor::impl::cancel_stream_read(AbstractStreamHandlerPtr user_stream_han
 
 void Proactor::impl::scheduleBlocking(boost::function<void()> fn)
 {
-    if (!active_ || ACE_Thread::self() == ace_pro_thr_) {
-        // If we're actually in ACE Proactor thread.
-        fn();
-        return;
-    }
-
-    // We are in other thread, so we assemble some stuff :).
-    ACE_Manual_Event evt;
-    TimerSignalPtr elapsed = TimerSignal::Create();
-    elapsed->connect(0, boost::bind(fn) );
-    elapsed->connect(1, boost::bind(&ACE_Manual_Event::signal, &evt));
-    scheduleTimer(ACE_Time_Value(0,0), elapsed);
-    evt.wait();
+    fn();
 }
 
 
@@ -171,32 +125,27 @@ Proactor::impl::make_impl_stream_handler(AbstractStreamHandlerPtr user_stream_ha
 {
 	Proactor::impl::StreamHandlerPtr impl_stream_handler = 
 		Proactor::impl::StreamHandler::Create(this, user_stream_handler);
-	{
-		ACE_GUARD_RETURN(ACE_Thread_Mutex, g, streamsMutex_, impl_stream_handler);
-		streams_.insert(std::make_pair(user_stream_handler, impl_stream_handler));
-	}
+	streams_.insert(std::make_pair(user_stream_handler, impl_stream_handler));
 	return impl_stream_handler;
 }
 
-void Proactor::impl::handleEvents(ACE_Time_Value delay)
+void Proactor::impl::handle_events(ACE_Time_Value delay)
 {
     ace_pro_.handle_events(delay);
 }
 
-void Proactor::impl::handleEvents()
+void Proactor::impl::handle_events()
 {
     ace_pro_.handle_events();
 }
 
 void Proactor::impl::registerPending(ACE_HandlerPtr pending)
 {
-    ACE_GUARD(ACE_Thread_Mutex, g, pendingMutex_);
     pending_.insert(pending);
 }
 
 void Proactor::impl::unregisterPending(ACE_HandlerPtr pending)
 {
-    ACE_GUARD(ACE_Thread_Mutex, g, pendingMutex_);
     pending_.erase(pending_.find(pending));
 }
 

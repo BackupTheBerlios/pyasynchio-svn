@@ -159,6 +159,9 @@
 					RelativePath="..\..\..\include\pyasynchio\AbstractStreamHandler.hpp">
 				</File>
 				<File
+					RelativePath="..\..\..\include\pyasynchio\AbstractTimerHandler.hpp">
+				</File>
+				<File
 					RelativePath="..\..\..\include\pyasynchio\AcceptContext.hpp">
 				</File>
 				<File
@@ -259,6 +262,9 @@
 					Filter="">
 					<File
 						RelativePath="..\..\..\include\pyasynchio\detail\config.hpp">
+					</File>
+					<File
+						RelativePath="..\..\..\include\pyasynchio\detail\fix_ace_warnings.hpp">
 					</File>
 				</Filter>
 			</Filter>

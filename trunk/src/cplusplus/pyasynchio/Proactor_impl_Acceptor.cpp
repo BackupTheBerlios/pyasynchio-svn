@@ -4,6 +4,7 @@
  *  \author Vladimir Sukhoy
  */
 
+#include <pyasynchio/detail/fix_ace_warnings.hpp>
 #include <pyasynchio/Proactor_impl_Acceptor.hpp>
 #include <pyasynchio/ResultConversion.hpp>
 #include <boost/lambda/construct.hpp>

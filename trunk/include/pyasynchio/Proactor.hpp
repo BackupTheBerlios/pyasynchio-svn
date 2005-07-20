@@ -16,6 +16,7 @@
 #include <pyasynchio/AbstractAcceptHandler.hpp>
 #include <pyasynchio/AbstractConnectHandler.hpp>
 #include <pyasynchio/AbstractStreamHandler.hpp>
+#include <pyasynchio/AbstractTimerHandler.hpp>
 #include <pyasynchio/Signals.hpp>
 
 class ACE_INET_Addr;
@@ -37,11 +38,8 @@ public:
     static const ACE_INET_Addr ANY_INTERFACE;
 
     /*! Create proactor object.
-     *  @param active If true then behave as active object (owns
-     *  its thread). If false then user should launch event
-     *  loop on its own.
      */
-    Proactor(bool active = true);
+    Proactor();
 
     /*! Destroy proactor object. No virtuality intended.
      */
@@ -111,7 +109,7 @@ public:
      */
     void cancel_stream_write(AbstractStreamHandlerPtr user_stream_handler);
     
-    /*! Close stream context and terminate any operations.
+    /*! Close stream handler associated activity and terminate any operations.
      *  @param ctx Stream context to terminate operations on.
      */
     void close_active_stream(AbstractStreamHandlerPtr user_stream_handler);
@@ -120,21 +118,17 @@ public:
      *  @param delay Relative delay for timer to be signalled.
      *  @param elapsed Timer signal to use.
      */
-    void scheduleTimer(const ACE_Time_Value &delay, TimerSignalPtr elapsed);
+    void schedule_timer(const ACE_Time_Value &delay, AbstractTimerHandlerPtr elapsed_handler);
 
     /*! Cancel scheduled timer before it is being signalled.
      *  @param elapsed Timer signal to cancel.
      */
-    void cancelTimer(TimerSignalPtr elapsed);
+    void cancel_timer(AbstractTimerHandlerPtr elapsed_handler);
 
     /*! Handle events callback for single-threaded (non-active) usage.
      */
-    void handleEvents(const ACE_Time_Value &delay);
-    void handleEvents();
-
-    /*! Shutdown active object (join thread).
-     */
-    void shutdown();
+    void handle_events(const ACE_Time_Value &delay);
+    void handle_events();
 
     class impl;
 private:

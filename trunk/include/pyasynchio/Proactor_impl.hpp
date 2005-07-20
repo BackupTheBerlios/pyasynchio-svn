@@ -36,12 +36,11 @@ struct less_without_shared_ownership_check
 class Proactor::impl : public ACE_Task<ACE_MT_SYNCH>
 {
 public:
-	impl(bool active);
+	impl();
 	~impl();
-	void shutdown();
 
-	void scheduleTimer(ACE_Time_Value time, TimerSignalPtr elapsed);
-	void cancelTimer(TimerSignalPtr elapsed);
+	void schedule_timer(ACE_Time_Value time, AbstractTimerHandlerPtr elapsed);
+	void cancel_timer(AbstractTimerHandlerPtr elapsed);
 
 	void open_stream_accept(AbstractAcceptHandlerPtr user_accept_handler 
 		, const ACE_INET_Addr &addr 
@@ -53,8 +52,8 @@ public:
 	void close_stream_connect(AbstractConnectHandlerPtr user_connect_handler);
 	void close_active_stream(AbstractStreamHandlerPtr user_stream_handler);
 
-	void handleEvents(ACE_Time_Value delay);
-	void handleEvents();
+	void handle_events(ACE_Time_Value delay);
+	void handle_events();
 	
 	void open_stream_write(AbstractStreamHandlerPtr user_stream_handler
 		, const buf &data
@@ -69,8 +68,6 @@ public:
 		, int signal);
 	void cancel_stream_read(AbstractStreamHandlerPtr user_stream_handler);
 	
-	int svc();
-
 	class StreamHandler;
 	typedef boost::shared_ptr<StreamHandler> StreamHandlerPtr;
 	typedef boost::weak_ptr<StreamHandler> StreamHandlerWeakPtr;
@@ -90,39 +87,28 @@ public:
 
 private:
 	void scheduleBlocking(boost::function<void ()>);
-//	std::pair<StreamContextPtr, StreamHandlerPtr> makeStream();
 	Proactor::impl::StreamHandlerPtr make_impl_stream_handler(
 		AbstractStreamHandlerPtr user_stream_handler);
 
 	void registerPending(ACE_HandlerPtr pending);
 	void unregisterPending(ACE_HandlerPtr pending);
 
-	bool active_;
-
 	ACE_Proactor ace_pro_;
-	bool done_;
-	ACE_thread_t ace_pro_thr_;
-	ACE_Manual_Event got_ace_pro_thr_;
 
 	typedef std::multimap<AbstractAcceptHandlerPtr, AcceptorPtr> Acceptors;
 	Acceptors acceptors_;
-	ACE_Thread_Mutex acceptorsMutex_;
 	
 	typedef std::multimap<AbstractConnectHandlerPtr, ConnectorPtr> Connectors;
 	Connectors connectors_;
-	ACE_Thread_Mutex connectorsMutex_;
 
 	typedef safe_map<AbstractStreamHandlerPtr
 		, StreamHandlerPtr
 		, less_without_shared_ownership_check> Streams;
 	Streams streams_;
-	ACE_Thread_Mutex streamsMutex_;
 
-	typedef std::multimap<TimerSignalPtr, TimerHandlerPtr> TimerHandlers;
+	typedef std::multimap<AbstractTimerHandlerPtr, TimerHandlerPtr> TimerHandlers;
 	TimerHandlers ths_; 
-	ACE_Thread_Mutex thsMutex_;
 
-	ACE_Thread_Mutex pendingMutex_;
 	typedef std::multiset<ACE_HandlerPtr> PendingHandlers;
 	PendingHandlers pending_;
 };

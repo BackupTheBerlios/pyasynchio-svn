@@ -5,6 +5,7 @@
  *  \author Vladimir Sukhoy
  */
 
+#include <pyasynchio/detail/fix_ace_warnings.hpp>
 #include <ace/Proactor.h>
 #include <ace/Asynch_Acceptor.h>
 #include <ace/INET_Addr.h>
@@ -19,24 +20,24 @@ const ACE_INET_Addr Proactor::ANY_INTERFACE(static_cast<u_short>(0));
 /* Proactor facade (PIMPL)                                              */
 /************************************************************************/
 
-Proactor::Proactor(bool active)
-: pimpl_(new impl(active))
+Proactor::Proactor()
+: pimpl_(new impl())
 {
 }
 
 Proactor::~Proactor() 
 {
-    pimpl_->shutdown();
 }
 
-void Proactor::scheduleTimer(const ACE_Time_Value &delay, TimerSignalPtr elapsed)
+void Proactor::schedule_timer(const ACE_Time_Value &delay
+							  , AbstractTimerHandlerPtr elapsed)
 {
-    pimpl_->scheduleTimer(delay, elapsed);
+    pimpl_->schedule_timer(delay, elapsed);
 }
 
-void Proactor::cancelTimer(TimerSignalPtr elapsed)
+void Proactor::cancel_timer(AbstractTimerHandlerPtr elapsed)
 {
-    pimpl_->cancelTimer(elapsed);
+    pimpl_->cancel_timer(elapsed);
 }
 
 void Proactor::open_stream_accept(AbstractAcceptHandlerPtr user_accept_handler
@@ -91,19 +92,14 @@ void Proactor::cancel_stream_read(AbstractStreamHandlerPtr user_stream_handler)
     pimpl_->cancel_stream_read(user_stream_handler);
 }
 
-void Proactor::handleEvents(const ACE_Time_Value &delay)
+void Proactor::handle_events(const ACE_Time_Value &delay)
 {
-    pimpl_->handleEvents(delay);
+    pimpl_->handle_events(delay);
 }
 
-void Proactor::handleEvents()
+void Proactor::handle_events()
 {
-    pimpl_->handleEvents();
-}
-
-void Proactor::shutdown()
-{
-    pimpl_->shutdown();
+    pimpl_->handle_events();
 }
 
 void Proactor::close_active_stream(AbstractStreamHandlerPtr user_stream_handler)

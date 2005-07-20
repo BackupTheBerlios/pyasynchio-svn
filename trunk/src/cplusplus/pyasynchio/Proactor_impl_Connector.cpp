@@ -4,6 +4,7 @@
  *  \author Vladimir Sukhoy
  */
 
+#include <pyasynchio/detail/fix_ace_warnings.hpp>
 #include <ace/INET_Addr.h>
 #include <pyasynchio/Proactor_impl_Connector.hpp>
 #include <pyasynchio/ResultConversion.hpp>

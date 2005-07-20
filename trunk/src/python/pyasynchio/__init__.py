@@ -2,7 +2,7 @@ import boost
 import ace
 import std
 from _pyasynchio import Proactor, TimerSignal
-from handlers import AbstractAcceptHandler, AbstractConnectHandler, AbstractStreamHandler
+from handlers import AbstractAcceptHandler, AbstractConnectHandler, AbstractStreamHandler, AbstractTimerHandler
 
 import detail
 

@@ -4,6 +4,7 @@
  *  \author Vladimir Sukhoy
  */
 
+#include <pyasynchio/detail/fix_ace_warnings.hpp>
 #include <ace/INET_Addr.h>
 #include <ace/OS.h>
 #include <boost/lambda/construct.hpp>

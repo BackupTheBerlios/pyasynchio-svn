@@ -6,7 +6,7 @@ from echo import Echo
 class EchoFixture(unittest.TestCase):
     
     def setUp(self):
-        self.pro = pyasynchio.Proactor(False)
+        self.pro = pyasynchio.Proactor()
         self.port = 40274
         self.echo = Echo(self.pro)
         self.done = False
@@ -18,7 +18,7 @@ class EchoFixture(unittest.TestCase):
 
     def thr_func(self):
         while not self.done:
-            self.pro.handleEvents((0,1000))
+            self.pro.handle_events((0,1000))
 
     def tearDown(self):
         self.done = True
@@ -49,9 +49,10 @@ class TestEcho(EchoFixture):
 
         self.assert_(echoed == biggerstuff)
 
-class TestTimerSignal(unittest.TestCase):
+class TestTimerSignal(unittest.TestCase, pyasynchio.AbstractTimerHandler):
     def setUp(self):
-        self.pro = pyasynchio.Proactor(False)
+        pyasynchio.AbstractTimerHandler.__init__(self)
+        self.pro = pyasynchio.Proactor()
         self.done = False
         import threading
         self.log_event = threading.Event()
@@ -63,20 +64,16 @@ class TestTimerSignal(unittest.TestCase):
 
     def thr_func(self):
         while not self.done:
-            self.pro.handleEvents((0,1000))
+            self.pro.handle_events((0,1000))
 
     def test_simple(self):
-        first = pyasynchio.TimerSignal()
-        second = pyasynchio.TimerSignal()
         self.log = []
-        first.connect(self.onTimer)
-        second.connect(self.onTimer)
         import time
         abstime = time.time()
         delay800ms = (0, 800000)
-        self.pro.scheduleTimer(delay800ms, first)
+        self.pro.schedule_timer(delay800ms, self)
         delay500ms = (0, 500000)
-        self.pro.scheduleTimer(delay500ms, second)
+        self.pro.schedule_timer(delay500ms, self)
         self.log_event.wait(1)
         self.log_event.clear()
         self.assert_(len(self.log) >= 1)
@@ -86,7 +83,7 @@ class TestTimerSignal(unittest.TestCase):
         self.assert_(len(self.log) == 2)
         self.assert_(self.log[-1] >= abstime + 0.8)
 
-    def onTimer(self, tv):
+    def notify_elapsed(self, tv):
         import time
         self.log.append(time.time())
         self.log_event.set()
