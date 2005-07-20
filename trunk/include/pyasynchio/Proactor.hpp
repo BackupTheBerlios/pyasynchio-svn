@@ -17,7 +17,6 @@
 #include <pyasynchio/AbstractConnectHandler.hpp>
 #include <pyasynchio/AbstractStreamHandler.hpp>
 #include <pyasynchio/AbstractTimerHandler.hpp>
-#include <pyasynchio/Signals.hpp>
 
 class ACE_INET_Addr;
 class ACE_Time_Value;

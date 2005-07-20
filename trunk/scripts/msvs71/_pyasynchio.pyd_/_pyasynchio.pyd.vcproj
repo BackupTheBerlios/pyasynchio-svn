@@ -120,9 +120,6 @@
 			ReferencedProjectIdentifier="{10E212B5-7387-4CE2-A381-84D874281F10}"
 			Name="boost_python"/>
 		<ProjectReference
-			ReferencedProjectIdentifier="{3CC86C68-AA42-4BFE-984E-6740BF440607}"
-			Name="boost_signals"/>
-		<ProjectReference
 			ReferencedProjectIdentifier="{BC490357-B436-4999-9541-80703AF26BEB}"
 			Name="pyasynchio"/>
 	</References>
@@ -134,16 +131,10 @@
 				RelativePath="..\..\..\src\pyste\pyasynchio\buf.pyste">
 			</File>
 			<File
-				RelativePath="..\..\..\src\pyste\pyasynchio\Contexts.pyste">
-			</File>
-			<File
 				RelativePath="..\..\..\src\pyste\pyasynchio\Proactor.pyste">
 			</File>
 			<File
 				RelativePath="..\..\..\src\pyste\pyasynchio\Results.pyste">
-			</File>
-			<File
-				RelativePath="..\..\..\src\pyste\pyasynchio\Signals.pyste">
 			</File>
 		</Filter>
 		<Filter
@@ -151,9 +142,6 @@
 			Filter="">
 			<File
 				RelativePath=".\pyasynchio-python\_buf.cpp">
-			</File>
-			<File
-				RelativePath=".\pyasynchio-python\_Contexts.cpp">
 			</File>
 			<File
 				RelativePath=".\pyasynchio-python\_Handlers.cpp">
@@ -166,9 +154,6 @@
 			</File>
 			<File
 				RelativePath=".\pyasynchio-python\_Results.cpp">
-			</File>
-			<File
-				RelativePath=".\pyasynchio-python\_Signals.cpp">
 			</File>
 		</Filter>
 		<File

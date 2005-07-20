@@ -116,9 +116,6 @@
 		<ProjectReference
 			ReferencedProjectIdentifier="{10E212B5-7387-4CE2-A381-84D874281F10}"
 			Name="boost_python"/>
-		<ProjectReference
-			ReferencedProjectIdentifier="{3CC86C68-AA42-4BFE-984E-6740BF440607}"
-			Name="boost_signals"/>
 	</References>
 	<Files>
 		<Filter

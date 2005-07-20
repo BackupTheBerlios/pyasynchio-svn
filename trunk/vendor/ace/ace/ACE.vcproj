@@ -46,7 +46,7 @@
 				LinkIncremental="1"
 				SuppressStartupBanner="TRUE"
 				AdditionalLibraryDirectories="..\lib"
-				GenerateDebugInformation="TRUE"
+				GenerateDebugInformation="FALSE"
 				ProgramDatabaseFile="$(OutDir)\ACE.pdb"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -2287,10 +2287,10 @@
 					RelativePath="os_include\os_ctype.h">
 				</File>
 				<File
-					RelativePath="os_include\os_dirent.h">
+					RelativePath="OS_Dirent.h">
 				</File>
 				<File
-					RelativePath="OS_Dirent.h">
+					RelativePath="os_include\os_dirent.h">
 				</File>
 				<File
 					RelativePath="os_include\os_dlfcn.h">
@@ -2491,10 +2491,10 @@
 					RelativePath="OS_Thread_Adapter.h">
 				</File>
 				<File
-					RelativePath="os_include\os_time.h">
+					RelativePath="os_include\sys\os_time.h">
 				</File>
 				<File
-					RelativePath="os_include\sys\os_time.h">
+					RelativePath="os_include\os_time.h">
 				</File>
 				<File
 					RelativePath="os_include\sys\os_timeb.h">

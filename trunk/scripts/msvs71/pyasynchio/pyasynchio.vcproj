@@ -81,7 +81,7 @@
 				Name="VCLinkerTool"
 				OutputFile="$(OutDir)/pyasynchio.dll"
 				LinkIncremental="1"
-				GenerateDebugInformation="TRUE"
+				GenerateDebugInformation="FALSE"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
@@ -113,9 +113,6 @@
 		<ProjectReference
 			ReferencedProjectIdentifier="{790470CD-FECA-1BAD-6757-8A635ED0DE0B}"
 			Name="ACE"/>
-		<ProjectReference
-			ReferencedProjectIdentifier="{3CC86C68-AA42-4BFE-984E-6740BF440607}"
-			Name="boost_signals"/>
 	</References>
 	<Files>
 		<Filter
@@ -162,13 +159,7 @@
 					RelativePath="..\..\..\include\pyasynchio\AbstractTimerHandler.hpp">
 				</File>
 				<File
-					RelativePath="..\..\..\include\pyasynchio\AcceptContext.hpp">
-				</File>
-				<File
 					RelativePath="..\..\..\include\pyasynchio\AcceptResult.hpp">
-				</File>
-				<File
-					RelativePath="..\..\..\include\pyasynchio\AcceptSignals.hpp">
 				</File>
 				<File
 					RelativePath="..\..\..\include\pyasynchio\buf.hpp">
@@ -180,13 +171,7 @@
 					RelativePath="..\..\..\include\pyasynchio\conditional_and_combiner.hpp">
 				</File>
 				<File
-					RelativePath="..\..\..\include\pyasynchio\ConnectContext.hpp">
-				</File>
-				<File
 					RelativePath="..\..\..\include\pyasynchio\ConnectResult.hpp">
-				</File>
-				<File
-					RelativePath="..\..\..\include\pyasynchio\ConnectSignals.hpp">
 				</File>
 				<File
 					RelativePath="..\..\..\include\pyasynchio\primitive.hpp">
@@ -222,34 +207,7 @@
 					RelativePath="..\..\..\include\pyasynchio\scopeguard.hpp">
 				</File>
 				<File
-					RelativePath="..\..\..\include\pyasynchio\signal_wrapper.hpp">
-				</File>
-				<File
-					RelativePath="..\..\..\include\pyasynchio\signal_wrapper0.hpp">
-				</File>
-				<File
-					RelativePath="..\..\..\include\pyasynchio\signal_wrapper1.hpp">
-				</File>
-				<File
-					RelativePath="..\..\..\include\pyasynchio\signal_wrapper2.hpp">
-				</File>
-				<File
-					RelativePath="..\..\..\include\pyasynchio\signal_wrapper3.hpp">
-				</File>
-				<File
-					RelativePath="..\..\..\include\pyasynchio\signal_wrapper4.hpp">
-				</File>
-				<File
-					RelativePath="..\..\..\include\pyasynchio\Signals.hpp">
-				</File>
-				<File
-					RelativePath="..\..\..\include\pyasynchio\StreamContext.hpp">
-				</File>
-				<File
 					RelativePath="..\..\..\include\pyasynchio\StreamResults.hpp">
-				</File>
-				<File
-					RelativePath="..\..\..\include\pyasynchio\StreamSignals.hpp">
 				</File>
 				<File
 					RelativePath="..\..\..\include\pyasynchio\ThreadSafeSignals.hpp">
