@@ -4,8 +4,8 @@ struct ACE_Time_Value_to_python_tuple
 {
     static PyObject* convert(ACE_Time_Value const &tv)
     {
-        return incref(make_tuple(tv.sec(), tv.usec()).ptr());
-            
+        return incref(object(static_cast<double>(tv.sec()) +
+                        static_cast<double>(tv.usec()) / 1000000.0f).ptr());    
     }
 };
 
@@ -21,12 +21,9 @@ struct ACE_Time_Value_from_python_tuple
 
     static void* convertible(PyObject *obj_ptr)
     {
-        if (!PySequence_Check(obj_ptr)) return 0;
-        if (PySequence_Size(obj_ptr) < 2) return 0;
         handle<> obj_handle(borrowed(obj_ptr));
         object obj(obj_handle);
-        if ( !extract<int>(obj[0]).check() ) return 0;
-        if ( !extract<int>(obj[1]).check() ) return 0;
+        if ( !extract<double>(obj).check() ) return 0;
         return obj_ptr;
     }
     
@@ -38,8 +35,11 @@ struct ACE_Time_Value_from_python_tuple
         void* storage = (
             (converter::rvalue_from_python_storage<ACE_Time_Value>*)
             data)->storage.bytes;
-        new (storage) ACE_Time_Value(extract<long>(obj[0])()
-            , extract<long>(obj[1])() );
+        double time = extract<double>(obj);
+        double time_intptr, time_fract;
+        time_fract = modf(time, &time_intptr);
+        new (storage) ACE_Time_Value(static_cast<long>(time_intptr)
+            ,  static_cast<long>(time_fract * 1000000));
         data->convertible = storage;
     }
       

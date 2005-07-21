@@ -18,7 +18,7 @@ class EchoFixture(unittest.TestCase):
 
     def thr_func(self):
         while not self.done:
-            self.pro.handle_events((0,1000))
+            self.pro.handle_events(0.001)
 
     def tearDown(self):
         self.done = True
@@ -64,15 +64,15 @@ class TestTimerSignal(unittest.TestCase, pyasynchio.AbstractTimerHandler):
 
     def thr_func(self):
         while not self.done:
-            self.pro.handle_events((0,1000))
+            self.pro.handle_events(0.001)
 
     def test_simple(self):
         self.log = []
         import time
         abstime = time.time()
-        delay800ms = (0, 800000)
+        delay800ms = 0.8
         self.pro.schedule_timer(delay800ms, self)
-        delay500ms = (0, 500000)
+        delay500ms = 0.5
         self.pro.schedule_timer(delay500ms, self)
         self.log_event.wait(1)
         self.log_event.clear()
