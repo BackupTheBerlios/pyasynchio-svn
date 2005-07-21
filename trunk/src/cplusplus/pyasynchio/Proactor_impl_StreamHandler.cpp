@@ -80,9 +80,10 @@ void Proactor::impl::StreamHandler::write(const buf &data
 
     buf::const_iterator bci, bend(data.end());
     char *p = mb->wr_ptr();
-    for (bci = data.begin(); bci != bend; ++bci) {
-        (*p++) = *bci;
-    }
+	memcpy(p, &data.front(), data.size());
+    //for (bci = data.begin(); bci != bend; ++bci) {
+    //    (*p++) = *bci;
+    //}
     mb->length(data.size());
     
     writer_.write(*mb, data.size(), act, priority, signal);

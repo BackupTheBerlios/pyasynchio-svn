@@ -6,9 +6,9 @@ struct space_buf_to_python_str
 {
     static PyObject* convert(pyasynchio::buf const& b)
     {
-        std::vector<char> bv(b.size());
-        std::copy(b.begin(), b.end(), bv.begin());
-        return incref(str(&bv.front(), b.size()).ptr());
+//        std::vector<char> bv(b.size());
+//        std::copy(b.begin(), b.end(), bv.begin());
+        return incref(str(&b.front(), b.size()).ptr());
     }
 };
 

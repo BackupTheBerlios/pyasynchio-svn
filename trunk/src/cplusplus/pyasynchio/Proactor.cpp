@@ -102,6 +102,13 @@ void Proactor::handle_events()
     pimpl_->handle_events();
 }
 
+void Proactor::handle_events_forever()
+{
+	while(true) {
+		pimpl_->handle_events();
+	}
+}
+
 void Proactor::close_active_stream(AbstractStreamHandlerPtr user_stream_handler)
 {
     pimpl_->close_active_stream(user_stream_handler);

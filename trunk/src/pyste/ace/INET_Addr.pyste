@@ -6,7 +6,7 @@ struct ACE_INET_Addr_to_python_tuple
 {
     static PyObject* convert(ACE_INET_Addr const &addr)
     {
-        return incref(make_tuple(addr.get_host_name()
+        return incref(make_tuple(addr.get_host_addr()
             , addr.get_port_number()).ptr());
             
     }

@@ -17,11 +17,11 @@
 namespace pyasynchio {
 
 //! general-purpose buffer.
-class buf : public std::deque<char>
+class buf : public std::vector<char>
 {
 public:
     //! Parent typedef
-    typedef std::deque<char> Super;
+    typedef std::vector<char> Super;
     //! Default constructor
     buf() {}
     //! Constructor borrowed from deque.

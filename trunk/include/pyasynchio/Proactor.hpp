@@ -129,6 +129,8 @@ public:
     void handle_events(const ACE_Time_Value &delay);
     void handle_events();
 
+	void handle_events_forever();
+
     class impl;
 private:
     boost::shared_ptr<impl> pimpl_;
