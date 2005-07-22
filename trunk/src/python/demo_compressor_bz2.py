@@ -79,25 +79,30 @@ def main(argv):
         port = int(argv[2])
         acceptor.bind(('', port))
         acceptor.listen(5)
+        import thread
         while True:
             sock = acceptor.accept()[0]
-            chunk_size = 4096
-            data = sock.recv(chunk_size)
-            data_size = int(data[:data.find('x')])
-            data = data[data.find('x') + 1:]
-            processed = 0
-            compressor = BZ2Compressor()
-            while processed != data_size:
-                processed += len(data)
-                data_c = compressor.compress(data)
-                if processed == data_size:
-                    break
-                if data_c != '':
-                    sock.sendall(data_c)
+
+            def thr_func(sock):
+                chunk_size = 4096
                 data = sock.recv(chunk_size)
-            data_c = compressor.flush()
-            sock.sendall(data_c)
-            sock.close()
+                data_size = int(data[:data.find('x')])
+                data = data[data.find('x') + 1:]
+                processed = 0
+                compressor = BZ2Compressor()
+                while processed != data_size:
+                    processed += len(data)
+                    data_c = compressor.compress(data)
+                    if processed == data_size:
+                        break
+                    if data_c != '':
+                        sock.sendall(data_c)
+                    data = sock.recv(chunk_size)
+                data_c = compressor.flush()
+                sock.sendall(data_c)
+                sock.close()
+
+            thread.start_new_thread(thr_func, (sock,))
                 
 
     if argv[1] == 'client':
@@ -113,7 +118,7 @@ def main(argv):
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             sock.connect((server_address, server_port))
-            data = choice(['a;dlfj', '371047', '238194', 'sghbalfd', '*()17e'])
+            data = choice(['a;dlfj'])#, '371047', '238194', 'sghbalfd', '*()17e'])
             data *= randrange(10000, 20000)
             sock.sendall(str(len(data)) + 'x')
             sock.sendall(data)
