@@ -1,0 +1,13 @@
+// -*- MPC -*-
+// acelib.mpb,v 1.6 2004/09/24 14:40:13 shuston Exp
+
+project: acedefaults, aceversion {
+  after    += ACE
+  libs     += ACE
+  libout    = $(ACE_ROOT)/lib 
+
+  specific(automake) {
+    libout -= $(ACE_ROOT)/lib
+    libout += $(top_builddir)/lib
+  }
+}

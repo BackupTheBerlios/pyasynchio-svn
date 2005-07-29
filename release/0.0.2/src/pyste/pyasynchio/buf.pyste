@@ -1,0 +1,57 @@
+PCHInclude("pyste/common_includes.hpp")
+Include("pyasynchio/buf.hpp")
+Include("vector")
+declaration_code("""
+struct space_buf_to_python_str
+{
+    static PyObject* convert(pyasynchio::buf const& b)
+    {
+//        std::vector<char> bv(b.size());
+//        std::copy(b.begin(), b.end(), bv.begin());
+        return incref(str(&b.front(), b.size()).ptr());
+    }
+};
+
+
+struct space_buf_from_python_str
+{
+    space_buf_from_python_str()
+    {
+        converter::registry::push_back(
+            &convertible,
+            &construct,
+            type_id<pyasynchio::buf>());
+    }
+
+    static void* convertible(PyObject* obj_ptr)
+    {
+        if (!PyString_Check(obj_ptr)) return 0;
+        return obj_ptr;
+    }
+
+    static void construct(
+        PyObject* obj_ptr,
+        boost::python::converter::rvalue_from_python_stage1_data* data)
+    {
+        char* value;
+        int length;
+        PyString_AsStringAndSize(obj_ptr, &value, &length);
+        if (value == 0) throw_error_already_set();
+        void* storage = (
+            (converter::rvalue_from_python_storage<pyasynchio::buf>*)
+            data)->storage.bytes;
+        new (storage) pyasynchio::buf(value, length);
+        data->convertible = storage;
+    }
+};
+
+""")
+
+module_code("""
+       boost::python::to_python_converter<
+           pyasynchio::buf,
+           space_buf_to_python_str>();
+
+       space_buf_from_python_str();
+       
+""")

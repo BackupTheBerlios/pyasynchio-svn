@@ -1,0 +1,7 @@
+// -*- MPC -*-
+// messaging.mpb,v 1.8 2004/11/03 14:27:31 jtc Exp
+
+project : valuetype, portableserver, corba_messaging {
+  after    += Messaging
+  libs     += TAO_Messaging
+}

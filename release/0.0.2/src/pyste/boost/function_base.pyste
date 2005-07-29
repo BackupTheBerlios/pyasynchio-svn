@@ -1,0 +1,7 @@
+PCHInclude("pyste/common_includes.hpp")
+
+boost_function_base = Class("boost::function_base", "boost/function.hpp")
+exclude(boost_function_base.operator['=='])
+exclude(boost_function_base.operator['!='])
+exclude(boost_function_base.manager)
+exclude(boost_function_base.functor)

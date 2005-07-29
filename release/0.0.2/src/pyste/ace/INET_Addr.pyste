@@ -1,0 +1,61 @@
+PCHInclude("pyste/common_includes.hpp")
+Include("ACE/INET_Addr.h")
+Include("boost/numeric/conversion/cast.hpp")
+declaration_code("""
+struct ACE_INET_Addr_to_python_tuple
+{
+    static PyObject* convert(ACE_INET_Addr const &addr)
+    {
+        return incref(make_tuple(addr.get_host_addr()
+            , addr.get_port_number()).ptr());
+            
+    }
+};
+
+struct ACE_INET_Addr_from_python_tuple
+{
+    ACE_INET_Addr_from_python_tuple()
+    {
+        converter::registry::push_back(
+            &convertible,
+            &construct,
+            type_id<ACE_INET_Addr>());
+    }
+
+    static void* convertible(PyObject *obj_ptr)
+    {
+        if (!PySequence_Check(obj_ptr)) return 0;
+        if (PySequence_Size(obj_ptr) < 2) return 0;
+        handle<> obj_handle(borrowed(obj_ptr));
+        object obj(obj_handle);
+
+        if( !extract<std::string>(obj[0]).check() ) return 0;
+        if( !extract<int>(obj[1]).check() ) return 0;
+        return obj_ptr;
+    }
+    
+    static void construct(PyObject *obj_ptr
+        , boost::python::converter::rvalue_from_python_stage1_data* data)
+    {
+        handle<> obj_handle(borrowed(obj_ptr));
+        object obj(obj_handle);
+        void* storage = (
+            (converter::rvalue_from_python_storage<ACE_INET_Addr>*)
+            data)->storage.bytes;
+        new (storage) ACE_INET_Addr(
+            boost::numeric_cast<u_short>(extract<long>(obj[1])())
+            , extract<std::string>(obj[0])().c_str());
+        data->convertible = storage;
+    }
+      
+};
+""")
+
+module_code("""
+       boost::python::to_python_converter<
+            ACE_INET_Addr,
+            ACE_INET_Addr_to_python_tuple>();
+            
+       ACE_INET_Addr_from_python_tuple();
+       
+""")

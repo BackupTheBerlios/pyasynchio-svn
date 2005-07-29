@@ -1,0 +1,7 @@
+// -*- MPC -*-
+// taolib.mpb,v 1.7 2004/08/13 04:13:28 jtc Exp
+
+project : acelib, taoversion, tao_output, taodefaults, pidl {
+  after += TAO
+  libs  += TAO
+}

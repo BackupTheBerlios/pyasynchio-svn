@@ -1,0 +1,1 @@
+Class("boost::noncopyable", "boost/utility.hpp")

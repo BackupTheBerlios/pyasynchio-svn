@@ -1,0 +1,8 @@
+// -*- MPC -*-
+// core.mpb,v 1.5 2004/09/02 12:25:32 elliott_c Exp
+
+project {
+  specific {
+    INSTALL_THIS_TARGET = 1
+  }
+}

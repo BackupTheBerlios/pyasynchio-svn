@@ -1,0 +1,3 @@
+PCHInclude("pyste/common_includes.hpp")
+Class("boost::signals::connection", "boost/signal.hpp")
+Enum("boost::signals::connect_position", "boost/signal.hpp")

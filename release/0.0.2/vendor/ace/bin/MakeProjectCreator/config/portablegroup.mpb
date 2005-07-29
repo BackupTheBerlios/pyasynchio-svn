@@ -1,0 +1,8 @@
+// -*- MPC -*-
+// portablegroup.mpb,v 1.8 2004/08/27 18:49:47 jtc Exp
+
+project : naming, messaging, minimum_corba, iormanip {
+  libs      += TAO_PortableGroup
+  after     += PortableGroup
+  tagchecks += PortableGroup
+}

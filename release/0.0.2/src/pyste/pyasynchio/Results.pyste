@@ -1,0 +1,24 @@
+PCHInclude("pyste/common_includes.hpp")
+r = Class("pyasynchio::Result", "pyasynchio/Result.hpp")
+exclude(r.FromFunctor)
+
+Class("pyasynchio::AcceptResult", "pyasynchio/AcceptResult.hpp")
+Class("pyasynchio::ConnectResult", "pyasynchio/ConnectResult.hpp")
+ReadStreamResult = Class("pyasynchio::ReadStreamResult", "pyasynchio/StreamResults.hpp")
+exclude(ReadStreamResult.data_)
+class_code(ReadStreamResult, 
+""".add_property("data_"
+        , make_getter(&pyasynchio::ReadStreamResult::data_
+            , return_value_policy<return_by_value>())
+        , make_setter(&pyasynchio::ReadStreamResult::data_
+            , return_value_policy<return_by_value>()))
+""")
+WriteStreamResult = Class("pyasynchio::WriteStreamResult", "pyasynchio/StreamResults.hpp")
+exclude(WriteStreamResult.data_)
+class_code(WriteStreamResult, 
+""".add_property("data_"
+        , make_getter(&pyasynchio::WriteStreamResult::data_
+            , return_value_policy<return_by_value>())
+        , make_setter(&pyasynchio::WriteStreamResult::data_
+            , return_value_policy<return_by_value>()))
+""")

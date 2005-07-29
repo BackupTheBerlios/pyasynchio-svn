@@ -1,0 +1,8 @@
+PCHInclude("pyste/common_includes.hpp")
+Import("../boost/noncopyable.pyste")
+
+Include("ace/Time_Value.h")
+Include("ace/Inet_Addr.h")
+
+Proactor = Class("pyasynchio::Proactor", "pyasynchio/Proactor.hpp")
+exclude(Proactor.impl)

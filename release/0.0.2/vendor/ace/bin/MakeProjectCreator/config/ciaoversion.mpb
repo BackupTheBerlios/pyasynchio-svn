@@ -1,0 +1,6 @@
+// -*- MPC -*-
+// ciaoversion.mpb,v 1.14 2004/07/31 16:15:18 bala Exp
+
+project {
+  version = 0.4.3
+}
