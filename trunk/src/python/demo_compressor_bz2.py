@@ -3,22 +3,16 @@ import socket
 
 def main(argv):
     if argv[1] == 'asynch_server':
-        from pyasynchio import AbstractAcceptHandler, AbstractStreamHandler, Proactor    
-
-        class asynch_bz2_server(AbstractAcceptHandler):
+        class asynch_bz2_server:
             chunk_size = 17520
             
-            class bz2_stream(AbstractStreamHandler):
+            class bz2_stream:
                 def __init__(self, pro):
-                    AbstractStreamHandler.__init__(self)
                     self.__pro = pro
                     self.__compressor = BZ2Compressor()
                     self.__dying = False
                     self.__size = 0
                     self.__processed = 0
-
-                def notify_endpoints(self, remote, local): 
-                    pass
 
                 def notify_initialized(self):
                     self.__pro.open_stream_read(self, asynch_bz2_server.chunk_size)
@@ -44,28 +38,20 @@ def main(argv):
                     self.__pro.open_stream_read(self, 
                         min(asynch_bz2_server.chunk_size, self.__size - self.__processed))
                     
-                    
-
                 def write_completed(self, write_result):
                     if self.__dying:
                         self.__pro.close_active_stream(self)
 
             def __init__(self, pro):
-                AbstractAcceptHandler.__init__(self)
                 self.__pro = pro
 
             def close(self):
                 self.pro.close_stream_accept(self)
 
-            def conn_validate(self, result, remote, local):
-                return True
-
-            def conn_completed(self, result):
-                pass
-
             def make_stream_handler(self):
                 return self.bz2_stream(self.__pro)
 
+        from pyasynchio import Proactor
         pro = Proactor()
         port = int(argv[2])
         bz2_srv = asynch_bz2_server(pro)
