@@ -6,3 +6,4 @@ Include("ace/Inet_Addr.h")
 
 Proactor = Class("pyasynchio::Proactor", "pyasynchio/Proactor.hpp")
 exclude(Proactor.impl)
+PythonicProactor = Class("pyasynchio::PythonicProactor", "pyasynchio/PythonicProactor.hpp")

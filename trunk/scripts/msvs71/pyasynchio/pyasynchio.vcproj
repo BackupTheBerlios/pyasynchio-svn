@@ -140,6 +140,9 @@
 					RelativePath="..\..\..\src\cplusplus\pyasynchio\Proactor_impl_TimerHandler.cpp">
 				</File>
 				<File
+					RelativePath="..\..\..\src\cplusplus\pyasynchio\PythonicProactor.cpp">
+				</File>
+				<File
 					RelativePath="..\..\..\src\cplusplus\pyasynchio\ResultConversion.cpp">
 				</File>
 			</Filter>
@@ -193,6 +196,9 @@
 				</File>
 				<File
 					RelativePath="..\..\..\include\pyasynchio\Proactor_impl_TimerHandler.hpp">
+				</File>
+				<File
+					RelativePath="..\..\..\include\pyasynchio\PythonicProactor.hpp">
 				</File>
 				<File
 					RelativePath="..\..\..\include\pyasynchio\Result.hpp">

@@ -1,11 +1,12 @@
 import pyasynchio
 import pyasynchio.echo
+import sys
 
 pro = pyasynchio.Proactor()
-port = 40274
+port = int(sys.argv[1])
 #ac = pyasynchio.AcceptContext()
 echo = pyasynchio.echo.Echo(pro)
 pro.open_stream_accept(echo, ('', port))
 
 while True:
-    pro.handle_events(0.1)
+    pro.handle_events_forever()
