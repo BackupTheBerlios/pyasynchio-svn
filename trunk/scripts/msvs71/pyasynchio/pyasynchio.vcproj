@@ -32,6 +32,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="Mswsock.lib Ws2_32.lib"
 				OutputFile="$(OutDir)/pyasynchio.dll"
 				LinkIncremental="2"
 				GenerateDebugInformation="TRUE"
@@ -79,6 +80,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="Mswsock.lib Ws2_32.lib"
 				OutputFile="$(OutDir)/pyasynchio.dll"
 				LinkIncremental="1"
 				GenerateDebugInformation="FALSE"
