@@ -35,6 +35,7 @@
 				AdditionalDependencies="Mswsock.lib Ws2_32.lib"
 				OutputFile="$(OutDir)/pyasynchio.dll"
 				LinkIncremental="2"
+				IgnoreDefaultLibraryNames="python24_d.lib"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/pyasynchio.pdb"
 				SubSystem="2"
@@ -123,12 +124,18 @@
 				<File
 					RelativePath="..\..\..\src\cplusplus\pyasynchio\py_apoll.cpp">
 				</File>
+				<File
+					RelativePath="..\..\..\src\cplusplus\pyasynchio\socketmodule_stuff.cpp">
+				</File>
 			</Filter>
 			<Filter
 				Name="header"
 				Filter="">
 				<File
 					RelativePath="..\..\..\include\pyasynchio\py_apoll.hpp">
+				</File>
+				<File
+					RelativePath="..\..\..\include\pyasynchio\socketmodule_stuff.hpp">
 				</File>
 				<Filter
 					Name="detail"

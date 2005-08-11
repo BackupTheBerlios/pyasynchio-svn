@@ -114,9 +114,6 @@
 		</Configuration>
 	</Configurations>
 	<References>
-		<ProjectReference
-			ReferencedProjectIdentifier="{10E212B5-7387-4CE2-A381-84D874281F10}"
-			Name="boost_python"/>
 	</References>
 	<Files>
 		<Filter

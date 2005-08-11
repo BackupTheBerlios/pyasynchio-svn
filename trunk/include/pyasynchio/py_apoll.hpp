@@ -4,6 +4,10 @@
 #pragma once
 
 #include <pyasynchio/detail/config.hpp>
+#pragma push_macro("_DEBUG")
+#undef _DEBUG
+#include <pyconfig.h>
+#pragma pop_macro("_DEBUG")
 #include <python.h>
 #include "socketmodule.h"
 #include "fileobject.h"
@@ -25,24 +29,65 @@ class PYASYNCHIO_LINK_DECL Py_apoll : public PyObject
 {
 public:
 	static const unsigned int addr_size = sizeof(sockaddr_in) + sizeof(sockaddr);
-	struct APOLL_OVERLAPPED : OVERLAPPED
+	class OVL_ROOT : public OVERLAPPED
 	{
-		APOLL_OVERLAPPED() 
+	protected:
+		::PyObject *acto_;
+
+	public:
+		OVL_ROOT(::PyObject *acto) 
 		{
-			Internal = InternalHigh = Offset = OffsetHigh = 0;
+			Internal = InternalHigh = 0;
+			Offset = OffsetHigh = 0;
 			hEvent = 0;
+			Py_XINCREF(acto);
+			acto_ = acto;
 		}
-		virtual ~APOLL_OVERLAPPED() {}
+		virtual ~OVL_ROOT() 
+		{
+			Py_XDECREF(acto_);
+		}
+
+		virtual ::PyObject* dump(BOOL success, DWORD bytes_transferred) = 0;
+
+	};
+
+	class OVL_ACCEPT : public OVL_ROOT
+	{
+	public:
+		OVL_ACCEPT(::PyObject *acto
+			, ::PySocketSockObject *lso
+			, ::PySocketSockObject *aso)
+			: OVL_ROOT(acto) 
+		{
+			Py_XINCREF(lso);
+			lso_ = lso;
+			Py_XINCREF(aso);
+			aso_ = aso;
+		}
+
+		virtual ~OVL_ACCEPT() 
+		{
+			Py_XDECREF(lso_);
+			Py_XDECREF(aso_);
+		}
+
+		virtual ::PyObject* dump(BOOL success, DWORD bytes_transferred);
 
 		static const unsigned int addr_buf_size = 2 * addr_size;
 
-		unsigned char addr_buf[addr_buf_size];
+	
+		unsigned char addr_buf_[addr_buf_size];
+
+	private:
+		::PySocketSockObject *lso_;
+		::PySocketSockObject *aso_;
 	};
 
     Py_apoll();
     ~Py_apoll();
 
-    void accept(::PySocketSockObject *listen_socket
+    bool accept(::PySocketSockObject *listen_socket
 		, ::PySocketSockObject *accept_socket
 		, ::PyObject *act);
     void connect(::PySocketSockObject *so, ::PyObject *addro, ::PyObject *acto);
@@ -59,6 +104,7 @@ public:
 
 	static int init_func(PyObject *self, PyObject *args, PyObject *kwds);
 	static PyObject* accept_meth(Py_apoll *self, ::PyObject *args);
+	static PyObject* poll_meth(Py_apoll *self, ::PyObject *args);
 
 private:
     HANDLE iocp_handle_;

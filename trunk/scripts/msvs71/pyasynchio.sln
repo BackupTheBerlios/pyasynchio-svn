@@ -1,29 +1,5 @@
 Microsoft Visual Studio Solution File, Format Version 8.00
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "boost_python", "boost_python\boost_python.vcproj", "{10E212B5-7387-4CE2-A381-84D874281F10}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "_boost.pyd", "_boost.pyd_\_boost.pyd.vcproj", "{14A861F1-1332-4CA1-9B34-2216FD73E203}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ACE", "..\..\vendor\ace\ace\ACE.vcproj", "{790470CD-FECA-1BAD-6757-8A635ED0DE0B}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "_ace.pyd", "_ace.pyd_\_ace.pyd.vcproj", "{667FB0BD-B1D4-494B-BE6F-C49D2E0A29BD}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pyasynchio", "pyasynchio\pyasynchio.vcproj", "{BC490357-B436-4999-9541-80703AF26BEB}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "_std.pyd", "_std.pyd_\_std.pyd.vcproj", "{0497D858-EA52-40BA-9496-B70D8CC7D450}"
-	ProjectSection(ProjectDependencies) = postProject
-	EndProjectSection
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "_pyasynchio.pyd", "_pyasynchio.pyd_\_pyasynchio.pyd.vcproj", "{1293B766-F2CA-43B6-BB46-EF6A311B8988}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
@@ -33,34 +9,10 @@ Global
 		Release = Release
 	EndGlobalSection
 	GlobalSection(ProjectConfiguration) = postSolution
-		{10E212B5-7387-4CE2-A381-84D874281F10}.Debug.ActiveCfg = Debug|Win32
-		{10E212B5-7387-4CE2-A381-84D874281F10}.Debug.Build.0 = Debug|Win32
-		{10E212B5-7387-4CE2-A381-84D874281F10}.Release.ActiveCfg = Release|Win32
-		{10E212B5-7387-4CE2-A381-84D874281F10}.Release.Build.0 = Release|Win32
-		{14A861F1-1332-4CA1-9B34-2216FD73E203}.Debug.ActiveCfg = Debug|Win32
-		{14A861F1-1332-4CA1-9B34-2216FD73E203}.Debug.Build.0 = Debug|Win32
-		{14A861F1-1332-4CA1-9B34-2216FD73E203}.Release.ActiveCfg = Release|Win32
-		{14A861F1-1332-4CA1-9B34-2216FD73E203}.Release.Build.0 = Release|Win32
-		{790470CD-FECA-1BAD-6757-8A635ED0DE0B}.Debug.ActiveCfg = Debug|Win32
-		{790470CD-FECA-1BAD-6757-8A635ED0DE0B}.Debug.Build.0 = Debug|Win32
-		{790470CD-FECA-1BAD-6757-8A635ED0DE0B}.Release.ActiveCfg = Release|Win32
-		{790470CD-FECA-1BAD-6757-8A635ED0DE0B}.Release.Build.0 = Release|Win32
-		{667FB0BD-B1D4-494B-BE6F-C49D2E0A29BD}.Debug.ActiveCfg = Debug|Win32
-		{667FB0BD-B1D4-494B-BE6F-C49D2E0A29BD}.Debug.Build.0 = Debug|Win32
-		{667FB0BD-B1D4-494B-BE6F-C49D2E0A29BD}.Release.ActiveCfg = Release|Win32
-		{667FB0BD-B1D4-494B-BE6F-C49D2E0A29BD}.Release.Build.0 = Release|Win32
 		{BC490357-B436-4999-9541-80703AF26BEB}.Debug.ActiveCfg = Debug|Win32
 		{BC490357-B436-4999-9541-80703AF26BEB}.Debug.Build.0 = Debug|Win32
 		{BC490357-B436-4999-9541-80703AF26BEB}.Release.ActiveCfg = Release|Win32
 		{BC490357-B436-4999-9541-80703AF26BEB}.Release.Build.0 = Release|Win32
-		{0497D858-EA52-40BA-9496-B70D8CC7D450}.Debug.ActiveCfg = Debug|Win32
-		{0497D858-EA52-40BA-9496-B70D8CC7D450}.Debug.Build.0 = Debug|Win32
-		{0497D858-EA52-40BA-9496-B70D8CC7D450}.Release.ActiveCfg = Release|Win32
-		{0497D858-EA52-40BA-9496-B70D8CC7D450}.Release.Build.0 = Release|Win32
-		{1293B766-F2CA-43B6-BB46-EF6A311B8988}.Debug.ActiveCfg = Debug|Win32
-		{1293B766-F2CA-43B6-BB46-EF6A311B8988}.Debug.Build.0 = Debug|Win32
-		{1293B766-F2CA-43B6-BB46-EF6A311B8988}.Release.ActiveCfg = Release|Win32
-		{1293B766-F2CA-43B6-BB46-EF6A311B8988}.Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
