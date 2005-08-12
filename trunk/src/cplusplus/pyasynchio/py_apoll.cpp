@@ -23,12 +23,9 @@ Py_apoll::~Py_apoll()
 	::CloseHandle(iocp_handle_);
 }
 
-bool Py_apoll::accept(::PySocketSockObject *listen_sock
-					  , ::PySocketSockObject *accept_sock
-					  , ::PyObject *acto)
+bool Py_apoll::preamble(HANDLE h)
 {
-	HANDLE iocp_ret = ::CreateIoCompletionPort(
-		reinterpret_cast<HANDLE>(listen_sock->sock_fd)
+	HANDLE iocp_ret = ::CreateIoCompletionPort(	h
 		, iocp_handle_
 		, NULL
 		, 0);
@@ -41,7 +38,16 @@ bool Py_apoll::accept(::PySocketSockObject *listen_sock
 			return false;
 		}
 	}
+	return true;
+}
 
+bool Py_apoll::accept(::PySocketSockObject *listen_sock
+					  , ::PySocketSockObject *accept_sock
+					  , ::PyObject *acto)
+{
+	if (!preamble(reinterpret_cast<HANDLE>(listen_sock->sock_fd))) {
+		return false;
+	}
 	DWORD num_bytes_rcvd = 0;
 	OVL_ACCEPT *ova = new OVL_ACCEPT(acto				// acto
 		, listen_sock									// lso
@@ -67,6 +73,59 @@ bool Py_apoll::accept(::PySocketSockObject *listen_sock
 		}
 		else {
 			::PyErr_SetString(PySocketModule.error, "::AcceptEx failed");
+			return false;
+		}
+	}
+	return false;
+}
+
+bool Py_apoll::connect(::PySocketSockObject *so, ::PyObject *addro, ::PyObject *acto)
+{
+	if (!preamble(reinterpret_cast<HANDLE>(so->sock_fd))) {
+		return false;
+	}
+	sockaddr * addr = 0;
+	int addr_len = 0;
+	if (!getsockaddrarg(so, addro, &addr, &addr_len)) {
+		return false;
+	}
+	OVL_CONNECT * ovc = new OVL_CONNECT(acto, so);
+	GUID GuidConnectEx = WSAID_CONNECTEX;
+	::LPFN_CONNECTEX ConnectEx;
+	DWORD dwBytes;
+	if (WSAIoctl(so->sock_fd, 
+		SIO_GET_EXTENSION_FUNCTION_POINTER, 
+		&GuidConnectEx, 
+		sizeof(GuidConnectEx),
+		&ConnectEx, 
+		sizeof(ConnectEx), 
+		&dwBytes, 
+		NULL, 
+		NULL) == SOCKET_ERROR) 
+	{
+		PyErr_SetString(PyExc_RuntimeError, "ConnectEx not found with WSAIoctl");
+		return false;
+	}
+	DWORD bytes_sent = 0;
+	BOOL r = ConnectEx(so->sock_fd			// s
+		, addr									// name
+		, addr_len								// namelen
+		, 0										// lpSendBuffer
+		, 0										// dwSendDataLength
+		, &bytes_sent							// lpdwBytesSent
+		, ovc									// lpOverlapped
+		);
+	if (TRUE == r) {
+		// notification still will be posted
+		return true;
+	}
+	else {
+		int wsa_error = WSAGetLastError();
+		if (wsa_error == ERROR_IO_PENDING) {
+			return true;
+		}
+		else {
+			::PyErr_SetString(PySocketModule.error, "::ConnectEx failed");
 			return false;
 		}
 	}
@@ -110,6 +169,7 @@ bool Py_apoll::accept(::PySocketSockObject *listen_sock
 		}
 
 		PyList_Append(result, ovr->dump(success, bytes_transferred));
+		delete ovr;
 	}
 
 	return result;
@@ -170,11 +230,22 @@ static PyTypeObject apoll_Type = {
 		, aso_->sock_proto								// proto
 		);
 
-	return Py_BuildValue("{sssisOsOsO}"
+	return Py_BuildValue("{sssisOsOsOsOsO}"
 		, "type", "accept"
 		, "success", static_cast<int>(success)
 		, "local_addr", local_addro
 		, "remote_addr", remote_addro
+		, "listen_socket", lso_
+		, "accept_socket", aso_
+		, "act", acto_);
+}
+
+::PyObject * Py_apoll::OVL_CONNECT::dump(BOOL success, DWORD bytes_transferred)
+{
+	return Py_BuildValue("{sssisOsO}"
+		, "type", "connect"
+		, "success", static_cast<int>(success)
+		, "socket", so_
 		, "act", acto_);
 }
 
@@ -215,6 +286,27 @@ PyObject* Py_apoll::accept_meth(Py_apoll *self, ::PyObject *args)
 	return Py_None;
 }
 
+PyObject* Py_apoll::connect_meth(Py_apoll *self, ::PyObject *args)
+{
+	PyObject *so_raw, *addro, *acto;
+	if (!PyArg_ParseTuple(args, "OOO:connect", &so_raw, &addro, &acto)) {
+		return NULL;
+	}
+
+	PySocketSockObject *so = py_convert<PySocketSockObject>(so_raw
+		, PySocketModule.Sock_Type);
+	if (NULL == so) {
+		return NULL;
+	}
+
+	if (!self->connect(so, addro, acto)) {
+		return NULL;
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 PyObject* Py_apoll::poll_meth(Py_apoll *self, ::PyObject *args)
 {
 	unsigned long ms;
@@ -234,6 +326,11 @@ static PyMethodDef apoll_methods[] = {
 		, reinterpret_cast<PyCFunction>(&Py_apoll::accept_meth)
 		, METH_VARARGS
 		, "start asynchronous accept operation"
+	}
+	, { "connect"
+		, reinterpret_cast<PyCFunction>(&Py_apoll::connect_meth)
+		, METH_VARARGS
+		, "start asynchronou connect operation"
 	}
 	, { "poll"
 		, reinterpret_cast<PyCFunction>(&Py_apoll::poll_meth)

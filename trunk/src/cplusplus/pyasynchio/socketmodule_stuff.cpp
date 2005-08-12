@@ -2,6 +2,15 @@
 
 namespace pyasynchio {
 
+#ifdef USE_GETADDRINFO_LOCK
+#define ACQUIRE_GETADDRINFO_LOCK PyThread_acquire_lock(netdb_lock, 1);
+#define RELEASE_GETADDRINFO_LOCK PyThread_release_lock(netdb_lock);
+#else
+#define ACQUIRE_GETADDRINFO_LOCK
+#define RELEASE_GETADDRINFO_LOCK
+#endif
+
+
 static PyObject *
 	set_gaierror(int error)
 {
@@ -183,6 +192,351 @@ PyObject * makesockaddr(int sockfd, struct sockaddr *addr, int addrlen, int prot
 
 	}
 }
+
+/* Convert a string specifying a host name or one of a few symbolic
+names to a numeric IP address.  This usually calls gethostbyname()
+to do the work; the names "" and "<broadcast>" are special.
+Return the length (IPv4 should be 4 bytes), or negative if
+an error occurred; then an exception is raised. */
+
+static int
+setipaddr(char *name, struct sockaddr *addr_ret, size_t addr_ret_size, int af)
+{
+	struct addrinfo hints, *res;
+	int error;
+	int d1, d2, d3, d4;
+	char ch;
+
+	memset((void *) addr_ret, '\0', sizeof(*addr_ret));
+	if (name[0] == '\0') {
+		int siz;
+		memset(&hints, 0, sizeof(hints));
+		hints.ai_family = af;
+		hints.ai_socktype = SOCK_DGRAM; /*dummy*/
+		hints.ai_flags = AI_PASSIVE;
+		Py_BEGIN_ALLOW_THREADS
+			ACQUIRE_GETADDRINFO_LOCK
+			error = getaddrinfo(NULL, "0", &hints, &res);
+		Py_END_ALLOW_THREADS
+			/* We assume that those thread-unsafe getaddrinfo() versions
+			*are* safe regarding their return value, ie. that a
+			subsequent call to getaddrinfo() does not destroy the
+			outcome of the first call. */
+			RELEASE_GETADDRINFO_LOCK
+			if (error) {
+				set_gaierror(error);
+				return -1;
+			}
+			switch (res->ai_family) {
+		case AF_INET:
+			siz = 4;
+			break;
+#ifdef ENABLE_IPV6
+		case AF_INET6:
+			siz = 16;
+			break;
+#endif
+		default:
+			freeaddrinfo(res);
+			PyErr_SetString(PySocketModule.error,
+				"unsupported address family");
+			return -1;
+			}
+			if (res->ai_next) {
+				freeaddrinfo(res);
+				PyErr_SetString(PySocketModule.error,
+					"wildcard resolved to multiple address");
+				return -1;
+			}
+			if (res->ai_addrlen < addr_ret_size)
+				addr_ret_size = res->ai_addrlen;
+			memcpy(addr_ret, res->ai_addr, addr_ret_size);
+			freeaddrinfo(res);
+			return siz;
+	}
+	if (name[0] == '<' && strcmp(name, "<broadcast>") == 0) {
+		struct sockaddr_in *sin;
+		if (af != AF_INET && af != AF_UNSPEC) {
+			PyErr_SetString(PySocketModule.error,
+				"address family mismatched");
+			return -1;
+		}
+		sin = (struct sockaddr_in *)addr_ret;
+		memset((void *) sin, '\0', sizeof(*sin));
+		sin->sin_family = AF_INET;
+#ifdef HAVE_SOCKADDR_SA_LEN
+		sin->sin_len = sizeof(*sin);
+#endif
+		sin->sin_addr.s_addr = INADDR_BROADCAST;
+		return sizeof(sin->sin_addr);
+	}
+	if (sscanf(name, "%d.%d.%d.%d%c", &d1, &d2, &d3, &d4, &ch) == 4 &&
+		0 <= d1 && d1 <= 255 && 0 <= d2 && d2 <= 255 &&
+		0 <= d3 && d3 <= 255 && 0 <= d4 && d4 <= 255) {
+			struct sockaddr_in *sin;
+			sin = (struct sockaddr_in *)addr_ret;
+			sin->sin_addr.s_addr = htonl(
+				((long) d1 << 24) | ((long) d2 << 16) |
+				((long) d3 << 8) | ((long) d4 << 0));
+			sin->sin_family = AF_INET;
+#ifdef HAVE_SOCKADDR_SA_LEN
+			sin->sin_len = sizeof(*sin);
+#endif
+			return 4;
+		}
+		memset(&hints, 0, sizeof(hints));
+		hints.ai_family = af;
+		Py_BEGIN_ALLOW_THREADS
+			ACQUIRE_GETADDRINFO_LOCK
+			error = getaddrinfo(name, NULL, &hints, &res);
+#if defined(__digital__) && defined(__unix__)
+		if (error == EAI_NONAME && af == AF_UNSPEC) {
+			/* On Tru64 V5.1, numeric-to-addr conversion fails
+			if no address family is given. Assume IPv4 for now.*/
+			hints.ai_family = AF_INET;
+			error = getaddrinfo(name, NULL, &hints, &res);
+		}
+#endif
+		Py_END_ALLOW_THREADS
+			RELEASE_GETADDRINFO_LOCK  /* see comment in setipaddr() */
+			if (error) {
+				set_gaierror(error);
+				return -1;
+			}
+			if (res->ai_addrlen < addr_ret_size)
+				addr_ret_size = res->ai_addrlen;
+			memcpy((char *) addr_ret, res->ai_addr, addr_ret_size);
+			freeaddrinfo(res);
+			switch (addr_ret->sa_family) {
+	case AF_INET:
+		return 4;
+#ifdef ENABLE_IPV6
+	case AF_INET6:
+		return 16;
+#endif
+	default:
+		PyErr_SetString(PySocketModule.error, "unknown address family");
+		return -1;
+			}
+}
+
+
+/* Parse a socket address argument according to the socket object's
+address family.  Return 1 if the address was in the proper format,
+0 of not.  The address is returned through addr_ret, its length
+through len_ret. */
+
+int getsockaddrarg(PySocketSockObject *s, PyObject *args,
+					struct sockaddr **addr_ret, int *len_ret)
+{
+	switch (s->sock_family) {
+
+#if defined(AF_UNIX)
+case AF_UNIX:
+	{
+		struct sockaddr_un* addr;
+		char *path;
+		int len;
+		addr = (struct sockaddr_un*)&(s->sock_addr).un;
+		if (!PyArg_Parse(args, "t#", &path, &len))
+			return 0;
+		if (len > sizeof addr->sun_path) {
+			PyErr_SetString(socket_error,
+				"AF_UNIX path too long");
+			return 0;
+		}
+		addr->sun_family = s->sock_family;
+		memcpy(addr->sun_path, path, len);
+		addr->sun_path[len] = 0;
+		*addr_ret = (struct sockaddr *) addr;
+#if defined(PYOS_OS2)
+		*len_ret = sizeof(*addr);
+#else
+		*len_ret = len + sizeof(*addr) - sizeof(addr->sun_path);
+#endif
+		return 1;
+	}
+#endif /* AF_UNIX */
+
+case AF_INET:
+	{
+		struct sockaddr_in* addr;
+		char *host;
+		int port, result;
+		addr=(struct sockaddr_in*)&(s->sock_addr).in;
+		if (!PyTuple_Check(args)) {
+			PyErr_Format(
+				PyExc_TypeError,
+				"getsockaddrarg: "
+				"AF_INET address must be tuple, not %.500s",
+				args->ob_type->tp_name);
+			return 0;
+		}
+		if (!PyArg_ParseTuple(args, "eti:getsockaddrarg", 
+			"idna", &host, &port))
+			return 0;
+		result = setipaddr(host, (struct sockaddr *)addr, 
+			sizeof(*addr),  AF_INET);
+		PyMem_Free(host);
+		if (result < 0)
+			return 0;
+		addr->sin_family = AF_INET;
+		addr->sin_port = htons((short)port);
+		*addr_ret = (struct sockaddr *) addr;
+		*len_ret = sizeof *addr;
+		return 1;
+	}
+
+#ifdef ENABLE_IPV6
+case AF_INET6:
+	{
+		struct sockaddr_in6* addr;
+		char *host;
+		int port, flowinfo, scope_id, result;
+		addr = (struct sockaddr_in6*)&(s->sock_addr).in6;
+		flowinfo = scope_id = 0;
+		if (!PyArg_ParseTuple(args, "eti|ii", 
+			"idna", &host, &port, &flowinfo,
+			&scope_id)) {
+				return 0;
+			}
+			result = setipaddr(host, (struct sockaddr *)addr,  
+				sizeof(*addr), AF_INET6);
+			PyMem_Free(host);
+			if (result < 0)
+				return 0;
+			addr->sin6_family = s->sock_family;
+			addr->sin6_port = htons((short)port);
+			addr->sin6_flowinfo = flowinfo;
+			addr->sin6_scope_id = scope_id;
+			*addr_ret = (struct sockaddr *) addr;
+			*len_ret = sizeof *addr;
+			return 1;
+	}
+#endif
+
+#ifdef USE_BLUETOOTH
+case AF_BLUETOOTH:
+	{
+		switch (s->sock_proto) {
+case BTPROTO_L2CAP:
+	{
+		struct sockaddr_l2 *addr = (struct sockaddr_l2 *) _BT_SOCKADDR_MEMB(s, l2);
+		char *straddr;
+
+		_BT_L2_MEMB(addr, family) = AF_BLUETOOTH;
+		if (!PyArg_ParseTuple(args, "si", &straddr,
+			&_BT_L2_MEMB(addr, psm))) {
+				PyErr_SetString(socket_error, "getsockaddrarg: "
+					"wrong format");
+				return 0;
+			}
+			if (setbdaddr(straddr, &_BT_L2_MEMB(addr, bdaddr)) < 0)
+				return 0;
+
+			*addr_ret = (struct sockaddr *) addr;
+			*len_ret = sizeof *addr;
+			return 1;
+	}
+case BTPROTO_RFCOMM:
+	{
+		struct sockaddr_rc *addr = (struct sockaddr_rc *) _BT_SOCKADDR_MEMB(s, rc);
+		char *straddr;
+
+		_BT_RC_MEMB(addr, family) = AF_BLUETOOTH;
+		if (!PyArg_ParseTuple(args, "si", &straddr,
+			&_BT_RC_MEMB(addr, channel))) {
+				PyErr_SetString(socket_error, "getsockaddrarg: "
+					"wrong format");
+				return 0;
+			}
+			if (setbdaddr(straddr, &_BT_RC_MEMB(addr, bdaddr)) < 0)
+				return 0;
+
+			*addr_ret = (struct sockaddr *) addr;
+			*len_ret = sizeof *addr;
+			return 1;
+	}
+#if !defined(__FreeBSD__)
+case BTPROTO_SCO:
+	{
+		struct sockaddr_sco *addr = (struct sockaddr_sco *) _BT_SOCKADDR_MEMB(s, sco);
+		char *straddr;
+
+		_BT_SCO_MEMB(addr, family) = AF_BLUETOOTH;
+		straddr = PyString_AsString(args);
+		if (straddr == NULL) {
+			PyErr_SetString(socket_error, "getsockaddrarg: "
+				"wrong format");
+			return 0;
+		}
+		if (setbdaddr(straddr, &_BT_SCO_MEMB(addr, bdaddr)) < 0)
+			return 0;
+
+		*addr_ret = (struct sockaddr *) addr;
+		*len_ret = sizeof *addr;
+		return 1;
+	}
+#endif
+default:
+	PyErr_SetString(socket_error, "getsockaddrarg: unknown Bluetooth protocol");
+	return 0;
+		}
+	}
+#endif
+
+#ifdef HAVE_NETPACKET_PACKET_H
+case AF_PACKET:
+	{
+		struct sockaddr_ll* addr;
+		struct ifreq ifr;
+		char *interfaceName;
+		int protoNumber;
+		int hatype = 0;
+		int pkttype = 0;
+		char *haddr = NULL;
+		unsigned int halen = 0;
+
+		if (!PyArg_ParseTuple(args, "si|iis#", &interfaceName,
+			&protoNumber, &pkttype, &hatype,
+			&haddr, &halen))
+			return 0;
+		strncpy(ifr.ifr_name, interfaceName, sizeof(ifr.ifr_name));
+		ifr.ifr_name[(sizeof(ifr.ifr_name))-1] = '\0';
+		if (ioctl(s->sock_fd, SIOCGIFINDEX, &ifr) < 0) {
+			s->errorhandler();
+			return 0;
+		}
+		addr = &(s->sock_addr.ll);
+		addr->sll_family = AF_PACKET;
+		addr->sll_protocol = htons((short)protoNumber);
+		addr->sll_ifindex = ifr.ifr_ifindex;
+		addr->sll_pkttype = pkttype;
+		addr->sll_hatype = hatype;
+		if (halen > 8) {
+			PyErr_SetString(PyExc_ValueError,
+				"Hardware address must be 8 bytes or less");
+			return 0;
+		}
+		if (halen != 0) {
+			memcpy(&addr->sll_addr, haddr, halen);
+		}
+		addr->sll_halen = halen;
+		*addr_ret = (struct sockaddr *) addr;
+		*len_ret = sizeof *addr;
+		return 1;
+	}
+#endif
+
+	/* More cases here... */
+
+default:
+	PyErr_SetString(PySocketModule.error, "getsockaddrarg: bad family");
+	return 0;
+
+	}
+}
+
 
 
 

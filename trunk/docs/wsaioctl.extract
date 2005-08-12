@@ -1,0 +1,16 @@
+  // Load the AcceptEx function into memory using WSAIoctl.
+  // The WSAIoctl function is an extension of the ioctlsocket()
+  // function that can use overlapped I/O. The function's 3rd
+  // through 6th parameters are input and output buffers where
+  // we pass the pointer to our AcceptEx function. This is used
+  // so that we can call the AcceptEx function directly, rather
+  // than refer to the Mswsock.lib library.
+  WSAIoctl(ListenSocket, 
+    SIO_GET_EXTENSION_FUNCTION_POINTER, 
+    &GuidAcceptEx, 
+    sizeof(GuidAcceptEx),
+    &lpfnAcceptEx, 
+    sizeof(lpfnAcceptEx), 
+    &dwBytes, 
+    NULL, 
+    NULL);

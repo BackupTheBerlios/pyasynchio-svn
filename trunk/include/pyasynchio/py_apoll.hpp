@@ -76,12 +76,32 @@ public:
 
 		static const unsigned int addr_buf_size = 2 * addr_size;
 
-	
 		unsigned char addr_buf_[addr_buf_size];
 
 	private:
 		::PySocketSockObject *lso_;
 		::PySocketSockObject *aso_;
+	};
+
+
+	class OVL_CONNECT : public OVL_ROOT
+	{
+	public:
+		OVL_CONNECT(::PyObject *acto, ::PySocketSockObject *so)
+			: OVL_ROOT(acto)
+		{
+			Py_XINCREF(so);
+			so_ = so;
+		}
+
+		virtual ~OVL_CONNECT()
+		{
+			Py_XDECREF(so_);
+		}
+
+		virtual ::PyObject * dump(BOOL success, DWORD bytes_transferred);
+	private:
+		::PySocketSockObject *so_;
 	};
 
     Py_apoll();
@@ -90,7 +110,7 @@ public:
     bool accept(::PySocketSockObject *listen_socket
 		, ::PySocketSockObject *accept_socket
 		, ::PyObject *act);
-    void connect(::PySocketSockObject *so, ::PyObject *addro, ::PyObject *acto);
+    bool connect(::PySocketSockObject *so, ::PyObject *addro, ::PyObject *acto);
     void send(::PySocketSockObject *so, ::PyObject *datao, unsigned long flags
         , ::PyObject *acto);
     void sendto(::PySocketSockObject *so, ::PyObject *addro
@@ -104,10 +124,12 @@ public:
 
 	static int init_func(PyObject *self, PyObject *args, PyObject *kwds);
 	static PyObject* accept_meth(Py_apoll *self, ::PyObject *args);
+	static PyObject* connect_meth(Py_apoll *self, ::PyObject *args);
 	static PyObject* poll_meth(Py_apoll *self, ::PyObject *args);
 
 private:
     HANDLE iocp_handle_;
+	bool preamble(HANDLE h);
 };
 
 
