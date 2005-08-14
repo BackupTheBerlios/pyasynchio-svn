@@ -48,11 +48,11 @@ bool Py_apoll::accept(::PySocketSockObject *listen_sock
 	if (!preamble(reinterpret_cast<HANDLE>(listen_sock->sock_fd))) {
 		return false;
 	}
-	DWORD num_bytes_rcvd = 0;
 	OVL_ACCEPT *ova = new OVL_ACCEPT(acto				// acto
 		, listen_sock									// lso
 		, accept_sock		// aso
 		);
+	DWORD num_bytes_rcvd = 0;
 	BOOL r = ::AcceptEx(listen_sock->sock_fd	// sListenSocket 
 		, accept_sock->sock_fd					// sAcceptSocket 
 		, &ova->addr_buf_[0]						// lpOutputBuffer
@@ -73,6 +73,85 @@ bool Py_apoll::accept(::PySocketSockObject *listen_sock
 		}
 		else {
 			::PyErr_SetString(PySocketModule.error, "::AcceptEx failed");
+			return false;
+		}
+	}
+	return false;
+}
+
+bool Py_apoll::recv(::PySocketSockObject *so, unsigned long bufsize
+					, unsigned long flags
+					, ::PyObject *acto)
+{
+	if (!preamble(reinterpret_cast<HANDLE>(so->sock_fd))) {
+		return false;
+	}
+	OVL_RECV * ovr = new OVL_RECV(acto, so, bufsize, flags);
+	WSABUF wb;
+	wb.buf = ovr->buf();
+	wb.len = bufsize;
+	DWORD bytes_rcvd = 0;
+	int r = ::WSARecv(so->sock_fd				// SOCKET s
+		, &wb								// LPWSABUF lpBuffers
+		, 1									// DWORD dwBufferCount
+		, &bytes_rcvd						// LPDWORD lpNumberOfBytesRecvd
+		, &flags							// LPDWORD lpFlags
+		, ovr								// LPWSAOVERLAPPED lpOverlapped
+		, 0									// LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine
+		);
+	if (0 == r) {
+		// no error, notification is posted.
+		return true;
+	}
+	else {
+		int wsa_error = ::WSAGetLastError();
+		if (WSA_IO_PENDING == wsa_error) {
+			return true;
+		}
+		else {
+			::PyErr_SetString(PySocketModule.error, "::WSARecv failed");
+			return false;
+		}
+	}
+	return false;
+}
+
+bool Py_apoll::send(::PySocketSockObject *so, ::PyObject *datao, unsigned long flags
+					, ::PyObject *acto)
+{
+	if (!preamble(reinterpret_cast<HANDLE>(so->sock_fd))) {
+		return false;
+	}
+
+	char *s;
+	int len;
+	if(-1 == PyString_AsStringAndSize(datao, &s, &len)) {
+		return NULL;
+	}
+	WSABUF wb;
+	wb.buf = s;
+	wb.len = len;
+	OVL_SEND * ovs = new OVL_SEND(acto, so, flags, datao);
+	DWORD bytes_sent = 0;
+	int r = ::WSASend(so->sock_fd				// SOCKET s
+		, &wb								// LPWSABUF lpBuffers
+		, 1									// DWORD dwBufferCount
+		, &bytes_sent						// LPDWORD lpNumberOfBytesSent
+		, flags								// DWORD dwFlags
+		, ovs								// LPWSAOVERLAPPED lpOverlapped
+		, NULL								// LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine
+		);
+	if (0 == r) {
+		// no error, notification will still be posted
+		return true;
+	}
+	else {
+		int wsa_error = ::WSAGetLastError();
+		if (WSA_IO_PENDING == wsa_error) {
+			return true;
+		}
+		else {
+			::PyErr_SetString(PySocketModule.error, "WSASend failed");
 			return false;
 		}
 	}
@@ -249,6 +328,36 @@ static PyTypeObject apoll_Type = {
 		, "act", acto_);
 }
 
+::PyObject * Py_apoll::OVL_SEND::dump(BOOL success, DWORD bytes_transferred)
+{
+	return Py_BuildValue("{sssisOsOsk}"
+		, "type", "send"
+		, "success", static_cast<int>(success)
+		, "socket", so_
+		, "act", acto_
+		, "data", datao_
+		, "flags", flags_);
+}
+
+::PyObject * Py_apoll::OVL_RECV::dump(BOOL success, DWORD bytes_transferred)
+{
+	::PyObject * bufo;
+	if (success) {
+		bufo = ::PyString_FromStringAndSize(buf_, bytes_transferred);
+	}
+	else {
+		bufo = ::PyString_FromString("");
+	}
+	
+	return Py_BuildValue("{sssislsOsOsO}"
+		, "type", "recv"
+		, "success", static_cast<int>(success)
+		, "bufsize", size_
+		, "socket", so_
+		, "act", acto_
+		, "data", bufo);
+}
+
 int Py_apoll::init_func(PyObject *self, PyObject *args, PyObject *kwds)
 {
 	char* keywords[] = { NULL };
@@ -286,7 +395,7 @@ PyObject* Py_apoll::accept_meth(Py_apoll *self, ::PyObject *args)
 	return Py_None;
 }
 
-PyObject* Py_apoll::connect_meth(Py_apoll *self, ::PyObject *args)
+::PyObject * Py_apoll::connect_meth(Py_apoll *self, ::PyObject *args)
 {
 	PyObject *so_raw, *addro, *acto;
 	if (!PyArg_ParseTuple(args, "OOO:connect", &so_raw, &addro, &acto)) {
@@ -307,7 +416,51 @@ PyObject* Py_apoll::connect_meth(Py_apoll *self, ::PyObject *args)
 	return Py_None;
 }
 
-PyObject* Py_apoll::poll_meth(Py_apoll *self, ::PyObject *args)
+::PyObject * Py_apoll::send_meth(Py_apoll * self, ::PyObject * args)
+{
+	::PyObject *so_raw, *datao, *acto;
+	unsigned long flags;
+	if (!PyArg_ParseTuple(args, "OOkO:send", &so_raw, &datao, &flags, &acto)) {
+		return NULL;
+	}
+
+	PySocketSockObject *so = py_convert<PySocketSockObject>(so_raw
+		, PySocketModule.Sock_Type);
+	if (NULL == so) {
+		return NULL;
+	}
+
+	if (!self->send(so, datao, flags, acto)) {
+		return NULL;
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+::PyObject * Py_apoll::recv_meth(Py_apoll *self, ::PyObject *args)
+{
+	::PyObject *so_raw, *acto;
+	unsigned long flags, size;
+	if (!PyArg_ParseTuple(args, "OkkO", &so_raw, &size, &flags, &acto)) {
+		return NULL;
+	}
+
+	PySocketSockObject *so = py_convert<PySocketSockObject>(so_raw
+		, PySocketModule.Sock_Type);
+	if (NULL == so) {
+		return NULL;
+	}
+
+	if (!self->recv(so, size, flags, acto)) {
+		return NULL;
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
+::PyObject * Py_apoll::poll_meth(Py_apoll *self, ::PyObject *args)
 {
 	unsigned long ms;
 	if (!PyArg_ParseTuple(args, "k", &ms)) {
@@ -331,6 +484,16 @@ static PyMethodDef apoll_methods[] = {
 		, reinterpret_cast<PyCFunction>(&Py_apoll::connect_meth)
 		, METH_VARARGS
 		, "start asynchronou connect operation"
+	}
+	, { "send"
+		, reinterpret_cast<PyCFunction>(&Py_apoll::send_meth)
+		, METH_VARARGS
+		, "start asynchronous send operation"
+	}
+	, { "recv"
+		, reinterpret_cast<PyCFunction>(&Py_apoll::recv_meth)
+		, METH_VARARGS
+		, "start asynchronous recv operation"
 	}
 	, { "poll"
 		, reinterpret_cast<PyCFunction>(&Py_apoll::poll_meth)
