@@ -327,7 +327,7 @@ address family.  Return 1 if the address was in the proper format,
 through len_ret. */
 
 int getsockaddrarg(PySocketSockObject *s, PyObject *args,
-					struct sockaddr **addr_ret, int *len_ret)
+					struct sockaddr *addrp, int *len_ret)
 {
 	switch (s->sock_family) {
 
@@ -337,7 +337,7 @@ case AF_UNIX:
 		struct sockaddr_un* addr;
 		char *path;
 		int len;
-		addr = (struct sockaddr_un*)&(s->sock_addr).un;
+		addr = (struct sockaddr_un*)addrp;
 		if (!PyArg_Parse(args, "t#", &path, &len))
 			return 0;
 		if (len > sizeof addr->sun_path) {
@@ -348,7 +348,7 @@ case AF_UNIX:
 		addr->sun_family = s->sock_family;
 		memcpy(addr->sun_path, path, len);
 		addr->sun_path[len] = 0;
-		*addr_ret = (struct sockaddr *) addr;
+//		*addr_ret = (struct sockaddr *) addr;
 #if defined(PYOS_OS2)
 		*len_ret = sizeof(*addr);
 #else
@@ -363,7 +363,7 @@ case AF_INET:
 		struct sockaddr_in* addr;
 		char *host;
 		int port, result;
-		addr=(struct sockaddr_in*)&(s->sock_addr).in;
+		addr=(struct sockaddr_in*)addrp;
 		if (!PyTuple_Check(args)) {
 			PyErr_Format(
 				PyExc_TypeError,
@@ -382,7 +382,7 @@ case AF_INET:
 			return 0;
 		addr->sin_family = AF_INET;
 		addr->sin_port = htons((short)port);
-		*addr_ret = (struct sockaddr *) addr;
+//		*addr_ret = (struct sockaddr *) addr;
 		*len_ret = sizeof *addr;
 		return 1;
 	}
@@ -393,7 +393,7 @@ case AF_INET6:
 		struct sockaddr_in6* addr;
 		char *host;
 		int port, flowinfo, scope_id, result;
-		addr = (struct sockaddr_in6*)&(s->sock_addr).in6;
+		addr = (struct sockaddr_in6*)addrp;
 		flowinfo = scope_id = 0;
 		if (!PyArg_ParseTuple(args, "eti|ii", 
 			"idna", &host, &port, &flowinfo,
@@ -409,7 +409,6 @@ case AF_INET6:
 			addr->sin6_port = htons((short)port);
 			addr->sin6_flowinfo = flowinfo;
 			addr->sin6_scope_id = scope_id;
-			*addr_ret = (struct sockaddr *) addr;
 			*len_ret = sizeof *addr;
 			return 1;
 	}
@@ -421,7 +420,7 @@ case AF_BLUETOOTH:
 		switch (s->sock_proto) {
 case BTPROTO_L2CAP:
 	{
-		struct sockaddr_l2 *addr = (struct sockaddr_l2 *) _BT_SOCKADDR_MEMB(s, l2);
+		struct sockaddr_l2 *addr = (struct sockaddr_l2 *) addrp;
 		char *straddr;
 
 		_BT_L2_MEMB(addr, family) = AF_BLUETOOTH;
@@ -434,13 +433,12 @@ case BTPROTO_L2CAP:
 			if (setbdaddr(straddr, &_BT_L2_MEMB(addr, bdaddr)) < 0)
 				return 0;
 
-			*addr_ret = (struct sockaddr *) addr;
 			*len_ret = sizeof *addr;
 			return 1;
 	}
 case BTPROTO_RFCOMM:
 	{
-		struct sockaddr_rc *addr = (struct sockaddr_rc *) _BT_SOCKADDR_MEMB(s, rc);
+		struct sockaddr_rc *addr = (struct sockaddr_rc *) addrp;
 		char *straddr;
 
 		_BT_RC_MEMB(addr, family) = AF_BLUETOOTH;
@@ -460,7 +458,7 @@ case BTPROTO_RFCOMM:
 #if !defined(__FreeBSD__)
 case BTPROTO_SCO:
 	{
-		struct sockaddr_sco *addr = (struct sockaddr_sco *) _BT_SOCKADDR_MEMB(s, sco);
+		struct sockaddr_sco *addr = (struct sockaddr_sco *) addrp;
 		char *straddr;
 
 		_BT_SCO_MEMB(addr, family) = AF_BLUETOOTH;
@@ -473,7 +471,6 @@ case BTPROTO_SCO:
 		if (setbdaddr(straddr, &_BT_SCO_MEMB(addr, bdaddr)) < 0)
 			return 0;
 
-		*addr_ret = (struct sockaddr *) addr;
 		*len_ret = sizeof *addr;
 		return 1;
 	}
@@ -507,7 +504,7 @@ case AF_PACKET:
 			s->errorhandler();
 			return 0;
 		}
-		addr = &(s->sock_addr.ll);
+		addr = (sockaddr_ll*)addrp;
 		addr->sll_family = AF_PACKET;
 		addr->sll_protocol = htons((short)protoNumber);
 		addr->sll_ifindex = ifr.ifr_ifindex;
@@ -522,7 +519,6 @@ case AF_PACKET:
 			memcpy(&addr->sll_addr, haddr, halen);
 		}
 		addr->sll_halen = halen;
-		*addr_ret = (struct sockaddr *) addr;
 		*len_ret = sizeof *addr;
 		return 1;
 	}

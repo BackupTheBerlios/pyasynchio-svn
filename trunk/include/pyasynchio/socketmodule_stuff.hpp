@@ -17,7 +17,7 @@ PYASYNCHIO_LINK_DECL PyObject * makeipaddr(sockaddr *addr, int addrlen);
 PYASYNCHIO_LINK_DECL PyObject * makesockaddr(int sockfd, sockaddr *addr
                                                 , int addrlen, int proto);
 PYASYNCHIO_LINK_DECL int getsockaddrarg(PySocketSockObject *s, PyObject *args,
-										struct sockaddr **addr_ret, int *len_ret);
+										struct sockaddr *addrp, int *len_ret);
 
 } // namespace pyasynchio
 

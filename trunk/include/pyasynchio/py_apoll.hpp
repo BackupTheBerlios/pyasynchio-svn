@@ -128,10 +128,33 @@ public:
 
 		char * buf() const { return buf_; }
 
-	private:
+	protected:
 		PySocketSockObject *so_;
+	private:
 		unsigned long size_, flags_;
 		char * buf_;
+	};
+
+	class OVL_RECVFROM : public OVL_RECV
+	{
+	public:
+		OVL_RECVFROM(::PyObject *acto, ::PySocketSockObject *so
+			, unsigned long size
+			, unsigned long flags)
+			: OVL_RECV(acto, so, size, flags)
+		{
+			fromlen_ = sizeof(from_);
+		}
+
+		virtual ~OVL_RECVFROM() {}
+
+		virtual ::PyObject * dump(BOOL success, DWORD bytes_transferred);
+
+		sockaddr * from() { return &from_; }
+		int * fromlen() { return &fromlen_; }
+	private:
+		sockaddr from_;
+		int fromlen_;
 	};
 
 	class OVL_SEND : public OVL_ROOT
@@ -162,6 +185,30 @@ public:
 		unsigned long flags_;
 	};
 
+	class OVL_SENDTO : public OVL_SEND
+	{
+	public:
+		OVL_SENDTO(::PyObject *acto, ::PySocketSockObject *so
+			, ::PyObject *addro
+			, unsigned long flags
+			, ::PyObject *datao)
+			: OVL_SEND(acto, so, flags, datao)
+		{
+			Py_XINCREF(addro);
+			addro_ = addro;
+		}
+
+		virtual ~OVL_SENDTO()
+		{
+			Py_XDECREF(addro_);
+		}
+
+		virtual ::PyObject * dump(BOOL success, DWORD bytes_transferred);
+
+	private:
+		::PyObject * addro_;
+	};
+
     Py_apoll();
     ~Py_apoll();
 
@@ -171,11 +218,17 @@ public:
     bool connect(::PySocketSockObject *so, ::PyObject *addro, ::PyObject *acto);
     bool send(::PySocketSockObject *so, ::PyObject *datao, unsigned long flags
         , ::PyObject *acto);
-    void sendto(::PySocketSockObject *so, ::PyObject *addro
-        , ::PyObject *datao, ::PyObject *acto);
-    bool recv(::PySocketSockObject *so, unsigned long size, unsigned long flags
+    bool sendto(::PySocketSockObject *so, ::PyObject *addro
+        , ::PyObject *datao
+		, unsigned long flags
+		, ::PyObject *acto);
+    bool recv(::PySocketSockObject *so, unsigned long bufsize
+		, unsigned long flags
         , ::PyObject *acto);
-    void cancel(::PyObject *o);
+	bool recvfrom(::PySocketSockObject *so, unsigned long bufsize
+		, unsigned long flags
+		, ::PyObject *acto);
+    bool cancel(::PyObject *o);
     void close(::PyObject *o);
 
 	::PyObject* poll(unsigned long ms);
@@ -184,13 +237,38 @@ public:
 	static ::PyObject * accept_meth(Py_apoll *self, ::PyObject *args);
 	static ::PyObject * connect_meth(Py_apoll *self, ::PyObject *args);
 	static ::PyObject * send_meth(Py_apoll *self, ::PyObject *args);
+	static ::PyObject * sendto_meth(Py_apoll *self, ::PyObject *args);
 	static ::PyObject * recv_meth(Py_apoll *self, ::PyObject *args);
-		static ::PyObject* poll_meth(Py_apoll *self, ::PyObject *args);
+	static ::PyObject * recvfrom_meth(Py_apoll *self, ::PyObject *args);
+	static ::PyObject * poll_meth(Py_apoll *self, ::PyObject *args);
+	static ::PyObject * cancel_meth(Py_apoll *self, ::PyObject *args);
 
 private:
     HANDLE iocp_handle_;
-	bool preamble(HANDLE h);
+	bool iocp_preamble(HANDLE h);
+	template<typename T>
+	static bool check_wsa_op(T function_result, T no_error_result, char *msg);
 };
+
+template<typename T>
+bool Py_apoll::check_wsa_op(T function_result, T no_error_result, char *msg)
+{
+	if (no_error_result == function_result) {
+		// no error, notification is posted.
+		return true;
+	}
+	else {
+		int wsa_error = ::WSAGetLastError();
+		if (WSA_IO_PENDING == wsa_error) {
+			return true;
+		}
+		else {
+			::PyErr_SetString(PySocketModule.error, msg);
+			return false;
+		}
+	}
+	return false;
+}
 
 
 extern "C" PYASYNCHIO_LINK_DECL void initpyasynchio(void);
