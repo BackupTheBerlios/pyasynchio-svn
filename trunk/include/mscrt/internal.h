@@ -22,7 +22,7 @@
  * This is an internal C runtime header file. It is used when building
  * the C runtimes only. It is not to be used as a public header file.
  */
-#error ERROR: Use of C runtime library internal header file.
+//#error ERROR: Use of C runtime library internal header file.
 #endif  /* _CRTBLD */
 
 #ifdef __cplusplus

@@ -11,7 +11,12 @@
 #include <python.h>
 #include "socketmodule.h"
 #include "fileobject.h"
+#include "fileobject.h"
 #include <windows.h>
+#include <mswsock.h>
+#include <pyasynchio/socketmodule_stuff.hpp>
+#include <map>
+
 
 namespace pyasynchio {
 
@@ -29,185 +34,14 @@ class PYASYNCHIO_LINK_DECL Py_apoll : public PyObject
 {
 public:
 	static const unsigned int addr_size = sizeof(sockaddr_in) + sizeof(sockaddr);
-	class OVL_ROOT : public OVERLAPPED
-	{
-	protected:
-		::PyObject *acto_;
-
-	public:
-		OVL_ROOT(::PyObject *acto) 
-		{
-			Internal = InternalHigh = 0;
-			Offset = OffsetHigh = 0;
-			hEvent = 0;
-			Py_XINCREF(acto);
-			acto_ = acto;
-		}
-		virtual ~OVL_ROOT() 
-		{
-			Py_XDECREF(acto_);
-		}
-
-		virtual ::PyObject* dump(BOOL success, DWORD bytes_transferred) = 0;
-
-	};
-
-	class OVL_ACCEPT : public OVL_ROOT
-	{
-	public:
-		OVL_ACCEPT(::PyObject *acto
-			, ::PySocketSockObject *lso
-			, ::PySocketSockObject *aso)
-			: OVL_ROOT(acto) 
-		{
-			Py_XINCREF(lso);
-			lso_ = lso;
-			Py_XINCREF(aso);
-			aso_ = aso;
-		}
-
-		virtual ~OVL_ACCEPT() 
-		{
-			Py_XDECREF(lso_);
-			Py_XDECREF(aso_);
-		}
-
-		virtual ::PyObject* dump(BOOL success, DWORD bytes_transferred);
-
-		static const unsigned int addr_buf_size = 2 * addr_size;
-
-		unsigned char addr_buf_[addr_buf_size];
-
-	private:
-		::PySocketSockObject *lso_;
-		::PySocketSockObject *aso_;
-	};
-
-	class OVL_CONNECT : public OVL_ROOT
-	{
-	public:
-		OVL_CONNECT(::PyObject *acto, ::PySocketSockObject *so)
-			: OVL_ROOT(acto)
-		{
-			Py_XINCREF(so);
-			so_ = so;
-		}
-
-		virtual ~OVL_CONNECT()
-		{
-			Py_XDECREF(so_);
-		}
-
-		virtual ::PyObject * dump(BOOL success, DWORD bytes_transferred);
-	private:
-		::PySocketSockObject *so_;
-	};
-
-	class OVL_RECV : public OVL_ROOT
-	{
-	public:
-		OVL_RECV(::PyObject *acto, ::PySocketSockObject *so
-			, unsigned long size
-			, unsigned long flags)
-			: OVL_ROOT(acto)
-		{
-			buf_ = reinterpret_cast<char*>(malloc(size));
-			size_ = size;
-			flags_ = flags;
-			Py_XINCREF(so);
-			so_ = so;
-		}
-
-		virtual ~OVL_RECV()
-		{
-			Py_XDECREF(so_);
-			free(buf_);
-		}
-
-		virtual ::PyObject *dump(BOOL success, DWORD bytes_transferred);
-
-		char * buf() const { return buf_; }
-
-	protected:
-		PySocketSockObject *so_;
-	private:
-		unsigned long size_, flags_;
-		char * buf_;
-	};
-
-	class OVL_RECVFROM : public OVL_RECV
-	{
-	public:
-		OVL_RECVFROM(::PyObject *acto, ::PySocketSockObject *so
-			, unsigned long size
-			, unsigned long flags)
-			: OVL_RECV(acto, so, size, flags)
-		{
-			fromlen_ = sizeof(from_);
-		}
-
-		virtual ~OVL_RECVFROM() {}
-
-		virtual ::PyObject * dump(BOOL success, DWORD bytes_transferred);
-
-		sockaddr * from() { return &from_; }
-		int * fromlen() { return &fromlen_; }
-	private:
-		sockaddr from_;
-		int fromlen_;
-	};
-
-	class OVL_SEND : public OVL_ROOT
-	{
-	public:
-		OVL_SEND(::PyObject *acto, ::PySocketSockObject *so
-			, unsigned long flags
-			, ::PyObject *datao)
-			: OVL_ROOT(acto)
-		{
-			Py_XINCREF(so);
-			so_ = so;
-			Py_XINCREF(datao);
-			datao_ = datao;
-			flags_ = flags;
-		}
-
-		virtual ~OVL_SEND()
-		{
-			Py_XDECREF(so_);
-			Py_XDECREF(datao_);
-		}
-
-		virtual ::PyObject * dump(BOOL success, DWORD bytes_transferred);
-	private:
-		::PySocketSockObject *so_;
-		::PyObject *datao_;
-		unsigned long flags_;
-	};
-
-	class OVL_SENDTO : public OVL_SEND
-	{
-	public:
-		OVL_SENDTO(::PyObject *acto, ::PySocketSockObject *so
-			, ::PyObject *addro
-			, unsigned long flags
-			, ::PyObject *datao)
-			: OVL_SEND(acto, so, flags, datao)
-		{
-			Py_XINCREF(addro);
-			addro_ = addro;
-		}
-
-		virtual ~OVL_SENDTO()
-		{
-			Py_XDECREF(addro_);
-		}
-
-		virtual ::PyObject * dump(BOOL success, DWORD bytes_transferred);
-
-	private:
-		::PyObject * addro_;
-	};
+	class AIO_ROOT;
+	class AIO_ACCEPT;
+	class AIO_CONNECT;
+	class AIO_RECV;
+	class AIO_RECVFROM;
+	class AIO_SEND;
+	class AIO_SENDTO;
+	class AIO_READ;
 
     Py_apoll();
     ~Py_apoll();
@@ -231,6 +65,10 @@ public:
     bool cancel(::PyObject *o);
     void close(::PyObject *o);
 
+	bool read(::PyFileObject *fo, unsigned long long offset, unsigned long size
+		, ::PyObject *acto);
+		
+
 	::PyObject* poll(unsigned long ms);
 
 	static int init_func(PyObject *self, PyObject *args, PyObject *kwds);
@@ -243,11 +81,23 @@ public:
 	static ::PyObject * poll_meth(Py_apoll *self, ::PyObject *args);
 	static ::PyObject * cancel_meth(Py_apoll *self, ::PyObject *args);
 
+	static ::PyObject * read_meth(Py_apoll *self, ::PyObject *args);
+
 private:
     HANDLE iocp_handle_;
-	bool iocp_preamble(HANDLE h);
+	bool common_iocp_preamble(HANDLE h);
+	bool sock_iocp_preamble(SOCKET sock);
+	HANDLE file_iocp_preamble(::PyFileObject *fo);
 	template<typename T>
 	static bool check_wsa_op(T function_result, T no_error_result, char *msg);
+	template<typename T>
+	static bool check_windows_op(T function_result, T error_result, char *msg);
+
+#pragma warning(disable:4251)
+	std::map<FILE *, HANDLE> asynch_handles_;
+#pragma warning(default:4251)
+	HANDLE get_file_handle(::PyFileObject *fo);
+	void free_file_resources(FILE * fp);
 };
 
 template<typename T>
@@ -271,8 +121,31 @@ bool Py_apoll::check_wsa_op(T function_result, T no_error_result, char *msg)
 }
 
 
+template<typename T>
+bool Py_apoll::check_windows_op(T function_result, T error_result, char *msg)
+{
+	if (error_result != function_result) {
+		// no error, notification is posted.
+		return true;
+	}
+	else {
+		int err = ::GetLastError();
+		if (ERROR_IO_PENDING == err) {
+			return true;
+		}
+		else {
+			::PyErr_SetString(PyExc_RuntimeError, msg);
+			return false;
+		}
+	}
+	return false;
+}
+
+
 extern "C" PYASYNCHIO_LINK_DECL void initpyasynchio(void);
 
 } // namespace pyasynchio
+
+#include <pyasynchio/py_apoll_aio.hpp>
 
 #endif // PYASYNCHIO_PY_APOLL_HPP_INCLUDED_

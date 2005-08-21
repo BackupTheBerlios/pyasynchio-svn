@@ -1,7 +1,6 @@
 #include <pyasynchio/py_apoll.hpp>
-#include <pyasynchio/socketmodule_stuff.hpp>
-#include <mswsock.h>
 #include <new>
+#include <internal.h>
 
 namespace pyasynchio {
 
@@ -23,9 +22,9 @@ Py_apoll::~Py_apoll()
     ::CloseHandle(iocp_handle_);
 }
 
-bool Py_apoll::iocp_preamble(HANDLE h)
+bool Py_apoll::common_iocp_preamble(HANDLE h)
 {
-    HANDLE iocp_ret = ::CreateIoCompletionPort( h
+    HANDLE iocp_ret = ::CreateIoCompletionPort(h
         , iocp_handle_
         , NULL
         , 0);
@@ -41,14 +40,19 @@ bool Py_apoll::iocp_preamble(HANDLE h)
     return true;
 }
 
+bool Py_apoll::sock_iocp_preamble(SOCKET sock)
+{
+	return common_iocp_preamble(reinterpret_cast<HANDLE>(sock));
+}
+
 bool Py_apoll::accept(::PySocketSockObject *listen_sock
                       , ::PySocketSockObject *accept_sock
                       , ::PyObject *acto)
 {
-    if (!iocp_preamble(reinterpret_cast<HANDLE>(listen_sock->sock_fd))) {
+    if (!sock_iocp_preamble(listen_sock->sock_fd)) {
         return false;
     }
-    OVL_ACCEPT *ova = new OVL_ACCEPT(acto               // acto
+    AIO_ACCEPT *ova = new AIO_ACCEPT(acto               // acto
         , listen_sock                                   // lso
         , accept_sock       // aso
         );
@@ -69,10 +73,10 @@ bool Py_apoll::recv(::PySocketSockObject *so, unsigned long bufsize
                     , unsigned long flags
                     , ::PyObject *acto)
 {
-    if (!iocp_preamble(reinterpret_cast<HANDLE>(so->sock_fd))) {
+    if (!sock_iocp_preamble(so->sock_fd)) {
         return false;
     }
-    OVL_RECV * ovr = new OVL_RECV(acto, so, bufsize, flags);
+    AIO_RECV * ovr = new AIO_RECV(acto, so, bufsize, flags);
     WSABUF wb;
     wb.buf = ovr->buf();
     wb.len = bufsize;
@@ -92,10 +96,10 @@ bool Py_apoll::recvfrom(::PySocketSockObject * so, unsigned long bufsize
                         , unsigned long flags
                         , ::PyObject * acto)
 {
-    if (!iocp_preamble(reinterpret_cast<HANDLE>(so->sock_fd))) {
+    if (!sock_iocp_preamble(so->sock_fd)) {
         return false;
     }
-    OVL_RECVFROM *ovf = new OVL_RECVFROM(acto, so, bufsize, flags);
+    AIO_RECVFROM *ovf = new AIO_RECVFROM(acto, so, bufsize, flags);
     WSABUF wb;
     wb.buf = ovf->buf();
     wb.len = bufsize;
@@ -118,7 +122,7 @@ bool Py_apoll::sendto(::PySocketSockObject *so, ::PyObject *addro
                       , unsigned long flags
                       , ::PyObject *acto)
 {
-    if (!iocp_preamble(reinterpret_cast<HANDLE>(so->sock_fd))) {
+    if (!sock_iocp_preamble(so->sock_fd)) {
         return false;
     }
 
@@ -137,7 +141,7 @@ bool Py_apoll::sendto(::PySocketSockObject *so, ::PyObject *addro
     wb.buf = s;
     wb.len = len;
 
-    OVL_SENDTO *ovt = new OVL_SENDTO(acto, so, addro, flags, datao);
+    AIO_SENDTO *ovt = new AIO_SENDTO(acto, so, addro, flags, datao);
 
     DWORD bytes_sent = 0;
     int r = ::WSASendTo(so->sock_fd             // SOCKET s
@@ -156,7 +160,7 @@ bool Py_apoll::sendto(::PySocketSockObject *so, ::PyObject *addro
 bool Py_apoll::send(::PySocketSockObject *so, ::PyObject *datao, unsigned long flags
                     , ::PyObject *acto)
 {
-    if (!iocp_preamble(reinterpret_cast<HANDLE>(so->sock_fd))) {
+    if (!sock_iocp_preamble(so->sock_fd)) {
         return false;
     }
 
@@ -168,7 +172,7 @@ bool Py_apoll::send(::PySocketSockObject *so, ::PyObject *datao, unsigned long f
     WSABUF wb;
     wb.buf = s;
     wb.len = len;
-    OVL_SEND * ovs = new OVL_SEND(acto, so, flags, datao);
+    AIO_SEND * ovs = new AIO_SEND(acto, so, flags, datao);
     DWORD bytes_sent = 0;
     int r = ::WSASend(so->sock_fd               // SOCKET s
         , &wb                               // LPWSABUF lpBuffers
@@ -183,7 +187,7 @@ bool Py_apoll::send(::PySocketSockObject *so, ::PyObject *datao, unsigned long f
 
 bool Py_apoll::connect(::PySocketSockObject *so, ::PyObject *addro, ::PyObject *acto)
 {
-    if (!iocp_preamble(reinterpret_cast<HANDLE>(so->sock_fd))) {
+    if (!sock_iocp_preamble(so->sock_fd)) {
         return false;
     }
     sockaddr addr;
@@ -191,7 +195,7 @@ bool Py_apoll::connect(::PySocketSockObject *so, ::PyObject *addro, ::PyObject *
     if (!getsockaddrarg(so, addro, &addr, &addr_len)) {
         return false;
     }
-    OVL_CONNECT * ovc = new OVL_CONNECT(acto, so);
+    AIO_CONNECT * ovc = new AIO_CONNECT(acto, so);
     GUID GuidConnectEx = WSAID_CONNECTEX;
     ::LPFN_CONNECTEX ConnectEx;
     DWORD dwBytes;
@@ -237,11 +241,91 @@ bool Py_apoll::cancel(PyObject *o)
 	return true;
 }
 
+HANDLE Py_apoll::get_file_handle(PyFileObject *fo)
+{
+	FILE * fp = fo->f_fp;
+	if (asynch_handles_.find(fp) == asynch_handles_.end()) {
+		// create new handle.
+		DWORD desired_access = 0;
+		char * mode = PyString_AsString(fo->f_mode);
+		if (mode[0] == 'r') {
+			desired_access |= GENERIC_READ;
+		}
+		else if (mode[0] == 'w' || mode[0] == 'a') {
+			desired_access |= GENERIC_WRITE;
+		}
+		DWORD share_mode = FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE;
+		HANDLE fh = INVALID_HANDLE_VALUE;
+		if (PyUnicode_Check(fo->f_name)) {
+			Py_BEGIN_ALLOW_THREADS;
+			fh = ::CreateFileW(PyUnicode_AS_UNICODE(fo->f_name)		// LPCTSTR lpFileName
+				, desired_access									// DWORD dwDesiredAccess
+				, share_mode										// DWORD dwShareMode
+				, 0													// LPSECURITY_ATTRIBUTES lpSecurityAttributes
+				, OPEN_EXISTING										// DWORD dwCreationDisposition
+				, FILE_FLAG_OVERLAPPED								// DWORD dwFlagsAndAttributes
+				, NULL);											// HANDLE hTemplateFile
+			Py_END_ALLOW_THREADS;
+		}
+		else {
+			Py_BEGIN_ALLOW_THREADS;
+			fh = ::CreateFileA(PyString_AS_STRING(fo->f_name)
+				, desired_access
+				, share_mode
+				, 0
+				, OPEN_EXISTING
+				, FILE_FLAG_OVERLAPPED
+				, NULL);
+			Py_END_ALLOW_THREADS;
+		}
+		if (fh == INVALID_HANDLE_VALUE) {
+			PyErr_SetString(PyExc_RuntimeError, "CreateFile failed");
+			return INVALID_HANDLE_VALUE;
+		}
+		asynch_handles_[fp] = fh;
+		return fh;
+	}
+	else {
+		return asynch_handles_[fp];
+	}
+}
+
+void Py_apoll::free_file_resources(FILE *fp)
+{
+}
+
+HANDLE Py_apoll::file_iocp_preamble(PyFileObject *fo)
+{
+	HANDLE fh = get_file_handle(fo);
+	if (INVALID_HANDLE_VALUE == fh) {
+		return INVALID_HANDLE_VALUE;
+	}
+	if (!common_iocp_preamble(fh)) {
+		free_file_resources(fo->f_fp);
+		return INVALID_HANDLE_VALUE;
+	}
+	return fh;
+}
+
+bool Py_apoll::read(PyFileObject *fo, unsigned long long offset, unsigned long size
+					, ::PyObject *acto)
+{
+	HANDLE fh = file_iocp_preamble(fo);
+	if (fh == INVALID_HANDLE_VALUE) {
+		return false;
+	}
+
+	AIO_READ * ar = new AIO_READ(acto, fo, offset, size);
+	DWORD bytes_read = 0;
+	BOOL r = ::ReadFile(fh, ar->buf(), size, &bytes_read, ar);
+	return check_windows_op(r, FALSE, "::ReadFileEx failed");
+}
+
 ::PyObject * Py_apoll::poll(unsigned long ms)
 {
     DWORD bytes_transferred = 0;
     ULONG_PTR completion_key = 0;
-    OVL_ROOT *ovr = 0;
+    AIO_ROOT *ovr = 0;
     PyObject * result = PyList_New(0);
 
     for(;;) {
@@ -256,7 +340,7 @@ bool Py_apoll::cancel(PyObject *o)
             );
 		ms = 0; // only first request should wait, so timeout is zero for subsequent ops
         Py_END_ALLOW_THREADS;
-        ovr = static_cast<OVL_ROOT*>(ovl);
+        ovr = static_cast<AIO_ROOT*>(ovl);
 
         if ( (0 == ovl) && (FALSE == success) ) {
             if (WAIT_TIMEOUT != ::GetLastError()) {
@@ -306,105 +390,6 @@ static PyTypeObject apoll_Type = {
     "Apoll objects",           /* tp_doc */
 };
 
-::PyObject* Py_apoll::OVL_ACCEPT::dump(BOOL success, DWORD bytes_transferred)
-{
-    sockaddr *local_addr;
-    int local_size = 0;
-    sockaddr *remote_addr;
-    int remote_size = 0;
-    ::GetAcceptExSockaddrs(addr_buf_        // lpOutputBuffer
-        , 0                                 // dwReceiveDataLength
-        , addr_size                         // dwLocalAddressLength
-        , addr_size                         // dwRemoteAddressLength
-        , &local_addr                       // LocalSockaddr
-        , &local_size                       // LocalSockadddrLength
-        , &remote_addr                      // RemoteSockaddr
-        , &remote_size                      // RemoteSockaddrLength
-        );                  
-
-    PyObject *local_addro = makesockaddr(
-        static_cast<int>(lso_->sock_fd)                 // sockfd
-        , local_addr                                    // addr
-        , local_size                                    // addrlen
-        , lso_->sock_proto                              // proto
-        );
-    
-    PyObject *remote_addro = makesockaddr(
-        static_cast<int>(aso_->sock_fd)                 // sockfd
-        , remote_addr                                   // addr
-        , remote_size                                   // addrlen
-        , aso_->sock_proto                              // proto
-        );
-
-    return Py_BuildValue("{sssisOsOsOsOsO}"
-        , "type", "accept"
-        , "success", static_cast<int>(success)
-        , "local_addr", local_addro
-        , "remote_addr", remote_addro
-        , "listen_socket", lso_
-        , "accept_socket", aso_
-        , "act", acto_);
-}
-
-::PyObject * Py_apoll::OVL_CONNECT::dump(BOOL success, DWORD bytes_transferred)
-{
-    return Py_BuildValue("{sssisOsO}"
-        , "type", "connect"
-        , "success", static_cast<int>(success)
-        , "socket", so_
-        , "act", acto_);
-}
-
-::PyObject * Py_apoll::OVL_SEND::dump(BOOL success, DWORD bytes_transferred)
-{
-    return Py_BuildValue("{sssisOsOsOsk}"
-        , "type", "send"
-        , "success", static_cast<int>(success)
-        , "socket", so_
-        , "act", acto_
-        , "data", datao_
-        , "flags", flags_);
-}
-
-::PyObject * Py_apoll::OVL_SENDTO::dump(BOOL success, DWORD bytes_transferred)
-{
-    PyObject * dp = Py_apoll::OVL_SEND::dump(success, bytes_transferred);
-    PyDict_SetItemString(dp, "addr", addro_);
-    PyDict_SetItemString(dp, "type", PyString_FromString("sendto"));
-    return dp;
-}
-
-::PyObject * Py_apoll::OVL_RECV::dump(BOOL success, DWORD bytes_transferred)
-{
-    ::PyObject * bufo;
-    if (success) {
-        bufo = ::PyString_FromStringAndSize(buf_, bytes_transferred);
-    }
-    else {
-        bufo = ::PyString_FromString("");
-    }
-    
-    return Py_BuildValue("{sssislsOsOsO}"
-        , "type", "recv"
-        , "success", static_cast<int>(success)
-        , "bufsize", size_
-        , "socket", so_
-        , "act", acto_
-        , "data", bufo);
-}
-
-::PyObject * Py_apoll::OVL_RECVFROM::dump(BOOL success, DWORD bytes_transferred)
-{
-    ::PyObject * dp = Py_apoll::OVL_RECV::dump(success, bytes_transferred);
-    ::PyObject * addro = makesockaddr(
-        static_cast<int>(so_->sock_fd)
-        , &from_
-		, fromlen_
-		, so_->sock_proto);
-    PyDict_SetItemString(dp, "type", PyString_FromString("recvfrom"));
-	PyDict_SetItemString(dp, "addr", addro);
-	return dp;
-}
 
 int Py_apoll::init_func(PyObject *self, PyObject *args, PyObject *kwds)
 {
@@ -577,6 +562,28 @@ PyObject* Py_apoll::accept_meth(Py_apoll *self, ::PyObject *args)
 	return Py_None;
 }
 
+::PyObject * Py_apoll::read_meth(Py_apoll * self, ::PyObject * args)
+{
+	::PyObject * fo_raw, *acto;
+	unsigned long long offset = 0;
+	unsigned long size = 0;
+	if (!PyArg_ParseTuple(args, "OKkO:read", &fo_raw, &offset, &size, &acto)) {
+		return NULL;
+	}
+
+	PyFileObject * fo = py_convert<PyFileObject>(fo_raw, &PyFile_Type);
+	if (NULL == fo) {
+		return NULL;
+	}
+
+	if (!self->read(fo, offset, size, acto)) {
+		return NULL;
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 static PyMethodDef pyasynchio_methods[] = {
     {NULL}  /* Sentinel */
 };
@@ -621,6 +628,11 @@ static PyMethodDef apoll_methods[] = {
 		, reinterpret_cast<PyCFunction>(&Py_apoll::cancel_meth)
 		, METH_VARARGS
 		, "cancel asynchronous operations for given object"
+	}
+	, { "read"
+		, reinterpret_cast<PyCFunction>(&Py_apoll::read_meth)
+		, METH_VARARGS
+		, "start asynchronous read operation on file"
 	}
     , {NULL} /* Sentinel */
 };
