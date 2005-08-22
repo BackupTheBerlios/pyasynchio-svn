@@ -1,8 +1,10 @@
 #include <pyasynchio/py_apoll.hpp>
 #include <new>
-#include <internal.h>
 
 namespace pyasynchio {
+
+Py_apoll::g_file_closers_type Py_apoll::g_file_closers;
+Py_apoll::g_file_registry_type Py_apoll::g_file_registry;
 
 Py_apoll::Py_apoll()
 {
@@ -20,6 +22,19 @@ Py_apoll::Py_apoll()
 Py_apoll::~Py_apoll()
 {
     ::CloseHandle(iocp_handle_);
+	asynch_handles_type::const_iterator citer;
+	for(citer = asynch_handles_.begin(); citer != asynch_handles_.end(); ++citer) {
+		std::pair<g_file_registry_type::iterator
+			, g_file_registry_type::iterator> eqr = g_file_registry.equal_range(citer->first);
+		g_file_registry_type::iterator fiter;
+		for(fiter = eqr.first; fiter != eqr.second; ++fiter) {
+			if (fiter->second == this) break;
+		}
+		g_file_registry.erase(fiter);
+	}
+	while(asynch_handles_.size() > 0) {
+		this->free_file_resources(asynch_handles_.begin()->first);
+	}
 }
 
 bool Py_apoll::common_iocp_preamble(HANDLE h)
@@ -232,7 +247,14 @@ bool Py_apoll::cancel(PyObject *o)
 		h = reinterpret_cast<HANDLE>(so->sock_fd);
 	}
 	else {
-		return false;
+		if (PyObject_IsInstance(o, reinterpret_cast<PyObject*>(&PyFile_Type))) {
+			PyFileObject *fo = reinterpret_cast<PyFileObject*>(o);
+			h = get_file_handle(fo);
+		}
+		else {
+			PyErr_SetString(PyExc_TypeError, "unrecognized I/O object type");
+			return false;
+		}
 	}
 	if(! ::CancelIo(h)) {
 		PyErr_SetString(PyExc_RuntimeError, "::CancelIo failed");
@@ -283,6 +305,13 @@ HANDLE Py_apoll::get_file_handle(PyFileObject *fo)
 			return INVALID_HANDLE_VALUE;
 		}
 		asynch_handles_[fp] = fh;
+		if (g_file_closers.find(fp) == g_file_closers.end()) {
+			g_file_closers[fp] = fo->f_close;
+			fo->f_close = &g_fclose;
+		}
+		g_file_registry.insert(std::make_pair(fp, this));
+
+		
 		return fh;
 	}
 	else {
@@ -290,8 +319,26 @@ HANDLE Py_apoll::get_file_handle(PyFileObject *fo)
 	}
 }
 
+int Py_apoll::g_fclose(FILE *fp)
+{
+	std::pair<g_file_registry_type::const_iterator
+		, g_file_registry_type::const_iterator> eqr = g_file_registry.equal_range(fp);
+	g_file_registry_type::const_iterator citer;
+	for( citer = eqr.first; citer != eqr.second; ++citer) {
+		citer->second->free_file_resources(fp);
+	}
+	g_file_registry.erase(fp);
+	int retval = g_file_closers[fp](fp);
+	g_file_closers.erase(fp);
+	return retval;
+}
+
 void Py_apoll::free_file_resources(FILE *fp)
 {
+	if (asynch_handles_.find(fp) != asynch_handles_.end()) {
+		::CloseHandle(asynch_handles_[fp]);
+		asynch_handles_.erase(fp);
+	}
 }
 
 HANDLE Py_apoll::file_iocp_preamble(PyFileObject *fo)
@@ -302,6 +349,7 @@ HANDLE Py_apoll::file_iocp_preamble(PyFileObject *fo)
 	}
 	if (!common_iocp_preamble(fh)) {
 		free_file_resources(fo->f_fp);
+		g_file_registry.erase(fo->f_fp);
 		return INVALID_HANDLE_VALUE;
 	}
 	return fh;
@@ -371,7 +419,7 @@ static PyTypeObject apoll_Type = {
     "pyasynchio.apoll",             /*tp_name*/
     sizeof(Py_apoll), /*tp_basicsize*/
     0,                         /*tp_itemsize*/
-    0,                         /*tp_dealloc*/
+	(destructor)Py_apoll::dealloc,                         /*tp_dealloc*/
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
@@ -399,6 +447,12 @@ int Py_apoll::init_func(PyObject *self, PyObject *args, PyObject *kwds)
     }
     new (self) pyasynchio::Py_apoll;
     return TRUE;
+}
+
+void Py_apoll::dealloc(pyasynchio::Py_apoll *self)
+{
+	self->~Py_apoll();
+	self->ob_type->tp_free(self);
 }
 
 PyObject* Py_apoll::accept_meth(Py_apoll *self, ::PyObject *args)

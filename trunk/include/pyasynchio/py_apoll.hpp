@@ -72,6 +72,7 @@ public:
 	::PyObject* poll(unsigned long ms);
 
 	static int init_func(PyObject *self, PyObject *args, PyObject *kwds);
+	static void dealloc(Py_apoll *self);
 	static ::PyObject * accept_meth(Py_apoll *self, ::PyObject *args);
 	static ::PyObject * connect_meth(Py_apoll *self, ::PyObject *args);
 	static ::PyObject * send_meth(Py_apoll *self, ::PyObject *args);
@@ -94,10 +95,21 @@ private:
 	static bool check_windows_op(T function_result, T error_result, char *msg);
 
 #pragma warning(disable:4251)
-	std::map<FILE *, HANDLE> asynch_handles_;
+	typedef std::map<FILE *, HANDLE> asynch_handles_type;
+	asynch_handles_type asynch_handles_;
 #pragma warning(default:4251)
 	HANDLE get_file_handle(::PyFileObject *fo);
 	void free_file_resources(FILE * fp);
+
+	static f_close(FILE * fp);
+
+#pragma warning(disable:4251)
+	typedef std::map<FILE *, int(*)(FILE*)> g_file_closers_type;
+	static g_file_closers_type g_file_closers;
+	typedef std::multimap<FILE *, Py_apoll *> g_file_registry_type;
+	static g_file_registry_type g_file_registry;
+#pragma warning(default:4251)
+	static int g_fclose(FILE *fp);
 };
 
 template<typename T>
