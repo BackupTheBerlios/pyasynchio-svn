@@ -191,32 +191,61 @@ private:
 class Py_apoll::AIO_READ : public Py_apoll::AIO_ROOT
 {
 public:
-	AIO_READ(::PyObject * acto, ::PyFileObject *fo
-		, unsigned long long off
-		, unsigned long size)
-		: AIO_ROOT(acto)
-	{
-		Offset = static_cast<DWORD>(off);
-		OffsetHigh = static_cast<DWORD>((off >> sizeof(DWORD) * 8));
-		size_ = size;
-		buf_ = reinterpret_cast<char*>(malloc(size));
-		Py_XINCREF(fo);
-		fo_ = fo;
-	}
+    AIO_READ(::PyObject * acto, ::PyFileObject *fo
+        , unsigned long long off
+        , unsigned long size)
+        : AIO_ROOT(acto)
+    {
+        Offset = static_cast<DWORD>(off);
+        OffsetHigh = static_cast<DWORD>((off >> (sizeof(DWORD) * 8)));
+        size_ = size;
+        buf_ = reinterpret_cast<char*>(malloc(size));
+        Py_XINCREF(fo);
+        fo_ = fo;
+    }
 
-	virtual ~AIO_READ()
-	{
-		free(buf_);
-		Py_XDECREF(fo_);
-	}
+    virtual ~AIO_READ()
+    {
+        free(buf_);
+        Py_XDECREF(fo_);
+    }
 
-	virtual ::PyObject * dump(BOOL success, DWORD bytes_transferred);
-	char * buf() const { return buf_; }
+    virtual ::PyObject * dump(BOOL success, DWORD bytes_transferred);
+    char * buf() const { return buf_; }
 
 private:
-	::PyFileObject * fo_;
-	char * buf_;
-	unsigned long size_;
+    ::PyFileObject * fo_;
+    char * buf_;
+    unsigned long size_;
+};
+
+class Py_apoll::AIO_WRITE : public Py_apoll::AIO_ROOT
+{
+public:
+    AIO_WRITE(::PyObject *acto, ::PyFileObject *fo
+        , unsigned long long off
+        , ::PyObject *datao)
+        : AIO_ROOT(acto)
+    {
+        Offset = static_cast<DWORD>(off);
+        OffsetHigh = static_cast<DWORD>((off >> (sizeof(DWORD) * 8)));
+        Py_XINCREF(fo);
+        fo_ = fo;
+        Py_XINCREF(datao);
+        datao_ = datao;
+    }
+
+    virtual ~AIO_WRITE()
+    {
+        Py_XDECREF(fo_);
+        Py_XDECREF(datao_);
+    }
+
+
+    virtual ::PyObject * dump(BOOL success, DWORD bytes_transferred);
+private:
+    ::PyFileObject * fo_;
+    ::PyObject * datao_;
 };
 
 

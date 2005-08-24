@@ -42,6 +42,7 @@ public:
 	class AIO_SEND;
 	class AIO_SENDTO;
 	class AIO_READ;
+	class AIO_WRITE;
 
     Py_apoll();
     ~Py_apoll();
@@ -67,6 +68,9 @@ public:
 
 	bool read(::PyFileObject *fo, unsigned long long offset, unsigned long size
 		, ::PyObject *acto);
+	bool write(::PyFileObject *fo, unsigned long long offset
+		, ::PyObject *datao
+		, ::PyObject *acto);
 		
 
 	::PyObject* poll(unsigned long ms);
@@ -83,6 +87,7 @@ public:
 	static ::PyObject * cancel_meth(Py_apoll *self, ::PyObject *args);
 
 	static ::PyObject * read_meth(Py_apoll *self, ::PyObject *args);
+	static ::PyObject * write_meth(Py_apoll *self, ::PyObject *args);
 
 private:
     HANDLE iocp_handle_;

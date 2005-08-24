@@ -41,9 +41,9 @@ namespace pyasynchio {
         , "accept_socket", aso_
         , "act", acto_);
 
-	Py_XDECREF(local_addro);
-	Py_XDECREF(remote_addro);
-	return dp;
+    Py_XDECREF(local_addro);
+    Py_XDECREF(remote_addro);
+    return dp;
 }
 
 ::PyObject * Py_apoll::AIO_CONNECT::dump(BOOL success, DWORD bytes_transferred)
@@ -57,22 +57,23 @@ namespace pyasynchio {
 
 ::PyObject * Py_apoll::AIO_SEND::dump(BOOL success, DWORD bytes_transferred)
 {
-    return Py_BuildValue("{sssisOsOsOsk}"
+    return Py_BuildValue("{sssisOsOsOsksk}"
         , "type", "send"
         , "success", static_cast<int>(success)
         , "socket", so_
         , "act", acto_
         , "data", datao_
-        , "flags", flags_);
+        , "flags", flags_
+        , "count", static_cast<unsigned long>(bytes_transferred));
 }
 
 ::PyObject * Py_apoll::AIO_SENDTO::dump(BOOL success, DWORD bytes_transferred)
 {
     PyObject * dp = Py_apoll::AIO_SEND::dump(success, bytes_transferred);
     PyDict_SetItemString(dp, "addr", addro_);
-	PyObject * psendto = PyString_FromString("sendto");
+    PyObject * psendto = PyString_FromString("sendto");
     PyDict_SetItemString(dp, "type", psendto);
-	Py_XDECREF(psendto);
+    Py_XDECREF(psendto);
     return dp;
 }
 
@@ -94,8 +95,8 @@ namespace pyasynchio {
         , "act", acto_
         , "data", bufo);
 
-	Py_XDECREF(bufo);
-	return dp;
+    Py_XDECREF(bufo);
+    return dp;
 }
 
 ::PyObject * Py_apoll::AIO_RECVFROM::dump(BOOL success, DWORD bytes_transferred)
@@ -106,30 +107,46 @@ namespace pyasynchio {
         , &from_
         , fromlen_
         , so_->sock_proto);
-	PyObject * precvfrom = PyString_FromString("recvfrom");
+    PyObject * precvfrom = PyString_FromString("recvfrom");
     PyDict_SetItemString(dp, "type", precvfrom);
     PyDict_SetItemString(dp, "addr", addro);
-	Py_XDECREF(addro);
-	Py_XDECREF(precvfrom);
+    Py_XDECREF(addro);
+    Py_XDECREF(precvfrom);
     return dp;
 }
 
 ::PyObject * Py_apoll::AIO_READ::dump(BOOL success, DWORD bytes_transferred)
 {
-	::PyObject * datao = ::PyString_FromStringAndSize(buf_, bytes_transferred);
-	::PyObject * offo = ::PyLong_FromUnsignedLongLong(
-		(static_cast<unsigned long long>(OffsetHigh) << sizeof(DWORD)*8) + Offset);
-	::PyObject * dp =  Py_BuildValue("{sssisOslsOsO}"
+    ::PyObject * datao = ::PyString_FromStringAndSize(buf_, bytes_transferred);
+    ::PyObject * offo = ::PyLong_FromUnsignedLongLong(
+        (static_cast<unsigned long long>(OffsetHigh) << (sizeof(DWORD)*8)) + Offset);
+    ::PyObject * dp =  Py_BuildValue("{sssisOslsOsOsO}"
         , "type", "read"
         , "success", static_cast<int>(success)
-		, "offset", offo
-		, "bufsize", size_
+        , "offset", offo
+        , "bufsize", size_
         , "act", acto_
-		, "data", datao);
-	Py_XDECREF(datao);
-	Py_XDECREF(offo);
-	return dp;
+        , "data", datao
+        , "file", fo_);
+    Py_XDECREF(datao);
+    Py_XDECREF(offo);
+    return dp;
 }
 
+::PyObject * Py_apoll::AIO_WRITE::dump(BOOL success, DWORD bytes_transferred)
+{
+    ::PyObject * offo = ::PyLong_FromUnsignedLongLong(
+        (static_cast<unsigned long long>(OffsetHigh) << (sizeof(DWORD)*8)) + Offset);
+    ::PyObject * dp = Py_BuildValue("{sssisOsOsOsksO}"
+        , "type", "write"
+        , "success", static_cast<int>(success)
+        , "offset", offo
+        , "data",  datao_
+        , "act", acto_
+        , "count", static_cast<unsigned long>(bytes_transferred)
+        , "file", fo_);
+    Py_XDECREF(offo);
+    return dp;
+}
 
 } // namespace pyasynchio

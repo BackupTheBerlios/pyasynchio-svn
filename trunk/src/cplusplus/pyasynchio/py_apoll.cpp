@@ -1,5 +1,8 @@
 #include <pyasynchio/py_apoll.hpp>
 #include <new>
+#include <internal.h>
+#include <winternl.h>
+#include <string>
 
 namespace pyasynchio {
 
@@ -263,10 +266,82 @@ bool Py_apoll::cancel(PyObject *o)
 	return true;
 }
 
+static std::wstring get_path_by_handle(HANDLE h)
+{
+	typedef enum _OBJECT_INFORMATION_CLASS
+	{
+		ObjectBasicInformation,			// Result is OBJECT_BASIC_INFORMATION structure
+		ObjectNameInformation,			// Result is OBJECT_NAME_INFORMATION structure
+		ObjectTypeInformation,			// Result is OBJECT_TYPE_INFORMATION structure
+		ObjectAllInformation,			// Result is OBJECT_ALL_INFORMATION structure
+		ObjectDataInformation			// Result is OBJECT_DATA_INFORMATION structure
+		
+	} OBJECT_INFORMATION_CLASS, *POBJECT_INFORMATION_CLASS;
+
+	typedef LONG (__stdcall * NtQueryObjectT)(HANDLE, OBJECT_INFORMATION_CLASS, PVOID, ULONG, PULONG);
+	NtQueryObjectT _NtQueryObject;
+	_NtQueryObject = (NtQueryObjectT)GetProcAddress(LoadLibrary("ntdll.dll"), "NtQueryObject");
+	typedef struct _FNAME {
+	    USHORT Length;
+	    USHORT MaximumLength;
+		PWSTR  Buffer;
+		WCHAR ObjectNameBuffer[1];
+	} FNAME; 
+
+	const unsigned int DEFAULT_BUFFER_SIZE = 10 * sizeof(WCHAR) * MAX_PATH;
+	FNAME *fname = reinterpret_cast<FNAME*>(malloc(DEFAULT_BUFFER_SIZE));
+	ULONG fname_length = DEFAULT_BUFFER_SIZE;
+	
+	_NtQueryObject(h, ObjectNameInformation, fname, DEFAULT_BUFFER_SIZE, &fname_length);
+
+	std::wstring fname_str(fname->ObjectNameBuffer);
+	free(fname);
+	WCHAR drive_strings[32 * 4 + 1];
+
+	if (GetLogicalDriveStringsW(sizeof(drive_strings)/sizeof(drive_strings[0])-1
+		, drive_strings)) 
+    {
+        WCHAR szName[MAX_PATH];
+        WCHAR szDrive[3] = L" :";
+        BOOL bFound = FALSE;
+        WCHAR* p = drive_strings;
+
+        do 
+        {
+	        // Copy the drive letter to the template string
+		    *szDrive = *p;
+
+	        // Look up each device name
+		    if (QueryDosDeviceW(szDrive, szName, sizeof(szName) / sizeof(szName[0])))
+			{
+				size_t uNameLen = wcslen(szName);
+
+	            if (uNameLen < MAX_PATH) 
+		        {
+					bFound = _wcsnicmp(fname_str.c_str(), szName, 
+						uNameLen) == 0;
+
+		            if (bFound) 
+					{
+						// Reconstruct pszFilename using szTemp
+						// Replace device path with DOS path
+						return fname_str.replace(0, uNameLen, szDrive);
+					}
+	            }
+        }
+
+        // Go to the next NULL character.
+        while (*p++);
+        } while (!bFound && *p); // end of string
+    }
+	return fname_str;
+}
+
 HANDLE Py_apoll::get_file_handle(PyFileObject *fo)
 {
 	FILE * fp = fo->f_fp;
 	if (asynch_handles_.find(fp) == asynch_handles_.end()) {
+		std::wstring file_path = get_path_by_handle((HANDLE)_get_osfhandle(_fileno(fp)));
 		// create new handle.
 		DWORD desired_access = 0;
 		char * mode = PyString_AsString(fo->f_mode);
@@ -278,28 +353,31 @@ HANDLE Py_apoll::get_file_handle(PyFileObject *fo)
 		}
 		DWORD share_mode = FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE;
 		HANDLE fh = INVALID_HANDLE_VALUE;
-		if (PyUnicode_Check(fo->f_name)) {
-			Py_BEGIN_ALLOW_THREADS;
-			fh = ::CreateFileW(PyUnicode_AS_UNICODE(fo->f_name)		// LPCTSTR lpFileName
-				, desired_access									// DWORD dwDesiredAccess
-				, share_mode										// DWORD dwShareMode
-				, 0													// LPSECURITY_ATTRIBUTES lpSecurityAttributes
-				, OPEN_EXISTING										// DWORD dwCreationDisposition
-				, FILE_FLAG_OVERLAPPED								// DWORD dwFlagsAndAttributes
-				, NULL);											// HANDLE hTemplateFile
-			Py_END_ALLOW_THREADS;
-		}
-		else {
-			Py_BEGIN_ALLOW_THREADS;
-			fh = ::CreateFileA(PyString_AS_STRING(fo->f_name)
-				, desired_access
-				, share_mode
-				, 0
-				, OPEN_EXISTING
-				, FILE_FLAG_OVERLAPPED
-				, NULL);
-			Py_END_ALLOW_THREADS;
-		}
+//		if (PyUnicode_Check(fo->f_name)) {
+
+		Py_BEGIN_ALLOW_THREADS;
+
+		fh = ::CreateFileW(file_path.c_str()		// LPCTSTR lpFileName
+			, desired_access									// DWORD dwDesiredAccess
+			, share_mode										// DWORD dwShareMode
+			, 0													// LPSECURITY_ATTRIBUTES lpSecurityAttributes
+			, OPEN_EXISTING										// DWORD dwCreationDisposition
+			, FILE_FLAG_OVERLAPPED								// DWORD dwFlagsAndAttributes
+			, NULL);											// HANDLE hTemplateFile
+		Py_END_ALLOW_THREADS;
+//		}
+		//else {
+		//	Py_BEGIN_ALLOW_THREADS;
+		//	char * fname = PyString_AS_STRING(fo->f_name);
+		//	fh = ::CreateFileA(fname
+		//		, desired_access
+		//		, share_mode
+		//		, 0
+		//		, OPEN_EXISTING
+		//		, FILE_FLAG_OVERLAPPED
+		//		, NULL);
+		//	Py_END_ALLOW_THREADS;
+		//}
 		if (fh == INVALID_HANDLE_VALUE) {
 			PyErr_SetString(PyExc_RuntimeError, "CreateFile failed");
 			return INVALID_HANDLE_VALUE;
@@ -366,7 +444,28 @@ bool Py_apoll::read(PyFileObject *fo, unsigned long long offset, unsigned long s
 	AIO_READ * ar = new AIO_READ(acto, fo, offset, size);
 	DWORD bytes_read = 0;
 	BOOL r = ::ReadFile(fh, ar->buf(), size, &bytes_read, ar);
-	return check_windows_op(r, FALSE, "::ReadFileEx failed");
+	return check_windows_op(r, FALSE, "::ReadFile failed");
+}
+
+bool Py_apoll::write(PyFileObject *fo, unsigned long long offset
+					 , ::PyObject *datao, ::PyObject *acto)
+{
+	HANDLE fh = file_iocp_preamble(fo);
+	if (fh == INVALID_HANDLE_VALUE) {
+		return false;
+	}
+
+    int len;
+    char *s;
+    if(-1 == PyString_AsStringAndSize(datao, &s, &len)) {
+        return NULL;
+    }
+
+	AIO_WRITE * wr = new AIO_WRITE(acto, fo, offset, datao);
+	DWORD bytes_written = 0;
+	BOOL r = ::WriteFile(fh, s, len, &bytes_written, wr);
+	return check_windows_op(r, FALSE, "::WriteFile failed");
+
 }
 
 ::PyObject * Py_apoll::poll(unsigned long ms)
@@ -616,6 +715,27 @@ PyObject* Py_apoll::accept_meth(Py_apoll *self, ::PyObject *args)
 	return Py_None;
 }
 
+::PyObject * Py_apoll::write_meth(Py_apoll * self, ::PyObject * args)
+{
+	::PyObject * fo_raw, *acto, *datao;
+	unsigned long long offset = 0;
+	if(!PyArg_ParseTuple(args, "OKOO:write", &fo_raw, &offset, &datao, &acto)) {
+		return NULL;
+	}
+
+	PyFileObject * fo = py_convert<PyFileObject>(fo_raw, &PyFile_Type);
+	if(NULL == fo) {
+		return NULL;
+	}
+
+	if(!self->write(fo, offset, datao, acto)) {
+		return NULL;
+	}
+
+	Py_INCREF(Py_None);
+	return Py_None;
+}
+
 ::PyObject * Py_apoll::read_meth(Py_apoll * self, ::PyObject * args)
 {
 	::PyObject * fo_raw, *acto;
@@ -687,6 +807,11 @@ static PyMethodDef apoll_methods[] = {
 		, reinterpret_cast<PyCFunction>(&Py_apoll::read_meth)
 		, METH_VARARGS
 		, "start asynchronous read operation on file"
+	}
+	, { "write"
+		, reinterpret_cast<PyCFunction>(&Py_apoll::write_meth)
+		, METH_VARARGS
+		, "start asynchronous write operation on file" 
 	}
     , {NULL} /* Sentinel */
 };
