@@ -14,12 +14,12 @@ protected:
 
 public:
     AIO_ROOT(::PyObject *acto) 
+		: acto_(acto)
     {
         Internal = InternalHigh = 0;
         Offset = OffsetHigh = 0;
         hEvent = 0;
         Py_XINCREF(acto);
-        acto_ = acto;
     }
     virtual ~AIO_ROOT() 
     {
@@ -35,19 +35,25 @@ class Py_apoll::AIO_ACCEPT : public Py_apoll::AIO_ROOT
 public:
     AIO_ACCEPT(::PyObject *acto
         , ::PySocketSockObject *lso
-        , ::PySocketSockObject *aso)
+        , ::PySocketSockObject *aso
+		, ::PyObject *lso_ref
+		, ::PyObject *aso_ref)
         : AIO_ROOT(acto) 
+		, lso_ref_(lso_ref)
+		, aso_ref_(aso_ref)
+		, lfd_(lso->sock_fd)
+		, afd_(aso->sock_fd)
+		, lproto_(lso->sock_proto)
+		, aproto_(aso->sock_proto)
     {
-        Py_XINCREF(lso);
-        lso_ = lso;
-        Py_XINCREF(aso);
-        aso_ = aso;
+        Py_XINCREF(lso_ref);
+        Py_XINCREF(aso_ref);
     }
 
     virtual ~AIO_ACCEPT() 
     {
-        Py_XDECREF(lso_);
-        Py_XDECREF(aso_);
+        Py_XDECREF(lso_ref_);
+        Py_XDECREF(aso_ref_);
     }
 
     virtual ::PyObject* dump(BOOL success, DWORD bytes_transferred);
@@ -57,49 +63,51 @@ public:
     unsigned char addr_buf_[addr_buf_size];
 
 private:
-    ::PySocketSockObject *lso_;
-    ::PySocketSockObject *aso_;
+	SOCKET lfd_, afd_;
+	int lproto_, aproto_;
+    ::PyObject *lso_ref_;
+    ::PyObject *aso_ref_;
 };
 
 
 class Py_apoll::AIO_CONNECT : public Py_apoll::AIO_ROOT
 {
 public:
-    AIO_CONNECT(::PyObject *acto, ::PySocketSockObject *so)
+    AIO_CONNECT(::PyObject *acto, ::PyObject *so_ref)
         : AIO_ROOT(acto)
+		, so_ref_(so_ref)
     {
-        Py_XINCREF(so);
-        so_ = so;
+        Py_XINCREF(so_ref);
     }
 
     virtual ~AIO_CONNECT()
     {
-        Py_XDECREF(so_);
+        Py_XDECREF(so_ref_);
     }
 
     virtual ::PyObject * dump(BOOL success, DWORD bytes_transferred);
 private:
-    ::PySocketSockObject *so_;
+    ::PyObject *so_ref_;
 };
 
 class Py_apoll::AIO_RECV : public Py_apoll::AIO_ROOT
 {
 public:
-    AIO_RECV(::PyObject *acto, ::PySocketSockObject *so
+    AIO_RECV(::PyObject *acto, ::PyObject *so_ref
         , unsigned long size
         , unsigned long flags)
         : AIO_ROOT(acto)
+		, so_ref_(so_ref)
     {
         buf_ = reinterpret_cast<char*>(malloc(size));
         size_ = size;
         flags_ = flags;
-        Py_XINCREF(so);
-        so_ = so;
+        Py_XINCREF(so_ref);
     }
 
     virtual ~AIO_RECV()
     {
-        Py_XDECREF(so_);
+        Py_XDECREF(so_ref_);
         free(buf_);
     }
 
@@ -108,7 +116,7 @@ public:
     char * buf() const { return buf_; }
 
 protected:
-    PySocketSockObject *so_;
+	::PyObject *so_ref_;
 private:
     unsigned long size_, flags_;
     char * buf_;
@@ -117,12 +125,15 @@ private:
 class Py_apoll::AIO_RECVFROM : public Py_apoll::AIO_RECV
 {
 public:
-    AIO_RECVFROM(::PyObject *acto, ::PySocketSockObject *so
+    AIO_RECVFROM(::PyObject *acto, ::PyObject *so_ref
+		, ::PySocketSockObject *so
         , unsigned long size
         , unsigned long flags)
-        : AIO_RECV(acto, so, size, flags)
+        : AIO_RECV(acto, so_ref, size, flags)
+		, fromlen_(sizeof(from_))
+		, fd_(so->sock_fd)
+		, proto_(so->sock_proto)
     {
-        fromlen_ = sizeof(from_);
     }
 
     virtual ~AIO_RECVFROM() {}
@@ -132,6 +143,8 @@ public:
     sockaddr * from() { return &from_; }
     int * fromlen() { return &fromlen_; }
 private:
+	SOCKET fd_;
+	int proto_;
     sockaddr from_;
     int fromlen_;
 };
@@ -139,27 +152,27 @@ private:
 class Py_apoll::AIO_SEND : public Py_apoll::AIO_ROOT
 {
 public:
-    AIO_SEND(::PyObject *acto, ::PySocketSockObject *so
+    AIO_SEND(::PyObject *acto, ::PyObject *so_ref
         , unsigned long flags
         , ::PyObject *datao)
         : AIO_ROOT(acto)
+		, so_ref_(so_ref)
+		, datao_(datao)
+		, flags_(flags)
     {
-        Py_XINCREF(so);
-        so_ = so;
+        Py_XINCREF(so_ref);
         Py_XINCREF(datao);
-        datao_ = datao;
-        flags_ = flags;
     }
 
     virtual ~AIO_SEND()
     {
-        Py_XDECREF(so_);
+        Py_XDECREF(so_ref_);
         Py_XDECREF(datao_);
     }
 
     virtual ::PyObject * dump(BOOL success, DWORD bytes_transferred);
 private:
-    ::PySocketSockObject *so_;
+    ::PyObject *so_ref_;
     ::PyObject *datao_;
     unsigned long flags_;
 };
@@ -167,14 +180,14 @@ private:
 class Py_apoll::AIO_SENDTO : public Py_apoll::AIO_SEND
 {
 public:
-    AIO_SENDTO(::PyObject *acto, ::PySocketSockObject *so
+    AIO_SENDTO(::PyObject *acto, ::PyObject *so_ref
         , ::PyObject *addro
         , unsigned long flags
         , ::PyObject *datao)
-        : AIO_SEND(acto, so, flags, datao)
+        : AIO_SEND(acto, so_ref, flags, datao)
+		, addro_(addro)
     {
         Py_XINCREF(addro);
-        addro_ = addro;
     }
 
     virtual ~AIO_SENDTO()

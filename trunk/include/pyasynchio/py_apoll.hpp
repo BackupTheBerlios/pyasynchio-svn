@@ -49,18 +49,25 @@ public:
 
     bool accept(::PySocketSockObject *listen_socket
 		, ::PySocketSockObject *accept_socket
+		, ::PyObject *lsock_ref_obj
+		, ::PyObject *asock_ref_obj
 		, ::PyObject *act);
-    bool connect(::PySocketSockObject *so, ::PyObject *addro, ::PyObject *acto);
-    bool send(::PySocketSockObject *so, ::PyObject *datao, unsigned long flags
+	bool connect(::PySocketSockObject *so, ::PyObject *so_ref
+		, ::PyObject *addro, ::PyObject *acto);
+	bool send(::PySocketSockObject *so, ::PyObject *so_ref
+		, ::PyObject *datao, unsigned long flags
         , ::PyObject *acto);
-    bool sendto(::PySocketSockObject *so, ::PyObject *addro
+	bool sendto(::PySocketSockObject *so, ::PyObject *so_ref
+		, ::PyObject *addro
         , ::PyObject *datao
 		, unsigned long flags
 		, ::PyObject *acto);
-    bool recv(::PySocketSockObject *so, unsigned long bufsize
+	bool recv(::PySocketSockObject *so, ::PyObject *so_ref
+		, unsigned long bufsize
 		, unsigned long flags
         , ::PyObject *acto);
-	bool recvfrom(::PySocketSockObject *so, unsigned long bufsize
+	bool recvfrom(::PySocketSockObject *so, ::PyObject *so_ref
+		, unsigned long bufsize
 		, unsigned long flags
 		, ::PyObject *acto);
     bool cancel(::PyObject *o);
@@ -73,7 +80,7 @@ public:
 		, ::PyObject *acto);
 		
 
-	::PyObject* poll(unsigned long ms);
+	::PyObject* poll(long ms);
 
 	static int init_func(PyObject *self, PyObject *args, PyObject *kwds);
 	static void dealloc(Py_apoll *self);
@@ -159,7 +166,7 @@ bool Py_apoll::check_windows_op(T function_result, T error_result, char *msg)
 }
 
 
-extern "C" PYASYNCHIO_LINK_DECL void initpyasynchio(void);
+extern "C" PYASYNCHIO_LINK_DECL void init_pyasynchio(void);
 
 } // namespace pyasynchio
 

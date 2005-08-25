@@ -52,22 +52,22 @@ def gather(space_src_path, bin_path, dst_path):
         link(src_file_name, dst_file_name)
 
     pyasynchio_dst_path = join(dst_path, 'pyasynchio')
-    ace_dst_path = join(dst_path, 'ace')
-    boost_dst_path = join(dst_path, 'boost')
-    std_dst_path = join(dst_path, 'std')
-    boost_signals_dst_path = join(boost_dst_path, 'signals')
-    try:
-        linkfile(bin_path, dst_path, 'ACE.dll')
-    except:
-        linkfile(bin_path, dst_path, 'ACEd.dll')
+#    ace_dst_path = join(dst_path, 'ace')
+#    boost_dst_path = join(dst_path, 'boost')
+#    std_dst_path = join(dst_path, 'std')
+#    boost_signals_dst_path = join(boost_dst_path, 'signals')
+#    try:
+#        linkfile(bin_path, dst_path, 'ACE.dll')
+#    except:
+#        linkfile(bin_path, dst_path, 'ACEd.dll')
 #    linkfile(bin_path, dst_path, 'boost_signals.dll')
-    linkfile(bin_path, dst_path, 'boost_python.dll')
-    linkfile(bin_path, dst_path, 'pyasynchio.dll')
-    linkfile(bin_path, ace_dst_path, '_ace.pyd')
-    linkfile(bin_path, std_dst_path, '_std.pyd')
-    linkfile(bin_path, boost_dst_path, '_boost.pyd')
+#    linkfile(bin_path, dst_path, 'boost_python.dll')
+    linkfile(bin_path, pyasynchio_dst_path, '_pyasynchio.dll')
+#    linkfile(bin_path, ace_dst_path, '_ace.pyd')
+#    linkfile(bin_path, std_dst_path, '_std.pyd')
+#    linkfile(bin_path, boost_dst_path, '_boost.pyd')
  #   linkfile(bin_path, boost_signals_dst_path, '_boost_signals.pyd')
-    linkfile(bin_path, pyasynchio_dst_path, '_pyasynchio.pyd')
+#    linkfile(bin_path, pyasynchio_dst_path, '_pyasynchio.pyd')
 
 def main():
     from sys import argv

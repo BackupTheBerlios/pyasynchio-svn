@@ -65,6 +65,8 @@ bool Py_apoll::sock_iocp_preamble(SOCKET sock)
 
 bool Py_apoll::accept(::PySocketSockObject *listen_sock
                       , ::PySocketSockObject *accept_sock
+					  , ::PyObject *lsock_ref_obj
+					  , ::PyObject *asock_ref_obj
                       , ::PyObject *acto)
 {
     if (!sock_iocp_preamble(listen_sock->sock_fd)) {
@@ -73,6 +75,8 @@ bool Py_apoll::accept(::PySocketSockObject *listen_sock
     AIO_ACCEPT *ova = new AIO_ACCEPT(acto               // acto
         , listen_sock                                   // lso
         , accept_sock       // aso
+		, lsock_ref_obj
+		, asock_ref_obj
         );
     DWORD num_bytes_rcvd = 0;
     BOOL r = ::AcceptEx(listen_sock->sock_fd    // sListenSocket 
@@ -87,14 +91,16 @@ bool Py_apoll::accept(::PySocketSockObject *listen_sock
     return check_wsa_op(r, TRUE, "::AcceptEx failed");
 }
 
-bool Py_apoll::recv(::PySocketSockObject *so, unsigned long bufsize
+bool Py_apoll::recv(::PySocketSockObject *so
+					, ::PyObject *so_ref
+					, unsigned long bufsize
                     , unsigned long flags
                     , ::PyObject *acto)
 {
     if (!sock_iocp_preamble(so->sock_fd)) {
         return false;
     }
-    AIO_RECV * ovr = new AIO_RECV(acto, so, bufsize, flags);
+    AIO_RECV * ovr = new AIO_RECV(acto, so_ref, bufsize, flags);
     WSABUF wb;
     wb.buf = ovr->buf();
     wb.len = bufsize;
@@ -110,14 +116,16 @@ bool Py_apoll::recv(::PySocketSockObject *so, unsigned long bufsize
     return check_wsa_op(r, 0, "::WSARecv failed");
 }
 
-bool Py_apoll::recvfrom(::PySocketSockObject * so, unsigned long bufsize
+bool Py_apoll::recvfrom(::PySocketSockObject * so
+						, ::PyObject *so_ref
+						, unsigned long bufsize
                         , unsigned long flags
                         , ::PyObject * acto)
 {
     if (!sock_iocp_preamble(so->sock_fd)) {
         return false;
     }
-    AIO_RECVFROM *ovf = new AIO_RECVFROM(acto, so, bufsize, flags);
+    AIO_RECVFROM *ovf = new AIO_RECVFROM(acto, so_ref, so, bufsize, flags);
     WSABUF wb;
     wb.buf = ovf->buf();
     wb.len = bufsize;
@@ -135,7 +143,8 @@ bool Py_apoll::recvfrom(::PySocketSockObject * so, unsigned long bufsize
     return check_wsa_op(r, 0, "::WSARecvFrom failed");
 }
 
-bool Py_apoll::sendto(::PySocketSockObject *so, ::PyObject *addro
+bool Py_apoll::sendto(::PySocketSockObject *so, ::PyObject *so_ref
+					  , ::PyObject *addro
                       , ::PyObject *datao
                       , unsigned long flags
                       , ::PyObject *acto)
@@ -159,7 +168,7 @@ bool Py_apoll::sendto(::PySocketSockObject *so, ::PyObject *addro
     wb.buf = s;
     wb.len = len;
 
-    AIO_SENDTO *ovt = new AIO_SENDTO(acto, so, addro, flags, datao);
+    AIO_SENDTO *ovt = new AIO_SENDTO(acto, so_ref, addro, flags, datao);
 
     DWORD bytes_sent = 0;
     int r = ::WSASendTo(so->sock_fd             // SOCKET s
@@ -175,7 +184,8 @@ bool Py_apoll::sendto(::PySocketSockObject *so, ::PyObject *addro
     return check_wsa_op(r, 0, "::WSASendTo failed");
 }
 
-bool Py_apoll::send(::PySocketSockObject *so, ::PyObject *datao, unsigned long flags
+bool Py_apoll::send(::PySocketSockObject *so, ::PyObject *so_ref
+					, ::PyObject *datao, unsigned long flags
                     , ::PyObject *acto)
 {
     if (!sock_iocp_preamble(so->sock_fd)) {
@@ -190,7 +200,7 @@ bool Py_apoll::send(::PySocketSockObject *so, ::PyObject *datao, unsigned long f
     WSABUF wb;
     wb.buf = s;
     wb.len = len;
-    AIO_SEND * ovs = new AIO_SEND(acto, so, flags, datao);
+    AIO_SEND * ovs = new AIO_SEND(acto, so_ref, flags, datao);
     DWORD bytes_sent = 0;
     int r = ::WSASend(so->sock_fd               // SOCKET s
         , &wb                               // LPWSABUF lpBuffers
@@ -203,7 +213,8 @@ bool Py_apoll::send(::PySocketSockObject *so, ::PyObject *datao, unsigned long f
     return check_wsa_op(r, 0, "::WSASend failed");
 }
 
-bool Py_apoll::connect(::PySocketSockObject *so, ::PyObject *addro, ::PyObject *acto)
+bool Py_apoll::connect(::PySocketSockObject *so, ::PyObject *so_ref
+					   , ::PyObject *addro, ::PyObject *acto)
 {
     if (!sock_iocp_preamble(so->sock_fd)) {
         return false;
@@ -213,7 +224,7 @@ bool Py_apoll::connect(::PySocketSockObject *so, ::PyObject *addro, ::PyObject *
     if (!getsockaddrarg(so, addro, &addr, &addr_len)) {
         return false;
     }
-    AIO_CONNECT * ovc = new AIO_CONNECT(acto, so);
+    AIO_CONNECT * ovc = new AIO_CONNECT(acto, so_ref);
     GUID GuidConnectEx = WSAID_CONNECTEX;
     ::LPFN_CONNECTEX ConnectEx;
     DWORD dwBytes;
@@ -468,7 +479,7 @@ bool Py_apoll::write(PyFileObject *fo, unsigned long long offset
 
 }
 
-::PyObject * Py_apoll::poll(unsigned long ms)
+::PyObject * Py_apoll::poll(long ms)
 {
     DWORD bytes_transferred = 0;
     ULONG_PTR completion_key = 0;
@@ -533,8 +544,8 @@ static PyTypeObject apoll_Type = {
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT,        /*tp_flags*/
-    "Apoll objects",           /* tp_doc */
+    Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,        /*tp_flags*/
+    "apoll objects",           /* tp_doc */
 };
 
 
@@ -556,8 +567,12 @@ void Py_apoll::dealloc(pyasynchio::Py_apoll *self)
 
 PyObject* Py_apoll::accept_meth(Py_apoll *self, ::PyObject *args)
 {
-    PyObject *listen_sock_raw, *accept_sock_raw, *act;
-    if (!PyArg_ParseTuple(args, "OOO:accept", &listen_sock_raw, &accept_sock_raw, &act)) {
+    PyObject *listen_sock_raw, *accept_sock_raw
+		, *lsock_ref_obj, *asock_ref_obj
+		, *act;
+    if (!PyArg_ParseTuple(args, "OOOOO:accept", &listen_sock_raw, &accept_sock_raw
+		, &lsock_ref_obj, &asock_ref_obj
+		, &act)) {
         return NULL;
     }
 
@@ -573,7 +588,7 @@ PyObject* Py_apoll::accept_meth(Py_apoll *self, ::PyObject *args)
         return NULL;
     }
 
-    if(!self->accept(listen_sock, accept_sock, act)) {
+    if(!self->accept(listen_sock, accept_sock, lsock_ref_obj, asock_ref_obj, act)) {
         return NULL;
     }
 
@@ -583,8 +598,8 @@ PyObject* Py_apoll::accept_meth(Py_apoll *self, ::PyObject *args)
 
 ::PyObject * Py_apoll::connect_meth(Py_apoll *self, ::PyObject *args)
 {
-    PyObject *so_raw, *addro, *acto;
-    if (!PyArg_ParseTuple(args, "OOO:connect", &so_raw, &addro, &acto)) {
+    PyObject *so_raw, *so_ref, *addro, *acto;
+    if (!PyArg_ParseTuple(args, "OOOO:connect", &so_raw, &so_ref, &addro, &acto)) {
         return NULL;
     }
 
@@ -594,7 +609,7 @@ PyObject* Py_apoll::accept_meth(Py_apoll *self, ::PyObject *args)
         return NULL;
     }
 
-    if (!self->connect(so, addro, acto)) {
+    if (!self->connect(so, so_ref, addro, acto)) {
         return NULL;
     }
 
@@ -604,9 +619,9 @@ PyObject* Py_apoll::accept_meth(Py_apoll *self, ::PyObject *args)
 
 ::PyObject * Py_apoll::sendto_meth(Py_apoll * self, ::PyObject * args)
 {
-    ::PyObject *so_raw, *addro, *datao, *acto;
+    ::PyObject *so_raw, *so_ref, *addro, *datao, *acto;
     unsigned long flags;
-    if (!PyArg_ParseTuple(args, "OOOkO:sendto", &so_raw, &addro, &datao, &flags, &acto)) {
+    if (!PyArg_ParseTuple(args, "OOOOkO:sendto", &so_raw, &so_ref, &addro, &datao, &flags, &acto)) {
         return NULL;
     }
 
@@ -616,7 +631,7 @@ PyObject* Py_apoll::accept_meth(Py_apoll *self, ::PyObject *args)
         return NULL;
     }
 
-    if (!self->sendto(so, addro, datao, flags, acto)) {
+    if (!self->sendto(so, so_ref, addro, datao, flags, acto)) {
         return NULL;
     }
 
@@ -626,9 +641,10 @@ PyObject* Py_apoll::accept_meth(Py_apoll *self, ::PyObject *args)
 
 ::PyObject * Py_apoll::send_meth(Py_apoll * self, ::PyObject * args)
 {
-    ::PyObject *so_raw, *datao, *acto;
+    ::PyObject *so_raw, *so_ref, *datao, *acto;
     unsigned long flags;
-    if (!PyArg_ParseTuple(args, "OOkO:send", &so_raw, &datao, &flags, &acto)) {
+    if (!PyArg_ParseTuple(args, "OOOkO:send", &so_raw, &so_ref
+		, &datao, &flags, &acto)) {
         return NULL;
     }
 
@@ -638,7 +654,7 @@ PyObject* Py_apoll::accept_meth(Py_apoll *self, ::PyObject *args)
         return NULL;
     }
 
-    if (!self->send(so, datao, flags, acto)) {
+    if (!self->send(so, so_ref, datao, flags, acto)) {
         return NULL;
     }
 
@@ -648,9 +664,10 @@ PyObject* Py_apoll::accept_meth(Py_apoll *self, ::PyObject *args)
 
 ::PyObject * Py_apoll::recv_meth(Py_apoll *self, ::PyObject *args)
 {
-    ::PyObject *so_raw, *acto;
+    ::PyObject *so_raw, *so_ref, *acto;
     unsigned long flags, size;
-    if (!PyArg_ParseTuple(args, "OkkO:recv", &so_raw, &size, &flags, &acto)) {
+    if (!PyArg_ParseTuple(args, "OOkkO:recv", &so_raw, &so_ref
+		, &size, &flags, &acto)) {
         return NULL;
     }
 
@@ -660,7 +677,7 @@ PyObject* Py_apoll::accept_meth(Py_apoll *self, ::PyObject *args)
         return NULL;
     }
 
-    if (!self->recv(so, size, flags, acto)) {
+    if (!self->recv(so, so_ref, size, flags, acto)) {
         return NULL;
     }
 
@@ -670,9 +687,10 @@ PyObject* Py_apoll::accept_meth(Py_apoll *self, ::PyObject *args)
 
 ::PyObject * Py_apoll::recvfrom_meth(Py_apoll *self, ::PyObject *args)
 {
-    ::PyObject *so_raw, *acto;
+    ::PyObject *so_raw, *so_ref, *acto;
     unsigned long flags, size;
-    if (!PyArg_ParseTuple(args, "OkkO:recvfrom", &so_raw, &size, &flags, &acto)) {
+    if (!PyArg_ParseTuple(args, "OOkkO:recvfrom", &so_raw, &so_ref
+		, &size, &flags, &acto)) {
         return NULL;
     }
 
@@ -682,7 +700,7 @@ PyObject* Py_apoll::accept_meth(Py_apoll *self, ::PyObject *args)
         return NULL;
     }
 
-    if (!self->recvfrom(so, size, flags, acto)) {
+    if (!self->recvfrom(so, so_ref, size, flags, acto)) {
         return NULL;
     }
 
@@ -692,8 +710,8 @@ PyObject* Py_apoll::accept_meth(Py_apoll *self, ::PyObject *args)
 
 ::PyObject * Py_apoll::poll_meth(Py_apoll *self, ::PyObject *args)
 {
-    unsigned long ms;
-	if (!PyArg_ParseTuple(args, "k:poll", &ms)) {
+    long ms;
+	if (!PyArg_ParseTuple(args, "l:poll", &ms)) {
         return NULL;
     }
 
@@ -758,8 +776,68 @@ PyObject* Py_apoll::accept_meth(Py_apoll *self, ::PyObject *args)
 	return Py_None;
 }
 
+::PyObject * get_sock_family(::PyObject *self, ::PyObject *args)
+{
+	::PyObject *so_raw;
+	if(!PyArg_ParseTuple(args, "O:get_sock_family", &so_raw)) {
+		return NULL;
+	}
+    PySocketSockObject *so = py_convert<PySocketSockObject>(so_raw
+        , PySocketModule.Sock_Type);
+    if (NULL == so) {
+        return NULL;
+    }
+
+	return PyInt_FromLong(so->sock_family);
+}
+
+::PyObject * get_sock_type(::PyObject *self, ::PyObject *args)
+{
+	::PyObject *so_raw;
+	if(!PyArg_ParseTuple(args, "O:get_sock_type", &so_raw)) {
+		return NULL;
+	}
+    PySocketSockObject *so = py_convert<PySocketSockObject>(so_raw
+        , PySocketModule.Sock_Type);
+    if (NULL == so) {
+        return NULL;
+    }
+
+	return PyInt_FromLong(so->sock_type);
+}
+
+::PyObject * get_sock_proto(::PyObject *self, ::PyObject *args)
+{
+	::PyObject *so_raw;
+	if(!PyArg_ParseTuple(args, "O:get_sock_proto", &so_raw)) {
+		return NULL;
+	}
+    PySocketSockObject *so = py_convert<PySocketSockObject>(so_raw
+        , PySocketModule.Sock_Type);
+    if (NULL == so) {
+        return NULL;
+    }
+
+	return PyInt_FromLong(so->sock_proto);
+}
+
 static PyMethodDef pyasynchio_methods[] = {
-    {NULL}  /* Sentinel */
+	{ "get_sock_family"
+		, reinterpret_cast<PyCFunction>(&get_sock_family)
+		, METH_VARARGS
+		, "get socket family constant"
+	}
+	, { "get_sock_type"
+		, reinterpret_cast<PyCFunction>(&get_sock_type)
+		, METH_VARARGS
+		, "get socket type constant"
+	}
+	, { "get_sock_proto"
+		, reinterpret_cast<PyCFunction>(&get_sock_proto)
+		, METH_VARARGS
+		, "get socket protocol constant"
+	}
+    , {NULL}  /* Sentinel */
 };
 
 static PyMethodDef apoll_methods[] = {
@@ -817,7 +895,7 @@ static PyMethodDef apoll_methods[] = {
 };
 
 
-void initpyasynchio()
+void init_pyasynchio()
 {
     ::PySocketModule_ImportModuleAndAPI();
 
@@ -828,7 +906,7 @@ void initpyasynchio()
         return;
     }
 
-    PyObject *m = Py_InitModule("pyasynchio", pyasynchio_methods);
+    PyObject *m = Py_InitModule("_pyasynchio", pyasynchio_methods);
     Py_INCREF(&apoll_Type);
     PyModule_AddObject(m
         , "apoll"
