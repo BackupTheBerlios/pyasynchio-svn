@@ -1,16 +1,15 @@
 import unittest
-import pyasynchio
 import socket
 from echo import Echo
 
 class EchoFixture(unittest.TestCase):
     
     def setUp(self):
-        self.pro = pyasynchio.Proactor()
         self.port = 40274
-        self.echo = Echo(self.pro)
-        self.done = False
-        self.pro.open_stream_accept(self.echo, ('', self.port))
+        self.lsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.lsock.bind(('', self.port))
+        self.lsock.listen(5)
+        self.echo = Echo(self.lsock)
         import thread
         thread.start_new_thread(self.thr_func, ())
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -18,12 +17,11 @@ class EchoFixture(unittest.TestCase):
 
     def thr_func(self):
         while not self.done:
-            self.pro.handle_events(0.001)
+            self.echo.poll()
 
     def tearDown(self):
         self.done = True
-        self.sock.send("shutdown")
-        self.sock.close()
+        self.sock.shutdown(socket.SHUT_RDWR)
 
 class TestEcho(EchoFixture):
     def test_it(self):

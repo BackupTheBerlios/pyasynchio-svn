@@ -82,7 +82,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="Mswsock.lib Ws2_32.lib"
-				OutputFile="$(OutDir)/_($ProjectName).dll"
+				OutputFile="$(OutDir)/_$(ProjectName).dll"
 				LinkIncremental="1"
 				GenerateDebugInformation="FALSE"
 				SubSystem="2"

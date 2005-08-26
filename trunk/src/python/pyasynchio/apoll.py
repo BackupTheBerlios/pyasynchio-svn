@@ -38,11 +38,11 @@ class apoll(_apoll):
         return _apoll.poll(self, timeout)
     
     def cancel(self, obj):
-        pass
+        return _apoll.cancel(self, obj)
 
     def read(self, file, offset, size, act = None):
-        pass
+        return _apoll.read(self, file, offset, size, act)
 
     def write(self, file, offset, data, act = None):
-        pass
+        return _apoll.write(self, file, offset, data, act)
         

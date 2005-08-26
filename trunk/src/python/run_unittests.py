@@ -1,3 +1,4 @@
+import unittest
 import pyasynchio.test
 print 'running tests for pyasynchio module...'
-pyasynchio.test.run()
+unittest.TextTestRunner().run(pyasynchio.test.suite)
