@@ -2,8 +2,8 @@ from _pyasynchio import apoll as _apoll, get_sock_family, get_sock_type, get_soc
 import socket
 
 class apoll(_apoll):
-    def __init__(self):
-        _apoll.__init__(self)
+    def __init__(self, max_threads = 0):
+        _apoll.__init__(self, max_threads)
 
     def accept(self, lsock, act = None):
         lsock_family = get_sock_family(lsock._sock)

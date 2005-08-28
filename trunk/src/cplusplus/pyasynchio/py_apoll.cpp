@@ -9,7 +9,7 @@ namespace pyasynchio {
 Py_apoll::g_file_closers_type Py_apoll::g_file_closers;
 Py_apoll::g_file_registry_type Py_apoll::g_file_registry;
 
-Py_apoll::Py_apoll()
+Py_apoll::Py_apoll(unsigned long maxProcessingThreads /* = 0 */)
 {
     iocp_handle_ = ::CreateIoCompletionPort(
         INVALID_HANDLE_VALUE // File handle 
@@ -553,11 +553,11 @@ static PyTypeObject apoll_Type = {
 
 int Py_apoll::init_func(PyObject *self, PyObject *args, PyObject *kwds)
 {
-    char* keywords[] = { NULL };
-    if (!PyArg_ParseTupleAndKeywords(args, kwds, ":apoll", keywords)) {
+	unsigned long maxConcurrentThreads = 0;
+    if (!PyArg_ParseTuple(args, "|k:apoll", &maxConcurrentThreads)) {
         return NULL;
     }
-    new (self) pyasynchio::Py_apoll;
+    new (self) pyasynchio::Py_apoll(maxConcurrentThreads);
     return TRUE;
 }
 

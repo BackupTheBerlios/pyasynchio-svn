@@ -1,8 +1,0 @@
-// -*- MPC -*-
-// security.mpb,v 1.8 2004/08/30 19:09:50 ossama Exp
-
-project : interceptors, portableserver, valuetype, corba_messaging, orbsvcslib {
-  after     += Security
-  libs      += TAO_Security
-  tagchecks += Security
-}

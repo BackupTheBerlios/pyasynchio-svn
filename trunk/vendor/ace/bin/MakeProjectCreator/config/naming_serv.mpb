@@ -1,8 +1,0 @@
-// -*- MPC -*-
-// naming_serv.mpb,v 1.1 2004/09/07 23:42:00 jtc Exp
-
-project : orbsvcslib, naming_skel, iortable, messaging, svc_utils {
-  after     += CosNaming_Serv
-  libs      += TAO_CosNaming_Serv
-  tagchecks += Naming
-}

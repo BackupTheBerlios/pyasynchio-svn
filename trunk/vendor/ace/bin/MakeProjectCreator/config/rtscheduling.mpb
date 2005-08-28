@@ -1,7 +1,0 @@
-// -*- MPC -*-
-// rtscheduling.mpb,v 1.4 2004/11/10 18:50:08 elliott_c Exp
-
-project : rtcorba, portableserver {
-  after   += RTScheduler 
-  libs    += TAO_RTScheduler
-}

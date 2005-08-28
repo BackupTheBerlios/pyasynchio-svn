@@ -1,2 +1,0 @@
-PCHInclude("pyste/common_includes.hpp")
-Function("ACE_OS::gettimeofday", "ACE/OS.h")

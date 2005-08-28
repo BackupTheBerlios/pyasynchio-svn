@@ -1,9 +1,0 @@
-// -*- MPC -*-
-// loadbalancing.mpb,v 1.8 2004/08/27 09:06:06 jwillemsen Exp
-
-project : messaging, naming, portablegroup, iorinterceptor {
-  libs      += TAO_CosLoadBalancing
-  after     += CosLoadBalancing
-  tagchecks += CosLoadBalancing
-  requires  += ami
-}

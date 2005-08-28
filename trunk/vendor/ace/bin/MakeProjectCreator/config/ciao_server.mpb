@@ -1,7 +1,0 @@
-// -*- MPC -*-
-// ciao_server.mpb,v 1.5 2004/09/11 03:55:57 bala Exp
-
-project : ciao_component, utils {
-  after += CIAO_Server
-  libs    += CIAO_Server
-}

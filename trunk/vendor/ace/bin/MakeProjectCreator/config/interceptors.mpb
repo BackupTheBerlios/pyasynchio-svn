@@ -1,6 +1,0 @@
-// -*- MPC -*-
-// interceptors.mpb,v 1.1 2004/08/18 04:00:26 jtc Exp
-
-project {
-  requires += interceptors
-}

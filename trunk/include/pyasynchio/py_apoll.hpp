@@ -44,7 +44,7 @@ public:
 	class AIO_READ;
 	class AIO_WRITE;
 
-    Py_apoll();
+    Py_apoll(unsigned long maxProcessingThreads = 0);
     ~Py_apoll();
 
     bool accept(::PySocketSockObject *listen_socket

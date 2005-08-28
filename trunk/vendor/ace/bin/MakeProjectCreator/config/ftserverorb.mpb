@@ -1,8 +1,0 @@
-// -*- MPC -*-
-// ftserverorb.mpb,v 1.5 2004/12/22 14:05:04 elliott_c Exp
-
-project : ftorbutils, portablegroup, interceptors {
-  after     += FT_ServerORB 
-  libs      += TAO_FT_ServerORB 
-  tagchecks += FT_ServerORB 
-}
