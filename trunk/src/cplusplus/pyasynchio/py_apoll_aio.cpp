@@ -53,11 +53,12 @@ namespace pyasynchio {
 
 ::PyObject * Py_apoll::AIO_CONNECT::dump(BOOL success, DWORD bytes_transferred)
 {
-    return Py_BuildValue("{sssisOsO}"
+    return Py_BuildValue("{sssisOsOsO}"
         , "type", "connect"
         , "success", static_cast<int>(success)
         , "socket", so_ref_
-        , "act", acto_);
+        , "act", acto_
+		, "addr", addro_);
 }
 
 ::PyObject * Py_apoll::AIO_SEND::dump(BOOL success, DWORD bytes_transferred)
@@ -84,12 +85,13 @@ namespace pyasynchio {
 
 ::PyObject * Py_apoll::AIO_RECV::dump(BOOL success, DWORD bytes_transferred)
 {
-    PyObject * dp = Py_BuildValue("{sssislsOsO}"
+    PyObject * dp = Py_BuildValue("{sssislsOsOsk}"
         , "type", "recv"
         , "success", static_cast<int>(success)
         , "bufsize", size_
         , "socket", so_ref_
-        , "act", acto_);
+        , "act", acto_
+		, "flags", flags_);
 
     if (success) {
 	    ::PyObject * bufo;

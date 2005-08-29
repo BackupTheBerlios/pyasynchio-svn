@@ -224,7 +224,7 @@ bool Py_apoll::connect(::PySocketSockObject *so, ::PyObject *so_ref
     if (!getsockaddrarg(so, addro, &addr, &addr_len)) {
         return false;
     }
-    AIO_CONNECT * ovc = new AIO_CONNECT(acto, so_ref);
+    AIO_CONNECT * ovc = new AIO_CONNECT(acto, so_ref, addro);
     GUID GuidConnectEx = WSAID_CONNECTEX;
     ::LPFN_CONNECTEX ConnectEx;
     DWORD dwBytes;

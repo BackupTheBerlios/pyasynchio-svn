@@ -73,21 +73,25 @@ private:
 class Py_apoll::AIO_CONNECT : public Py_apoll::AIO_ROOT
 {
 public:
-    AIO_CONNECT(::PyObject *acto, ::PyObject *so_ref)
+	AIO_CONNECT(::PyObject *acto, ::PyObject *so_ref, ::PyObject *addro)
         : AIO_ROOT(acto)
 		, so_ref_(so_ref)
+		, addro_(addro)
     {
         Py_XINCREF(so_ref);
+        Py_XINCREF(addro);
     }
 
     virtual ~AIO_CONNECT()
     {
         Py_XDECREF(so_ref_);
+		Py_XDECREF(addro_);
     }
 
     virtual ::PyObject * dump(BOOL success, DWORD bytes_transferred);
 private:
     ::PyObject *so_ref_;
+	::PyObject *addro_;
 };
 
 class Py_apoll::AIO_RECV : public Py_apoll::AIO_ROOT
