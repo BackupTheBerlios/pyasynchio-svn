@@ -22,6 +22,7 @@ setup(name = 'pyasynchio'
         , version = version
         , description = 'Python asynchronous I/O library'
         , author = 'Vladimir Sukhoy'
+        , license = 'MIT license'
         , author_email = 'randolphu@users.berlios.de'
         , url = 'http://developer.berlios.de/projects/pyasynchio'
         , packages = ['pyasynchio', 'pyasynchio.test']
