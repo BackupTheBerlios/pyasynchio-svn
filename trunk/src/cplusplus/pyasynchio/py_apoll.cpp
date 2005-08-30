@@ -24,6 +24,30 @@ Py_apoll::Py_apoll(unsigned long maxProcessingThreads /* = 0 */)
 
 Py_apoll::~Py_apoll()
 {
+    for(;;) {
+        BOOL success = FALSE;
+        OVERLAPPED *ovl = NULL;
+		ULONG bytes_transferred = 0;
+		ULONG completion_key = 0;
+        Py_BEGIN_ALLOW_THREADS;
+        success = ::GetQueuedCompletionStatus(iocp_handle_  // CompletionPort
+            , &bytes_transferred                                // lpNumberOfBytesTransferred
+            , &completion_key                                   // lpCompletionKey
+            , &ovl                                              // lpOverlapped
+            , 0                                                // dwMilliseconds
+            );
+        Py_END_ALLOW_THREADS;
+		AIO_ROOT *ovr = 0;
+        ovr = static_cast<AIO_ROOT*>(ovl);
+
+        if ( (0 == ovl) && (FALSE == success) ) {
+            break;
+        }
+
+        delete ovr;
+    }
+
+
     ::CloseHandle(iocp_handle_);
     asynch_handles_type::const_iterator citer;
     for(citer = asynch_handles_.begin(); citer != asynch_handles_.end(); ++citer) {
