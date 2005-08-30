@@ -3,6 +3,7 @@
 #
 # Manifest template for creating the pywin32 source distribution.
 
+include license.txt
 include MANIFEST.in
 include include/mscrt/*.h
 include include/pyasynchio/*.hpp
