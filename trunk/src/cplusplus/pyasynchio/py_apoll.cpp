@@ -1,3 +1,25 @@
+/*
+Copyright (c) 2005 Vladimir Sukhoy
+
+Permission is hereby granted, free of charge, to any person obtaining a copy 
+of this software and associated documentation files (the "Software"), to deal 
+in the Software without restriction, including without limitation the rights 
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell 
+copies of the Software, and to permit persons to whom the Software is furnished 
+to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all 
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
+PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
+
 #include <pyasynchio/py_apoll.hpp>
 #include <new>
 #include <internal.h>
@@ -27,8 +49,8 @@ Py_apoll::~Py_apoll()
     for(;;) {
         BOOL success = FALSE;
         OVERLAPPED *ovl = NULL;
-		ULONG bytes_transferred = 0;
-		ULONG completion_key = 0;
+        ULONG bytes_transferred = 0;
+        ULONG completion_key = 0;
         Py_BEGIN_ALLOW_THREADS;
         success = ::GetQueuedCompletionStatus(iocp_handle_  // CompletionPort
             , &bytes_transferred                                // lpNumberOfBytesTransferred
@@ -37,7 +59,7 @@ Py_apoll::~Py_apoll()
             , 0                                                // dwMilliseconds
             );
         Py_END_ALLOW_THREADS;
-		AIO_ROOT *ovr = 0;
+        AIO_ROOT *ovr = 0;
         ovr = static_cast<AIO_ROOT*>(ovl);
 
         if ( (0 == ovl) && (FALSE == success) ) {
@@ -577,7 +599,7 @@ static PyTypeObject apoll_Type = {
 
 int Py_apoll::init_func(PyObject *self, PyObject *args, PyObject *kwds)
 {
-	unsigned long maxConcurrentThreads = 0;
+    unsigned long maxConcurrentThreads = 0;
     if (!PyArg_ParseTuple(args, "|k:apoll", &maxConcurrentThreads)) {
         return NULL;
     }

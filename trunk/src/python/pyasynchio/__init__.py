@@ -1,4 +1,23 @@
-"""\
+# Copyright (c) 2005 Vladimir Sukhoy
+
+# Permission is hereby granted, free of charge, to any person obtaining a copy 
+# of this software and associated documentation files (the "Software"), to deal 
+# in the Software without restriction, including without limitation the rights 
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell 
+# copies of the Software, and to permit persons to whom the Software is furnished 
+# to do so, subject to the following conditions:
+
+# The above copyright notice and this permission notice shall be included in all 
+# copies or substantial portions of the Software.
+
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+# INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
+# PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
+# OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+__doc__="""\
 This module provides support for asynchronous I/O (INPUT/OUTPUT) operations.
 Currently it is available only on Windows (since 2000). Currently only socket 
 and file I/O is supported. This module uses builtin objects for files and 
@@ -39,7 +58,6 @@ simplify identification and processing of AIO results.
 
 On Windows this module uses I/O completion ports and "overlapped" I/O directly
 rather than relying on some library.
-
 """
 
 from apoll import apoll

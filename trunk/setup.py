@@ -1,5 +1,5 @@
 #!/user/bin/env python
-version = '0.9.1'
+version = '0.9.2'
 
 from distutils.core import setup, Extension
 from distutils.sysconfig import get_python_inc, PREFIX

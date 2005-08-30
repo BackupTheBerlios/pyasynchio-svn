@@ -1,3 +1,24 @@
+/*
+Copyright (c) 2005 Vladimir Sukhoy
+
+Permission is hereby granted, free of charge, to any person obtaining a copy 
+of this software and associated documentation files (the "Software"), to deal 
+in the Software without restriction, including without limitation the rights 
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell 
+copies of the Software, and to permit persons to whom the Software is furnished 
+to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all 
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
+PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
 #ifndef PYASYNCHIO_PY_APOLL_AIO_HPP_INCLUDED_
 #define PYASYNCHIO_PY_APOLL_AIO_HPP_INCLUDED_
 
@@ -14,7 +35,7 @@ protected:
 
 public:
     AIO_ROOT(::PyObject *acto) 
-		: acto_(acto)
+        : acto_(acto)
     {
         Internal = InternalHigh = 0;
         Offset = OffsetHigh = 0;
@@ -36,15 +57,15 @@ public:
     AIO_ACCEPT(::PyObject *acto
         , ::PySocketSockObject *lso
         , ::PySocketSockObject *aso
-		, ::PyObject *lso_ref
-		, ::PyObject *aso_ref)
+        , ::PyObject *lso_ref
+        , ::PyObject *aso_ref)
         : AIO_ROOT(acto) 
-		, lso_ref_(lso_ref)
-		, aso_ref_(aso_ref)
-		, lfd_(lso->sock_fd)
-		, afd_(aso->sock_fd)
-		, lproto_(lso->sock_proto)
-		, aproto_(aso->sock_proto)
+        , lso_ref_(lso_ref)
+        , aso_ref_(aso_ref)
+        , lfd_(lso->sock_fd)
+        , afd_(aso->sock_fd)
+        , lproto_(lso->sock_proto)
+        , aproto_(aso->sock_proto)
     {
         Py_XINCREF(lso_ref);
         Py_XINCREF(aso_ref);
@@ -63,8 +84,8 @@ public:
     unsigned char addr_buf_[addr_buf_size];
 
 private:
-	SOCKET lfd_, afd_;
-	int lproto_, aproto_;
+    SOCKET lfd_, afd_;
+    int lproto_, aproto_;
     ::PyObject *lso_ref_;
     ::PyObject *aso_ref_;
 };
@@ -73,10 +94,10 @@ private:
 class Py_apoll::AIO_CONNECT : public Py_apoll::AIO_ROOT
 {
 public:
-	AIO_CONNECT(::PyObject *acto, ::PyObject *so_ref, ::PyObject *addro)
+    AIO_CONNECT(::PyObject *acto, ::PyObject *so_ref, ::PyObject *addro)
         : AIO_ROOT(acto)
-		, so_ref_(so_ref)
-		, addro_(addro)
+        , so_ref_(so_ref)
+        , addro_(addro)
     {
         Py_XINCREF(so_ref);
         Py_XINCREF(addro);
@@ -85,13 +106,13 @@ public:
     virtual ~AIO_CONNECT()
     {
         Py_XDECREF(so_ref_);
-		Py_XDECREF(addro_);
+        Py_XDECREF(addro_);
     }
 
     virtual ::PyObject * dump(BOOL success, DWORD bytes_transferred);
 private:
     ::PyObject *so_ref_;
-	::PyObject *addro_;
+    ::PyObject *addro_;
 };
 
 class Py_apoll::AIO_RECV : public Py_apoll::AIO_ROOT
@@ -101,7 +122,7 @@ public:
         , unsigned long size
         , unsigned long flags)
         : AIO_ROOT(acto)
-		, so_ref_(so_ref)
+        , so_ref_(so_ref)
     {
         buf_ = reinterpret_cast<char*>(malloc(size));
         size_ = size;
@@ -120,7 +141,7 @@ public:
     char * buf() const { return buf_; }
 
 protected:
-	::PyObject *so_ref_;
+    ::PyObject *so_ref_;
 private:
     unsigned long size_, flags_;
     char * buf_;
@@ -130,13 +151,13 @@ class Py_apoll::AIO_RECVFROM : public Py_apoll::AIO_RECV
 {
 public:
     AIO_RECVFROM(::PyObject *acto, ::PyObject *so_ref
-		, ::PySocketSockObject *so
+        , ::PySocketSockObject *so
         , unsigned long size
         , unsigned long flags)
         : AIO_RECV(acto, so_ref, size, flags)
-		, fromlen_(sizeof(from_))
-		, fd_(so->sock_fd)
-		, proto_(so->sock_proto)
+        , fromlen_(sizeof(from_))
+        , fd_(so->sock_fd)
+        , proto_(so->sock_proto)
     {
     }
 
@@ -147,8 +168,8 @@ public:
     sockaddr * from() { return &from_; }
     int * fromlen() { return &fromlen_; }
 private:
-	SOCKET fd_;
-	int proto_;
+    SOCKET fd_;
+    int proto_;
     sockaddr from_;
     int fromlen_;
 };
@@ -160,9 +181,9 @@ public:
         , unsigned long flags
         , ::PyObject *datao)
         : AIO_ROOT(acto)
-		, so_ref_(so_ref)
-		, datao_(datao)
-		, flags_(flags)
+        , so_ref_(so_ref)
+        , datao_(datao)
+        , flags_(flags)
     {
         Py_XINCREF(so_ref);
         Py_XINCREF(datao);
@@ -189,7 +210,7 @@ public:
         , unsigned long flags
         , ::PyObject *datao)
         : AIO_SEND(acto, so_ref, flags, datao)
-		, addro_(addro)
+        , addro_(addro)
     {
         Py_XINCREF(addro);
     }

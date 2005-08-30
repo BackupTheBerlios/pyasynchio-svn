@@ -1,3 +1,24 @@
+/*
+Copyright (c) 2005 Vladimir Sukhoy
+
+Permission is hereby granted, free of charge, to any person obtaining a copy 
+of this software and associated documentation files (the "Software"), to deal 
+in the Software without restriction, including without limitation the rights 
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell 
+copies of the Software, and to permit persons to whom the Software is furnished 
+to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all 
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
+PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
 #include <pyasynchio/py_apoll_aio.hpp>
 
 namespace pyasynchio {
@@ -12,41 +33,41 @@ namespace pyasynchio {
         , "accept_socket", aso_ref_
         , "act", acto_);
 
-	if(success) {
-		sockaddr *local_addr;
-		int local_size = 0;
-		sockaddr *remote_addr;
-		int remote_size = 0;
-		::GetAcceptExSockaddrs(addr_buf_        // lpOutputBuffer
-			, 0                                 // dwReceiveDataLength
-			, addr_size                         // dwLocalAddressLength
-			, addr_size                         // dwRemoteAddressLength
-			, &local_addr                       // LocalSockaddr
-			, &local_size                       // LocalSockadddrLength
-			, &remote_addr                      // RemoteSockaddr
-			, &remote_size                      // RemoteSockaddrLength
-			);                  
+    if(success) {
+        sockaddr *local_addr;
+        int local_size = 0;
+        sockaddr *remote_addr;
+        int remote_size = 0;
+        ::GetAcceptExSockaddrs(addr_buf_        // lpOutputBuffer
+            , 0                                 // dwReceiveDataLength
+            , addr_size                         // dwLocalAddressLength
+            , addr_size                         // dwRemoteAddressLength
+            , &local_addr                       // LocalSockaddr
+            , &local_size                       // LocalSockadddrLength
+            , &remote_addr                      // RemoteSockaddr
+            , &remote_size                      // RemoteSockaddrLength
+            );                  
 
-		PyObject *local_addro = makesockaddr(
-			static_cast<int>(lfd_)                 // sockfd
-			, local_addr                                    // addr
-			, local_size                                    // addrlen
-			, lproto_                              // proto
-			);
-	    
-		PyObject *remote_addro = makesockaddr(
-			static_cast<int>(afd_)                 // sockfd
-			, remote_addr                                   // addr
-			, remote_size                                   // addrlen
-			, aproto_                              // proto
-			);
+        PyObject *local_addro = makesockaddr(
+            static_cast<int>(lfd_)                 // sockfd
+            , local_addr                                    // addr
+            , local_size                                    // addrlen
+            , lproto_                              // proto
+            );
+        
+        PyObject *remote_addro = makesockaddr(
+            static_cast<int>(afd_)                 // sockfd
+            , remote_addr                                   // addr
+            , remote_size                                   // addrlen
+            , aproto_                              // proto
+            );
 
-		PyDict_SetItemString(dp, "local_addr", local_addro);
-		PyDict_SetItemString(dp, "remote_addr", remote_addro);
+        PyDict_SetItemString(dp, "local_addr", local_addro);
+        PyDict_SetItemString(dp, "remote_addr", remote_addro);
 
-	    Py_XDECREF(local_addro);
-		Py_XDECREF(remote_addro);
-	}
+        Py_XDECREF(local_addro);
+        Py_XDECREF(remote_addro);
+    }
 
     return dp;
 }
@@ -58,7 +79,7 @@ namespace pyasynchio {
         , "success", static_cast<int>(success)
         , "socket", so_ref_
         , "act", acto_
-		, "addr", addro_);
+        , "addr", addro_);
 }
 
 ::PyObject * Py_apoll::AIO_SEND::dump(BOOL success, DWORD bytes_transferred)
@@ -91,13 +112,13 @@ namespace pyasynchio {
         , "bufsize", size_
         , "socket", so_ref_
         , "act", acto_
-		, "flags", flags_);
+        , "flags", flags_);
 
     if (success) {
-	    ::PyObject * bufo;
+        ::PyObject * bufo;
         bufo = ::PyString_FromStringAndSize(buf_, bytes_transferred);
-		PyDict_SetItemString(dp, "data", bufo);
-	    Py_XDECREF(bufo);
+        PyDict_SetItemString(dp, "data", bufo);
+        Py_XDECREF(bufo);
     }
 
     return dp;
@@ -106,20 +127,20 @@ namespace pyasynchio {
 ::PyObject * Py_apoll::AIO_RECVFROM::dump(BOOL success, DWORD bytes_transferred)
 {
     ::PyObject * dp = Py_apoll::AIO_RECV::dump(success, bytes_transferred);
-	{
-		PyObject * precvfrom = PyString_FromString("recvfrom");
-		PyDict_SetItemString(dp, "type", precvfrom);
-		Py_XDECREF(precvfrom);
-	}
-	if (success) {
-		::PyObject * addro = makesockaddr(
-			static_cast<int>(fd_)
-			, &from_
-			, fromlen_
-			, proto_);
-		PyDict_SetItemString(dp, "addr", addro);
-		Py_XDECREF(addro);
-	}
+    {
+        PyObject * precvfrom = PyString_FromString("recvfrom");
+        PyDict_SetItemString(dp, "type", precvfrom);
+        Py_XDECREF(precvfrom);
+    }
+    if (success) {
+        ::PyObject * addro = makesockaddr(
+            static_cast<int>(fd_)
+            , &from_
+            , fromlen_
+            , proto_);
+        PyDict_SetItemString(dp, "addr", addro);
+        Py_XDECREF(addro);
+    }
 
     return dp;
 }
