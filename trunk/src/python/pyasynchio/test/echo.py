@@ -23,26 +23,36 @@ import socket
 
 class StreamEcho:
     def __init__(self, lsock):
+        # Create apoll object
         apoll = pyasynchio.apoll()
         self.lsock = lsock
         self.apoll = apoll
+        # Initiate asynchronous accept on the listening socket
         apoll.accept(lsock)
 
     def poll(self, timeout = None):
+        # poll asynch results
         events = self.apoll.poll(timeout)
 
         for event in events:
             if event['type'] == 'accept':
                 if event['success'] == True:
+                    # initiate receiving of data on accepted socket
                     self.apoll.recv(event['accept_socket'], 1024)
+                    # initiate another accept, so more clients can connect
                     self.apoll.accept(self.lsock)
                 else:
+                    # close socket which was meant to represent new connection
                     event['accept_socket'].close()
             elif event['type'] == 'recv':
                 if event['success'] and event['data'] != '':
+                    # echo that data back
                     self.apoll.send(event['socket'], event['data'])
+                    # read more data
                     self.apoll.recv(event['socket'], 1024)
                 else:
+                    # if there is some error, or connection was closed
+                    # , then we also close the socket
                     event['socket'].close()
                 
 class DgramEcho:
@@ -50,14 +60,18 @@ class DgramEcho:
         apoll = pyasynchio.apoll()
         self.apoll = apoll
         self.sock = sock
+        # initiate asynchronous dgram recv
         apoll.recvfrom(sock, 65536)
 
     def poll(self, timeout = None):
+        # poll results
         events = self.apoll.poll(timeout)
 
         for event in events:
             if event['type'] == 'recvfrom' and event['success'] == True:
+                # echo data back
                 self.apoll.sendto(self.sock, event['addr'], event['data'])
+                # read more data asynchronously
                 self.apoll.recvfrom(self.sock, 65536)
 
 class TestStreamEcho(unittest.TestCase):
