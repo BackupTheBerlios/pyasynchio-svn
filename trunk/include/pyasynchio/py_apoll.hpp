@@ -41,6 +41,11 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace pyasynchio {
 
+extern PyTypeObject PYASYNCHIO_LINK_DECL aioresult_Type;
+extern PyTypeObject PYASYNCHIO_LINK_DECL apoll_Type;
+extern "C" PYASYNCHIO_LINK_DECL void init_pyasynchio(void);
+
+
 template<typename CPP_TYPE, typename PYTHON_TYPE_OBJ_TYPE>
 CPP_TYPE* py_convert(PyObject *what, PYTHON_TYPE_OBJ_TYPE *type_obj)
 {
@@ -186,8 +191,31 @@ bool Py_apoll::check_windows_op(T function_result, T error_result, char *msg)
     return false;
 }
 
+struct aioresult : PyObject {
+	aioresult() 
+	{
+		dict_ = PyDict_New();
+	}
+	~aioresult() 
+	{
+		Py_DECREF(dict_);
+	}
 
-extern "C" PYASYNCHIO_LINK_DECL void init_pyasynchio(void);
+	static ::PyObject * create()
+	{
+		PyObject * pr = aioresult_Type.tp_alloc(&aioresult_Type, 1);
+		new (pr) aioresult();
+		return pr;
+	}
+
+	static void aioresult::dealloc(aioresult *self)
+	{
+		self->~aioresult();
+		self->ob_type->tp_free(self);
+	}
+	::PyObject * dict_;
+};
+
 
 } // namespace pyasynchio
 

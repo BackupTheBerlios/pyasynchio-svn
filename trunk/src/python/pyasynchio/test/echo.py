@@ -34,26 +34,26 @@ class StreamEcho:
         # poll asynch results
         events = self.apoll.poll(timeout)
 
-        for name, success, more in events:
-            if name == 'accept':
-                if success:
+        for general, specific in events:
+            if general.name == 'accept':
+                if general.success:
                     # initiate receiving of data on accepted socket
-                    self.apoll.recv(more['accept_socket'], 1024)
+                    self.apoll.recv(specific.asock, 1024)
                     # initiate another accept, so more clients can connect
                     self.apoll.accept(self.lsock)
                 else:
                     # close socket which was meant to represent new connection
-                    more['accept_socket'].close()
-            elif name == 'recv':
-                if success and more['data'] != '':
+                    specific.asock.close()
+            elif general.name == 'recv':
+                if general.success and specific.data != '':
                     # echo that data back
-                    self.apoll.send(more['socket'], more['data'])
+                    self.apoll.send(specific.sock, specific.data)
                     # read more data
-                    self.apoll.recv(more['socket'], 1024)
+                    self.apoll.recv(specific.sock, 1024)
                 else:
                     # if there is some error, or connection was closed
                     # , then we also close the socket
-                    more['socket'].close()
+                    specific.sock.close()
                 
 class DgramEcho:
     def __init__(self, sock):
@@ -65,10 +65,10 @@ class DgramEcho:
 
     def poll(self, timeout = None):
         # poll results
-        for name, success, more in self.apoll.poll(timeout):
-            if name == 'recvfrom' and success:
+        for gen, spec in self.apoll.poll(timeout):
+            if gen.name == 'recvfrom' and gen.success:
                 # echo data back
-                self.apoll.sendto(self.sock, more['addr'], more['data'])
+                self.apoll.sendto(self.sock, spec.addr, spec.data)
                 # read more data asynchronously
                 self.apoll.recvfrom(self.sock, 65536)
 

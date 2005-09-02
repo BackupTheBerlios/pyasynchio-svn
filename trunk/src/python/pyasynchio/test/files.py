@@ -43,8 +43,8 @@ class TestFiles(unittest.TestCase):
         
         done = 0
         while done < pieces:
-            for name, success, more in self.apoll.poll():
-                if name == 'write' and success == True:
+            for gen, spec in self.apoll.poll():
+                if gen.name == 'write' and gen.success == True:
                     done += 1
 
         self.file.close()
@@ -65,11 +65,11 @@ class TestFiles(unittest.TestCase):
         done = 0
         text2 =  []
         while done < pieces:
-            for name, success, more in self.apoll.poll():
-                if name == 'read' and success:
-                    self.assert_(more['data'] 
-                        == text[more['offset']:more['offset'] + len(more['data'])])
-                    text2.append((more['offset'], more['data']))
+            for gen, spec in self.apoll.poll():
+                if gen.name == 'read' and gen.success:
+                    self.assert_(spec.data
+                        == text[spec.offset:spec.offset + len(spec.data)])
+                    text2.append((spec.offset, spec.data))
                     done += 1
         text2.sort()
         textt = ''

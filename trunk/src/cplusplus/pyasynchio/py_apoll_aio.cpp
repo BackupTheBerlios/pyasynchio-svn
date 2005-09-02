@@ -20,15 +20,15 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include <pyasynchio/py_apoll_aio.hpp>
+#include <pyasynchio/py_apoll.hpp>
 
 namespace pyasynchio {
 
 ::PyObject* Py_apoll::AIO_ACCEPT::dump(BOOL success, DWORD bytes_transferred)
 {
-    PyObject *dp = Py_BuildValue("{sOsOsO}"
-        , "listen_socket", lso_ref_
-        , "accept_socket", aso_ref_
-        , "act", acto_);
+	PyObject *rp = aioresult::create();;
+	PyObject_SetAttrString(rp, "lsock", lso_ref_);
+	PyObject_SetAttrString(rp, "asock", aso_ref_);
 
     if(success) {
         sockaddr *local_addr;
@@ -59,103 +59,146 @@ namespace pyasynchio {
             , aproto_                              // proto
             );
 
-        PyDict_SetItemString(dp, "local_addr", local_addro);
-        PyDict_SetItemString(dp, "remote_addr", remote_addro);
+        PyObject_SetAttrString(rp, "laddr", local_addro);
+        PyObject_SetAttrString(rp, "raddr", remote_addro);
 
-        Py_XDECREF(local_addro);
-        Py_XDECREF(remote_addro);
+        Py_DECREF(local_addro);
+        Py_DECREF(remote_addro);
     }
+	else {
+		PyObject_SetAttrString(rp, "laddr", Py_None);
+		PyObject_SetAttrString(rp, "raddr", Py_None);
+	}
 
-    return dp;
+    return rp;
 }
 
 ::PyObject * Py_apoll::AIO_CONNECT::dump(BOOL success, DWORD bytes_transferred)
 {
-    return Py_BuildValue("{sOsOsO}"
-        , "socket", so_ref_
-        , "act", acto_
-        , "addr", addro_);
+	PyObject *rp = aioresult::create();;
+	PyObject_SetAttrString(rp, "addr", addro_);
+	return rp;
 }
 
 ::PyObject * Py_apoll::AIO_SEND::dump(BOOL success, DWORD bytes_transferred)
 {
-    return Py_BuildValue("{sOsOsOsksk}"
-        , "socket", so_ref_
-        , "act", acto_
-        , "data", datao_
-        , "flags", flags_
-        , "count", static_cast<unsigned long>(bytes_transferred));
+	::PyObject *rp = aioresult::create();;
+	::PyObject_SetAttrString(rp, "sock", so_ref_);
+	::PyObject_SetAttrString(rp, "data", datao_);
+	{
+		::PyObject *flagso = PyInt_FromLong(flags_);
+		::PyObject_SetAttrString(rp, "flags", flagso);
+		Py_DECREF(flagso);
+	}
+	{
+		::PyObject *counto = PyInt_FromLong(bytes_transferred);
+		::PyObject_SetAttrString(rp, "count", counto);
+		Py_DECREF(counto);
+	}
+
+	return rp;
 }
 
 ::PyObject * Py_apoll::AIO_SENDTO::dump(BOOL success, DWORD bytes_transferred)
 {
-    PyObject * dp = Py_apoll::AIO_SEND::dump(success, bytes_transferred);
-    PyDict_SetItemString(dp, "addr", addro_);
-    return dp;
+    PyObject * rp = Py_apoll::AIO_SEND::dump(success, bytes_transferred);
+    PyObject_SetAttrString(rp, "addr", addro_);
+    return rp;
 }
 
 ::PyObject * Py_apoll::AIO_RECV::dump(BOOL success, DWORD bytes_transferred)
 {
-    PyObject * dp = Py_BuildValue("{slsOsOsk}"
-        , "bufsize", size_
-        , "socket", so_ref_
-        , "act", acto_
-        , "flags", flags_);
+	::PyObject * rp = aioresult::create();;
+	{
+		::PyObject * bufsizeo = PyInt_FromLong(size_);
+		::PyObject_SetAttrString(rp, "bufsize", bufsizeo);
+		Py_DECREF(bufsizeo);
+	}
+	::PyObject_SetAttrString(rp, "sock", so_ref_);
+	{
+		::PyObject * flagso = PyInt_FromLong(flags_);
+		::PyObject_SetAttrString(rp, "flags", flagso);
+		Py_DECREF(flagso);
+	}
 
     if (success) {
         ::PyObject * bufo;
         bufo = ::PyString_FromStringAndSize(buf_, bytes_transferred);
-        PyDict_SetItemString(dp, "data", bufo);
-        Py_XDECREF(bufo);
+        PyObject_SetAttrString(rp, "data", bufo);
+        Py_DECREF(bufo);
     }
+	else {
+		PyObject_SetAttrString(rp, "data", Py_None);
+	}
 
-    return dp;
+    return rp;
 }
 
 ::PyObject * Py_apoll::AIO_RECVFROM::dump(BOOL success, DWORD bytes_transferred)
 {
-    ::PyObject * dp = Py_apoll::AIO_RECV::dump(success, bytes_transferred);
+    ::PyObject * rp = Py_apoll::AIO_RECV::dump(success, bytes_transferred);
     if (success) {
         ::PyObject * addro = makesockaddr(
             static_cast<int>(fd_)
             , &from_
             , fromlen_
             , proto_);
-        PyDict_SetItemString(dp, "addr", addro);
-        Py_XDECREF(addro);
+        PyObject_SetAttrString(rp, "addr", addro);
+        Py_DECREF(addro);
     }
+	else {
+		PyObject_SetAttrString(rp, "addr", Py_None);
+	}
 
-    return dp;
+    return rp;
 }
 
 ::PyObject * Py_apoll::AIO_READ::dump(BOOL success, DWORD bytes_transferred)
 {
-    ::PyObject * datao = ::PyString_FromStringAndSize(buf_, bytes_transferred);
-    ::PyObject * offo = ::PyLong_FromUnsignedLongLong(
-        (static_cast<unsigned long long>(OffsetHigh) << (sizeof(DWORD)*8)) + Offset);
-    ::PyObject * dp =  Py_BuildValue("{sOslsOsOsO}"
-        , "offset", offo
-        , "bufsize", size_
-        , "act", acto_
-        , "data", datao
-        , "file", fo_);
-    Py_XDECREF(datao);
-    Py_XDECREF(offo);
-    return dp;
+	::PyObject * rp = aioresult::create();;
+	{
+	    ::PyObject * datao = ::PyString_FromStringAndSize(buf_, bytes_transferred);
+		::PyObject_SetAttrString(rp, "data", datao);
+	    Py_DECREF(datao);
+	}
+	{
+		::PyObject * offo = ::PyLong_FromUnsignedLongLong(
+			(static_cast<unsigned long long>(OffsetHigh) << (sizeof(DWORD)*8)) + Offset);
+		::PyObject_SetAttrString(rp, "offset", offo);
+	    Py_DECREF(offo);
+	}
+	{
+		::PyObject * bufsizeo = ::PyInt_FromLong(size_);
+		PyObject_SetAttrString(rp, "bufsize", bufsizeo);
+		Py_DECREF(bufsizeo);
+	}
+	::PyObject_SetAttrString(rp, "file", reinterpret_cast<PyObject*>(fo_));
+    return rp;
 }
 
 ::PyObject * Py_apoll::AIO_WRITE::dump(BOOL success, DWORD bytes_transferred)
 {
-    ::PyObject * offo = ::PyLong_FromUnsignedLongLong(
-        (static_cast<unsigned long long>(OffsetHigh) << (sizeof(DWORD)*8)) + Offset);
-    ::PyObject * dp = Py_BuildValue("{sOsOsOsksO}"
-        , "offset", offo
-        , "data",  datao_
-        , "act", acto_
-        , "count", static_cast<unsigned long>(bytes_transferred)
-        , "file", fo_);
-    Py_XDECREF(offo);
-    return dp;
+	::PyObject * rp = aioresult::create();
+	{
+	    ::PyObject * offo = ::PyLong_FromUnsignedLongLong(
+		    (static_cast<unsigned long long>(OffsetHigh) << (sizeof(DWORD)*8)) + Offset);
+		::PyObject_SetAttrString(rp, "offset", offo);
+	    Py_DECREF(offo);
+	}
+	::PyObject_SetAttrString(rp, "data", datao_);
+	{
+		::PyObject * counto = ::PyInt_FromLong(bytes_transferred);
+		::PyObject_SetAttrString(rp, "count", counto);
+		Py_DECREF(counto);
+	}
+	::PyObject_SetAttrString(rp, "file", reinterpret_cast<PyObject*>(fo_));
+    //::PyObject * dp = Py_BuildValue("{sOsOsOsksO}"
+    //    , "offset", offo
+    //    , "data",  datao_
+    //    , "act", acto_
+    //    , "count", static_cast<unsigned long>(bytes_transferred)
+    //    , "file", fo_);
+    return rp;
 }
 
 } // namespace pyasynchio

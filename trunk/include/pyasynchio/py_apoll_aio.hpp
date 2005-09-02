@@ -53,11 +53,23 @@ public:
 
 	::PyObject * to_python(BOOL success, DWORD bytes_transferred)
 	{
-		::PyObject * py_success = PyBool_FromLong(success);
-		::PyObject * py_more = this->dump(success, bytes_transferred);
-		::PyObject * tp = Py_BuildValue("(sOO)", name_, py_success, py_more);
-		Py_XDECREF(py_success);
-		Py_XDECREF(py_more);
+		::PyObject * geno = aioresult::create();;
+		{
+			::PyObject * successo = PyBool_FromLong(success);
+			::PyObject_SetAttrString(geno, "success", successo);
+			Py_DECREF(successo);
+		}
+		{
+			::PyObject * nameo = PyString_FromString(name_);
+			::PyObject_SetAttrString(geno, "name", nameo);
+			Py_DECREF(nameo);
+		}
+		::PyObject_SetAttrString(geno, "act", acto_);
+
+		::PyObject * speco = this->dump(success, bytes_transferred);
+		::PyObject * tp = Py_BuildValue("(OO)", geno, speco);
+		Py_DECREF(geno);
+		Py_DECREF(speco);
 		return tp;
 	}
 };

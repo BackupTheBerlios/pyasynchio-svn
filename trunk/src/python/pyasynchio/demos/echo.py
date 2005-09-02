@@ -16,21 +16,21 @@ while True:
     # poll results from apoll object
     events = apoll.poll()
     # process them one by one
-    for name, success, more in events:
+    for g, s in events:
         # if operation was accept
-        if name == 'accept':
+        if g.name == 'accept':
             # moreover, if it is successful
-            if success:
+            if g.success:
                 # issue asynchronous read through apoll object
-                apoll.recv(more['accept_socket'], 1024)
+                apoll.recv(s.asock, 1024)
                 # issue another asynch accept, so that more clients can connect
-                apoll.accept(lsock)
+                apoll.accept(s.lsock)
         # if operation was recv
-        elif name == 'recv':
+        elif g.name == 'recv':
             # if received some data and connection isnt broken (just as recv it presents empty string if client disconnected)
-            if success and more['data'] != '':
+            if g.success and s.data != '':
                 # issue asynchronous send to echo data back to client. No need to pick up results of this op
-                apoll.send(more['socket'], more['data'])
+                apoll.send(s.sock, s.data)
                 # issue new recv so we can echo more data
-                apoll.recv(more['socket'], 1024)
+                apoll.recv(s.sock, 1024)
 # EOF :)
