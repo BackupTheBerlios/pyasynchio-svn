@@ -43,9 +43,8 @@ class TestFiles(unittest.TestCase):
         
         done = 0
         while done < pieces:
-            events = self.apoll.poll()
-            for evt in events:
-                if evt['type'] == 'write' and evt['success'] == True:
+            for name, success, more in self.apoll.poll():
+                if name == 'write' and success == True:
                     done += 1
 
         self.file.close()
@@ -66,12 +65,11 @@ class TestFiles(unittest.TestCase):
         done = 0
         text2 =  []
         while done < pieces:
-            events = self.apoll.poll()
-            for evt in events:
-                if evt['type'] == 'read' and evt['success'] == True:
-                    self.assert_(evt['data'] 
-                        == text[evt['offset']:evt['offset'] + len(evt['data'])])
-                    text2.append((evt['offset'], evt['data']))
+            for name, success, more in self.apoll.poll():
+                if name == 'read' and success:
+                    self.assert_(more['data'] 
+                        == text[more['offset']:more['offset'] + len(more['data'])])
+                    text2.append((more['offset'], more['data']))
                     done += 1
         text2.sort()
         textt = ''

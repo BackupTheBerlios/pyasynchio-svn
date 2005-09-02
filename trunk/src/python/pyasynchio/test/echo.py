@@ -34,26 +34,26 @@ class StreamEcho:
         # poll asynch results
         events = self.apoll.poll(timeout)
 
-        for event in events:
-            if event['type'] == 'accept':
-                if event['success'] == True:
+        for name, success, more in events:
+            if name == 'accept':
+                if success:
                     # initiate receiving of data on accepted socket
-                    self.apoll.recv(event['accept_socket'], 1024)
+                    self.apoll.recv(more['accept_socket'], 1024)
                     # initiate another accept, so more clients can connect
                     self.apoll.accept(self.lsock)
                 else:
                     # close socket which was meant to represent new connection
-                    event['accept_socket'].close()
-            elif event['type'] == 'recv':
-                if event['success'] and event['data'] != '':
+                    more['accept_socket'].close()
+            elif name == 'recv':
+                if success and more['data'] != '':
                     # echo that data back
-                    self.apoll.send(event['socket'], event['data'])
+                    self.apoll.send(more['socket'], more['data'])
                     # read more data
-                    self.apoll.recv(event['socket'], 1024)
+                    self.apoll.recv(more['socket'], 1024)
                 else:
                     # if there is some error, or connection was closed
                     # , then we also close the socket
-                    event['socket'].close()
+                    more['socket'].close()
                 
 class DgramEcho:
     def __init__(self, sock):
@@ -65,12 +65,10 @@ class DgramEcho:
 
     def poll(self, timeout = None):
         # poll results
-        events = self.apoll.poll(timeout)
-
-        for event in events:
-            if event['type'] == 'recvfrom' and event['success'] == True:
+        for name, success, more in self.apoll.poll(timeout):
+            if name == 'recvfrom' and success:
                 # echo data back
-                self.apoll.sendto(self.sock, event['addr'], event['data'])
+                self.apoll.sendto(self.sock, more['addr'], more['data'])
                 # read more data asynchronously
                 self.apoll.recvfrom(self.sock, 65536)
 

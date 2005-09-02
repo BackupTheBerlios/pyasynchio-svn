@@ -9,24 +9,28 @@ lsock.listen(5)
 
 # Create apoll object
 apoll = pyasynchio.apoll()
-# Issue asynch accept 
+# Issue first asynch accept through apoll object
 apoll.accept(lsock)
 
 while True:
-    # poll results from apoll
-    events = apoll.poll(0)
-    for evt in events:
-        # if accept succeeded
-        if evt['type'] == 'accept':
-            if evt['success']:
-                # read data from new socket
-                apoll.recv(evt['accept_socket'], 1024)
-                # reissue accept
+    # poll results from apoll object
+    events = apoll.poll()
+    # process them one by one
+    for name, success, more in events:
+        # if operation was accept
+        if name == 'accept':
+            # moreover, if it is successful
+            if success:
+                # issue asynchronous read through apoll object
+                apoll.recv(more['accept_socket'], 1024)
+                # issue another asynch accept, so that more clients can connect
                 apoll.accept(lsock)
-        elif evt['type'] == 'recv':
-            # if received some data and connection isnt broken
-            if evt['success'] and evt['data'] != '':
-                # echo it back
-                apoll.send(evt['socket'], evt['data'])
-                # read new
-                apoll.recv(evt['socket'], 1024)
+        # if operation was recv
+        elif name == 'recv':
+            # if received some data and connection isnt broken (just as recv it presents empty string if client disconnected)
+            if success and more['data'] != '':
+                # issue asynchronous send to echo data back to client. No need to pick up results of this op
+                apoll.send(more['socket'], more['data'])
+                # issue new recv so we can echo more data
+                apoll.recv(more['socket'], 1024)
+# EOF :)

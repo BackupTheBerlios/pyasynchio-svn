@@ -562,9 +562,9 @@ bool Py_apoll::write(PyFileObject *fo, unsigned long long offset
             return NULL;
         }
 
-        PyObject *dump_result = ovr->dump(success, bytes_transferred);
-        PyList_Append(result, dump_result);
-        Py_XDECREF(dump_result);
+        PyObject *op_result = ovr->to_python(success, bytes_transferred);
+        PyList_Append(result, op_result);
+        Py_XDECREF(op_result);
         delete ovr;
     }
 

@@ -32,10 +32,12 @@ class Py_apoll::AIO_ROOT : public OVERLAPPED
 {
 protected:
     ::PyObject *acto_;
+	const char * name_;
 
 public:
-    AIO_ROOT(::PyObject *acto) 
+    AIO_ROOT(::PyObject *acto, const char * name) 
         : acto_(acto)
+		, name_(name)
     {
         Internal = InternalHigh = 0;
         Offset = OffsetHigh = 0;
@@ -49,6 +51,15 @@ public:
 
     virtual ::PyObject* dump(BOOL success, DWORD bytes_transferred) = 0;
 
+	::PyObject * to_python(BOOL success, DWORD bytes_transferred)
+	{
+		::PyObject * py_success = PyBool_FromLong(success);
+		::PyObject * py_more = this->dump(success, bytes_transferred);
+		::PyObject * tp = Py_BuildValue("(sOO)", name_, py_success, py_more);
+		Py_XDECREF(py_success);
+		Py_XDECREF(py_more);
+		return tp;
+	}
 };
 
 class Py_apoll::AIO_ACCEPT : public Py_apoll::AIO_ROOT
@@ -59,7 +70,7 @@ public:
         , ::PySocketSockObject *aso
         , ::PyObject *lso_ref
         , ::PyObject *aso_ref)
-        : AIO_ROOT(acto) 
+        : AIO_ROOT(acto, "accept") 
         , lso_ref_(lso_ref)
         , aso_ref_(aso_ref)
         , lfd_(lso->sock_fd)
@@ -95,7 +106,7 @@ class Py_apoll::AIO_CONNECT : public Py_apoll::AIO_ROOT
 {
 public:
     AIO_CONNECT(::PyObject *acto, ::PyObject *so_ref, ::PyObject *addro)
-        : AIO_ROOT(acto)
+        : AIO_ROOT(acto, "connect")
         , so_ref_(so_ref)
         , addro_(addro)
     {
@@ -121,7 +132,7 @@ public:
     AIO_RECV(::PyObject *acto, ::PyObject *so_ref
         , unsigned long size
         , unsigned long flags)
-        : AIO_ROOT(acto)
+        : AIO_ROOT(acto, "recv")
         , so_ref_(so_ref)
     {
         buf_ = reinterpret_cast<char*>(malloc(size));
@@ -159,6 +170,7 @@ public:
         , fd_(so->sock_fd)
         , proto_(so->sock_proto)
     {
+		name_ = "recvfrom";
     }
 
     virtual ~AIO_RECVFROM() {}
@@ -180,7 +192,7 @@ public:
     AIO_SEND(::PyObject *acto, ::PyObject *so_ref
         , unsigned long flags
         , ::PyObject *datao)
-        : AIO_ROOT(acto)
+        : AIO_ROOT(acto, "send")
         , so_ref_(so_ref)
         , datao_(datao)
         , flags_(flags)
@@ -212,6 +224,7 @@ public:
         : AIO_SEND(acto, so_ref, flags, datao)
         , addro_(addro)
     {
+		name_ = "sendto";
         Py_XINCREF(addro);
     }
 
@@ -232,7 +245,7 @@ public:
     AIO_READ(::PyObject * acto, ::PyFileObject *fo
         , unsigned long long off
         , unsigned long size)
-        : AIO_ROOT(acto)
+        : AIO_ROOT(acto, "read")
     {
         Offset = static_cast<DWORD>(off);
         OffsetHigh = static_cast<DWORD>((off >> (sizeof(DWORD) * 8)));
@@ -263,7 +276,7 @@ public:
     AIO_WRITE(::PyObject *acto, ::PyFileObject *fo
         , unsigned long long off
         , ::PyObject *datao)
-        : AIO_ROOT(acto)
+        : AIO_ROOT(acto, "write")
     {
         Offset = static_cast<DWORD>(off);
         OffsetHigh = static_cast<DWORD>((off >> (sizeof(DWORD) * 8)));
