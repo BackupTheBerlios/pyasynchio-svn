@@ -22,9 +22,12 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <pyasynchio/apoll.hpp>
 #include <pyasynchio/utils.hpp>
+#include <pyasynchio/aio.hpp>
+#include <pyasynchio/socketmodule_stuff.hpp>
 #include <new>
 #include <internal.h>
 #include <winternl.h>
+#include <mswsock.h>
 #include <string>
 
 namespace pyasynchio {
@@ -130,8 +133,8 @@ bool Py_apoll::accept(::PySocketSockObject *listen_sock
         , accept_sock->sock_fd                  // sAcceptSocket 
         , &ova->addr_buf_[0]                        // lpOutputBuffer
         , 0                                     // dwReceiveDataLength
-        , addr_size                             // dwLocalAddressLength
-        , addr_size                             // dwRemoteAddressLength
+        , ova->addr_size                             // dwLocalAddressLength
+        , ova->addr_size                             // dwRemoteAddressLength
         , &num_bytes_rcvd                       // lpdwBytesReceived
         , ova   // lpOverlapped                     
         );                                  

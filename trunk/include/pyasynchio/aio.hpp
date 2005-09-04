@@ -24,12 +24,13 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include <pyasynchio/apoll.hpp>
 #include <pyasynchio/aioresult.hpp>
+#include "socketmodule.h"
+#include <windows.h>
 
 namespace pyasynchio {
 
-class Py_apoll::AIO_ROOT : public OVERLAPPED
+class AIO_ROOT : public OVERLAPPED
 {
 protected:
     ::PyObject *acto_;
@@ -75,7 +76,7 @@ public:
 	}
 };
 
-class Py_apoll::AIO_ACCEPT : public Py_apoll::AIO_ROOT
+class AIO_ACCEPT : public AIO_ROOT
 {
 public:
     AIO_ACCEPT(::PyObject *acto
@@ -103,6 +104,7 @@ public:
 
     virtual ::PyObject* dump(BOOL success, DWORD bytes_transferred);
 
+    static const unsigned int addr_size = sizeof(sockaddr_in) + sizeof(sockaddr);
     static const unsigned int addr_buf_size = 2 * addr_size;
 
     unsigned char addr_buf_[addr_buf_size];
@@ -115,7 +117,7 @@ private:
 };
 
 
-class Py_apoll::AIO_CONNECT : public Py_apoll::AIO_ROOT
+class AIO_CONNECT : public AIO_ROOT
 {
 public:
     AIO_CONNECT(::PyObject *acto, ::PyObject *so_ref, ::PyObject *addro)
@@ -139,7 +141,7 @@ private:
     ::PyObject *addro_;
 };
 
-class Py_apoll::AIO_RECV : public Py_apoll::AIO_ROOT
+class AIO_RECV : public AIO_ROOT
 {
 public:
     AIO_RECV(::PyObject *acto, ::PyObject *so_ref
@@ -171,7 +173,7 @@ private:
     char * buf_;
 };
 
-class Py_apoll::AIO_RECVFROM : public Py_apoll::AIO_RECV
+class AIO_RECVFROM : public AIO_RECV
 {
 public:
     AIO_RECVFROM(::PyObject *acto, ::PyObject *so_ref
@@ -199,7 +201,7 @@ private:
     int fromlen_;
 };
 
-class Py_apoll::AIO_SEND : public Py_apoll::AIO_ROOT
+class AIO_SEND : public AIO_ROOT
 {
 public:
     AIO_SEND(::PyObject *acto, ::PyObject *so_ref
@@ -227,7 +229,7 @@ private:
     unsigned long flags_;
 };
 
-class Py_apoll::AIO_SENDTO : public Py_apoll::AIO_SEND
+class AIO_SENDTO : public AIO_SEND
 {
 public:
     AIO_SENDTO(::PyObject *acto, ::PyObject *so_ref
@@ -252,7 +254,7 @@ private:
     ::PyObject * addro_;
 };
 
-class Py_apoll::AIO_READ : public Py_apoll::AIO_ROOT
+class AIO_READ : public AIO_ROOT
 {
 public:
     AIO_READ(::PyObject * acto, ::PyFileObject *fo
@@ -283,7 +285,7 @@ private:
     unsigned long size_;
 };
 
-class Py_apoll::AIO_WRITE : public Py_apoll::AIO_ROOT
+class AIO_WRITE : public AIO_ROOT
 {
 public:
     AIO_WRITE(::PyObject *acto, ::PyFileObject *fo

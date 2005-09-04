@@ -30,8 +30,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "fileobject.h"
 #include "fileobject.h"
 #include <windows.h>
-#include <mswsock.h>
-#include <pyasynchio/socketmodule_stuff.hpp>
 #include <map>
 
 
@@ -42,8 +40,6 @@ extern ::PyTypeObject apoll_Type;
 class Py_apoll : public PyObject
 {
 public:
-    static const unsigned int addr_size = sizeof(sockaddr_in) + sizeof(sockaddr);
-
     Py_apoll(unsigned long maxProcessingThreads = 0);
     ~Py_apoll();
 

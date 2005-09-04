@@ -1,4 +1,5 @@
 #include <pyasynchio/apoll.hpp>
+#include <pyasynchio/aioresult.hpp>
 #include <pyasynchio/utils.hpp>
 
 namespace pyasynchio {
