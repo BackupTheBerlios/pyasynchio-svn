@@ -571,31 +571,6 @@ bool Py_apoll::write(PyFileObject *fo, unsigned long long offset
     return result;
 }
 
-PyTypeObject aioresult_Type = {
-	PyObject_HEAD_INIT(NULL)
-    0,                         /*ob_size*/
-	"_pyasynchio.aioresult",	/*tp_name*/
-	sizeof(aioresult),							/*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-	(destructor)&aioresult::dealloc,                         /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
-    0,                         /*tp_repr*/
-    0,                         /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
-    0,                         /*tp_hash */
-    0,                         /*tp_call*/
-    0,                         /*tp_str*/
-    &PyObject_GenericGetAttr,                         /*tp_getattro*/
-    &PyObject_GenericSetAttr,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
-    Py_TPFLAGS_DEFAULT,        /*tp_flags*/
-    "aioresult objects",           /* tp_doc */
-};
-
 static PyTypeObject apoll_Type = {
     PyObject_HEAD_INIT(NULL)
     0,                         /*ob_size*/
@@ -981,20 +956,18 @@ void init_pyasynchio()
     PyObject *m = Py_InitModule("_pyasynchio", pyasynchio_methods);
     Py_INCREF(&apoll_Type);
 
-	aioresult_Type.tp_new = PyType_GenericNew;
-	aioresult_Type.tp_dictoffset = offsetof(aioresult, dict_);
-	if (PyType_Ready(&aioresult_Type) < 0) {
-		return;
-	}
-	Py_INCREF(&aioresult_Type);
+    if (PyType_Ready(&aioresult_Type) < 0) {
+        return;
+    }
+    Py_INCREF(&aioresult_Type);
 
     PyModule_AddObject(m
         , "apoll"
         , reinterpret_cast<PyObject*>(&apoll_Type) );
 
-	PyModule_AddObject(m
-		, "aioresult"
-		, reinterpret_cast<PyObject*>(&aioresult_Type) );
+    PyModule_AddObject(m
+        , "aioresult"
+        , reinterpret_cast<PyObject*>(&aioresult_Type) );
 
 }
 

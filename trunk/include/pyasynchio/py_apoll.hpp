@@ -24,11 +24,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#include <pyasynchio/detail/config.hpp>
-#pragma push_macro("_DEBUG")
-#undef _DEBUG
 #include <pyconfig.h>
-#pragma pop_macro("_DEBUG")
 #include <python.h>
 #include "socketmodule.h"
 #include "fileobject.h"
@@ -41,9 +37,8 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace pyasynchio {
 
-extern PyTypeObject PYASYNCHIO_LINK_DECL aioresult_Type;
-extern PyTypeObject PYASYNCHIO_LINK_DECL apoll_Type;
-extern "C" PYASYNCHIO_LINK_DECL void init_pyasynchio(void);
+extern ::PyTypeObject apoll_Type;
+extern void init_pyasynchio(void);
 
 
 template<typename CPP_TYPE, typename PYTHON_TYPE_OBJ_TYPE>
@@ -56,7 +51,7 @@ CPP_TYPE* py_convert(PyObject *what, PYTHON_TYPE_OBJ_TYPE *type_obj)
     return reinterpret_cast<CPP_TYPE*>(what);
 }
 
-class PYASYNCHIO_LINK_DECL Py_apoll : public PyObject
+class Py_apoll : public PyObject
 {
 public:
     static const unsigned int addr_size = sizeof(sockaddr_in) + sizeof(sockaddr);
@@ -190,32 +185,6 @@ bool Py_apoll::check_windows_op(T function_result, T error_result, char *msg)
     }
     return false;
 }
-
-struct aioresult : PyObject {
-	aioresult() 
-	{
-		dict_ = PyDict_New();
-	}
-	~aioresult() 
-	{
-		Py_DECREF(dict_);
-	}
-
-	static ::PyObject * create()
-	{
-		PyObject * pr = aioresult_Type.tp_alloc(&aioresult_Type, 1);
-		new (pr) aioresult();
-		return pr;
-	}
-
-	static void aioresult::dealloc(aioresult *self)
-	{
-		self->~aioresult();
-		self->ob_type->tp_free(self);
-	}
-	::PyObject * dict_;
-};
-
 
 } // namespace pyasynchio
 

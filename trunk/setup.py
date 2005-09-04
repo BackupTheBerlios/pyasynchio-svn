@@ -15,7 +15,6 @@ else:
 include_dirs = ['include', join('include', 'mscrt'), get_python_inc()
                     , modules_dir]
 src_dir = join('src', 'cplusplus', 'pyasynchio')
-define_macros = [('NDEBUG', '1'), ('PYASYNCHIO_DYNAMIC', '1'), ('PYASYNCHIO_BUILD', '1')]
 libs = ['mswsock', 'ws2_32']
 
 setup(name = 'pyasynchio'
@@ -33,5 +32,4 @@ setup(name = 'pyasynchio'
                                 , join(src_dir, 'py_apoll_aio.cpp')
                                 , join(src_dir, 'socketmodule_stuff.cpp') ]
                             , include_dirs = include_dirs 
-                            , define_macros = define_macros
                             , libraries = libs)])

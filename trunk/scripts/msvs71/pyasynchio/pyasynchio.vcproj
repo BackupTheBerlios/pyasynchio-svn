@@ -36,6 +36,7 @@
 				OutputFile="$(OutDir)/_$(ProjectName).dll"
 				LinkIncremental="2"
 				IgnoreDefaultLibraryNames="python24_d.lib"
+				ModuleDefinitionFile="pyasynchio.def"
 				GenerateDebugInformation="TRUE"
 				ProgramDatabaseFile="$(OutDir)/pyasynchio.pdb"
 				SubSystem="2"
@@ -84,6 +85,7 @@
 				AdditionalDependencies="Mswsock.lib Ws2_32.lib"
 				OutputFile="$(OutDir)/_$(ProjectName).dll"
 				LinkIncremental="1"
+				ModuleDefinitionFile="pyasynchio.def"
 				GenerateDebugInformation="FALSE"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -122,6 +124,9 @@
 				Name="source"
 				Filter="">
 				<File
+					RelativePath="..\..\..\src\cplusplus\pyasynchio\aioresult.cpp">
+				</File>
+				<File
 					RelativePath="..\..\..\src\cplusplus\pyasynchio\py_apoll.cpp">
 				</File>
 				<File
@@ -135,6 +140,9 @@
 				Name="header"
 				Filter="">
 				<File
+					RelativePath="..\..\..\include\pyasynchio\aioresult.hpp">
+				</File>
+				<File
 					RelativePath="..\..\..\include\pyasynchio\py_apoll.hpp">
 				</File>
 				<File
@@ -143,18 +151,11 @@
 				<File
 					RelativePath="..\..\..\include\pyasynchio\socketmodule_stuff.hpp">
 				</File>
-				<Filter
-					Name="detail"
-					Filter="">
-					<File
-						RelativePath="..\..\..\include\pyasynchio\detail\config.hpp">
-					</File>
-					<File
-						RelativePath="..\..\..\include\pyasynchio\detail\fix_ace_warnings.hpp">
-					</File>
-				</Filter>
 			</Filter>
 		</Filter>
+		<File
+			RelativePath=".\pyasynchio.def">
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

@@ -25,6 +25,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include <pyasynchio/py_apoll.hpp>
+#include <pyasynchio/aioresult.hpp>
 
 namespace pyasynchio {
 
