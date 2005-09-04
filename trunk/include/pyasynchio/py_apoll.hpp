@@ -38,18 +38,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 namespace pyasynchio {
 
 extern ::PyTypeObject apoll_Type;
-extern void init_pyasynchio(void);
-
-
-template<typename CPP_TYPE, typename PYTHON_TYPE_OBJ_TYPE>
-CPP_TYPE* py_convert(PyObject *what, PYTHON_TYPE_OBJ_TYPE *type_obj)
-{
-    if (!PyObject_IsInstance(what, reinterpret_cast<PyObject*>(type_obj))) {
-        PyErr_Format(PyExc_TypeError, "not a %s object", type_obj->tp_name);
-        return NULL;
-    }
-    return reinterpret_cast<CPP_TYPE*>(what);
-}
 
 class Py_apoll : public PyObject
 {

@@ -21,6 +21,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 #include <pyasynchio/py_apoll.hpp>
+#include <pyasynchio/utils.hpp>
 #include <new>
 #include <internal.h>
 #include <winternl.h>
@@ -571,7 +572,61 @@ bool Py_apoll::write(PyFileObject *fo, unsigned long long offset
     return result;
 }
 
-static PyTypeObject apoll_Type = {
+static PyMethodDef apoll_methods[] = {
+    { "accept"
+        , reinterpret_cast<PyCFunction>(&Py_apoll::accept_meth)
+        , METH_VARARGS
+        , "start asynchronous accept operation"
+    }
+    , { "connect"
+        , reinterpret_cast<PyCFunction>(&Py_apoll::connect_meth)
+        , METH_VARARGS
+        , "start asynchronou connect operation"
+    }
+    , { "send"
+        , reinterpret_cast<PyCFunction>(&Py_apoll::send_meth)
+        , METH_VARARGS
+        , "start asynchronous send operation"
+    }
+    , { "sendto"
+        , reinterpret_cast<PyCFunction>(&Py_apoll::sendto_meth)
+        , METH_VARARGS
+        , "start asynchronous sendto operation"
+    }
+    , { "recv"
+        , reinterpret_cast<PyCFunction>(&Py_apoll::recv_meth)
+        , METH_VARARGS
+        , "start asynchronous recv operation"
+    }
+    , { "recvfrom"
+        , reinterpret_cast<PyCFunction>(&Py_apoll::recvfrom_meth)
+        , METH_VARARGS
+        , "start asynchronous recvfrom operation"
+    }
+    , { "poll"
+        , reinterpret_cast<PyCFunction>(&Py_apoll::poll_meth)
+        , METH_VARARGS
+        , "poll asynchronous operation results"
+    }
+    , { "cancel"
+        , reinterpret_cast<PyCFunction>(&Py_apoll::cancel_meth)
+        , METH_VARARGS
+        , "cancel asynchronous operations for given object"
+    }
+    , { "read"
+        , reinterpret_cast<PyCFunction>(&Py_apoll::read_meth)
+        , METH_VARARGS
+        , "start asynchronous read operation on file"
+    }
+    , { "write"
+        , reinterpret_cast<PyCFunction>(&Py_apoll::write_meth)
+        , METH_VARARGS
+        , "start asynchronous write operation on file" 
+    }
+    , {NULL} /* Sentinel */
+};
+
+PyTypeObject apoll_Type = {
     PyObject_HEAD_INIT(NULL)
     0,                         /*ob_size*/
     "_pyasynchio.apoll",             /*tp_name*/
@@ -594,6 +649,35 @@ static PyTypeObject apoll_Type = {
     0,                         /*tp_as_buffer*/
     Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,        /*tp_flags*/
     "apoll objects",           /* tp_doc */
+
+    0,                                  // tp_traverse 
+    0,                                  // tp_clear
+    0,                                  // tp_richcompare 
+    0,                                  // tp_weaklistoffset 
+
+    0,                                  // tp_iter
+    0,                                  // tp_iternext 
+
+    apoll_methods,                      // tp_methods 
+    0,                                  // tp_members
+    0,                                  // tp_getset
+    0,                                  // tp_base 
+    
+    0,                                  // tp_dict
+    0,                                  // tp_descr_get
+    0,                                  // tp_descr_set
+    0,									// tp_dictoffset 
+	Py_apoll::init_func,               // tp_init
+    0,                                  // tp_alloc 
+    PyType_GenericNew,                 // tp_new
+    0,                                  // tp_free
+    0,                                  // tp_is_gc
+    0,                                  // tp_bases
+    0,                                  // tp_mro
+    0,                                  // tp_cache
+    0,                                  // tp_subclasses
+    0,                                  // tp_weaklist
+    0,                                  // tp_del
 };
 
 
@@ -625,13 +709,13 @@ PyObject* Py_apoll::accept_meth(Py_apoll *self, ::PyObject *args)
     }
 
     PySocketSockObject *listen_sock = py_convert<PySocketSockObject>(listen_sock_raw
-        , PySocketModule.Sock_Type);
+        , socketmodule_api.Sock_Type);
     if (NULL == listen_sock) {
         return NULL;
     }
 
     PySocketSockObject *accept_sock = py_convert<PySocketSockObject>(accept_sock_raw
-        , PySocketModule.Sock_Type);
+        , socketmodule_api.Sock_Type);
     if (NULL == accept_sock) {
         return NULL;
     }
@@ -652,7 +736,7 @@ PyObject* Py_apoll::accept_meth(Py_apoll *self, ::PyObject *args)
     }
 
     PySocketSockObject *so = py_convert<PySocketSockObject>(so_raw
-        , PySocketModule.Sock_Type);
+        , socketmodule_api.Sock_Type);
     if (NULL == so) {
         return NULL;
     }
@@ -674,7 +758,7 @@ PyObject* Py_apoll::accept_meth(Py_apoll *self, ::PyObject *args)
     }
 
     PySocketSockObject *so = py_convert<PySocketSockObject>(so_raw
-        , PySocketModule.Sock_Type);
+        , socketmodule_api.Sock_Type);
     if (NULL == so) {
         return NULL;
     }
@@ -697,7 +781,7 @@ PyObject* Py_apoll::accept_meth(Py_apoll *self, ::PyObject *args)
     }
 
     PySocketSockObject *so = py_convert<PySocketSockObject>(so_raw
-        , PySocketModule.Sock_Type);
+        , socketmodule_api.Sock_Type);
     if (NULL == so) {
         return NULL;
     }
@@ -720,7 +804,7 @@ PyObject* Py_apoll::accept_meth(Py_apoll *self, ::PyObject *args)
     }
 
     PySocketSockObject *so = py_convert<PySocketSockObject>(so_raw
-        , PySocketModule.Sock_Type);
+        , socketmodule_api.Sock_Type);
     if (NULL == so) {
         return NULL;
     }
@@ -743,7 +827,7 @@ PyObject* Py_apoll::accept_meth(Py_apoll *self, ::PyObject *args)
     }
 
     PySocketSockObject *so = py_convert<PySocketSockObject>(so_raw
-        , PySocketModule.Sock_Type);
+        , socketmodule_api.Sock_Type);
     if (NULL == so) {
         return NULL;
     }
@@ -823,153 +907,5 @@ PyObject* Py_apoll::accept_meth(Py_apoll *self, ::PyObject *args)
     Py_INCREF(Py_None);
     return Py_None;
 }
-
-::PyObject * get_sock_family(::PyObject *self, ::PyObject *args)
-{
-    ::PyObject *so_raw;
-    if(!PyArg_ParseTuple(args, "O:get_sock_family", &so_raw)) {
-        return NULL;
-    }
-    PySocketSockObject *so = py_convert<PySocketSockObject>(so_raw
-        , PySocketModule.Sock_Type);
-    if (NULL == so) {
-        return NULL;
-    }
-
-    return PyInt_FromLong(so->sock_family);
-}
-
-::PyObject * get_sock_type(::PyObject *self, ::PyObject *args)
-{
-    ::PyObject *so_raw;
-    if(!PyArg_ParseTuple(args, "O:get_sock_type", &so_raw)) {
-        return NULL;
-    }
-    PySocketSockObject *so = py_convert<PySocketSockObject>(so_raw
-        , PySocketModule.Sock_Type);
-    if (NULL == so) {
-        return NULL;
-    }
-
-    return PyInt_FromLong(so->sock_type);
-}
-
-::PyObject * get_sock_proto(::PyObject *self, ::PyObject *args)
-{
-    ::PyObject *so_raw;
-    if(!PyArg_ParseTuple(args, "O:get_sock_proto", &so_raw)) {
-        return NULL;
-    }
-    PySocketSockObject *so = py_convert<PySocketSockObject>(so_raw
-        , PySocketModule.Sock_Type);
-    if (NULL == so) {
-        return NULL;
-    }
-
-    return PyInt_FromLong(so->sock_proto);
-}
-
-static PyMethodDef pyasynchio_methods[] = {
-    { "get_sock_family"
-        , reinterpret_cast<PyCFunction>(&get_sock_family)
-        , METH_VARARGS
-        , "get socket family constant"
-    }
-    , { "get_sock_type"
-        , reinterpret_cast<PyCFunction>(&get_sock_type)
-        , METH_VARARGS
-        , "get socket type constant"
-    }
-    , { "get_sock_proto"
-        , reinterpret_cast<PyCFunction>(&get_sock_proto)
-        , METH_VARARGS
-        , "get socket protocol constant"
-    }
-    , {NULL}  /* Sentinel */
-};
-
-static PyMethodDef apoll_methods[] = {
-    { "accept"
-        , reinterpret_cast<PyCFunction>(&Py_apoll::accept_meth)
-        , METH_VARARGS
-        , "start asynchronous accept operation"
-    }
-    , { "connect"
-        , reinterpret_cast<PyCFunction>(&Py_apoll::connect_meth)
-        , METH_VARARGS
-        , "start asynchronou connect operation"
-    }
-    , { "send"
-        , reinterpret_cast<PyCFunction>(&Py_apoll::send_meth)
-        , METH_VARARGS
-        , "start asynchronous send operation"
-    }
-    , { "sendto"
-        , reinterpret_cast<PyCFunction>(&Py_apoll::sendto_meth)
-        , METH_VARARGS
-        , "start asynchronous sendto operation"
-    }
-    , { "recv"
-        , reinterpret_cast<PyCFunction>(&Py_apoll::recv_meth)
-        , METH_VARARGS
-        , "start asynchronous recv operation"
-    }
-    , { "recvfrom"
-        , reinterpret_cast<PyCFunction>(&Py_apoll::recvfrom_meth)
-        , METH_VARARGS
-        , "start asynchronous recvfrom operation"
-    }
-    , { "poll"
-        , reinterpret_cast<PyCFunction>(&Py_apoll::poll_meth)
-        , METH_VARARGS
-        , "poll asynchronous operation results"
-    }
-    , { "cancel"
-        , reinterpret_cast<PyCFunction>(&Py_apoll::cancel_meth)
-        , METH_VARARGS
-        , "cancel asynchronous operations for given object"
-    }
-    , { "read"
-        , reinterpret_cast<PyCFunction>(&Py_apoll::read_meth)
-        , METH_VARARGS
-        , "start asynchronous read operation on file"
-    }
-    , { "write"
-        , reinterpret_cast<PyCFunction>(&Py_apoll::write_meth)
-        , METH_VARARGS
-        , "start asynchronous write operation on file" 
-    }
-    , {NULL} /* Sentinel */
-};
-
-
-void init_pyasynchio()
-{
-    ::PySocketModule_ImportModuleAndAPI();
-
-    apoll_Type.tp_methods = apoll_methods;
-    apoll_Type.tp_new = PyType_GenericNew;
-    apoll_Type.tp_init = &Py_apoll::init_func;
-    if (PyType_Ready(&apoll_Type) < 0) {
-        return;
-    }
-    PyObject *m = Py_InitModule("_pyasynchio", pyasynchio_methods);
-    Py_INCREF(&apoll_Type);
-
-    if (PyType_Ready(&aioresult_Type) < 0) {
-        return;
-    }
-    Py_INCREF(&aioresult_Type);
-
-    PyModule_AddObject(m
-        , "apoll"
-        , reinterpret_cast<PyObject*>(&apoll_Type) );
-
-    PyModule_AddObject(m
-        , "aioresult"
-        , reinterpret_cast<PyObject*>(&aioresult_Type) );
-
-}
-
 
 } // namespace pyasynchio
