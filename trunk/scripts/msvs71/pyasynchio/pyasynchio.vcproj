@@ -133,6 +133,9 @@
 					RelativePath="..\..\..\src\cplusplus\pyasynchio\apoll.cpp">
 				</File>
 				<File
+					RelativePath="..\..\..\src\cplusplus\pyasynchio\win\apoll_impl.cpp">
+				</File>
+				<File
 					RelativePath="..\..\..\src\cplusplus\pyasynchio\init.cpp">
 				</File>
 				<File
@@ -153,6 +156,9 @@
 				</File>
 				<File
 					RelativePath="..\..\..\include\pyasynchio\apoll.hpp">
+				</File>
+				<File
+					RelativePath="..\..\..\include\pyasynchio\win\apoll_impl.hpp">
 				</File>
 				<File
 					RelativePath="..\..\..\include\pyasynchio\socketmodule_stuff.hpp">

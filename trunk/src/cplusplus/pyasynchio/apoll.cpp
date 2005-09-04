@@ -32,88 +32,16 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace pyasynchio {
 
-Py_apoll::g_file_closers_type Py_apoll::g_file_closers;
-Py_apoll::g_file_registry_type Py_apoll::g_file_registry;
-
-Py_apoll::Py_apoll(unsigned long maxProcessingThreads /* = 0 */)
+apoll::apoll(::PyObject *args, ::PyObject *kwargs)
+: apoll_impl(args, kwargs)
 {
-    iocp_handle_ = ::CreateIoCompletionPort(
-        INVALID_HANDLE_VALUE // File handle 
-        , NULL // existing completion port
-        , NULL // completion key
-        , 0 // number of concurrent threads
-    );
-    if (NULL == iocp_handle_) {
-        PyErr_SetString(PyExc_RuntimeError, "::CreateIoCompletionPort failed");
-    }
 }
 
-Py_apoll::~Py_apoll()
+apoll::~apoll()
 {
-    for(;;) {
-        BOOL success = FALSE;
-        OVERLAPPED *ovl = NULL;
-        ULONG bytes_transferred = 0;
-        ULONG completion_key = 0;
-        Py_BEGIN_ALLOW_THREADS;
-        success = ::GetQueuedCompletionStatus(iocp_handle_  // CompletionPort
-            , &bytes_transferred                                // lpNumberOfBytesTransferred
-            , &completion_key                                   // lpCompletionKey
-            , &ovl                                              // lpOverlapped
-            , 0                                                // dwMilliseconds
-            );
-        Py_END_ALLOW_THREADS;
-        AIO_ROOT *ovr = 0;
-        ovr = static_cast<AIO_ROOT*>(ovl);
-
-        if ( (0 == ovl) && (FALSE == success) ) {
-            break;
-        }
-
-        delete ovr;
-    }
-
-
-    ::CloseHandle(iocp_handle_);
-    asynch_handles_type::const_iterator citer;
-    for(citer = asynch_handles_.begin(); citer != asynch_handles_.end(); ++citer) {
-        std::pair<g_file_registry_type::iterator
-            , g_file_registry_type::iterator> eqr = g_file_registry.equal_range(citer->first);
-        g_file_registry_type::iterator fiter;
-        for(fiter = eqr.first; fiter != eqr.second; ++fiter) {
-            if (fiter->second == this) break;
-        }
-        g_file_registry.erase(fiter);
-    }
-    while(asynch_handles_.size() > 0) {
-        this->free_file_resources(asynch_handles_.begin()->first);
-    }
 }
 
-bool Py_apoll::common_iocp_preamble(HANDLE h)
-{
-    HANDLE iocp_ret = ::CreateIoCompletionPort(h
-        , iocp_handle_
-        , NULL
-        , 0);
-    if (iocp_handle_ != iocp_ret) {
-        DWORD error = GetLastError();
-        if (error != ERROR_INVALID_PARAMETER) {
-            ::PyErr_Format(PyExc_RuntimeError
-                , "Failed to associate I/O completion port with socket handle %d"
-                , GetLastError());
-            return false;
-        }
-    }
-    return true;
-}
-
-bool Py_apoll::sock_iocp_preamble(SOCKET sock)
-{
-    return common_iocp_preamble(reinterpret_cast<HANDLE>(sock));
-}
-
-bool Py_apoll::accept(::PySocketSockObject *listen_sock
+bool apoll::accept(::PySocketSockObject *listen_sock
                       , ::PySocketSockObject *accept_sock
                       , ::PyObject *lsock_ref_obj
                       , ::PyObject *asock_ref_obj
@@ -141,7 +69,7 @@ bool Py_apoll::accept(::PySocketSockObject *listen_sock
     return check_wsa_op(r, TRUE, "::AcceptEx failed");
 }
 
-bool Py_apoll::recv(::PySocketSockObject *so
+bool apoll::recv(::PySocketSockObject *so
                     , ::PyObject *so_ref
                     , unsigned long bufsize
                     , unsigned long flags
@@ -166,7 +94,7 @@ bool Py_apoll::recv(::PySocketSockObject *so
     return check_wsa_op(r, 0, "::WSARecv failed");
 }
 
-bool Py_apoll::recvfrom(::PySocketSockObject * so
+bool apoll::recvfrom(::PySocketSockObject * so
                         , ::PyObject *so_ref
                         , unsigned long bufsize
                         , unsigned long flags
@@ -193,7 +121,7 @@ bool Py_apoll::recvfrom(::PySocketSockObject * so
     return check_wsa_op(r, 0, "::WSARecvFrom failed");
 }
 
-bool Py_apoll::sendto(::PySocketSockObject *so, ::PyObject *so_ref
+bool apoll::sendto(::PySocketSockObject *so, ::PyObject *so_ref
                       , ::PyObject *addro
                       , ::PyObject *datao
                       , unsigned long flags
@@ -234,7 +162,7 @@ bool Py_apoll::sendto(::PySocketSockObject *so, ::PyObject *so_ref
     return check_wsa_op(r, 0, "::WSASendTo failed");
 }
 
-bool Py_apoll::send(::PySocketSockObject *so, ::PyObject *so_ref
+bool apoll::send(::PySocketSockObject *so, ::PyObject *so_ref
                     , ::PyObject *datao, unsigned long flags
                     , ::PyObject *acto)
 {
@@ -263,7 +191,7 @@ bool Py_apoll::send(::PySocketSockObject *so, ::PyObject *so_ref
     return check_wsa_op(r, 0, "::WSASend failed");
 }
 
-bool Py_apoll::connect(::PySocketSockObject *so, ::PyObject *so_ref
+bool apoll::connect(::PySocketSockObject *so, ::PyObject *so_ref
                        , ::PyObject *addro, ::PyObject *acto)
 {
     if (!sock_iocp_preamble(so->sock_fd)) {
@@ -303,7 +231,7 @@ bool Py_apoll::connect(::PySocketSockObject *so, ::PyObject *so_ref
     return check_wsa_op(r, TRUE, "::ConnectEx failed");
 }
 
-bool Py_apoll::cancel(PyObject *o)
+bool apoll::cancel(PyObject *o)
 {
     HANDLE h;
     if(PyObject_IsInstance(o, reinterpret_cast<PyObject*>(PySocketModule.Sock_Type))) {
@@ -327,174 +255,7 @@ bool Py_apoll::cancel(PyObject *o)
     return true;
 }
 
-static std::wstring get_path_by_handle(HANDLE h)
-{
-    typedef enum _OBJECT_INFORMATION_CLASS
-    {
-        ObjectBasicInformation,         // Result is OBJECT_BASIC_INFORMATION structure
-        ObjectNameInformation,          // Result is OBJECT_NAME_INFORMATION structure
-        ObjectTypeInformation,          // Result is OBJECT_TYPE_INFORMATION structure
-        ObjectAllInformation,           // Result is OBJECT_ALL_INFORMATION structure
-        ObjectDataInformation           // Result is OBJECT_DATA_INFORMATION structure
-        
-    } OBJECT_INFORMATION_CLASS, *POBJECT_INFORMATION_CLASS;
-
-    typedef LONG (__stdcall * NtQueryObjectT)(HANDLE, OBJECT_INFORMATION_CLASS, PVOID, ULONG, PULONG);
-    NtQueryObjectT _NtQueryObject;
-    _NtQueryObject = (NtQueryObjectT)GetProcAddress(LoadLibrary("ntdll.dll"), "NtQueryObject");
-    typedef struct _FNAME {
-        USHORT Length;
-        USHORT MaximumLength;
-        PWSTR  Buffer;
-        WCHAR ObjectNameBuffer[1];
-    } FNAME; 
-
-    const unsigned int DEFAULT_BUFFER_SIZE = 10 * sizeof(WCHAR) * MAX_PATH;
-    FNAME *fname = reinterpret_cast<FNAME*>(malloc(DEFAULT_BUFFER_SIZE));
-    ULONG fname_length = DEFAULT_BUFFER_SIZE;
-    
-    _NtQueryObject(h, ObjectNameInformation, fname, DEFAULT_BUFFER_SIZE, &fname_length);
-
-    std::wstring fname_str(fname->ObjectNameBuffer);
-    free(fname);
-    WCHAR drive_strings[32 * 4 + 1];
-
-    if (GetLogicalDriveStringsW(sizeof(drive_strings)/sizeof(drive_strings[0])-1
-        , drive_strings)) 
-    {
-        WCHAR szName[MAX_PATH];
-        WCHAR szDrive[3] = L" :";
-        BOOL bFound = FALSE;
-        WCHAR* p = drive_strings;
-
-        do 
-        {
-            // Copy the drive letter to the template string
-            *szDrive = *p;
-
-            // Look up each device name
-            if (QueryDosDeviceW(szDrive, szName, sizeof(szName) / sizeof(szName[0])))
-            {
-                size_t uNameLen = wcslen(szName);
-
-                if (uNameLen < MAX_PATH) 
-                {
-                    bFound = _wcsnicmp(fname_str.c_str(), szName, 
-                        uNameLen) == 0;
-
-                    if (bFound) 
-                    {
-                        // Reconstruct pszFilename using szTemp
-                        // Replace device path with DOS path
-                        return fname_str.replace(0, uNameLen, szDrive);
-                    }
-                }
-        }
-
-        // Go to the next NULL character.
-        while (*p++);
-        } while (!bFound && *p); // end of string
-    }
-    return fname_str;
-}
-
-HANDLE Py_apoll::get_file_handle(PyFileObject *fo)
-{
-    FILE * fp = fo->f_fp;
-    if (asynch_handles_.find(fp) == asynch_handles_.end()) {
-        std::wstring file_path = get_path_by_handle((HANDLE)_get_osfhandle(_fileno(fp)));
-        // create new handle.
-        DWORD desired_access = 0;
-        char * mode = PyString_AsString(fo->f_mode);
-        if (mode[0] == 'r') {
-            desired_access |= GENERIC_READ;
-        }
-        else if (mode[0] == 'w' || mode[0] == 'a') {
-            desired_access |= GENERIC_WRITE;
-        }
-        DWORD share_mode = FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE;
-        HANDLE fh = INVALID_HANDLE_VALUE;
-//      if (PyUnicode_Check(fo->f_name)) {
-
-        Py_BEGIN_ALLOW_THREADS;
-
-        fh = ::CreateFileW(file_path.c_str()        // LPCTSTR lpFileName
-            , desired_access                                    // DWORD dwDesiredAccess
-            , share_mode                                        // DWORD dwShareMode
-            , 0                                                 // LPSECURITY_ATTRIBUTES lpSecurityAttributes
-            , OPEN_EXISTING                                     // DWORD dwCreationDisposition
-            , FILE_FLAG_OVERLAPPED                              // DWORD dwFlagsAndAttributes
-            , NULL);                                            // HANDLE hTemplateFile
-        Py_END_ALLOW_THREADS;
-//      }
-        //else {
-        //  Py_BEGIN_ALLOW_THREADS;
-        //  char * fname = PyString_AS_STRING(fo->f_name);
-        //  fh = ::CreateFileA(fname
-        //      , desired_access
-        //      , share_mode
-        //      , 0
-        //      , OPEN_EXISTING
-        //      , FILE_FLAG_OVERLAPPED
-        //      , NULL);
-        //  Py_END_ALLOW_THREADS;
-        //}
-        if (fh == INVALID_HANDLE_VALUE) {
-            PyErr_SetString(PyExc_RuntimeError, "CreateFile failed");
-            return INVALID_HANDLE_VALUE;
-        }
-        asynch_handles_[fp] = fh;
-        if (g_file_closers.find(fp) == g_file_closers.end()) {
-            g_file_closers[fp] = fo->f_close;
-            fo->f_close = &g_fclose;
-        }
-        g_file_registry.insert(std::make_pair(fp, this));
-
-        
-        return fh;
-    }
-    else {
-        return asynch_handles_[fp];
-    }
-}
-
-int Py_apoll::g_fclose(FILE *fp)
-{
-    std::pair<g_file_registry_type::const_iterator
-        , g_file_registry_type::const_iterator> eqr = g_file_registry.equal_range(fp);
-    g_file_registry_type::const_iterator citer;
-    for( citer = eqr.first; citer != eqr.second; ++citer) {
-        citer->second->free_file_resources(fp);
-    }
-    g_file_registry.erase(fp);
-    int retval = g_file_closers[fp](fp);
-    g_file_closers.erase(fp);
-    return retval;
-}
-
-void Py_apoll::free_file_resources(FILE *fp)
-{
-    if (asynch_handles_.find(fp) != asynch_handles_.end()) {
-        ::CloseHandle(asynch_handles_[fp]);
-        asynch_handles_.erase(fp);
-    }
-}
-
-HANDLE Py_apoll::file_iocp_preamble(PyFileObject *fo)
-{
-    HANDLE fh = get_file_handle(fo);
-    if (INVALID_HANDLE_VALUE == fh) {
-        return INVALID_HANDLE_VALUE;
-    }
-    if (!common_iocp_preamble(fh)) {
-        free_file_resources(fo->f_fp);
-        g_file_registry.erase(fo->f_fp);
-        return INVALID_HANDLE_VALUE;
-    }
-    return fh;
-}
-
-bool Py_apoll::read(PyFileObject *fo, unsigned long long offset, unsigned long size
+bool apoll::read(PyFileObject *fo, unsigned long long offset, unsigned long size
                     , ::PyObject *acto)
 {
     HANDLE fh = file_iocp_preamble(fo);
@@ -508,7 +269,7 @@ bool Py_apoll::read(PyFileObject *fo, unsigned long long offset, unsigned long s
     return check_windows_op(r, FALSE, "::ReadFile failed");
 }
 
-bool Py_apoll::write(PyFileObject *fo, unsigned long long offset
+bool apoll::write(PyFileObject *fo, unsigned long long offset
                      , ::PyObject *datao, ::PyObject *acto)
 {
     HANDLE fh = file_iocp_preamble(fo);
@@ -529,7 +290,7 @@ bool Py_apoll::write(PyFileObject *fo, unsigned long long offset
 
 }
 
-::PyObject * Py_apoll::poll(long ms)
+::PyObject * apoll::poll(long ms)
 {
     DWORD bytes_transferred = 0;
     ULONG_PTR completion_key = 0;
@@ -577,52 +338,52 @@ bool Py_apoll::write(PyFileObject *fo, unsigned long long offset
 
 static PyMethodDef apoll_methods[] = {
     { "accept"
-        , reinterpret_cast<PyCFunction>(&Py_apoll::accept_meth)
+        , reinterpret_cast<PyCFunction>(&apoll::accept_meth)
         , METH_VARARGS
         , "start asynchronous accept operation"
     }
     , { "connect"
-        , reinterpret_cast<PyCFunction>(&Py_apoll::connect_meth)
+        , reinterpret_cast<PyCFunction>(&apoll::connect_meth)
         , METH_VARARGS
         , "start asynchronou connect operation"
     }
     , { "send"
-        , reinterpret_cast<PyCFunction>(&Py_apoll::send_meth)
+        , reinterpret_cast<PyCFunction>(&apoll::send_meth)
         , METH_VARARGS
         , "start asynchronous send operation"
     }
     , { "sendto"
-        , reinterpret_cast<PyCFunction>(&Py_apoll::sendto_meth)
+        , reinterpret_cast<PyCFunction>(&apoll::sendto_meth)
         , METH_VARARGS
         , "start asynchronous sendto operation"
     }
     , { "recv"
-        , reinterpret_cast<PyCFunction>(&Py_apoll::recv_meth)
+        , reinterpret_cast<PyCFunction>(&apoll::recv_meth)
         , METH_VARARGS
         , "start asynchronous recv operation"
     }
     , { "recvfrom"
-        , reinterpret_cast<PyCFunction>(&Py_apoll::recvfrom_meth)
+        , reinterpret_cast<PyCFunction>(&apoll::recvfrom_meth)
         , METH_VARARGS
         , "start asynchronous recvfrom operation"
     }
     , { "poll"
-        , reinterpret_cast<PyCFunction>(&Py_apoll::poll_meth)
+        , reinterpret_cast<PyCFunction>(&apoll::poll_meth)
         , METH_VARARGS
         , "poll asynchronous operation results"
     }
     , { "cancel"
-        , reinterpret_cast<PyCFunction>(&Py_apoll::cancel_meth)
+        , reinterpret_cast<PyCFunction>(&apoll::cancel_meth)
         , METH_VARARGS
         , "cancel asynchronous operations for given object"
     }
     , { "read"
-        , reinterpret_cast<PyCFunction>(&Py_apoll::read_meth)
+        , reinterpret_cast<PyCFunction>(&apoll::read_meth)
         , METH_VARARGS
         , "start asynchronous read operation on file"
     }
     , { "write"
-        , reinterpret_cast<PyCFunction>(&Py_apoll::write_meth)
+        , reinterpret_cast<PyCFunction>(&apoll::write_meth)
         , METH_VARARGS
         , "start asynchronous write operation on file" 
     }
@@ -633,9 +394,9 @@ PyTypeObject apoll_Type = {
     PyObject_HEAD_INIT(NULL)
     0,                         /*ob_size*/
     "_pyasynchio.apoll",             /*tp_name*/
-    sizeof(Py_apoll), /*tp_basicsize*/
+    sizeof(apoll), /*tp_basicsize*/
     0,                         /*tp_itemsize*/
-    (destructor)Py_apoll::dealloc,                         /*tp_dealloc*/
+    (destructor)apoll::dealloc,                         /*tp_dealloc*/
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
@@ -670,7 +431,7 @@ PyTypeObject apoll_Type = {
     0,                                  // tp_descr_get
     0,                                  // tp_descr_set
     0,                                  // tp_dictoffset 
-    Py_apoll::init_func,               // tp_init
+    apoll::init,               // tp_init
     0,                                  // tp_alloc 
     PyType_GenericNew,                 // tp_new
     0,                                  // tp_free
@@ -684,23 +445,25 @@ PyTypeObject apoll_Type = {
 };
 
 
-int Py_apoll::init_func(PyObject *self, PyObject *args, PyObject *kwds)
+int apoll::init(PyObject *self, PyObject *args, PyObject *kwds)
 {
-    unsigned long maxConcurrentThreads = 0;
-    if (!PyArg_ParseTuple(args, "|k:apoll", &maxConcurrentThreads)) {
-        return NULL;
-    }
-    new (self) pyasynchio::Py_apoll(maxConcurrentThreads);
+	try {
+		new (self) pyasynchio::apoll(args, kwds);
+	}
+	catch(std::exception &)
+	{
+		return FALSE;
+	}
     return TRUE;
 }
 
-void Py_apoll::dealloc(pyasynchio::Py_apoll *self)
+void apoll::dealloc(pyasynchio::apoll *self)
 {
-    self->~Py_apoll();
+    self->~apoll();
     self->ob_type->tp_free(self);
 }
 
-PyObject* Py_apoll::accept_meth(Py_apoll *self, ::PyObject *args)
+PyObject* apoll::accept_meth(apoll *self, ::PyObject *args)
 {
     PyObject *listen_sock_raw, *accept_sock_raw
         , *lsock_ref_obj, *asock_ref_obj
@@ -731,7 +494,7 @@ PyObject* Py_apoll::accept_meth(Py_apoll *self, ::PyObject *args)
     return Py_None;
 }
 
-::PyObject * Py_apoll::connect_meth(Py_apoll *self, ::PyObject *args)
+::PyObject * apoll::connect_meth(apoll *self, ::PyObject *args)
 {
     PyObject *so_raw, *so_ref, *addro, *acto;
     if (!PyArg_ParseTuple(args, "OOOO:connect", &so_raw, &so_ref, &addro, &acto)) {
@@ -752,7 +515,7 @@ PyObject* Py_apoll::accept_meth(Py_apoll *self, ::PyObject *args)
     return Py_None;
 }
 
-::PyObject * Py_apoll::sendto_meth(Py_apoll * self, ::PyObject * args)
+::PyObject * apoll::sendto_meth(apoll * self, ::PyObject * args)
 {
     ::PyObject *so_raw, *so_ref, *addro, *datao, *acto;
     unsigned long flags;
@@ -774,7 +537,7 @@ PyObject* Py_apoll::accept_meth(Py_apoll *self, ::PyObject *args)
     return Py_None;
 }
 
-::PyObject * Py_apoll::send_meth(Py_apoll * self, ::PyObject * args)
+::PyObject * apoll::send_meth(apoll * self, ::PyObject * args)
 {
     ::PyObject *so_raw, *so_ref, *datao, *acto;
     unsigned long flags;
@@ -797,7 +560,7 @@ PyObject* Py_apoll::accept_meth(Py_apoll *self, ::PyObject *args)
     return Py_None;
 }
 
-::PyObject * Py_apoll::recv_meth(Py_apoll *self, ::PyObject *args)
+::PyObject * apoll::recv_meth(apoll *self, ::PyObject *args)
 {
     ::PyObject *so_raw, *so_ref, *acto;
     unsigned long flags, size;
@@ -820,7 +583,7 @@ PyObject* Py_apoll::accept_meth(Py_apoll *self, ::PyObject *args)
     return Py_None;
 }
 
-::PyObject * Py_apoll::recvfrom_meth(Py_apoll *self, ::PyObject *args)
+::PyObject * apoll::recvfrom_meth(apoll *self, ::PyObject *args)
 {
     ::PyObject *so_raw, *so_ref, *acto;
     unsigned long flags, size;
@@ -843,7 +606,7 @@ PyObject* Py_apoll::accept_meth(Py_apoll *self, ::PyObject *args)
     return Py_None;
 }
 
-::PyObject * Py_apoll::poll_meth(Py_apoll *self, ::PyObject *args)
+::PyObject * apoll::poll_meth(apoll *self, ::PyObject *args)
 {
     long ms;
     if (!PyArg_ParseTuple(args, "l:poll", &ms)) {
@@ -853,7 +616,7 @@ PyObject* Py_apoll::accept_meth(Py_apoll *self, ::PyObject *args)
     return self->poll(ms);
 }
 
-::PyObject * Py_apoll::cancel_meth(Py_apoll * self, ::PyObject * args)
+::PyObject * apoll::cancel_meth(apoll * self, ::PyObject * args)
 {
     ::PyObject * o;
     if (!PyArg_ParseTuple(args, "O:cancel", &o)) {
@@ -868,7 +631,7 @@ PyObject* Py_apoll::accept_meth(Py_apoll *self, ::PyObject *args)
     return Py_None;
 }
 
-::PyObject * Py_apoll::write_meth(Py_apoll * self, ::PyObject * args)
+::PyObject * apoll::write_meth(apoll * self, ::PyObject * args)
 {
     ::PyObject * fo_raw, *acto, *datao;
     unsigned long long offset = 0;
@@ -889,7 +652,7 @@ PyObject* Py_apoll::accept_meth(Py_apoll *self, ::PyObject *args)
     return Py_None;
 }
 
-::PyObject * Py_apoll::read_meth(Py_apoll * self, ::PyObject * args)
+::PyObject * apoll::read_meth(apoll * self, ::PyObject * args)
 {
     ::PyObject * fo_raw, *acto;
     unsigned long long offset = 0;
