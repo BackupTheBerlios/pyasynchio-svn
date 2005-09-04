@@ -19,8 +19,8 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef PYASYNCHIO_PY_APOLL_HPP_INCLUDED_
-#define PYASYNCHIO_PY_APOLL_HPP_INCLUDED_
+#ifndef PYASYNCHIO_APOLL_HPP_INCLUDED_
+#define PYASYNCHIO_APOLL_HPP_INCLUDED_
 
 #pragma once
 
@@ -43,15 +43,6 @@ class Py_apoll : public PyObject
 {
 public:
     static const unsigned int addr_size = sizeof(sockaddr_in) + sizeof(sockaddr);
-    class AIO_ROOT;
-    class AIO_ACCEPT;
-    class AIO_CONNECT;
-    class AIO_RECV;
-    class AIO_RECVFROM;
-    class AIO_SEND;
-    class AIO_SENDTO;
-    class AIO_READ;
-    class AIO_WRITE;
 
     Py_apoll(unsigned long maxProcessingThreads = 0);
     ~Py_apoll();
@@ -176,6 +167,4 @@ bool Py_apoll::check_windows_op(T function_result, T error_result, char *msg)
 
 } // namespace pyasynchio
 
-#include <pyasynchio/py_apoll_aio.hpp>
-
-#endif // PYASYNCHIO_PY_APOLL_HPP_INCLUDED_
+#endif // PYASYNCHIO_APOLL_HPP_INCLUDED_

@@ -1,4 +1,4 @@
-#include <pyasynchio/py_apoll.hpp>
+#include <pyasynchio/apoll.hpp>
 #include <pyasynchio/utils.hpp>
 
 namespace pyasynchio {

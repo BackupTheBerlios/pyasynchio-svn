@@ -20,7 +20,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
 
-#include <pyasynchio/py_apoll.hpp>
+#include <pyasynchio/apoll.hpp>
 #include <pyasynchio/utils.hpp>
 #include <new>
 #include <internal.h>
@@ -666,8 +666,8 @@ PyTypeObject apoll_Type = {
     0,                                  // tp_dict
     0,                                  // tp_descr_get
     0,                                  // tp_descr_set
-    0,									// tp_dictoffset 
-	Py_apoll::init_func,               // tp_init
+    0,                                  // tp_dictoffset 
+    Py_apoll::init_func,               // tp_init
     0,                                  // tp_alloc 
     PyType_GenericNew,                 // tp_new
     0,                                  // tp_free

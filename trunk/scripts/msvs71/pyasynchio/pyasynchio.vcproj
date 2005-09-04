@@ -127,10 +127,10 @@
 					RelativePath="..\..\..\src\cplusplus\pyasynchio\aioresult.cpp">
 				</File>
 				<File
-					RelativePath="..\..\..\src\cplusplus\pyasynchio\init.cpp">
+					RelativePath="..\..\..\src\cplusplus\pyasynchio\apoll.cpp">
 				</File>
 				<File
-					RelativePath="..\..\..\src\cplusplus\pyasynchio\py_apoll.cpp">
+					RelativePath="..\..\..\src\cplusplus\pyasynchio\init.cpp">
 				</File>
 				<File
 					RelativePath="..\..\..\src\cplusplus\pyasynchio\py_apoll_aio.cpp">
@@ -149,7 +149,7 @@
 					RelativePath="..\..\..\include\pyasynchio\aioresult.hpp">
 				</File>
 				<File
-					RelativePath="..\..\..\include\pyasynchio\py_apoll.hpp">
+					RelativePath="..\..\..\include\pyasynchio\apoll.hpp">
 				</File>
 				<File
 					RelativePath="..\..\..\include\pyasynchio\py_apoll_aio.hpp">

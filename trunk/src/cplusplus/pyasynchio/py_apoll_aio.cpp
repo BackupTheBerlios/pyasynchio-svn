@@ -20,7 +20,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
 #include <pyasynchio/py_apoll_aio.hpp>
-#include <pyasynchio/py_apoll.hpp>
+#include <pyasynchio/apoll.hpp>
 
 namespace pyasynchio {
 
