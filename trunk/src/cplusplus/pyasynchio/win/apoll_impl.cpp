@@ -116,22 +116,32 @@ bool apoll_impl::connect_impl(::PySocketSockObject *so
         sizeof(ConnectEx), 
         &dwBytes, 
         NULL, 
-        NULL) == SOCKET_ERROR) 
+        NULL) != SOCKET_ERROR) 
     {
-        PyErr_SetString(PyExc_RuntimeError, "ConnectEx not found with WSAIoctl");
-        return false;
+	    DWORD bytes_sent = 0;
+		BOOL r = ConnectEx(so->sock_fd          // s
+			, &addr                                 // name
+	        , addr_len                              // namelen
+		    , 0                                     // lpSendBuffer
+			, 0                                     // dwSendDataLength
+	        , &bytes_sent                           // lpdwBytesSent
+		    , asynch_connect_op                     // lpOverlapped
+			);
+	    return check_wsa_op(r, TRUE, "::ConnectEx failed");
     }
-    DWORD bytes_sent = 0;
-    BOOL r = ConnectEx(so->sock_fd          // s
-        , &addr                                 // name
-        , addr_len                              // namelen
-        , 0                                     // lpSendBuffer
-        , 0                                     // dwSendDataLength
-        , &bytes_sent                           // lpdwBytesSent
-        , asynch_connect_op                     // lpOverlapped
-        );
-    return check_wsa_op(r, TRUE, "::ConnectEx failed");
-
+	else {
+		// ::ConnectEx not supported (Win2k?)
+		if(0 == ::connect(so->sock_fd, &addr, addr_len)) {
+			BOOL r = ::PostQueuedCompletionStatus(iocp_handle_, 0, 0
+				, asynch_connect_op);
+			return check_windows_op(r, FALSE, "::PostQueuedCompletionStatus failed");
+		}
+		else {
+			::PyErr_SetString(socketmodule_api.error, "::connect failed");
+            return false;
+		}
+        return false;
+	}
 }
 
 
