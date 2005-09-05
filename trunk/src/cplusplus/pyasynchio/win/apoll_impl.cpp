@@ -1,4 +1,5 @@
 #include <pyasynchio/win/apoll_impl.hpp>
+#include <mswsock.h>
 
 namespace pyasynchio {
 
@@ -46,8 +47,8 @@ apoll_impl::~apoll_impl()
             , 0                                                // dwMilliseconds
             );
         Py_END_ALLOW_THREADS;
-        AIO_ROOT *ovr = 0;
-        ovr = static_cast<AIO_ROOT*>(ovl);
+        aop_root *ovr = 0;
+        ovr = static_cast<aop_root*>(ovl);
 
         if ( (0 == ovl) && (FALSE == success) ) {
             break;
@@ -72,6 +73,67 @@ apoll_impl::~apoll_impl()
         this->free_file_resources(asynch_handles_.begin()->first);
     }
 }
+
+bool apoll_impl::accept_impl(PySocketSockObject *lsock
+							 , PySocketSockObject *asock
+							 , PyObject *lsock_ref
+							 , PyObject *asock_ref
+							 , aop_accept *asynch_accept_op)
+{
+    if (!sock_iocp_preamble(lsock->sock_fd)) {
+        return false;
+    }
+    DWORD num_bytes_rcvd = 0;
+    BOOL r = ::AcceptEx(lsock->sock_fd    // sListenSocket 
+        , asock->sock_fd                  // sAcceptSocket 
+        , &asynch_accept_op->addr_buf_[0]                        // lpOutputBuffer
+        , 0                                     // dwReceiveDataLength
+        , asynch_accept_op->addr_size                             // dwLocalAddressLength
+        , asynch_accept_op->addr_size                             // dwRemoteAddressLength
+        , &num_bytes_rcvd                       // lpdwBytesReceived
+        , asynch_accept_op   // lpOverlapped                     
+        );                                  
+    return check_wsa_op(r, TRUE, "::AcceptEx failed");
+}
+
+bool apoll_impl::connect_impl(::PySocketSockObject *so
+							  , ::PyObject *so_ref
+							  , sockaddr &addr
+							  , int addr_len
+							  , aop_connect *asynch_connect_op)
+{
+    if (!sock_iocp_preamble(so->sock_fd)) {
+        return false;
+    }
+    GUID GuidConnectEx = WSAID_CONNECTEX;
+    ::LPFN_CONNECTEX ConnectEx;
+    DWORD dwBytes;
+    if (WSAIoctl(so->sock_fd, 
+        SIO_GET_EXTENSION_FUNCTION_POINTER, 
+        &GuidConnectEx, 
+        sizeof(GuidConnectEx),
+        &ConnectEx, 
+        sizeof(ConnectEx), 
+        &dwBytes, 
+        NULL, 
+        NULL) == SOCKET_ERROR) 
+    {
+        PyErr_SetString(PyExc_RuntimeError, "ConnectEx not found with WSAIoctl");
+        return false;
+    }
+    DWORD bytes_sent = 0;
+    BOOL r = ConnectEx(so->sock_fd          // s
+        , &addr                                 // name
+        , addr_len                              // namelen
+        , 0                                     // lpSendBuffer
+        , 0                                     // dwSendDataLength
+        , &bytes_sent                           // lpdwBytesSent
+        , asynch_connect_op                     // lpOverlapped
+        );
+    return check_wsa_op(r, TRUE, "::ConnectEx failed");
+
+}
+
 
 bool apoll_impl::common_iocp_preamble(HANDLE h)
 {

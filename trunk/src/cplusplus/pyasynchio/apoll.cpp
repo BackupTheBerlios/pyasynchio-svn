@@ -22,7 +22,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #include <pyasynchio/apoll.hpp>
 #include <pyasynchio/utils.hpp>
-#include <pyasynchio/aio.hpp>
+#include <pyasynchio/aop.hpp>
 #include <pyasynchio/socketmodule_stuff.hpp>
 #include <new>
 #include <internal.h>
@@ -41,32 +41,23 @@ apoll::~apoll()
 {
 }
 
-bool apoll::accept(::PySocketSockObject *listen_sock
-                      , ::PySocketSockObject *accept_sock
-                      , ::PyObject *lsock_ref_obj
-                      , ::PyObject *asock_ref_obj
+bool apoll::accept(::PySocketSockObject *lsock
+                      , ::PySocketSockObject *asock
+                      , ::PyObject *lsock_ref
+                      , ::PyObject *asock_ref
                       , ::PyObject *acto)
 {
-    if (!sock_iocp_preamble(listen_sock->sock_fd)) {
-        return false;
+    aop_accept *asynch_accept_op = new aop_accept(acto  // acto
+        , lsock                                         // lso
+        , asock                                         // aso
+        , lsock_ref                                     // lso_ref
+        , asock_ref);                                       // aso_ref
+    bool platform_result = accept_impl(lsock, asock, lsock_ref, asock_ref
+        , asynch_accept_op);
+    if (!platform_result) {
+        delete asynch_accept_op;
     }
-    AIO_ACCEPT *ova = new AIO_ACCEPT(acto               // acto
-        , listen_sock                                   // lso
-        , accept_sock       // aso
-        , lsock_ref_obj
-        , asock_ref_obj
-        );
-    DWORD num_bytes_rcvd = 0;
-    BOOL r = ::AcceptEx(listen_sock->sock_fd    // sListenSocket 
-        , accept_sock->sock_fd                  // sAcceptSocket 
-        , &ova->addr_buf_[0]                        // lpOutputBuffer
-        , 0                                     // dwReceiveDataLength
-        , ova->addr_size                             // dwLocalAddressLength
-        , ova->addr_size                             // dwRemoteAddressLength
-        , &num_bytes_rcvd                       // lpdwBytesReceived
-        , ova   // lpOverlapped                     
-        );                                  
-    return check_wsa_op(r, TRUE, "::AcceptEx failed");
+    return platform_result;
 }
 
 bool apoll::recv(::PySocketSockObject *so
@@ -78,7 +69,7 @@ bool apoll::recv(::PySocketSockObject *so
     if (!sock_iocp_preamble(so->sock_fd)) {
         return false;
     }
-    AIO_RECV * ovr = new AIO_RECV(acto, so_ref, bufsize, flags);
+    aop_recv * ovr = new aop_recv(acto, so_ref, bufsize, flags);
     WSABUF wb;
     wb.buf = ovr->buf();
     wb.len = bufsize;
@@ -103,7 +94,7 @@ bool apoll::recvfrom(::PySocketSockObject * so
     if (!sock_iocp_preamble(so->sock_fd)) {
         return false;
     }
-    AIO_RECVFROM *ovf = new AIO_RECVFROM(acto, so_ref, so, bufsize, flags);
+    aop_recvfrom *ovf = new aop_recvfrom(acto, so_ref, so, bufsize, flags);
     WSABUF wb;
     wb.buf = ovf->buf();
     wb.len = bufsize;
@@ -146,7 +137,7 @@ bool apoll::sendto(::PySocketSockObject *so, ::PyObject *so_ref
     wb.buf = s;
     wb.len = len;
 
-    AIO_SENDTO *ovt = new AIO_SENDTO(acto, so_ref, addro, flags, datao);
+    aop_sendto *ovt = new aop_sendto(acto, so_ref, addro, flags, datao);
 
     DWORD bytes_sent = 0;
     int r = ::WSASendTo(so->sock_fd             // SOCKET s
@@ -178,7 +169,7 @@ bool apoll::send(::PySocketSockObject *so, ::PyObject *so_ref
     WSABUF wb;
     wb.buf = s;
     wb.len = len;
-    AIO_SEND * ovs = new AIO_SEND(acto, so_ref, flags, datao);
+    aop_send * ovs = new aop_send(acto, so_ref, flags, datao);
     DWORD bytes_sent = 0;
     int r = ::WSASend(so->sock_fd               // SOCKET s
         , &wb                               // LPWSABUF lpBuffers
@@ -194,47 +185,23 @@ bool apoll::send(::PySocketSockObject *so, ::PyObject *so_ref
 bool apoll::connect(::PySocketSockObject *so, ::PyObject *so_ref
                        , ::PyObject *addro, ::PyObject *acto)
 {
-    if (!sock_iocp_preamble(so->sock_fd)) {
-        return false;
-    }
     sockaddr addr;
     int addr_len = 0;
     if (!getsockaddrarg(so, addro, &addr, &addr_len)) {
         return false;
     }
-    AIO_CONNECT * ovc = new AIO_CONNECT(acto, so_ref, addro);
-    GUID GuidConnectEx = WSAID_CONNECTEX;
-    ::LPFN_CONNECTEX ConnectEx;
-    DWORD dwBytes;
-    if (WSAIoctl(so->sock_fd, 
-        SIO_GET_EXTENSION_FUNCTION_POINTER, 
-        &GuidConnectEx, 
-        sizeof(GuidConnectEx),
-        &ConnectEx, 
-        sizeof(ConnectEx), 
-        &dwBytes, 
-        NULL, 
-        NULL) == SOCKET_ERROR) 
-    {
-        PyErr_SetString(PyExc_RuntimeError, "ConnectEx not found with WSAIoctl");
-        return false;
+    aop_connect * asynch_connect_op = new aop_connect(acto, so_ref, addro);
+    bool cr = connect_impl(so, so_ref, addr, addr_len, asynch_connect_op);
+    if (!cr) {
+        delete asynch_connect_op;
     }
-    DWORD bytes_sent = 0;
-    BOOL r = ConnectEx(so->sock_fd          // s
-        , &addr                                 // name
-        , addr_len                              // namelen
-        , 0                                     // lpSendBuffer
-        , 0                                     // dwSendDataLength
-        , &bytes_sent                           // lpdwBytesSent
-        , ovc                                   // lpOverlapped
-        );
-    return check_wsa_op(r, TRUE, "::ConnectEx failed");
+    return cr;
 }
 
 bool apoll::cancel(PyObject *o)
 {
     HANDLE h;
-    if(PyObject_IsInstance(o, reinterpret_cast<PyObject*>(PySocketModule.Sock_Type))) {
+    if(PyObject_IsInstance(o, reinterpret_cast<PyObject*>(socketmodule_api.Sock_Type))) {
         PySocketSockObject * so = reinterpret_cast<PySocketSockObject*>(o);
         h = reinterpret_cast<HANDLE>(so->sock_fd);
     }
@@ -263,7 +230,7 @@ bool apoll::read(PyFileObject *fo, unsigned long long offset, unsigned long size
         return false;
     }
 
-    AIO_READ * ar = new AIO_READ(acto, fo, offset, size);
+    aop_read * ar = new aop_read(acto, fo, offset, size);
     DWORD bytes_read = 0;
     BOOL r = ::ReadFile(fh, ar->buf(), size, &bytes_read, ar);
     return check_windows_op(r, FALSE, "::ReadFile failed");
@@ -283,7 +250,7 @@ bool apoll::write(PyFileObject *fo, unsigned long long offset
         return NULL;
     }
 
-    AIO_WRITE * wr = new AIO_WRITE(acto, fo, offset, datao);
+    aop_write * wr = new aop_write(acto, fo, offset, datao);
     DWORD bytes_written = 0;
     BOOL r = ::WriteFile(fh, s, len, &bytes_written, wr);
     return check_windows_op(r, FALSE, "::WriteFile failed");
@@ -294,7 +261,7 @@ bool apoll::write(PyFileObject *fo, unsigned long long offset
 {
     DWORD bytes_transferred = 0;
     ULONG_PTR completion_key = 0;
-    AIO_ROOT *ovr = 0;
+    aop_root *ovr = 0;
     PyObject * result = PyList_New(0);
 
     for(;;) {
@@ -309,7 +276,7 @@ bool apoll::write(PyFileObject *fo, unsigned long long offset
             );
         ms = 0; // only first request should wait, so timeout is zero for subsequent ops
         Py_END_ALLOW_THREADS;
-        ovr = static_cast<AIO_ROOT*>(ovl);
+        ovr = static_cast<aop_root*>(ovl);
 
         if ( (0 == ovl) && (FALSE == success) ) {
             if (WAIT_TIMEOUT != ::GetLastError()) {
@@ -447,13 +414,13 @@ PyTypeObject apoll_Type = {
 
 int apoll::init(PyObject *self, PyObject *args, PyObject *kwds)
 {
-	try {
-		new (self) pyasynchio::apoll(args, kwds);
-	}
-	catch(std::exception &)
-	{
-		return FALSE;
-	}
+    try {
+        new (self) pyasynchio::apoll(args, kwds);
+    }
+    catch(std::exception &)
+    {
+        return FALSE;
+    }
     return TRUE;
 }
 

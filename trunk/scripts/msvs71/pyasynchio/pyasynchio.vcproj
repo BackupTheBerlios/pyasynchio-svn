@@ -124,10 +124,10 @@
 				Name="source"
 				Filter="">
 				<File
-					RelativePath="..\..\..\src\cplusplus\pyasynchio\aio.cpp">
+					RelativePath="..\..\..\src\cplusplus\pyasynchio\aioresult.cpp">
 				</File>
 				<File
-					RelativePath="..\..\..\src\cplusplus\pyasynchio\aioresult.cpp">
+					RelativePath="..\..\..\src\cplusplus\pyasynchio\aop.cpp">
 				</File>
 				<File
 					RelativePath="..\..\..\src\cplusplus\pyasynchio\apoll.cpp">
@@ -149,10 +149,10 @@
 				Name="header"
 				Filter="">
 				<File
-					RelativePath="..\..\..\include\pyasynchio\aio.hpp">
+					RelativePath="..\..\..\include\pyasynchio\aioresult.hpp">
 				</File>
 				<File
-					RelativePath="..\..\..\include\pyasynchio\aioresult.hpp">
+					RelativePath="..\..\..\include\pyasynchio\aop.hpp">
 				</File>
 				<File
 					RelativePath="..\..\..\include\pyasynchio\apoll.hpp">

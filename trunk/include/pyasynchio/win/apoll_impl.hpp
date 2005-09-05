@@ -5,7 +5,8 @@
 
 #include <python.h>
 #include "socketmodule.h"
-#include <pyasynchio/aio.hpp>
+#include <pyasynchio/aop.hpp>
+#include <pyasynchio/utils.hpp>
 #include <map>
 
 namespace pyasynchio {
@@ -22,7 +23,10 @@ public:
         , ::PySocketSockObject *asock
         , ::PyObject *lsock_ref
         , ::PyObject *asock_ref
-        , AIO_ACCEPT * asynch_accept_op);
+        , aop_accept * asynch_accept_op);
+    bool connect_impl(::PySocketSockObject *so, ::PyObject *so_ref
+        , sockaddr &addr, int addr_len, aop_connect *asynch_connect_op);
+
 
 protected:
     HANDLE iocp_handle_;
@@ -67,7 +71,7 @@ bool apoll_impl::check_wsa_op(T function_result, T no_error_result, char *msg)
             return true;
         }
         else {
-            ::PyErr_SetString(PySocketModule.error, msg);
+            ::PyErr_SetString(socketmodule_api.error, msg);
             return false;
         }
     }

@@ -11,7 +11,7 @@ namespace pyasynchio {
         return NULL;
     }
     PySocketSockObject *so = py_convert<PySocketSockObject>(so_raw
-        , PySocketModule.Sock_Type);
+        , socketmodule_api.Sock_Type);
     if (NULL == so) {
         return NULL;
     }
@@ -26,7 +26,7 @@ namespace pyasynchio {
         return NULL;
     }
     PySocketSockObject *so = py_convert<PySocketSockObject>(so_raw
-        , PySocketModule.Sock_Type);
+        , socketmodule_api.Sock_Type);
     if (NULL == so) {
         return NULL;
     }
@@ -41,7 +41,7 @@ namespace pyasynchio {
         return NULL;
     }
     PySocketSockObject *so = py_convert<PySocketSockObject>(so_raw
-        , PySocketModule.Sock_Type);
+        , socketmodule_api.Sock_Type);
     if (NULL == so) {
         return NULL;
     }
@@ -74,7 +74,7 @@ void init_pyasynchio()
 {
     using namespace pyasynchio;
     ::PySocketModule_ImportModuleAndAPI();
-	socketmodule_api = PySocketModule;
+    socketmodule_api = PySocketModule;
 
     if (PyType_Ready(&apoll_Type) < 0) {
         return;

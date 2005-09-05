@@ -19,14 +19,14 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#include <pyasynchio/aio.hpp>
+#include <pyasynchio/aop.hpp>
 #include <mswsock.h>
 #include <pyasynchio/socketmodule_stuff.hpp>
 
 
 namespace pyasynchio {
 
-::PyObject* AIO_ACCEPT::dump(BOOL success, DWORD bytes_transferred)
+::PyObject* aop_accept::dump(BOOL success, DWORD bytes_transferred)
 {
 	PyObject *rp = aioresult::create();;
 	PyObject_SetAttrString(rp, "lsock", lso_ref_);
@@ -75,14 +75,14 @@ namespace pyasynchio {
     return rp;
 }
 
-::PyObject * AIO_CONNECT::dump(BOOL success, DWORD bytes_transferred)
+::PyObject * aop_connect::dump(BOOL success, DWORD bytes_transferred)
 {
 	PyObject *rp = aioresult::create();;
 	PyObject_SetAttrString(rp, "addr", addro_);
 	return rp;
 }
 
-::PyObject * AIO_SEND::dump(BOOL success, DWORD bytes_transferred)
+::PyObject * aop_send::dump(BOOL success, DWORD bytes_transferred)
 {
 	::PyObject *rp = aioresult::create();;
 	::PyObject_SetAttrString(rp, "sock", so_ref_);
@@ -101,14 +101,14 @@ namespace pyasynchio {
 	return rp;
 }
 
-::PyObject * AIO_SENDTO::dump(BOOL success, DWORD bytes_transferred)
+::PyObject * aop_sendto::dump(BOOL success, DWORD bytes_transferred)
 {
-    PyObject * rp = AIO_SEND::dump(success, bytes_transferred);
+    PyObject * rp = aop_send::dump(success, bytes_transferred);
     PyObject_SetAttrString(rp, "addr", addro_);
     return rp;
 }
 
-::PyObject * AIO_RECV::dump(BOOL success, DWORD bytes_transferred)
+::PyObject * aop_recv::dump(BOOL success, DWORD bytes_transferred)
 {
 	::PyObject * rp = aioresult::create();;
 	{
@@ -136,9 +136,9 @@ namespace pyasynchio {
     return rp;
 }
 
-::PyObject * AIO_RECVFROM::dump(BOOL success, DWORD bytes_transferred)
+::PyObject * aop_recvfrom::dump(BOOL success, DWORD bytes_transferred)
 {
-    ::PyObject * rp = AIO_RECV::dump(success, bytes_transferred);
+    ::PyObject * rp = aop_recv::dump(success, bytes_transferred);
     if (success) {
         ::PyObject * addro = makesockaddr(
             static_cast<int>(fd_)
@@ -155,7 +155,7 @@ namespace pyasynchio {
     return rp;
 }
 
-::PyObject * AIO_READ::dump(BOOL success, DWORD bytes_transferred)
+::PyObject * aop_read::dump(BOOL success, DWORD bytes_transferred)
 {
 	::PyObject * rp = aioresult::create();;
 	{
@@ -178,7 +178,7 @@ namespace pyasynchio {
     return rp;
 }
 
-::PyObject * AIO_WRITE::dump(BOOL success, DWORD bytes_transferred)
+::PyObject * aop_write::dump(BOOL success, DWORD bytes_transferred)
 {
 	::PyObject * rp = aioresult::create();
 	{
@@ -194,12 +194,6 @@ namespace pyasynchio {
 		Py_DECREF(counto);
 	}
 	::PyObject_SetAttrString(rp, "file", reinterpret_cast<PyObject*>(fo_));
-    //::PyObject * dp = Py_BuildValue("{sOsOsOsksO}"
-    //    , "offset", offo
-    //    , "data",  datao_
-    //    , "act", acto_
-    //    , "count", static_cast<unsigned long>(bytes_transferred)
-    //    , "file", fo_);
     return rp;
 }
 

@@ -19,8 +19,8 @@ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef PYASYNCHIO_PY_APOLL_AIO_HPP_INCLUDED_
-#define PYASYNCHIO_PY_APOLL_AIO_HPP_INCLUDED_
+#ifndef PYASYNCHIO_AOP_HPP_INCLUDED_
+#define PYASYNCHIO_AOP_HPP_INCLUDED_
 
 #pragma once
 
@@ -30,14 +30,14 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 namespace pyasynchio {
 
-class AIO_ROOT : public OVERLAPPED
+class aop_root : public OVERLAPPED
 {
 protected:
     ::PyObject *acto_;
 	const char * name_;
 
 public:
-    AIO_ROOT(::PyObject *acto, const char * name) 
+    aop_root(::PyObject *acto, const char * name) 
         : acto_(acto)
 		, name_(name)
     {
@@ -46,7 +46,7 @@ public:
         hEvent = 0;
         Py_XINCREF(acto);
     }
-    virtual ~AIO_ROOT() 
+    virtual ~aop_root() 
     {
         Py_XDECREF(acto_);
     }
@@ -76,15 +76,15 @@ public:
 	}
 };
 
-class AIO_ACCEPT : public AIO_ROOT
+class aop_accept : public aop_root
 {
 public:
-    AIO_ACCEPT(::PyObject *acto
+    aop_accept(::PyObject *acto
         , ::PySocketSockObject *lso
         , ::PySocketSockObject *aso
         , ::PyObject *lso_ref
         , ::PyObject *aso_ref)
-        : AIO_ROOT(acto, "accept") 
+        : aop_root(acto, "accept") 
         , lso_ref_(lso_ref)
         , aso_ref_(aso_ref)
         , lfd_(lso->sock_fd)
@@ -96,7 +96,7 @@ public:
         Py_XINCREF(aso_ref);
     }
 
-    virtual ~AIO_ACCEPT() 
+    virtual ~aop_accept() 
     {
         Py_XDECREF(lso_ref_);
         Py_XDECREF(aso_ref_);
@@ -117,11 +117,11 @@ private:
 };
 
 
-class AIO_CONNECT : public AIO_ROOT
+class aop_connect : public aop_root
 {
 public:
-    AIO_CONNECT(::PyObject *acto, ::PyObject *so_ref, ::PyObject *addro)
-        : AIO_ROOT(acto, "connect")
+    aop_connect(::PyObject *acto, ::PyObject *so_ref, ::PyObject *addro)
+        : aop_root(acto, "connect")
         , so_ref_(so_ref)
         , addro_(addro)
     {
@@ -129,7 +129,7 @@ public:
         Py_XINCREF(addro);
     }
 
-    virtual ~AIO_CONNECT()
+    virtual ~aop_connect()
     {
         Py_XDECREF(so_ref_);
         Py_XDECREF(addro_);
@@ -141,13 +141,13 @@ private:
     ::PyObject *addro_;
 };
 
-class AIO_RECV : public AIO_ROOT
+class aop_recv : public aop_root
 {
 public:
-    AIO_RECV(::PyObject *acto, ::PyObject *so_ref
+    aop_recv(::PyObject *acto, ::PyObject *so_ref
         , unsigned long size
         , unsigned long flags)
-        : AIO_ROOT(acto, "recv")
+        : aop_root(acto, "recv")
         , so_ref_(so_ref)
     {
         buf_ = reinterpret_cast<char*>(malloc(size));
@@ -156,7 +156,7 @@ public:
         Py_XINCREF(so_ref);
     }
 
-    virtual ~AIO_RECV()
+    virtual ~aop_recv()
     {
         Py_XDECREF(so_ref_);
         free(buf_);
@@ -173,14 +173,14 @@ private:
     char * buf_;
 };
 
-class AIO_RECVFROM : public AIO_RECV
+class aop_recvfrom : public aop_recv
 {
 public:
-    AIO_RECVFROM(::PyObject *acto, ::PyObject *so_ref
-        , ::PySocketSockObject *so
-        , unsigned long size
-        , unsigned long flags)
-        : AIO_RECV(acto, so_ref, size, flags)
+    aop_recvfrom(::PyObject *acto, ::PyObject *so_ref
+    , ::PySocketSockObject *so
+    , unsigned long size
+    , unsigned long flags)
+        : aop_recv(acto, so_ref, size, flags)
         , fromlen_(sizeof(from_))
         , fd_(so->sock_fd)
         , proto_(so->sock_proto)
@@ -188,7 +188,7 @@ public:
 		name_ = "recvfrom";
     }
 
-    virtual ~AIO_RECVFROM() {}
+    virtual ~aop_recvfrom() {}
 
     virtual ::PyObject * dump(BOOL success, DWORD bytes_transferred);
 
@@ -201,13 +201,13 @@ private:
     int fromlen_;
 };
 
-class AIO_SEND : public AIO_ROOT
+class aop_send : public aop_root
 {
 public:
-    AIO_SEND(::PyObject *acto, ::PyObject *so_ref
+    aop_send(::PyObject *acto, ::PyObject *so_ref
         , unsigned long flags
         , ::PyObject *datao)
-        : AIO_ROOT(acto, "send")
+        : aop_root(acto, "send")
         , so_ref_(so_ref)
         , datao_(datao)
         , flags_(flags)
@@ -216,7 +216,7 @@ public:
         Py_XINCREF(datao);
     }
 
-    virtual ~AIO_SEND()
+    virtual ~aop_send()
     {
         Py_XDECREF(so_ref_);
         Py_XDECREF(datao_);
@@ -229,21 +229,21 @@ private:
     unsigned long flags_;
 };
 
-class AIO_SENDTO : public AIO_SEND
+class aop_sendto : public aop_send
 {
 public:
-    AIO_SENDTO(::PyObject *acto, ::PyObject *so_ref
+    aop_sendto(::PyObject *acto, ::PyObject *so_ref
         , ::PyObject *addro
         , unsigned long flags
         , ::PyObject *datao)
-        : AIO_SEND(acto, so_ref, flags, datao)
+        : aop_send(acto, so_ref, flags, datao)
         , addro_(addro)
     {
 		name_ = "sendto";
         Py_XINCREF(addro);
     }
 
-    virtual ~AIO_SENDTO()
+    virtual ~aop_sendto()
     {
         Py_XDECREF(addro_);
     }
@@ -254,13 +254,13 @@ private:
     ::PyObject * addro_;
 };
 
-class AIO_READ : public AIO_ROOT
+class aop_read : public aop_root
 {
 public:
-    AIO_READ(::PyObject * acto, ::PyFileObject *fo
+    aop_read(::PyObject * acto, ::PyFileObject *fo
         , unsigned long long off
         , unsigned long size)
-        : AIO_ROOT(acto, "read")
+        : aop_root(acto, "read")
     {
         Offset = static_cast<DWORD>(off);
         OffsetHigh = static_cast<DWORD>((off >> (sizeof(DWORD) * 8)));
@@ -270,7 +270,7 @@ public:
         fo_ = fo;
     }
 
-    virtual ~AIO_READ()
+    virtual ~aop_read()
     {
         free(buf_);
         Py_XDECREF(fo_);
@@ -285,13 +285,13 @@ private:
     unsigned long size_;
 };
 
-class AIO_WRITE : public AIO_ROOT
+class aop_write : public aop_root
 {
 public:
-    AIO_WRITE(::PyObject *acto, ::PyFileObject *fo
+    aop_write(::PyObject *acto, ::PyFileObject *fo
         , unsigned long long off
         , ::PyObject *datao)
-        : AIO_ROOT(acto, "write")
+        : aop_root(acto, "write")
     {
         Offset = static_cast<DWORD>(off);
         OffsetHigh = static_cast<DWORD>((off >> (sizeof(DWORD) * 8)));
@@ -301,7 +301,7 @@ public:
         datao_ = datao;
     }
 
-    virtual ~AIO_WRITE()
+    virtual ~aop_write()
     {
         Py_XDECREF(fo_);
         Py_XDECREF(datao_);
@@ -319,4 +319,4 @@ private:
 
 }
 
-#endif //  PYASYNCHIO_PY_APOLL_AIO_HPP_INCLUDED_
+#endif //  PYASYNCHIO_AOP_HPP_INCLUDED_

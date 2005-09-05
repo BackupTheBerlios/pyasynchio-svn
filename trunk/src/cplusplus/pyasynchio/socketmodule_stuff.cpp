@@ -21,6 +21,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 #include <pyasynchio/socketmodule_stuff.hpp>
+#include <pyasynchio/utils.hpp>
 
 namespace pyasynchio {
 
@@ -260,13 +261,13 @@ setipaddr(char *name, struct sockaddr *addr_ret, size_t addr_ret_size, int af)
 #endif
         default:
             freeaddrinfo(res);
-            PyErr_SetString(PySocketModule.error,
+            PyErr_SetString(socketmodule_api.error,
                 "unsupported address family");
             return -1;
             }
             if (res->ai_next) {
                 freeaddrinfo(res);
-                PyErr_SetString(PySocketModule.error,
+                PyErr_SetString(socketmodule_api.error,
                     "wildcard resolved to multiple address");
                 return -1;
             }
@@ -279,7 +280,7 @@ setipaddr(char *name, struct sockaddr *addr_ret, size_t addr_ret_size, int af)
     if (name[0] == '<' && strcmp(name, "<broadcast>") == 0) {
         struct sockaddr_in *sin;
         if (af != AF_INET && af != AF_UNSPEC) {
-            PyErr_SetString(PySocketModule.error,
+            PyErr_SetString(socketmodule_api.error,
                 "address family mismatched");
             return -1;
         }
@@ -337,7 +338,7 @@ setipaddr(char *name, struct sockaddr *addr_ret, size_t addr_ret_size, int af)
         return 16;
 #endif
     default:
-        PyErr_SetString(PySocketModule.error, "unknown address family");
+        PyErr_SetString(socketmodule_api.error, "unknown address family");
         return -1;
             }
 }
@@ -549,7 +550,7 @@ case AF_PACKET:
     /* More cases here... */
 
 default:
-    PyErr_SetString(PySocketModule.error, "getsockaddrarg: bad family");
+    PyErr_SetString(socketmodule_api.error, "getsockaddrarg: bad family");
     return 0;
 
     }
