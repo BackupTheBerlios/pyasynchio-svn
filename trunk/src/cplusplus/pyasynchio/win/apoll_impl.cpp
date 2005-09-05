@@ -74,41 +74,36 @@ apoll_impl::~apoll_impl()
     }
 }
 
-bool apoll_impl::accept_impl(PySocketSockObject *lsock
-							 , PySocketSockObject *asock
-							 , PyObject *lsock_ref
-							 , PyObject *asock_ref
-							 , aop_accept *asynch_accept_op)
+bool apoll_impl::accept_impl(aop_accept *aaop)
 {
-    if (!sock_iocp_preamble(lsock->sock_fd)) {
+	::SOCKET lsock = aaop->lsocko()->sock_fd;
+	::SOCKET asock = aaop->asocko()->sock_fd;
+    if (!sock_iocp_preamble(lsock)) {
         return false;
     }
     DWORD num_bytes_rcvd = 0;
-    BOOL r = ::AcceptEx(lsock->sock_fd    // sListenSocket 
-        , asock->sock_fd                  // sAcceptSocket 
-        , &asynch_accept_op->addr_buf_[0]                        // lpOutputBuffer
+    BOOL r = ::AcceptEx(lsock					// sListenSocket 
+        , asock									// sAcceptSocket 
+        , &aaop->addr_buf_[0]                   // lpOutputBuffer
         , 0                                     // dwReceiveDataLength
-        , asynch_accept_op->addr_size                             // dwLocalAddressLength
-        , asynch_accept_op->addr_size                             // dwRemoteAddressLength
+        , aaop->addr_size                       // dwLocalAddressLength
+        , aaop->addr_size                       // dwRemoteAddressLength
         , &num_bytes_rcvd                       // lpdwBytesReceived
-        , asynch_accept_op   // lpOverlapped                     
+        , aaop									// lpOverlapped                     
         );                                  
     return check_wsa_op(r, TRUE, "::AcceptEx failed");
 }
 
-bool apoll_impl::connect_impl(::PySocketSockObject *so
-							  , ::PyObject *so_ref
-							  , sockaddr &addr
-							  , int addr_len
-							  , aop_connect *asynch_connect_op)
+bool apoll_impl::connect_impl(aop_connect *acop)
 {
-    if (!sock_iocp_preamble(so->sock_fd)) {
+	::SOCKET sock = acop->socko()->sock_fd;
+    if (!sock_iocp_preamble(sock)) {
         return false;
     }
     GUID GuidConnectEx = WSAID_CONNECTEX;
     ::LPFN_CONNECTEX ConnectEx;
     DWORD dwBytes;
-    if (WSAIoctl(so->sock_fd, 
+    if (WSAIoctl(sock, 
         SIO_GET_EXTENSION_FUNCTION_POINTER, 
         &GuidConnectEx, 
         sizeof(GuidConnectEx),
@@ -119,21 +114,20 @@ bool apoll_impl::connect_impl(::PySocketSockObject *so
         NULL) != SOCKET_ERROR) 
     {
 	    DWORD bytes_sent = 0;
-		BOOL r = ConnectEx(so->sock_fd          // s
-			, &addr                                 // name
-	        , addr_len                              // namelen
+		BOOL r = ConnectEx(sock						// s
+			, acop->paddr()                                 // name
+	        , acop->addrlen()                              // namelen
 		    , 0                                     // lpSendBuffer
 			, 0                                     // dwSendDataLength
 	        , &bytes_sent                           // lpdwBytesSent
-		    , asynch_connect_op                     // lpOverlapped
+		    , acop									// lpOverlapped
 			);
 	    return check_wsa_op(r, TRUE, "::ConnectEx failed");
     }
 	else {
 		// ::ConnectEx not supported (Win2k?)
-		if(0 == ::connect(so->sock_fd, &addr, addr_len)) {
-			BOOL r = ::PostQueuedCompletionStatus(iocp_handle_, 0, 0
-				, asynch_connect_op);
+		if(0 == ::connect(sock, acop->paddr(), acop->addrlen())) {
+			BOOL r = ::PostQueuedCompletionStatus(iocp_handle_, 0, 0, acop);
 			return check_windows_op(r, FALSE, "::PostQueuedCompletionStatus failed");
 		}
 		else {
@@ -144,6 +138,100 @@ bool apoll_impl::connect_impl(::PySocketSockObject *so
 	}
 }
 
+bool apoll_impl::send_impl(::SOCKET sock, const char *buf, size_t len
+						   , unsigned long flags, aop_send *asop)
+{
+    if (!sock_iocp_preamble(sock)) {
+        return false;
+    }
+    WSABUF wb;
+    wb.buf = const_cast<char*>(buf);
+    wb.len = static_cast<u_long>(len);
+    DWORD bytes_sent = 0;
+
+    int r = ::WSASend(sock                  // SOCKET s
+        , &wb                               // LPWSABUF lpBuffers
+        , 1                                 // DWORD dwBufferCount
+        , &bytes_sent                       // LPDWORD lpNumberOfBytesSent
+        , flags                             // DWORD dwFlags
+        , asop								// LPWSAOVERLAPPED lpOverlapped
+        , NULL                              // LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine
+        );
+    return check_wsa_op(r, 0, "::WSASend failed");
+}
+
+bool apoll_impl::sendto_impl(::SOCKET sock
+							 , sockaddr &addr
+							 , int addr_len
+							 , const char *buf
+							 , size_t len
+							 , unsigned long flags
+							 , aop_sendto *astop)
+{
+    if (!sock_iocp_preamble(sock)) {
+        return false;
+    }
+    WSABUF wb;
+    wb.buf =const_cast<char*>(buf);
+    wb.len = static_cast<u_long>(len);
+    DWORD bytes_sent = 0;
+    int r = ::WSASendTo(sock					// SOCKET s
+        , &wb                                   // LPWSABUF lpBuffers
+        , 1                                     // DWORD dwBufferCount
+        , &bytes_sent                           // LPDWORD lpNumberOfBytesSent
+        , flags                                 // DWORD dwFlags
+        , &addr                                 // const sockaddr * lpTo
+        , addr_len                              // int iToken
+        , astop									// LPWSAOVERLAPPED lpOverlapped
+        , 0                                     // LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine
+        );
+    return check_wsa_op(r, 0, "::WSASendTo failed");
+}
+
+bool apoll_impl::recv_impl(::SOCKET sock, aop_recv *arop)
+{
+    if (!sock_iocp_preamble(sock)) {
+        return false;
+    }
+    WSABUF wb;
+    wb.buf = arop->buf();
+	wb.len = static_cast<u_long>(arop->bufsize());
+    DWORD bytes_rcvd = 0;
+	DWORD flags = arop->flags();
+    int r = ::WSARecv(sock					// SOCKET s
+        , &wb                               // LPWSABUF lpBuffers
+        , 1                                 // DWORD dwBufferCount
+        , &bytes_rcvd                       // LPDWORD lpNumberOfBytesRecvd
+        , &flags                            // LPDWORD lpFlags
+        , arop                              // LPWSAOVERLAPPED lpOverlapped
+        , 0                                 // LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine
+        );
+    return check_wsa_op(r, 0, "::WSARecv failed");
+}
+
+bool apoll_impl::recvfrom_impl(::SOCKET sock, aop_recvfrom *arfop)
+{
+    if (!sock_iocp_preamble(sock)) {
+        return false;
+    }
+    WSABUF wb;
+    wb.buf = arfop->buf();
+    wb.len = arfop->bufsize();
+    DWORD bytes_rcvd = 0;
+	DWORD flags = arfop->flags();
+    int r = ::WSARecvFrom(sock						// SOCKET s
+        , &wb                                       // LPWSABUF lpBuffers
+        , 1                                         // DWORD dwBufferCount
+        , &bytes_rcvd                               // LPDWORD lpNumberOfBytesRecvd
+        , &flags                                    // LPDWORD lpFlags
+        , arfop->from()                             // sockaddr *lpFrom
+        , arfop->fromlen()                          // LPINT lpFromlen
+        , arfop                                     // LPWSAOVERLAPPED lpOverlapped
+        , 0                                         // LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine
+        );
+    return check_wsa_op(r, 0, "::WSARecvFrom failed");
+
+}
 
 bool apoll_impl::common_iocp_preamble(HANDLE h)
 {

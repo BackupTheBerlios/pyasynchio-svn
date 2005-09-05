@@ -41,23 +41,23 @@ apoll::~apoll()
 {
 }
 
-bool apoll::accept(::PySocketSockObject *lsock
-                      , ::PySocketSockObject *asock
+bool apoll::accept(::PySocketSockObject *lsocko
+                      , ::PySocketSockObject *asocko
                       , ::PyObject *lsock_ref
                       , ::PyObject *asock_ref
                       , ::PyObject *acto)
 {
-    aop_accept *asynch_accept_op = new aop_accept(acto  // acto
-        , lsock                                         // lso
-        , asock                                         // aso
+    aop_accept *aaop = new aop_accept(acto				// acto
+        , lsocko                                        // lso
+        , asocko                                        // aso
         , lsock_ref                                     // lso_ref
-        , asock_ref);                                       // aso_ref
-    bool platform_result = accept_impl(lsock, asock, lsock_ref, asock_ref
-        , asynch_accept_op);
-    if (!platform_result) {
-        delete asynch_accept_op;
+        , asock_ref                                     // aso_ref
+		);
+    bool ar = accept_impl(aaop);
+    if (!ar) {
+        delete aaop;
     }
-    return platform_result;
+    return ar;
 }
 
 bool apoll::recv(::PySocketSockObject *so
@@ -66,23 +66,12 @@ bool apoll::recv(::PySocketSockObject *so
                     , unsigned long flags
                     , ::PyObject *acto)
 {
-    if (!sock_iocp_preamble(so->sock_fd)) {
-        return false;
-    }
-    aop_recv * ovr = new aop_recv(acto, so_ref, bufsize, flags);
-    WSABUF wb;
-    wb.buf = ovr->buf();
-    wb.len = bufsize;
-    DWORD bytes_rcvd = 0;
-    int r = ::WSARecv(so->sock_fd               // SOCKET s
-        , &wb                               // LPWSABUF lpBuffers
-        , 1                                 // DWORD dwBufferCount
-        , &bytes_rcvd                       // LPDWORD lpNumberOfBytesRecvd
-        , &flags                            // LPDWORD lpFlags
-        , ovr                               // LPWSAOVERLAPPED lpOverlapped
-        , 0                                 // LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine
-        );
-    return check_wsa_op(r, 0, "::WSARecv failed");
+    aop_recv * arop = new aop_recv(acto, so_ref, bufsize, flags);
+	bool rr = recv_impl(so->sock_fd, arop);
+	if (!rr) {
+		delete arop;
+	}
+	return rr;
 }
 
 bool apoll::recvfrom(::PySocketSockObject * so
@@ -91,25 +80,12 @@ bool apoll::recvfrom(::PySocketSockObject * so
                         , unsigned long flags
                         , ::PyObject * acto)
 {
-    if (!sock_iocp_preamble(so->sock_fd)) {
-        return false;
-    }
-    aop_recvfrom *ovf = new aop_recvfrom(acto, so_ref, so, bufsize, flags);
-    WSABUF wb;
-    wb.buf = ovf->buf();
-    wb.len = bufsize;
-    DWORD bytes_rcvd = 0;
-    int r = ::WSARecvFrom(so->sock_fd               // SOCKET s
-        , &wb                                       // LPWSABUF lpBuffers
-        , 1                                         // DWORD dwBufferCount
-        , &bytes_rcvd                               // LPDWORD lpNumberOfBytesRecvd
-        , &flags                                    // LPDWORD lpFlags
-        , ovf->from()                               // sockaddr *lpFrom
-        , ovf->fromlen()                            // LPINT lpFromlen
-        , ovf                                       // LPWSAOVERLAPPED lpOverlapped
-        , 0                                         // LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine
-        );
-    return check_wsa_op(r, 0, "::WSARecvFrom failed");
+    aop_recvfrom *arfop = new aop_recvfrom(acto, so_ref, so, bufsize, flags);
+	bool rfr = recvfrom_impl(so->sock_fd, arfop);
+	if (!rfr) {
+		delete arfop;
+	}
+	return rfr;
 }
 
 bool apoll::sendto(::PySocketSockObject *so, ::PyObject *so_ref
@@ -118,10 +94,6 @@ bool apoll::sendto(::PySocketSockObject *so, ::PyObject *so_ref
                       , unsigned long flags
                       , ::PyObject *acto)
 {
-    if (!sock_iocp_preamble(so->sock_fd)) {
-        return false;
-    }
-
     sockaddr addr;
     int addr_len = 0;
     if (!getsockaddrarg(so, addro, &addr, &addr_len)) {
@@ -133,53 +105,32 @@ bool apoll::sendto(::PySocketSockObject *so, ::PyObject *so_ref
     if(-1 == PyString_AsStringAndSize(datao, &s, &len)) {
         return NULL;
     }
-    WSABUF wb;
-    wb.buf = s;
-    wb.len = len;
 
-    aop_sendto *ovt = new aop_sendto(acto, so_ref, addro, flags, datao);
-
-    DWORD bytes_sent = 0;
-    int r = ::WSASendTo(so->sock_fd             // SOCKET s
-        , &wb                                   // LPWSABUF lpBuffers
-        , 1                                     // DWORD dwBufferCount
-        , &bytes_sent                           // LPDWORD lpNumberOfBytesSent
-        , flags                                 // DWORD dwFlags
-        , &addr                                 // const sockaddr * lpTo
-        , addr_len                              // int iToken
-        , ovt                                   // LPWSAOVERLAPPED lpOverlapped
-        , 0                                     // LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine
-        );
-    return check_wsa_op(r, 0, "::WSASendTo failed");
+    aop_sendto *asynch_sendto_op = new aop_sendto(acto, so_ref, addro, flags, datao);
+	bool sendto_result = sendto_impl(so->sock_fd, addr, addr_len, s
+		, len, flags, asynch_sendto_op);
+	if (!sendto_result) {
+		delete asynch_sendto_op;
+	}
+	return sendto_result;
 }
 
 bool apoll::send(::PySocketSockObject *so, ::PyObject *so_ref
                     , ::PyObject *datao, unsigned long flags
                     , ::PyObject *acto)
 {
-    if (!sock_iocp_preamble(so->sock_fd)) {
-        return false;
-    }
 
     char *s;
     int len;
     if(-1 == PyString_AsStringAndSize(datao, &s, &len)) {
         return NULL;
     }
-    WSABUF wb;
-    wb.buf = s;
-    wb.len = len;
-    aop_send * ovs = new aop_send(acto, so_ref, flags, datao);
-    DWORD bytes_sent = 0;
-    int r = ::WSASend(so->sock_fd               // SOCKET s
-        , &wb                               // LPWSABUF lpBuffers
-        , 1                                 // DWORD dwBufferCount
-        , &bytes_sent                       // LPDWORD lpNumberOfBytesSent
-        , flags                             // DWORD dwFlags
-        , ovs                               // LPWSAOVERLAPPED lpOverlapped
-        , NULL                              // LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine
-        );
-    return check_wsa_op(r, 0, "::WSASend failed");
+    aop_send * asynch_send_op = new aop_send(acto, so_ref, flags, datao);
+	bool send_result = send_impl(so->sock_fd, s, len, flags, asynch_send_op);
+	if (!send_result) {
+		delete asynch_send_op;
+	}
+	return send_result;
 }
 
 bool apoll::connect(::PySocketSockObject *so, ::PyObject *so_ref
@@ -190,10 +141,10 @@ bool apoll::connect(::PySocketSockObject *so, ::PyObject *so_ref
     if (!getsockaddrarg(so, addro, &addr, &addr_len)) {
         return false;
     }
-    aop_connect * asynch_connect_op = new aop_connect(acto, so_ref, addro);
-    bool cr = connect_impl(so, so_ref, addr, addr_len, asynch_connect_op);
+    aop_connect * acop = new aop_connect(acto, so, so_ref, addro, addr, addr_len);
+    bool cr = connect_impl(acop);
     if (!cr) {
-        delete asynch_connect_op;
+        delete acop;
     }
     return cr;
 }

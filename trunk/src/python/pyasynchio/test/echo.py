@@ -75,8 +75,8 @@ class DgramEcho:
 class TestStreamEcho(unittest.TestCase):
     def setUp(self):
         self.lsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.port = 40264
-        self.lsock.bind(('', self.port))
+        self.lsock.bind(('', 0))
+        self.port = self.lsock.getsockname()[1]
         self.lsock.listen(5)
         self.echo = StreamEcho(self.lsock)
         self.done = False
@@ -92,7 +92,7 @@ class TestStreamEcho(unittest.TestCase):
 
     def test_it(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect(('127.0.0.1', self.port))
+        sock.connect(('localhost', self.port))
         data = 'data for sending'
         self.assert_(sock.send(data) == len(data))
         self.assert_(sock.recv(len(data)) == data)
@@ -111,6 +111,21 @@ class TestStreamEcho(unittest.TestCase):
             echoed += recvbuf
         
         self.assert_(echoed == biggerstuff)
+
+
+    def test_it_with_asynch_client(self):
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        ap  = pyasynchio.apoll()
+        ap.connect(sock, ('localhost', self.port))
+        pr = ap.poll()
+        self.assert_(pr[0][0].name == 'connect' and pr[0][0].success)
+        data = 'Statically typed bigot'
+        ap.send(sock, data)
+        pr = ap.poll()
+        self.assert_(pr[0][0].name == 'send' and pr[0][0].success)
+        ap.recv(sock, len(data))
+        pr = ap.poll()
+        self.assert_(pr[0][0].name == 'recv' and pr[0][0].success and pr[0][1].data == data)
 
 class TestDgramEcho(unittest.TestCase):
     def setUp(self):

@@ -19,13 +19,15 @@ public:
     apoll_impl(PyObject * args, PyObject *kwargs);
     ~apoll_impl();
 
-    bool accept_impl(::PySocketSockObject *lsock
-        , ::PySocketSockObject *asock
-        , ::PyObject *lsock_ref
-        , ::PyObject *asock_ref
-        , aop_accept * asynch_accept_op);
-    bool connect_impl(::PySocketSockObject *so, ::PyObject *so_ref
-        , sockaddr &addr, int addr_len, aop_connect *asynch_connect_op);
+	bool accept_impl(aop_accept * aaop);
+    bool connect_impl(aop_connect *acop);
+	bool send_impl(::SOCKET sock, const char * buf, size_t len, unsigned long flags
+		, aop_send *asop);
+	bool sendto_impl(::SOCKET sock, sockaddr &addr, int addr_len
+		, const char *buf, size_t len, unsigned long flags
+		, aop_sendto *astop);
+	bool recv_impl(::SOCKET sock, aop_recv *arop);
+	bool recvfrom_impl(::SOCKET sock, aop_recvfrom *arfop);
 
 
 protected:

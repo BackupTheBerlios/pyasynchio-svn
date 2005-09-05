@@ -29,8 +29,8 @@ namespace pyasynchio {
 ::PyObject* aop_accept::dump(BOOL success, DWORD bytes_transferred)
 {
 	PyObject *rp = aioresult::create();;
-	PyObject_SetAttrString(rp, "lsock", lso_ref_);
-	PyObject_SetAttrString(rp, "asock", aso_ref_);
+	PyObject_SetAttrString(rp, "lsock", lsock_refo_);
+	PyObject_SetAttrString(rp, "asock", asock_refo_);
 
     if(success) {
         sockaddr *local_addr;
@@ -48,17 +48,17 @@ namespace pyasynchio {
             );                  
 
         PyObject *local_addro = makesockaddr(
-            static_cast<int>(lfd_)                 // sockfd
+            static_cast<int>(lsocko_->sock_fd)                 // sockfd
             , local_addr                                    // addr
             , local_size                                    // addrlen
-            , lproto_                              // proto
+            , lsocko_->sock_proto                              // proto
             );
         
         PyObject *remote_addro = makesockaddr(
-            static_cast<int>(afd_)                 // sockfd
+            static_cast<int>(asocko_->sock_fd)                 // sockfd
             , remote_addr                                   // addr
             , remote_size                                   // addrlen
-            , aproto_                              // proto
+            , asocko_->sock_proto                              // proto
             );
 
         PyObject_SetAttrString(rp, "laddr", local_addro);
@@ -112,7 +112,7 @@ namespace pyasynchio {
 {
 	::PyObject * rp = aioresult::create();;
 	{
-		::PyObject * bufsizeo = PyInt_FromLong(size_);
+		::PyObject * bufsizeo = PyInt_FromLong(bufsize_);
 		::PyObject_SetAttrString(rp, "bufsize", bufsizeo);
 		Py_DECREF(bufsizeo);
 	}
