@@ -21,13 +21,12 @@ public:
 
 	bool accept_impl(aop_accept * aaop);
     bool connect_impl(aop_connect *acop);
-	bool send_impl(::SOCKET sock, const char * buf, size_t len, unsigned long flags
-		, aop_send *asop);
-	bool sendto_impl(::SOCKET sock, sockaddr &addr, int addr_len
-		, const char *buf, size_t len, unsigned long flags
-		, aop_sendto *astop);
-	bool recv_impl(::SOCKET sock, aop_recv *arop);
-	bool recvfrom_impl(::SOCKET sock, aop_recvfrom *arfop);
+	bool send_impl(aop_send *asop);
+	bool sendto_impl(aop_sendto *astop);
+	bool recv_impl(aop_recv *arop);
+	bool recvfrom_impl(aop_recvfrom *arfop);
+	bool read_impl(aop_read *arop);
+	bool write_impl(aop_write *awop);
 
 
 protected:

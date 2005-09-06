@@ -125,15 +125,11 @@ public:
     aop_connect(::PyObject *acto
 		, ::PySocketSockObject *socko
 		, ::PyObject *sock_refo
-		, ::PyObject *addro
-		, const ::sockaddr & addr
-		, int addrlen)
+		, ::PyObject *addro)
         : aop_root(acto, "connect")
 		, socko_(socko)
         , sock_refo_(sock_refo)
         , addro_(addro)
-		, addr_(addr)
-		, addrlen_(addrlen)
     {
         Py_XINCREF(sock_refo);
         Py_XINCREF(addro);
@@ -149,8 +145,7 @@ public:
 
     virtual ::PyObject * dump(BOOL success, DWORD bytes_transferred);
 	::PySocketSockObject * socko() const { return socko_; }
-	const ::sockaddr * paddr() const { return &addr_; }
-	int addrlen() const { return addrlen_; }
+	::PyObject * addro() const { return addro_; }
 private:
     ::PyObject *sock_refo_;
     ::PyObject *addro_;
@@ -162,21 +157,26 @@ private:
 class aop_recv : public aop_root
 {
 public:
-    aop_recv(::PyObject *acto, ::PyObject *so_ref
+    aop_recv(::PyObject *acto
+		, ::PySocketSockObject *socko
+		, ::PyObject *sock_refo
         , unsigned long bufsize
         , unsigned long flags)
         : aop_root(acto, "recv")
-        , so_ref_(so_ref)
+		, socko_(socko)
+        , sock_refo_(sock_refo)
     {
         buf_ = reinterpret_cast<char*>(malloc(bufsize));
         bufsize_ = bufsize;
         flags_ = flags;
-        Py_XINCREF(so_ref);
+		Py_XINCREF(socko_);
+        Py_XINCREF(sock_refo_);
     }
 
     virtual ~aop_recv()
     {
-        Py_XDECREF(so_ref_);
+        Py_XDECREF(sock_refo_);
+		Py_XDECREF(socko_);
         free(buf_);
     }
 
@@ -186,9 +186,11 @@ public:
     char * buf() const { return buf_; }
 	unsigned long bufsize() const { return bufsize_; }
 	unsigned long flags() const { return flags_; }
+	::PySocketSockObject * socko() { return socko_; }
 
 protected:
-    ::PyObject *so_ref_;
+	::PySocketSockObject *socko_;
+    ::PyObject *sock_refo_;
 private:
     unsigned long bufsize_, flags_;
     char * buf_;
@@ -197,14 +199,13 @@ private:
 class aop_recvfrom : public aop_recv
 {
 public:
-    aop_recvfrom(::PyObject *acto, ::PyObject *so_ref
-    , ::PySocketSockObject *so
-    , unsigned long size
-    , unsigned long flags)
-        : aop_recv(acto, so_ref, size, flags)
+    aop_recvfrom(::PyObject *acto
+		, ::PySocketSockObject *socko
+		, ::PyObject *sock_refo
+		, unsigned long size
+		, unsigned long flags)
+        : aop_recv(acto, socko, sock_refo, size, flags)
         , fromlen_(sizeof(from_))
-        , fd_(so->sock_fd)
-        , proto_(so->sock_proto)
     {
 		name_ = "recvfrom";
     }
@@ -216,8 +217,6 @@ public:
     sockaddr * from() { return &from_; }
     int * fromlen() { return &fromlen_; }
 private:
-    SOCKET fd_;
-    int proto_;
     sockaddr from_;
     int fromlen_;
 };
@@ -225,27 +224,36 @@ private:
 class aop_send : public aop_root
 {
 public:
-    aop_send(::PyObject *acto, ::PyObject *so_ref
+    aop_send(::PyObject *acto
+		, ::PySocketSockObject *socko
+		, ::PyObject *sock_refo
         , unsigned long flags
         , ::PyObject *datao)
         : aop_root(acto, "send")
-        , so_ref_(so_ref)
+		, socko_(socko)
+        , sock_refo_(sock_refo)
         , datao_(datao)
         , flags_(flags)
     {
-        Py_XINCREF(so_ref);
-        Py_XINCREF(datao);
+		Py_XINCREF(socko_);
+        Py_XINCREF(sock_refo_);
+        Py_XINCREF(datao_);
     }
 
     virtual ~aop_send()
     {
-        Py_XDECREF(so_ref_);
+		Py_XDECREF(socko_);
+        Py_XDECREF(sock_refo_);
         Py_XDECREF(datao_);
     }
 
     virtual ::PyObject * dump(BOOL success, DWORD bytes_transferred);
+	::PySocketSockObject * socko() { return socko_; }
+	::PyObject * datao() { return datao_; }
+	unsigned long flags() const { return flags_; }
 private:
-    ::PyObject *so_ref_;
+	::PySocketSockObject *socko_;
+    ::PyObject *sock_refo_;
     ::PyObject *datao_;
     unsigned long flags_;
 };
@@ -253,11 +261,13 @@ private:
 class aop_sendto : public aop_send
 {
 public:
-    aop_sendto(::PyObject *acto, ::PyObject *so_ref
+    aop_sendto(::PyObject *acto
+		, ::PySocketSockObject *socko
+		, ::PyObject *sock_refo
         , ::PyObject *addro
         , unsigned long flags
         , ::PyObject *datao)
-        : aop_send(acto, so_ref, flags, datao)
+        : aop_send(acto, socko, sock_refo, flags, datao)
         , addro_(addro)
     {
 		name_ = "sendto";
@@ -270,7 +280,7 @@ public:
     }
 
     virtual ::PyObject * dump(BOOL success, DWORD bytes_transferred);
-
+	::PyObject * addro() { return addro_; }
 private:
     ::PyObject * addro_;
 };
@@ -299,6 +309,8 @@ public:
 
     virtual ::PyObject * dump(BOOL success, DWORD bytes_transferred);
     char * buf() const { return buf_; }
+	unsigned long size() const { return size_; }
+	::PyFileObject * fileo() { return fo_; }
 
 private:
     ::PyFileObject * fo_;
@@ -328,8 +340,9 @@ public:
         Py_XDECREF(datao_);
     }
 
-
     virtual ::PyObject * dump(BOOL success, DWORD bytes_transferred);
+	::PyFileObject * fileo() { return fo_; }
+	::PyObject * datao() { return datao_; }
 private:
     ::PyFileObject * fo_;
     ::PyObject * datao_;

@@ -66,8 +66,8 @@ bool apoll::recv(::PySocketSockObject *so
                     , unsigned long flags
                     , ::PyObject *acto)
 {
-    aop_recv * arop = new aop_recv(acto, so_ref, bufsize, flags);
-	bool rr = recv_impl(so->sock_fd, arop);
+    aop_recv * arop = new aop_recv(acto, so, so_ref, bufsize, flags);
+	bool rr = recv_impl(arop);
 	if (!rr) {
 		delete arop;
 	}
@@ -80,8 +80,8 @@ bool apoll::recvfrom(::PySocketSockObject * so
                         , unsigned long flags
                         , ::PyObject * acto)
 {
-    aop_recvfrom *arfop = new aop_recvfrom(acto, so_ref, so, bufsize, flags);
-	bool rfr = recvfrom_impl(so->sock_fd, arfop);
+    aop_recvfrom *arfop = new aop_recvfrom(acto, so, so_ref, bufsize, flags);
+	bool rfr = recvfrom_impl(arfop);
 	if (!rfr) {
 		delete arfop;
 	}
@@ -94,21 +94,9 @@ bool apoll::sendto(::PySocketSockObject *so, ::PyObject *so_ref
                       , unsigned long flags
                       , ::PyObject *acto)
 {
-    sockaddr addr;
-    int addr_len = 0;
-    if (!getsockaddrarg(so, addro, &addr, &addr_len)) {
-        return false;
-    }
-    
-    int len;
-    char *s;
-    if(-1 == PyString_AsStringAndSize(datao, &s, &len)) {
-        return NULL;
-    }
-
-    aop_sendto *asynch_sendto_op = new aop_sendto(acto, so_ref, addro, flags, datao);
-	bool sendto_result = sendto_impl(so->sock_fd, addr, addr_len, s
-		, len, flags, asynch_sendto_op);
+    aop_sendto *asynch_sendto_op = new aop_sendto(acto, so, so_ref, addro
+												, flags, datao);
+	bool sendto_result = sendto_impl(asynch_sendto_op);
 	if (!sendto_result) {
 		delete asynch_sendto_op;
 	}
@@ -120,13 +108,8 @@ bool apoll::send(::PySocketSockObject *so, ::PyObject *so_ref
                     , ::PyObject *acto)
 {
 
-    char *s;
-    int len;
-    if(-1 == PyString_AsStringAndSize(datao, &s, &len)) {
-        return NULL;
-    }
-    aop_send * asynch_send_op = new aop_send(acto, so_ref, flags, datao);
-	bool send_result = send_impl(so->sock_fd, s, len, flags, asynch_send_op);
+    aop_send * asynch_send_op = new aop_send(acto, so, so_ref, flags, datao);
+	bool send_result = send_impl(asynch_send_op);
 	if (!send_result) {
 		delete asynch_send_op;
 	}
@@ -136,12 +119,7 @@ bool apoll::send(::PySocketSockObject *so, ::PyObject *so_ref
 bool apoll::connect(::PySocketSockObject *so, ::PyObject *so_ref
                        , ::PyObject *addro, ::PyObject *acto)
 {
-    sockaddr addr;
-    int addr_len = 0;
-    if (!getsockaddrarg(so, addro, &addr, &addr_len)) {
-        return false;
-    }
-    aop_connect * acop = new aop_connect(acto, so, so_ref, addro, addr, addr_len);
+    aop_connect * acop = new aop_connect(acto, so, so_ref, addro);
     bool cr = connect_impl(acop);
     if (!cr) {
         delete acop;
@@ -176,36 +154,23 @@ bool apoll::cancel(PyObject *o)
 bool apoll::read(PyFileObject *fo, unsigned long long offset, unsigned long size
                     , ::PyObject *acto)
 {
-    HANDLE fh = file_iocp_preamble(fo);
-    if (fh == INVALID_HANDLE_VALUE) {
-        return false;
-    }
-
-    aop_read * ar = new aop_read(acto, fo, offset, size);
-    DWORD bytes_read = 0;
-    BOOL r = ::ReadFile(fh, ar->buf(), size, &bytes_read, ar);
-    return check_windows_op(r, FALSE, "::ReadFile failed");
+    aop_read * arop = new aop_read(acto, fo, offset, size);
+	bool rr = read_impl(arop);
+	if(!rr) {
+		delete arop;
+	}
+	return rr;
 }
 
 bool apoll::write(PyFileObject *fo, unsigned long long offset
                      , ::PyObject *datao, ::PyObject *acto)
 {
-    HANDLE fh = file_iocp_preamble(fo);
-    if (fh == INVALID_HANDLE_VALUE) {
-        return false;
-    }
-
-    int len;
-    char *s;
-    if(-1 == PyString_AsStringAndSize(datao, &s, &len)) {
-        return NULL;
-    }
-
-    aop_write * wr = new aop_write(acto, fo, offset, datao);
-    DWORD bytes_written = 0;
-    BOOL r = ::WriteFile(fh, s, len, &bytes_written, wr);
-    return check_windows_op(r, FALSE, "::WriteFile failed");
-
+    aop_write * awop = new aop_write(acto, fo, offset, datao);
+	bool wr = write_impl(awop);
+	if(!wr) {
+		delete awop;
+	}
+	return wr;
 }
 
 ::PyObject * apoll::poll(long ms)

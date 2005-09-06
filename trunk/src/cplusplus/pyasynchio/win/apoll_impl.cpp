@@ -1,4 +1,5 @@
 #include <pyasynchio/win/apoll_impl.hpp>
+#include <pyasynchio/socketmodule_stuff.hpp>
 #include <mswsock.h>
 
 namespace pyasynchio {
@@ -96,10 +97,18 @@ bool apoll_impl::accept_impl(aop_accept *aaop)
 
 bool apoll_impl::connect_impl(aop_connect *acop)
 {
-	::SOCKET sock = acop->socko()->sock_fd;
+	::PySocketSockObject *socko = acop->socko();
+	::SOCKET sock = socko->sock_fd;
     if (!sock_iocp_preamble(sock)) {
         return false;
     }
+
+    sockaddr addr;
+    int addrlen = 0;
+	if (!getsockaddrarg(socko, acop->addro(), &addr, &addrlen)) {
+        return false;
+    }
+
     GUID GuidConnectEx = WSAID_CONNECTEX;
     ::LPFN_CONNECTEX ConnectEx;
     DWORD dwBytes;
@@ -115,8 +124,8 @@ bool apoll_impl::connect_impl(aop_connect *acop)
     {
 	    DWORD bytes_sent = 0;
 		BOOL r = ConnectEx(sock						// s
-			, acop->paddr()                                 // name
-	        , acop->addrlen()                              // namelen
+			, &addr                                 // name
+	        , addrlen                              // namelen
 		    , 0                                     // lpSendBuffer
 			, 0                                     // dwSendDataLength
 	        , &bytes_sent                           // lpdwBytesSent
@@ -126,7 +135,7 @@ bool apoll_impl::connect_impl(aop_connect *acop)
     }
 	else {
 		// ::ConnectEx not supported (Win2k?)
-		if(0 == ::connect(sock, acop->paddr(), acop->addrlen())) {
+		if(0 == ::connect(sock, &addr, addrlen)) {
 			BOOL r = ::PostQueuedCompletionStatus(iocp_handle_, 0, 0, acop);
 			return check_windows_op(r, FALSE, "::PostQueuedCompletionStatus failed");
 		}
@@ -138,58 +147,73 @@ bool apoll_impl::connect_impl(aop_connect *acop)
 	}
 }
 
-bool apoll_impl::send_impl(::SOCKET sock, const char *buf, size_t len
-						   , unsigned long flags, aop_send *asop)
+bool apoll_impl::send_impl(aop_send *asop)
 {
+	::SOCKET sock = asop->socko()->sock_fd;
     if (!sock_iocp_preamble(sock)) {
         return false;
     }
+	char * buf = 0;
+	int buflen = 0;
+	::PyString_AsStringAndSize(asop->datao(), &buf, &buflen);
+	if (!buf) {
+		return false;
+	}
     WSABUF wb;
     wb.buf = const_cast<char*>(buf);
-    wb.len = static_cast<u_long>(len);
+    wb.len = static_cast<u_long>(buflen);
     DWORD bytes_sent = 0;
 
     int r = ::WSASend(sock                  // SOCKET s
         , &wb                               // LPWSABUF lpBuffers
         , 1                                 // DWORD dwBufferCount
         , &bytes_sent                       // LPDWORD lpNumberOfBytesSent
-        , flags                             // DWORD dwFlags
+        , asop->flags()                     // DWORD dwFlags
         , asop								// LPWSAOVERLAPPED lpOverlapped
         , NULL                              // LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine
         );
     return check_wsa_op(r, 0, "::WSASend failed");
 }
 
-bool apoll_impl::sendto_impl(::SOCKET sock
-							 , sockaddr &addr
-							 , int addr_len
-							 , const char *buf
-							 , size_t len
-							 , unsigned long flags
-							 , aop_sendto *astop)
+bool apoll_impl::sendto_impl(aop_sendto *astop)
 {
+	::PySocketSockObject * socko = astop->socko();
+	::SOCKET sock = socko->sock_fd;
     if (!sock_iocp_preamble(sock)) {
         return false;
     }
+	char * buf = 0;
+	int buflen = 0;
+	::PyString_AsStringAndSize(astop->datao(), &buf, &buflen);
+	if (!buf) {
+		return false;
+	}
     WSABUF wb;
     wb.buf =const_cast<char*>(buf);
-    wb.len = static_cast<u_long>(len);
+    wb.len = static_cast<u_long>(buflen);
+    sockaddr addr;
+    int addrlen = 0;
+	if (!getsockaddrarg(socko, astop->addro(), &addr, &addrlen)) {
+        return false;
+    }
     DWORD bytes_sent = 0;
     int r = ::WSASendTo(sock					// SOCKET s
         , &wb                                   // LPWSABUF lpBuffers
         , 1                                     // DWORD dwBufferCount
         , &bytes_sent                           // LPDWORD lpNumberOfBytesSent
-        , flags                                 // DWORD dwFlags
+        , astop->flags()                        // DWORD dwFlags
         , &addr                                 // const sockaddr * lpTo
-        , addr_len                              // int iToken
+        , addrlen                               // int iToken
         , astop									// LPWSAOVERLAPPED lpOverlapped
         , 0                                     // LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine
         );
     return check_wsa_op(r, 0, "::WSASendTo failed");
 }
 
-bool apoll_impl::recv_impl(::SOCKET sock, aop_recv *arop)
+bool apoll_impl::recv_impl(aop_recv *arop)
 {
+	::PySocketSockObject *socko = arop->socko();
+	::SOCKET sock = socko->sock_fd;
     if (!sock_iocp_preamble(sock)) {
         return false;
     }
@@ -209,8 +233,10 @@ bool apoll_impl::recv_impl(::SOCKET sock, aop_recv *arop)
     return check_wsa_op(r, 0, "::WSARecv failed");
 }
 
-bool apoll_impl::recvfrom_impl(::SOCKET sock, aop_recvfrom *arfop)
+bool apoll_impl::recvfrom_impl(aop_recvfrom *arfop)
 {
+	::PySocketSockObject * socko = arfop->socko();
+	::SOCKET sock = socko->sock_fd;
     if (!sock_iocp_preamble(sock)) {
         return false;
     }
@@ -233,6 +259,35 @@ bool apoll_impl::recvfrom_impl(::SOCKET sock, aop_recvfrom *arfop)
 
 }
 
+bool apoll_impl::read_impl(aop_read * arop)
+{
+
+    HANDLE fh = file_iocp_preamble(arop->fileo());
+    if (fh == INVALID_HANDLE_VALUE) {
+        return false;
+    }
+    DWORD bytes_read = 0;
+    BOOL r = ::ReadFile(fh, arop->buf(), arop->size(), &bytes_read, arop);
+    return check_windows_op(r, FALSE, "::ReadFile failed");
+}
+
+bool apoll_impl::write_impl(aop_write * awop)
+{
+    HANDLE fh = file_iocp_preamble(awop->fileo());
+    if (fh == INVALID_HANDLE_VALUE) {
+        return false;
+    }
+    int len;
+    char *s;
+    if(-1 == PyString_AsStringAndSize(awop->datao(), &s, &len)) {
+        return NULL;
+    }
+    DWORD bytes_written = 0;
+    BOOL r = ::WriteFile(fh, s, len, &bytes_written, awop);
+    return check_windows_op(r, FALSE, "::WriteFile failed");
+}
+
+
 bool apoll_impl::common_iocp_preamble(HANDLE h)
 {
     HANDLE iocp_ret = ::CreateIoCompletionPort(h
@@ -250,6 +305,7 @@ bool apoll_impl::common_iocp_preamble(HANDLE h)
     }
     return true;
 }
+
 
 bool apoll_impl::sock_iocp_preamble(SOCKET sock)
 {
