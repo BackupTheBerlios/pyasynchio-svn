@@ -25,11 +25,9 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #pragma once
 
 #include <pyasynchio/config.hpp>
-#include <pyconfig.h>
 #include <python.h>
 #include "socketmodule.h"
 #include "fileobject.h"
-#include <windows.h>
 #include <map>
 
 
@@ -40,7 +38,7 @@ extern ::PyTypeObject apoll_Type;
 class apoll : public ::PyObject, public platform::apoll_impl
 {
 public:
-	apoll(::PyObject *args, ::PyObject *kwargs);
+    apoll(::PyObject *args, ::PyObject *kwargs);
     ~apoll();
 
     bool accept(::PySocketSockObject *listen_socket

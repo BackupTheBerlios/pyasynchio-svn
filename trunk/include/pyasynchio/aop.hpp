@@ -27,7 +27,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <pyasynchio/config.hpp>
 #include <pyasynchio/aioresult.hpp>
 #include "socketmodule.h"
-#include <windows.h>
 
 namespace pyasynchio {
 
