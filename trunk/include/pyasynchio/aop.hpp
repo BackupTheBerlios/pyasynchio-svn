@@ -24,13 +24,14 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
+#include <pyasynchio/config.hpp>
 #include <pyasynchio/aioresult.hpp>
 #include "socketmodule.h"
 #include <windows.h>
 
 namespace pyasynchio {
 
-class aop_root : public OVERLAPPED
+class aop_root : public platform::aop_impl<aop_root>
 {
 protected:
     ::PyObject *acto_;
@@ -40,10 +41,8 @@ public:
     aop_root(::PyObject *acto, const char * name) 
         : acto_(acto)
 		, name_(name)
+		, platform::aop_impl<aop_root>()
     {
-        Internal = InternalHigh = 0;
-        Offset = OffsetHigh = 0;
-        hEvent = 0;
         Py_XINCREF(acto);
     }
     virtual ~aop_root() 
@@ -51,9 +50,14 @@ public:
         Py_XDECREF(acto_);
     }
 
-    virtual ::PyObject* dump(BOOL success, DWORD bytes_transferred) = 0;
+	virtual void init()
+	{
+		platform::aop_impl<aop_root>::init();
+	}
 
-	::PyObject * to_python(BOOL success, DWORD bytes_transferred)
+    virtual ::PyObject* dump(bool success, size_t bytes_count) = 0;
+
+	::PyObject * to_python(bool success, size_t bytes_count)
 	{
 		::PyObject * geno = aioresult::create();;
 		{
@@ -68,7 +72,7 @@ public:
 		}
 		::PyObject_SetAttrString(geno, "act", acto_);
 
-		::PyObject * speco = this->dump(success, bytes_transferred);
+		::PyObject * speco = this->dump(success, bytes_count);
 		::PyObject * tp = Py_BuildValue("(OO)", geno, speco);
 		Py_DECREF(geno);
 		Py_DECREF(speco);
@@ -76,7 +80,7 @@ public:
 	}
 };
 
-class aop_accept : public aop_root
+class aop_accept : public aop_root, platform::aop_impl<aop_accept>
 {
 public:
     aop_accept(::PyObject *acto
@@ -89,12 +93,19 @@ public:
 		, asocko_(asocko)
         , lsock_refo_(lsock_refo)
         , asock_refo_(asock_refo)
+		, platform::aop_impl<aop_accept>()
     {
 		Py_XINCREF(lsocko_);
 		Py_XINCREF(asocko_);
         Py_XINCREF(lsock_refo_);
         Py_XINCREF(asock_refo_);
     }
+
+	virtual void init()
+	{
+		aop_root::init();
+		platform::aop_impl<aop_accept>::init();
+	}
 
     virtual ~aop_accept() 
     {
@@ -104,7 +115,7 @@ public:
 		Py_XDECREF(asocko_);
     }
 
-    virtual ::PyObject* dump(BOOL success, DWORD bytes_transferred);
+    virtual ::PyObject* dump(bool success, size_t bytes_count);
 
     static const unsigned int addr_size = sizeof(sockaddr_in) + sizeof(sockaddr);
     static const unsigned int addr_buf_size = 2 * addr_size;
@@ -118,8 +129,7 @@ private:
 	::PySocketSockObject *lsocko_, *asocko_;
 };
 
-
-class aop_connect : public aop_root
+class aop_connect : public aop_root, public platform::aop_impl<aop_connect>
 {
 public:
     aop_connect(::PyObject *acto
@@ -130,11 +140,19 @@ public:
 		, socko_(socko)
         , sock_refo_(sock_refo)
         , addro_(addro)
+		, platform::aop_impl<aop_connect>()
     {
         Py_XINCREF(sock_refo);
         Py_XINCREF(addro);
 		Py_XINCREF(socko);
     }
+
+	virtual void init()
+	{
+		aop_root::init();
+		platform::aop_impl<aop_connect>::init();
+	}
+
 
     virtual ~aop_connect()
     {
@@ -143,7 +161,7 @@ public:
 		Py_XDECREF(socko_);
     }
 
-    virtual ::PyObject * dump(BOOL success, DWORD bytes_transferred);
+    virtual ::PyObject * dump(bool success, size_t bytes_count);
 	::PySocketSockObject * socko() const { return socko_; }
 	::PyObject * addro() const { return addro_; }
 private:
@@ -154,7 +172,7 @@ private:
 	int addrlen_;
 };
 
-class aop_recv : public aop_root
+class aop_recv : public aop_root, public platform::aop_impl<aop_recv>
 {
 public:
     aop_recv(::PyObject *acto
@@ -165,6 +183,7 @@ public:
         : aop_root(acto, "recv")
 		, socko_(socko)
         , sock_refo_(sock_refo)
+		, platform::aop_impl<aop_recv>()
     {
         buf_ = reinterpret_cast<char*>(malloc(bufsize));
         bufsize_ = bufsize;
@@ -173,6 +192,12 @@ public:
         Py_XINCREF(sock_refo_);
     }
 
+	virtual void init()
+	{
+		aop_root::init();
+		platform::aop_impl<aop_recv>::init();
+	}
+
     virtual ~aop_recv()
     {
         Py_XDECREF(sock_refo_);
@@ -180,7 +205,7 @@ public:
         free(buf_);
     }
 
-    virtual ::PyObject *dump(BOOL success, DWORD bytes_transferred);
+    virtual ::PyObject *dump(bool success, size_t bytes_count);
 
 
     char * buf() const { return buf_; }
@@ -196,7 +221,7 @@ private:
     char * buf_;
 };
 
-class aop_recvfrom : public aop_recv
+class aop_recvfrom : public aop_recv, public platform::aop_impl<aop_recvfrom>
 {
 public:
     aop_recvfrom(::PyObject *acto
@@ -206,13 +231,20 @@ public:
 		, unsigned long flags)
         : aop_recv(acto, socko, sock_refo, size, flags)
         , fromlen_(sizeof(from_))
+		, platform::aop_impl<aop_recvfrom>()
     {
 		name_ = "recvfrom";
     }
 
+	virtual void init()
+	{
+		aop_recv::init();
+		platform::aop_impl<aop_recvfrom>::init();
+	}
+
     virtual ~aop_recvfrom() {}
 
-    virtual ::PyObject * dump(BOOL success, DWORD bytes_transferred);
+    virtual ::PyObject * dump(bool success, size_t bytes_count);
 
     sockaddr * from() { return &from_; }
     int * fromlen() { return &fromlen_; }
@@ -221,7 +253,7 @@ private:
     int fromlen_;
 };
 
-class aop_send : public aop_root
+class aop_send : public aop_root, public platform::aop_impl<aop_send>
 {
 public:
     aop_send(::PyObject *acto
@@ -234,6 +266,7 @@ public:
         , sock_refo_(sock_refo)
         , datao_(datao)
         , flags_(flags)
+		, platform::aop_impl<aop_send>()
     {
 		Py_XINCREF(socko_);
         Py_XINCREF(sock_refo_);
@@ -247,7 +280,14 @@ public:
         Py_XDECREF(datao_);
     }
 
-    virtual ::PyObject * dump(BOOL success, DWORD bytes_transferred);
+	virtual void init()
+	{
+		aop_root::init();
+		platform::aop_impl<aop_send>::init();
+	}
+
+
+    virtual ::PyObject * dump(bool success, size_t bytes_count);
 	::PySocketSockObject * socko() { return socko_; }
 	::PyObject * datao() { return datao_; }
 	unsigned long flags() const { return flags_; }
@@ -258,7 +298,7 @@ private:
     unsigned long flags_;
 };
 
-class aop_sendto : public aop_send
+class aop_sendto : public aop_send, public platform::aop_impl<aop_sendto>
 {
 public:
     aop_sendto(::PyObject *acto
@@ -269,6 +309,7 @@ public:
         , ::PyObject *datao)
         : aop_send(acto, socko, sock_refo, flags, datao)
         , addro_(addro)
+		, platform::aop_impl<aop_sendto>()
     {
 		name_ = "sendto";
         Py_XINCREF(addro);
@@ -279,26 +320,33 @@ public:
         Py_XDECREF(addro_);
     }
 
-    virtual ::PyObject * dump(BOOL success, DWORD bytes_transferred);
+	virtual void init()
+	{
+		aop_send::init();
+		platform::aop_impl<aop_sendto>::init();
+	}
+
+
+    virtual ::PyObject * dump(bool success, size_t bytes_count);
 	::PyObject * addro() { return addro_; }
 private:
     ::PyObject * addro_;
 };
 
-class aop_read : public aop_root
+class aop_read : public aop_root, public platform::aop_impl<aop_read>
 {
 public:
     aop_read(::PyObject * acto, ::PyFileObject *fo
-        , unsigned long long off
+        , unsigned long long offs
         , unsigned long size)
         : aop_root(acto, "read")
+		, size_(size)
+		, off_(offs)
+		, buf_(reinterpret_cast<char*>(malloc(size)))
+		, fo_(fo)
+		, platform::aop_impl<aop_read>()
     {
-        Offset = static_cast<DWORD>(off);
-        OffsetHigh = static_cast<DWORD>((off >> (sizeof(DWORD) * 8)));
-        size_ = size;
-        buf_ = reinterpret_cast<char*>(malloc(size));
         Py_XINCREF(fo);
-        fo_ = fo;
     }
 
     virtual ~aop_read()
@@ -307,31 +355,40 @@ public:
         Py_XDECREF(fo_);
     }
 
-    virtual ::PyObject * dump(BOOL success, DWORD bytes_transferred);
+	virtual void init()
+	{
+		aop_root::init();
+		platform::aop_impl<aop_read>::init();
+	}
+
+
+    virtual ::PyObject * dump(bool success, size_t bytes_transferred);
     char * buf() const { return buf_; }
 	unsigned long size() const { return size_; }
+	unsigned long long off() const { return off_; }
 	::PyFileObject * fileo() { return fo_; }
 
 private:
     ::PyFileObject * fo_;
     char * buf_;
     unsigned long size_;
+	unsigned long long off_;
 };
 
-class aop_write : public aop_root
+class aop_write : public aop_root, public platform::aop_impl<aop_write>
 {
 public:
     aop_write(::PyObject *acto, ::PyFileObject *fo
-        , unsigned long long off
+        , unsigned long long offs
         , ::PyObject *datao)
         : aop_root(acto, "write")
+		, fo_(fo)
+		, datao_(datao)
+		, off_(offs)
+		, platform::aop_impl<aop_write>()
     {
-        Offset = static_cast<DWORD>(off);
-        OffsetHigh = static_cast<DWORD>((off >> (sizeof(DWORD) * 8)));
         Py_XINCREF(fo);
-        fo_ = fo;
         Py_XINCREF(datao);
-        datao_ = datao;
     }
 
     virtual ~aop_write()
@@ -340,12 +397,21 @@ public:
         Py_XDECREF(datao_);
     }
 
-    virtual ::PyObject * dump(BOOL success, DWORD bytes_transferred);
+	virtual void init()
+	{
+		aop_root::init();
+		platform::aop_impl<aop_write>::init();
+	}
+
+
+    virtual ::PyObject * dump(bool success, size_t bytes_count);
+	unsigned long long off() const { return off_; }
 	::PyFileObject * fileo() { return fo_; }
 	::PyObject * datao() { return datao_; }
 private:
     ::PyFileObject * fo_;
     ::PyObject * datao_;
+	unsigned long long off_;
 };
 
 

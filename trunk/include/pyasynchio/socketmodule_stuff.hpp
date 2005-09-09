@@ -25,10 +25,6 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#pragma push_macro("_DEBUG")
-#undef _DEBUG
-#include <pyconfig.h>
-#pragma pop_macro("_DEBUG")
 #include <python.h>
 #include "socketmodule.h"
 

@@ -155,6 +155,9 @@
 					RelativePath="..\..\..\include\pyasynchio\aop.hpp">
 				</File>
 				<File
+					RelativePath="..\..\..\include\pyasynchio\win\aop_impl.hpp">
+				</File>
+				<File
 					RelativePath="..\..\..\include\pyasynchio\apoll.hpp">
 				</File>
 				<File

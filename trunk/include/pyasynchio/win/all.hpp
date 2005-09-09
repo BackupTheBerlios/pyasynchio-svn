@@ -4,5 +4,6 @@
 #pragma once
 
 #include <pyasynchio/win/apoll_impl.hpp>
+#include <pyasynchio/win/aop_impl.hpp>
 
 #endif // PYASYNCHIO_WIN_ALL_HPP_INCLUDED_

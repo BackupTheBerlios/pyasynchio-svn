@@ -1,4 +1,6 @@
 #include <pyasynchio/win/apoll_impl.hpp>
+#include <pyasynchio/aop.hpp>
+#include <pyasynchio/utils.hpp>
 #include <pyasynchio/socketmodule_stuff.hpp>
 #include <mswsock.h>
 
@@ -285,6 +287,74 @@ bool apoll_impl::write_impl(aop_write * awop)
     DWORD bytes_written = 0;
     BOOL r = ::WriteFile(fh, s, len, &bytes_written, awop);
     return check_windows_op(r, FALSE, "::WriteFile failed");
+}
+
+bool apoll_impl::cancel_impl(::PyObject *o)
+{
+    HANDLE h;
+    if(PyObject_IsInstance(o, reinterpret_cast<PyObject*>(socketmodule_api.Sock_Type))) {
+        PySocketSockObject * so = reinterpret_cast<PySocketSockObject*>(o);
+        h = reinterpret_cast<HANDLE>(so->sock_fd);
+    }
+    else {
+        if (PyObject_IsInstance(o, reinterpret_cast<PyObject*>(&PyFile_Type))) {
+            PyFileObject *fo = reinterpret_cast<PyFileObject*>(o);
+            h = get_file_handle(fo);
+        }
+        else {
+            PyErr_SetString(PyExc_TypeError, "unrecognized I/O object type");
+            return false;
+        }
+    }
+    if(! ::CancelIo(h)) {
+        PyErr_SetString(PyExc_RuntimeError, "::CancelIo failed");
+        return false;
+    }
+    return true;
+}
+
+bool apoll_impl::poll_impl(::PyObject * reso, long ms)
+{
+    DWORD bytes_transferred = 0;
+    ULONG_PTR completion_key = 0;
+    aop_root *aop = 0;
+
+    for(;;) {
+        BOOL success = FALSE;
+        OVERLAPPED *ovl = NULL;
+        Py_BEGIN_ALLOW_THREADS;
+        success = ::GetQueuedCompletionStatus(iocp_handle_  // CompletionPort
+            , &bytes_transferred                                // lpNumberOfBytesTransferred
+            , &completion_key                                   // lpCompletionKey
+            , &ovl                                              // lpOverlapped
+            , ms                                                // dwMilliseconds
+            );
+        ms = 0; // only first request should wait, so timeout is zero for subsequent ops
+        Py_END_ALLOW_THREADS;
+        aop = static_cast<aop_root*>(ovl);
+
+        if ( (0 == ovl) && (FALSE == success) ) {
+            if (WAIT_TIMEOUT != ::GetLastError()) {
+                PyErr_SetString(PyExc_RuntimeError, "::GetQueuedCompletionStatus failed");
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+
+        if ( 0 == ovl) {
+            PyErr_SetString(PyExc_RuntimeError
+                , "something impossible happened in ::GetQueuedCompletionStatus");
+            return NULL;
+        }
+
+        PyObject *op_reso = aop->to_python(success > 0, bytes_transferred);
+        PyList_Append(reso, op_reso);
+        Py_XDECREF(op_reso);
+        delete aop;
+    }
+	return true;
 }
 
 

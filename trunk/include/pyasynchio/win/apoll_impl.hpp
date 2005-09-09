@@ -5,8 +5,7 @@
 
 #include <python.h>
 #include "socketmodule.h"
-#include <pyasynchio/aop.hpp>
-#include <pyasynchio/utils.hpp>
+#include <pyasynchio/forwards.hpp>
 #include <map>
 
 namespace pyasynchio {
@@ -19,15 +18,17 @@ public:
     apoll_impl(PyObject * args, PyObject *kwargs);
     ~apoll_impl();
 
-	bool accept_impl(aop_accept * aaop);
+    bool accept_impl(aop_accept * aaop);
     bool connect_impl(aop_connect *acop);
-	bool send_impl(aop_send *asop);
-	bool sendto_impl(aop_sendto *astop);
-	bool recv_impl(aop_recv *arop);
-	bool recvfrom_impl(aop_recvfrom *arfop);
-	bool read_impl(aop_read *arop);
-	bool write_impl(aop_write *awop);
+    bool send_impl(aop_send *asop);
+    bool sendto_impl(aop_sendto *astop);
+    bool recv_impl(aop_recv *arop);
+    bool recvfrom_impl(aop_recvfrom *arfop);
+    bool read_impl(aop_read *arop);
+    bool write_impl(aop_write *awop);
+    bool cancel_impl(::PyObject *o);
 
+    bool poll_impl(::PyObject * reso, long ms);
 
 protected:
     HANDLE iocp_handle_;
@@ -56,7 +57,7 @@ protected:
 #pragma warning(default:4251)
     static int g_fclose(FILE *fp);
 
-	static std::wstring get_path_by_handle(HANDLE h);
+    static std::wstring get_path_by_handle(HANDLE h);
 };
 
 template<typename T>

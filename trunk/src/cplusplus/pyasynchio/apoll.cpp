@@ -21,14 +21,8 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
 #include <pyasynchio/apoll.hpp>
-#include <pyasynchio/utils.hpp>
 #include <pyasynchio/aop.hpp>
-#include <pyasynchio/socketmodule_stuff.hpp>
-#include <new>
-#include <internal.h>
-#include <winternl.h>
-#include <mswsock.h>
-#include <string>
+#include <pyasynchio/utils.hpp>
 
 namespace pyasynchio {
 
@@ -53,6 +47,7 @@ bool apoll::accept(::PySocketSockObject *lsocko
         , lsock_ref                                     // lso_ref
         , asock_ref                                     // aso_ref
 		);
+	aaop->init();
     bool ar = accept_impl(aaop);
     if (!ar) {
         delete aaop;
@@ -67,6 +62,7 @@ bool apoll::recv(::PySocketSockObject *so
                     , ::PyObject *acto)
 {
     aop_recv * arop = new aop_recv(acto, so, so_ref, bufsize, flags);
+	arop->init();
 	bool rr = recv_impl(arop);
 	if (!rr) {
 		delete arop;
@@ -81,6 +77,7 @@ bool apoll::recvfrom(::PySocketSockObject * so
                         , ::PyObject * acto)
 {
     aop_recvfrom *arfop = new aop_recvfrom(acto, so, so_ref, bufsize, flags);
+	arfop->init();
 	bool rfr = recvfrom_impl(arfop);
 	if (!rfr) {
 		delete arfop;
@@ -96,6 +93,7 @@ bool apoll::sendto(::PySocketSockObject *so, ::PyObject *so_ref
 {
     aop_sendto *asynch_sendto_op = new aop_sendto(acto, so, so_ref, addro
 												, flags, datao);
+	asynch_sendto_op->init();
 	bool sendto_result = sendto_impl(asynch_sendto_op);
 	if (!sendto_result) {
 		delete asynch_sendto_op;
@@ -109,6 +107,7 @@ bool apoll::send(::PySocketSockObject *so, ::PyObject *so_ref
 {
 
     aop_send * asynch_send_op = new aop_send(acto, so, so_ref, flags, datao);
+	asynch_send_op->init();
 	bool send_result = send_impl(asynch_send_op);
 	if (!send_result) {
 		delete asynch_send_op;
@@ -120,6 +119,7 @@ bool apoll::connect(::PySocketSockObject *so, ::PyObject *so_ref
                        , ::PyObject *addro, ::PyObject *acto)
 {
     aop_connect * acop = new aop_connect(acto, so, so_ref, addro);
+	acop->init();
     bool cr = connect_impl(acop);
     if (!cr) {
         delete acop;
@@ -129,32 +129,14 @@ bool apoll::connect(::PySocketSockObject *so, ::PyObject *so_ref
 
 bool apoll::cancel(PyObject *o)
 {
-    HANDLE h;
-    if(PyObject_IsInstance(o, reinterpret_cast<PyObject*>(socketmodule_api.Sock_Type))) {
-        PySocketSockObject * so = reinterpret_cast<PySocketSockObject*>(o);
-        h = reinterpret_cast<HANDLE>(so->sock_fd);
-    }
-    else {
-        if (PyObject_IsInstance(o, reinterpret_cast<PyObject*>(&PyFile_Type))) {
-            PyFileObject *fo = reinterpret_cast<PyFileObject*>(o);
-            h = get_file_handle(fo);
-        }
-        else {
-            PyErr_SetString(PyExc_TypeError, "unrecognized I/O object type");
-            return false;
-        }
-    }
-    if(! ::CancelIo(h)) {
-        PyErr_SetString(PyExc_RuntimeError, "::CancelIo failed");
-        return false;
-    }
-    return true;
+	return cancel_impl(o);
 }
 
 bool apoll::read(PyFileObject *fo, unsigned long long offset, unsigned long size
                     , ::PyObject *acto)
 {
     aop_read * arop = new aop_read(acto, fo, offset, size);
+	arop->init();
 	bool rr = read_impl(arop);
 	if(!rr) {
 		delete arop;
@@ -166,6 +148,7 @@ bool apoll::write(PyFileObject *fo, unsigned long long offset
                      , ::PyObject *datao, ::PyObject *acto)
 {
     aop_write * awop = new aop_write(acto, fo, offset, datao);
+	awop->init();
 	bool wr = write_impl(awop);
 	if(!wr) {
 		delete awop;
@@ -175,47 +158,11 @@ bool apoll::write(PyFileObject *fo, unsigned long long offset
 
 ::PyObject * apoll::poll(long ms)
 {
-    DWORD bytes_transferred = 0;
-    ULONG_PTR completion_key = 0;
-    aop_root *ovr = 0;
     PyObject * result = PyList_New(0);
-
-    for(;;) {
-        BOOL success = FALSE;
-        OVERLAPPED *ovl = NULL;
-        Py_BEGIN_ALLOW_THREADS;
-        success = ::GetQueuedCompletionStatus(iocp_handle_  // CompletionPort
-            , &bytes_transferred                                // lpNumberOfBytesTransferred
-            , &completion_key                                   // lpCompletionKey
-            , &ovl                                              // lpOverlapped
-            , ms                                                // dwMilliseconds
-            );
-        ms = 0; // only first request should wait, so timeout is zero for subsequent ops
-        Py_END_ALLOW_THREADS;
-        ovr = static_cast<aop_root*>(ovl);
-
-        if ( (0 == ovl) && (FALSE == success) ) {
-            if (WAIT_TIMEOUT != ::GetLastError()) {
-                PyErr_SetString(PyExc_RuntimeError, "::GetQueuedCompletionStatus failed");
-                return NULL;
-            }
-            else {
-                return result;
-            }
-        }
-
-        if ( 0 == ovl) {
-            PyErr_SetString(PyExc_RuntimeError
-                , "something impossible happened in ::GetQueuedCompletionStatus");
-            return NULL;
-        }
-
-        PyObject *op_result = ovr->to_python(success, bytes_transferred);
-        PyList_Append(result, op_result);
-        Py_XDECREF(op_result);
-        delete ovr;
-    }
-
+	if(!poll_impl(result, ms)) {
+		Py_DECREF(result);
+		return 0;
+	}
     return result;
 }
 

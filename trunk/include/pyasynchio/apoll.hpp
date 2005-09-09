@@ -67,7 +67,6 @@ public:
         , unsigned long flags
         , ::PyObject *acto);
     bool cancel(::PyObject *o);
-    void close(::PyObject *o);
 
     bool read(::PyFileObject *fo, unsigned long long offset, unsigned long size
         , ::PyObject *acto);
