@@ -37,6 +37,7 @@ namespace pyasynchio {
 {
     PyObject *rp = aioresult::create();;
     PyObject_SetAttrString(rp, "addr", addro_);
+    PyObject_SetAttrString(rp, "sock", sock_refo_);
     return rp;
 }
 
