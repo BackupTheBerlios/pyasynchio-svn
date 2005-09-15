@@ -109,7 +109,7 @@ public:
     virtual ~aop_accept() 
     {
         Py_XDECREF(lsock_refo_);
-        Py_XDECREF(lsock_refo_);
+        Py_XDECREF(asock_refo_);
 		Py_XDECREF(lsocko_);
 		Py_XDECREF(asocko_);
     }

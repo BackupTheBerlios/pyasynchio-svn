@@ -25,6 +25,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
+#include <pyasynchio/config.hpp>
 #include <python.h>
 #include "socketmodule.h"
 

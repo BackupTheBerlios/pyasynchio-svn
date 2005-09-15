@@ -2,6 +2,7 @@
 #define PYASYNCHIO_AIORESULT_HPP_INCLUDED_
 
 #pragma once
+#include <pyasynchio/config.hpp>
 
 #include <python.h>
 #include <new>
